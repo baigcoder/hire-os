@@ -1,0 +1,92 @@
+/* Custom animations for enhanced UI */
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Fade in and slide up animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Subtle floating animation for cards */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse animation for accent elements */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.animate-pulse {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+/* Gradient animation for moving backgrounds */
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 15s ease infinite;
+}
+
+/* Gold gradient text for special highlights */
+.text-gradient-gold {
+  background: linear-gradient(to right, #f7971e, #ffd200, #f7971e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+}
+
+/* Shine effect for buttons and cards */
+@keyframes shine {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shine {
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shine 3s infinite;
+}
+
+/* Bounce animation for attention-grabbing elements */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s ease-in-out infinite;
+}

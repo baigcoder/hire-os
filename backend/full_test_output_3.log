@@ -1,0 +1,939 @@
+  console.log
+    Γä╣∩╕Å Redis disabled (no REDIS_URL provided), using in-memory mode
+
+      at CacheManager.log [as init] (utils/cache.js:23:25)
+
+  console.log
+    Γä╣∩╕Å Redis disabled (no REDIS_URL provided), using in-memory mode
+
+      at CacheManager.log [as init] (utils/cache.js:23:25)
+
+  console.log
+    Γä╣∩╕Å Redis disabled (no REDIS_URL provided), using in-memory mode
+
+      at CacheManager.log [as init] (utils/cache.js:23:25)
+
+  console.log
+    ≡ƒôè [Resume Analyzer] Loaded 193 skills in database
+
+      at log (utils/unifiedAnalyzer.js:183:9)
+
+(node:27600) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27600) [MONGOOSE] Warning: Duplicate schema index on {"timestamp":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:27600) [MONGOOSE] Warning: Duplicate schema index on {"email":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+  console.log
+    ≡ƒôè [Resume Analyzer] Loaded 193 skills in database
+
+      at log (utils/unifiedAnalyzer.js:183:9)
+
+  console.log
+    ≡ƒôè [Resume Analyzer] Loaded 193 skills in database
+
+      at log (utils/unifiedAnalyzer.js:183:9)
+
+(node:27284) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27284) [MONGOOSE] Warning: Duplicate schema index on {"timestamp":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:27284) [MONGOOSE] Warning: Duplicate schema index on {"email":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:16628) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16628) [MONGOOSE] Warning: Duplicate schema index on {"timestamp":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:16628) [MONGOOSE] Warning: Duplicate schema index on {"email":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+  console.log
+    ≡ƒô¥ Connected to in-memory MongoDB for testing
+
+      at Object.<anonymous> (tests/setup.js:17:13)
+
+  console.log
+    ≡ƒô¥ Connected to in-memory MongoDB for testing
+
+      at Object.<anonymous> (tests/setup.js:17:13)
+
+  console.log
+    ≡ƒô¥ Connected to in-memory MongoDB for testing
+
+      at Object.<anonymous> (tests/setup.js:17:13)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: student@app.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to student@app.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for student@app.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:08.492Z","message":"≡ƒÄë Trial started for new student: student@app.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: test@example.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to test@example.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for test@example.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:08.664Z","message":"≡ƒÄë Trial started for new student: test@example.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: student@example.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to student@example.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for student@example.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:09.193Z","message":"≡ƒÄë Trial started for new student: student@example.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: test@example.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to test@example.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for test@example.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:09.264Z","message":"≡ƒÄë Trial started for new student: test@example.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: student@app.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to student@app.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for student@app.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:09.410Z","message":"≡ƒÄë Trial started for new student: student@app.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: test@example.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to test@example.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for test@example.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:09.686Z","message":"≡ƒÄë Trial started for new student: test@example.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:09.693Z","message":"≡ƒöÉ Login attempt:","email":"test@example.com","role":"student","hasPassword":true}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:09.701Z","message":"≡ƒæñ User found:","id":"6940434918914ddae016479f","email":"test@example.com","role":"student","hasPassword":true,"passwordLength":60,"passwordHash":"$2a$12$lSrLc2Pvf.qeW..."}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:09.702Z","message":"≡ƒöæ Comparing passwords:","inputPassword":"***","inputLength":12,"storedHashLength":60,"hashStartsWith":"$2a$12$"}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: student@example.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to student@example.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for student@example.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:10.025Z","message":"≡ƒÄë Trial started for new student: student@example.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:10.050Z","message":"≡ƒöæ Password match result:"}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: student@app.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to student@app.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for student@app.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:10.327Z","message":"≡ƒÄë Trial started for new student: student@app.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: test@example.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to test@example.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for test@example.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:10.427Z","message":"≡ƒÄë Trial started for new student: test@example.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:10.431Z","message":"≡ƒöÉ Login attempt:","email":"test@example.com","role":"student","hasPassword":true}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:10.434Z","message":"≡ƒæñ User found:","id":"6940434a18914ddae01647b4","email":"test@example.com","role":"student","hasPassword":true,"passwordLength":60,"passwordHash":"$2a$12$0bcCaE9iSkUwD..."}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:10.435Z","message":"≡ƒöæ Comparing passwords:","inputPassword":"***","inputLength":13,"storedHashLength":60,"hashStartsWith":"$2a$12$"}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: student@example.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:10.794Z","message":"≡ƒöæ Password match result:"}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to student@example.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for student@example.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:10.796Z","message":"≡ƒÄë Trial started for new student: student@example.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.log
+    ≡ƒÆ╛ Cache MISS: jobs:/api/v1/job/get:{}
+
+      at log (middlewares/cacheMiddleware.js:39:21)
+
+  console.log
+    ≡ƒÆ╛ Cached: jobs:/api/v1/job/get:{} (TTL: 300s)
+
+      at ServerResponse.log [as json] (middlewares/cacheMiddleware.js:52:29)
+
+FAIL tests/integration/application.test.js (13.143 s)
+  Application Integration Tests
+    POST /api/v1/application/apply/:id
+      ├ù should allow student to apply for a job (1486 ms)
+      ├ù should prevent double application (886 ms)
+    GET /api/v1/application/get
+      ├ù should get applied jobs for student (924 ms)
+
+  ΓùÅ Application Integration Tests ΓÇ║ POST /api/v1/application/apply/:id ΓÇ║ should allow student to apply for a job
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 404
+
+      61 |                 .send();
+      62 |
+    > 63 |             expect(res.statusCode).toBe(201);
+         |                                    ^
+      64 |             expect(res.body.success).toBe(true);
+      65 |
+      66 |             const application = await Application.findOne({ job: jobId, applicant: studentId });
+
+      at Object.<anonymous> (tests/integration/application.test.js:63:36)
+
+  ΓùÅ Application Integration Tests ΓÇ║ POST /api/v1/application/apply/:id ΓÇ║ should prevent double application
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 404
+
+      81 |                 .send();
+      82 |
+    > 83 |             expect(res.statusCode).toBe(400);
+         |                                    ^
+      84 |             expect(res.body.message).toMatch(/already applied/i);
+      85 |         });
+      86 |     });
+
+      at Object.<anonymous> (tests/integration/application.test.js:83:36)
+
+  ΓùÅ Application Integration Tests ΓÇ║ GET /api/v1/application/get ΓÇ║ should get applied jobs for student
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+       99 |             expect(res.statusCode).toBe(200);
+      100 |             expect(res.body.success).toBe(true);
+    > 101 |             expect(res.body.application.length).toBe(1);
+          |                                                 ^
+      102 |             expect(res.body.application[0].job._id.toString()).toBe(jobId.toString());
+      103 |         });
+      104 |     });
+
+      at Object.<anonymous> (tests/integration/application.test.js:101:49)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:45:21)
+
+  console.log
+    ≡ƒôº EMAIL (Console Mode - SMTP not configured)
+
+      at log (utils/emailService.js:46:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:47:21)
+
+  console.log
+    To: test@example.com
+
+      at log (utils/emailService.js:48:21)
+
+  console.log
+    Subject: ≡ƒÄë Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!
+
+      at log (utils/emailService.js:49:21)
+
+  console.log
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+      at log (utils/emailService.js:50:21)
+
+  console.log
+    HTML preview: 
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
+                        <...
+
+      at log (utils/emailService.js:51:21)
+
+  console.log
+    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+      at log (utils/emailService.js:52:21)
+
+  console.log
+    ≡ƒôº Welcome email sent to test@example.com
+
+      at log (utils/trialService.js:292:17)
+
+  console.log
+    Γ£à Trial started for test@example.com - Expires: Wed Jan 14 2026
+
+      at log (utils/trialService.js:54:17)
+
+  console.log
+    {"level":"info","timestamp":"2025-12-15T17:20:11.152Z","message":"≡ƒÄë Trial started for new student: test@example.com"}
+
+      at Object.log [as info] (utils/logger.js:7:17)
+
+  console.debug
+    {"level":"debug","timestamp":"2025-12-15T17:20:11.158Z","message":"≡ƒöÉ Login attempt:","email":"nonexistent@example.com","role":"student","hasPassword":true}
+
+      at Object.debug (utils/logger.js:38:21)
+
+  console.debug
+    {"0":"N","1":"O","2":"T","3":" ","4":"F","5":"O","6":"U","7":"N","8":"D","level":"debug","timestamp":"2025-12-15T17:20:11.160Z","message":"≡ƒæñ User found:"}
+
+      at Object.debug (utils/logger.js:38:21)
+
+FAIL tests/integration/job.test.js (13.557 s)
+  Job Integration Tests
+    POST /api/v1/job/post
+      ├ù should allow recruiter to post a job (1460 ms)
+      ├ù should deny student from posting a job (798 ms)
+    GET /api/v1/job/get
+      ΓêÜ should get all jobs (802 ms)
+
+  ΓùÅ Job Integration Tests ΓÇ║ POST /api/v1/job/post ΓÇ║ should allow recruiter to post a job
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 403
+
+      56 |                 .send(jobData);
+      57 |
+    > 58 |             expect(res.statusCode).toBe(201);
+         |                                    ^
+      59 |             expect(res.body.success).toBe(true);
+      60 |             expect(res.body.job.title).toBe(jobData.title);
+      61 |         });
+
+      at Object.<anonymous> (tests/integration/job.test.js:58:36)
+
+  ΓùÅ Job Integration Tests ΓÇ║ POST /api/v1/job/post ΓÇ║ should deny student from posting a job
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 403
+
+      79 |                 .send(jobData);
+      80 |
+    > 81 |             expect(res.statusCode).toBe(400); // Or 401/403 depending on middleware
+         |                                    ^
+      82 |         });
+      83 |     });
+      84 |
+
+      at Object.<anonymous> (tests/integration/job.test.js:81:36)
+
+PASS tests/integration/auth.test.js (13.78 s)
+  Auth Integration Tests
+    POST /api/v1/user/register
+      ΓêÜ should register a new user successfully (971 ms)
+      ΓêÜ should validate required fields (50 ms)
+      ΓêÜ should prevent duplicate email registration (502 ms)
+    POST /api/v1/user/login
+      ΓêÜ should login successfully with correct credentials (777 ms)
+      ΓêÜ should fail with incorrect password (746 ms)
+      ΓêÜ should fail with non-existent email (361 ms)
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+-----------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                 
+-----------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                    |   16.27 |     4.71 |    6.09 |    16.9 |                                                                                                                                                                                                                                   
+ backend                     |   54.71 |    11.76 |      25 |    54.8 |                                                                                                                                                                                                                                   
+  index.js                   |   54.71 |    11.76 |      25 |    54.8 | 62,100-103,122-126,135-136,146,155-162,198-251,263-272,278-295,304,309-310                                                                                                                                                        
+ backend/controllers         |    9.16 |     5.47 |    2.79 |     9.3 |                                                                                                                                                                                                                                   
+  application.controller.js  |    9.58 |     1.38 |    8.33 |    9.63 | 8-56,74,84,89-109,113-162,170-209,218-240,249-282,291-383,392-436,447-480,489-543                                                                                                                                                 
+  company.controller.js      |    4.94 |        0 |       0 |       5 | 13,18-23,28-302,311-331,340-359,368-408,419-491,500-614,623-646,655-707,716-768,777-818,827-869,880-927,936-1032,1041-1099,1108-1182                                                                                              
+  interview.controller.js    |    5.41 |        0 |       0 |    5.47 | 13-127,136-180,189-205,214-241,250-266,275-305,319-392,397-463,472-514,523-622,631-686,697-745,754-798,807-847,856-904,913-952,965-1042,1051-1121,1130-1233,1242-1292,1301-1351,1360-1399,1408-1453,1462-1526,1535-1573,1582-1624 
+  job.controller.js          |    9.62 |     7.02 |    2.12 |   10.13 | 9-88,117,126,131,136-138,143,148,179-180,189-225,234-283,292-355,364-413,422-455,464-494,503-539,548-562,571-653,662-692,701-765,776-818,827-840,849-926                                                                          
+  mcq.controller.js          |    5.95 |        0 |       0 |    5.98 | 16-69,75-131,137-260,269-337,346-392,401-501,510-545,554-599                                                                                                                                                                      
+  notification.controller.js |   10.22 |        0 |       0 |   10.22 | 6-46,55-65,74-118,127-148,157-169,178-216,225-246,255-264,270-279                                                                                                                                                                 
+  otp.controller.js          |    7.14 |        0 |       0 |    7.22 | 8,21-71,80-189,198-254,263-286                                                                                                                                                                                                    
+  paddle.controller.js       |   15.85 |    20.68 |       0 |   16.25 | 24-32,43-86,97-137,148-187,193-206,212,218,223,228,233,241                                                                                                                                                                        
+  payment.controller.js      |    7.17 |     5.17 |       0 |    7.38 | 18-20,25-38,43-91,104-159,168-183,192-284,293-322,331-375,384-430,444-463,478-490,504-552,561-592,601-645                                                                                                                         
+  subscription.controller.js |     6.3 |        0 |       0 |    6.36 | 6-28,37-123,132-187,196-239,248-277,286-312,321-338                                                                                                                                                                               
+  user.controller.js         |   22.33 |    23.65 |   22.22 |   22.61 | 29,47,57-63,91,118-119,133,175,190-192,202,211,221,231-235,280-281,289-298,307-384,393-424,432-524,533-549,558-609,618-666,675-696,705-749,758-885                                                                                
+ backend/middlewares         |   36.43 |    22.62 |   36.17 |   37.53 |                                                                                                                                                                                                                                   
+  cacheMiddleware.js         |   48.21 |       20 |      40 |   49.09 | 19,31-32,59-60,73-81,104-145                                                                                                                                                                                                      
+  isAuthenticated.js         |   25.97 |    18.05 |   45.45 |   25.97 | 10-12,17,27,37-55,65-89,103,117-121,130-153,162-185,195-263,274-327,353-354,358,371-392                                                                                                                                           
+  mutler.js                  |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  rateLimiters.js            |      25 |        0 |   11.11 |      26 | 20-70,95-98,118-119,138,155,172,189,206,240-241,255-265                                                                                                                                                                           
+  validation.js              |    49.1 |       32 |      75 |   52.88 | 52,59,66,81,105,107,111,115,117,121,134-178,183-210                                                                                                                                                                               
+ backend/models              |   44.28 |     3.73 |    4.34 |   48.81 |                                                                                                                                                                                                                                   
+  ResumeAnalysis.js          |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  application.model.js       |   63.15 |        0 |       0 |   63.15 | 232-233,238-244,249,259-262                                                                                                                                                                                                       
+  auditLog.model.js          |   66.66 |        0 |       0 |   66.66 | 134,142,150-151,162                                                                                                                                                                                                               
+  company.model.js           |   45.83 |        0 |       0 |   53.65 | 375-377,382-384,389,394-395,400-402,407,412-414,420-423                                                                                                                                                                           
+  interview.model.js         |   30.88 |        0 |       0 |      35 | 444-446,451-453,458-466,471-474,479-503,508-511                                                                                                                                                                                   
+  job.model.js               |   78.26 |       25 |   33.33 |   81.81 | 126-127,132,138                                                                                                                                                                                                                   
+  mcq.model.js               |   29.72 |        0 |       0 |   33.33 | 153-165,170-172,177,182-187,192-202                                                                                                                                                                                               
+  notification.model.js      |   38.23 |        0 |       0 |   38.23 | 211-279,284,289,302-314,325-327,332-334                                                                                                                                                                                           
+  review.model.js            |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  user.model.js              |   34.48 |    16.66 |   33.33 |   43.47 | 296-303,308-312,318                                                                                                                                                                                                               
+ backend/routes              |   23.72 |     0.59 |       0 |   24.31 |                                                                                                                                                                                                                                   
+  application.route.js       |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  company.route.js           |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  interview.route.js         |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  job.route.js               |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  liveInterview.route.js     |    9.16 |        0 |       0 |    9.16 | 58-193,206-355,368-461,473-479,497,508-528                                                                                                                                                                                        
+  mcq.route.js               |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  mockInterviewRoutes.js     |   11.62 |        0 |       0 |   11.62 | 17-72,85-105,117-170,182-214                                                                                                                                                                                                      
+  notification.route.js      |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  otp.route.js               |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  paddle.route.js            |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  payment.route.js           |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  practice.route.js          |    5.78 |        0 |       0 |    6.14 | 10-55,83-214,220-284,290-337,343-427                                                                                                                                                                                              
+  resumeRoutes.js            |    9.58 |     1.52 |       0 |    9.87 | 34-42,48-51,63-93,99-112,118-128,134-160,175-240,254-274,284-405,411-465,471-502,508-536,542-550,564-567,582-825                                                                                                                  
+  stats.route.js             |    4.62 |        0 |       0 |    4.85 | 17-78,92-130,143-205,217-343                                                                                                                                                                                                      
+  subscription.route.js      |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  trial.route.js             |   19.04 |        0 |       0 |   19.04 | 20-29,41-55,67-78                                                                                                                                                                                                                 
+  user.route.js              |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+ backend/utils               |   12.05 |     1.61 |    4.67 |   12.84 |                                                                                                                                                                                                                                   
+  aiService.js               |   10.93 |        0 |       0 |   11.11 | 62-204,211-225,233-254,261-367,375-434,442-488,503-546,554-605                                                                                                                                                                    
+  aiServiceV2.js             |   18.01 |        0 |       0 |   18.47 | 98-109,116-129,136-137,144-153,161-164,188-345,353-371,383-435,442-491,498-535,542-577,584-644                                                                                                                                    
+  applicantRanker.js         |    1.25 |        0 |       0 |    1.48 | 31-370                                                                                                                                                                                                                            
+  auditLogger.js             |   11.11 |        0 |    5.88 |   12.76 | 28-62,72-74,93-240,263-292                                                                                                                                                                                                        
+  cache.js                   |   21.42 |    17.39 |   26.31 |   20.25 | 28-58,70-75,89-171,181-188,199-204                                                                                                                                                                                                
+  cloudinary.js              |     100 |      100 |     100 |     100 |                                                                                                                                                                                                                                   
+  datauri.js                 |      25 |      100 |       0 |      25 | 6-8                                                                                                                                                                                                                               
+  db.js                      |    5.55 |        0 |       0 |    5.55 | 4-73,79-95                                                                                                                                                                                                                        
+  elevenLabsService.js       |   18.91 |        0 |       0 |   21.21 | 69-123,135-166,173-187,195-220,233                                                                                                                                                                                                
+  email.js                   |    7.84 |        0 |       0 |    7.84 | 5-45,50,58,67-91,96-196,202-289,295-429,435-580,586-683,689-864,870-941,949-1021,1027-1083,1089-1136,1142-1197                                                                                                                    
+  emailService.js            |   56.25 |    15.78 |      40 |   56.25 | 15-20,56-77,88,109-111                                                                                                                                                                                                            
+  embeddingService.js        |   10.37 |        0 |       0 |   13.25 | 21-58,68-105,116-130,141-150,162-172,179-189,196-208                                                                                                                                                                              
+  jobMatcher.js              |     0.8 |        0 |       0 |    0.88 | 24-412                                                                                                                                                                                                                            
+  logger.js                  |   57.14 |    33.33 |      50 |   57.14 | 15-29                                                                                                                                                                                                                             
+  reportGenerator.js         |   12.72 |        0 |       0 |   14.58 | 38-166,188-214,261,279-286                                                                                                                                                                                                        
+  resumeAnalyzer.js          |   14.28 |        0 |       0 |    15.5 | 22-25,34-37,111-115,123-134,141-157,165-185,203-234,242-305,314-389,408,415-418,434-436                                                                                                                                           
+  socketManager.js           |    5.73 |        0 |       0 |    6.04 | 36-373,380-398,406-413,429-430                                                                                                                                                                                                    
+  subscriptionMonitor.js     |    2.85 |        0 |    8.33 |    2.88 | 20-281,291                                                                                                                                                                                                                        
+  supabase.js                |   33.33 |    38.46 |       0 |   33.33 | 10,16-42                                                                                                                                                                                                                          
+  trialService.js            |      33 |    13.88 |   28.57 |   33.33 | 21,25,29,63-64,74-145,154-174,183-225,294,302-341,349-397                                                                                                                                                                         
+  unifiedAnalyzer.js         |    8.12 |        0 |       0 |     8.9 | 30-113,186-244,258-361,379-513,517-520,524-526,537-553,561-562                                                                                                                                                                    
+  vectorStore.js             |   12.59 |        0 |       0 |   14.04 | 42-59,66-83,90-109,120-136,143-160,167-186,197-214,221-240,252-281,289-315,346-348,356-359,366-379                                                                                                                                
+-----------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 2 failed, 1 passed, 3 total
+Tests:       5 failed, 7 passed, 12 total
+Snapshots:   0 total
+Time:        15.623 s
+Ran all test suites matching /tests\\integration/i.

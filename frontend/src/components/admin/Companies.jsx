@@ -14,9 +14,9 @@ const Companies = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    useEffect(()=>{
+    useEffect(() => {
         dispatch(setSearchCompanyByText(input));
-    },[input]);
+    }, [input]);
     return (
         <div>
             <Navbar />
@@ -27,9 +27,8 @@ const Companies = () => {
                         placeholder="Filter by name"
                         onChange={(e) => setInput(e.target.value)}
                     />
-                    <Button onClick={() => navigate("/admin/companies/create")}>New Company</Button>
                 </div>
-                <CompaniesTable/>
+                <CompaniesTable />
             </div>
         </div>
     )

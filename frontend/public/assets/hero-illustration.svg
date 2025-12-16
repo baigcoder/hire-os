@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background elements -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f4ff" />
+      <stop offset="100%" stop-color="#e6e6ff" />
+    </linearGradient>
+    <linearGradient id="accent-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bg-gradient)" rx="20" ry="20" />
+  
+  <!-- Decorative elements -->
+  <circle cx="150" cy="100" r="80" fill="#6366F1" opacity="0.1" />
+  <circle cx="650" cy="500" r="100" fill="#8B5CF6" opacity="0.1" />
+  <circle cx="700" cy="150" r="60" fill="#F59E0B" opacity="0.1" />
+  
+  <!-- Main illustration elements -->
+  <!-- Computer/Device -->
+  <rect x="250" y="200" width="300" height="200" rx="10" ry="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+  <rect x="270" y="220" width="260" height="140" rx="5" ry="5" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+  <rect x="350" y="400" width="100" height="20" rx="5" ry="5" fill="#e2e8f0" />
+  
+  <!-- Job listings on screen -->
+  <rect x="290" y="240" width="220" height="30" rx="5" ry="5" fill="#6366F1" opacity="0.2" />
+  <rect x="290" y="280" width="220" height="30" rx="5" ry="5" fill="#6366F1" opacity="0.1" />
+  <rect x="290" y="320" width="220" height="30" rx="5" ry="5" fill="#6366F1" opacity="0.1" />
+  
+  <!-- Search icon -->
+  <circle cx="310" cy="255" r="8" fill="none" stroke="#6366F1" stroke-width="2" />
+  <line x1="316" y1="261" x2="322" y2="267" stroke="#6366F1" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- Person figure -->
+  <circle cx="150" cy="300" r="40" fill="#6366F1" opacity="0.2" />
+  <circle cx="150" cy="270" r="20" fill="#6366F1" opacity="0.3" />
+  <path d="M110 380 Q150 320 190 380" fill="none" stroke="#6366F1" stroke-width="3" opacity="0.3" />
+  
+  <!-- Briefcase -->
+  <rect x="600" y="300" width="50" height="40" rx="5" ry="5" fill="#6366F1" opacity="0.3" />
+  <rect x="615" y="290" width="20" height="10" rx="3" ry="3" fill="#6366F1" opacity="0.3" />
+  
+  <!-- Connection lines -->
+  <path d="M200 300 Q300 250 250 300" fill="none" stroke="#6366F1" stroke-width="2" stroke-dasharray="5,5" opacity="0.5" />
+  <path d="M550 300 Q600 250 600 300" fill="none" stroke="#6366F1" stroke-width="2" stroke-dasharray="5,5" opacity="0.5" />
+  
+  <!-- Text elements (simplified as rectangles) -->
+  <rect x="100" y="450" width="200" height="15" rx="3" ry="3" fill="#6366F1" opacity="0.2" />
+  <rect x="100" y="480" width="150" height="15" rx="3" ry="3" fill="#6366F1" opacity="0.1" />
+  
+  <!-- Abstract shapes -->
+  <path d="M650 200 L680 230 L650 260 L620 230 Z" fill="url(#accent-gradient)" opacity="0.2" />
+  <path d="M100 150 L130 180 L100 210 L70 180 Z" fill="url(#accent-gradient)" opacity="0.2" />
+  
+  <!-- Small decorative dots -->
+  <circle cx="400" cy="100" r="5" fill="#6366F1" opacity="0.5" />
+  <circle cx="420" cy="100" r="5" fill="#8B5CF6" opacity="0.5" />
+  <circle cx="440" cy="100" r="5" fill="#F59E0B" opacity="0.5" />
+</svg>

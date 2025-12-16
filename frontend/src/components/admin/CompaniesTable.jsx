@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Avatar, AvatarImage } from '../ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
@@ -14,7 +14,7 @@ const CompaniesTable = () => {
         const filteredCompany = companies.length >= 0 && companies.filter((company)=>{
             if(!searchCompanyByText){
                 return true
-            };
+            }
             return company?.name?.toLowerCase().includes(searchCompanyByText.toLowerCase());
 
         });
@@ -35,7 +35,7 @@ const CompaniesTable = () => {
                 <TableBody>
                     {
                         filterCompany?.map((company) => (
-                            <tr>
+                            <tr key={company._id}>
                                 <TableCell>
                                     <Avatar>
                                         <AvatarImage src={company.logo}/>
@@ -55,7 +55,6 @@ const CompaniesTable = () => {
                                     </Popover>
                                 </TableCell>
                             </tr>
-
                         ))
                     }
                 </TableBody>

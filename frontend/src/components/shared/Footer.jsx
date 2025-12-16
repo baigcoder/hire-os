@@ -1,26 +1,140 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { Mail, Phone, MapPin, Linkedin, Twitter, Github, Facebook } from 'lucide-react';
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  const footerLinks = {
+    product: [
+      { label: 'Find Jobs', path: '/jobs' },
+      { label: 'Browse Companies', path: '/browse' },
+      { label: 'Post a Job', path: '/admin/jobs' },
+      { label: 'Pricing', path: '/company/pricing' },
+    ],
+    company: [
+      { label: 'About Us', path: '/about' },
+      { label: 'Careers', path: '/careers' },
+      { label: 'Press', path: '/press' },
+      { label: 'Contact', path: '/contact' },
+    ],
+    resources: [
+      { label: 'Help Center', path: '/help' },
+      { label: 'Resume Builder', path: '/resume' },
+      { label: 'Salary Guide', path: '/salary' },
+      { label: 'Interview Tips', path: '/tips' },
+    ],
+    legal: [
+      { label: 'Privacy', path: '/privacy' },
+      { label: 'Terms', path: '/terms' },
+      { label: 'Cookies', path: '/cookies' },
+    ],
+  };
+
+  const socialLinks = [
+    { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
+    { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+    { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
+    { icon: Github, href: 'https://github.com', label: 'GitHub' },
+  ];
+
   return (
-    <footer className="border-t border-t-gray-200 py-8">
+    <footer className="bg-[#0A0A0A] border-t border-white/5 pt-16 pb-8 font-['Space_Grotesk',sans-serif]">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <h2 className="text-xl font-bold">Job Hunt</h2>
-            <p className="text-sm">© 2024 Your Company. All rights reserved.</p>
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+          {/* Brand Section */}
+          <div className="lg:col-span-2">
+            <Link to="/" className="flex items-center gap-2.5 mb-6 group">
+              <div className="w-9 h-9 rounded-md bg-[#FFD700] flex items-center justify-center text-black font-black text-sm tracking-tighter shadow-[0_0_20px_rgba(255,215,0,0.2)] group-hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all duration-300">
+                H.
+              </div>
+              <span className="text-lg font-bold text-white tracking-tight group-hover:text-[#FFD700] transition-colors">
+                HIRE<span className="text-[#FFD700]">.OS</span>
+              </span>
+            </Link>
+            <p className="text-gray-500 leading-relaxed mb-8 max-w-sm text-sm">
+              Industrial grade talent acquisition. Precision matching. Real-time analytics. The operating system for modern hiring.
+            </p>
+
+            {/* Social Links */}
+            <div className="flex gap-3">
+              {socialLinks.map((social, idx) => (
+                <a
+                  key={idx}
+                  href={social.href}
+                  className="w-9 h-9 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center text-gray-500 hover:bg-[#FFD700] hover:text-black hover:border-[#FFD700] transition-all duration-200"
+                  aria-label={social.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <social.icon size={16} />
+                </a>
+              ))}
+            </div>
           </div>
-          
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a href="https://facebook.com" className="hover:text-gray-400" aria-label="Facebook">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22.676 0H1.324C.593 0 0 .592 0 1.324v21.352C0 23.408.593 24 1.324 24H12.82V14.706H9.692v-3.578h3.128V8.408c0-3.1 1.893-4.787 4.657-4.787 1.325 0 2.463.1 2.794.144v3.238l-1.918.001c-1.503 0-1.794.715-1.794 1.762v2.31h3.587l-.468 3.578h-3.119V24h6.116C23.407 24 24 23.408 24 22.676V1.324C24 .592 23.407 0 22.676 0z" /></svg>
-            </a>
-            <a href="https://twitter.com" className="hover:text-gray-400" aria-label="Twitter">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557a9.835 9.835 0 01-2.828.775 4.934 4.934 0 002.165-2.724 9.867 9.867 0 01-3.127 1.195 4.924 4.924 0 00-8.38 4.49A13.978 13.978 0 011.67 3.149 4.93 4.93 0 003.16 9.724a4.903 4.903 0 01-2.229-.616v.062a4.93 4.93 0 003.946 4.827 4.902 4.902 0 01-2.224.084 4.93 4.93 0 004.6 3.417A9.869 9.869 0 010 21.543a13.978 13.978 0 007.548 2.212c9.057 0 14.01-7.507 14.01-14.01 0-.213-.004-.425-.015-.636A10.012 10.012 0 0024 4.557z" /></svg>
-            </a>
-            <a href="https://linkedin.com" className="hover:text-gray-400" aria-label="LinkedIn">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452H16.85v-5.569c0-1.327-.027-3.037-1.852-3.037-1.854 0-2.137 1.446-2.137 2.94v5.666H9.147V9.756h3.448v1.464h.05c.48-.91 1.653-1.871 3.401-1.871 3.634 0 4.307 2.39 4.307 5.498v5.605zM5.337 8.29c-1.105 0-2-.896-2-2 0-1.106.895-2 2-2 1.104 0 2 .895 2 2 0 1.104-.896 2-2 2zM7.119 20.452H3.553V9.756h3.566v10.696zM22.225 0H1.771C.791 0 0 .774 0 1.729v20.542C0 23.226.792 24 1.771 24h20.451c.979 0 1.771-.774 1.771-1.729V1.729C24 .774 23.205 0 22.225 0z" /></svg>
-            </a>
+
+          {/* Product Links */}
+          <div>
+            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Platform</h3>
+            <ul className="space-y-3">
+              {footerLinks.product.map((link, idx) => (
+                <li key={idx}>
+                  <Link to={link.path} className="text-gray-500 hover:text-[#FFD700] transition-colors text-sm">{link.label}</Link>
+                </li>
+              ))}
+            </ul>
           </div>
+
+          {/* Company Links */}
+          <div>
+            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Company</h3>
+            <ul className="space-y-3">
+              {footerLinks.company.map((link, idx) => (
+                <li key={idx}>
+                  <Link to={link.path} className="text-gray-500 hover:text-[#FFD700] transition-colors text-sm">{link.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Contact</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3 text-gray-500 group">
+                <MapPin size={16} className="flex-shrink-0 mt-0.5 text-[#FFD700]/70" />
+                <span className="text-sm">Lahore, Pakistan</span>
+              </li>
+              <li className="flex items-center gap-3 text-gray-500 group">
+                <Phone size={16} className="flex-shrink-0 text-[#FFD700]/70" />
+                <span className="text-sm font-mono">+92 300 1234567</span>
+              </li>
+              <li className="flex items-center gap-3 text-gray-500 group">
+                <Mail size={16} className="flex-shrink-0 text-[#FFD700]/70" />
+                <span className="text-sm font-mono">support@hire.os</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-gray-600 text-xs font-mono">
+            © {currentYear} HIRE.OS · Industrial Grade Talent Acquisition
+          </p>
+          <ul className="flex flex-wrap gap-6 text-xs">
+            {footerLinks.legal.map((link, idx) => (
+              <li key={idx}>
+                <Link
+                  to={link.path}
+                  className="text-gray-600 hover:text-[#FFD700] transition-colors font-mono uppercase tracking-wider"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>

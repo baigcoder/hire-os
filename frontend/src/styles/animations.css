@@ -1,0 +1,265 @@
+/* Animations for JobPortal UI Enhancement */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Fade In Up Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Slide Up Animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Slide In Right Animation */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Float Animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Subtle Pulse Animation */
+@keyframes pulseSlow {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSlow 6s ease-in-out infinite;
+}
+
+/* Shimmer Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(255,255,255,0.8) 50%, 
+    rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* Button Hover Animation */
+.btn-hover-effect {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-hover-effect:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.btn-hover-effect:hover:before {
+  transform: translateX(0);
+}
+
+/* Card Hover Animation */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Glass Effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+/* Card Glass Effect */
+.card-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+/* Text Gradient Animations */
+.text-gradient {
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: textGradient 5s ease infinite;
+}
+
+.text-gradient-primary {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-secondary {
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes textGradient {
+  0% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+  100% { background-position: 0% center; }
+}
+
+/* Border Gradient */
+.border-gradient {
+  border: 2px solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: 
+    linear-gradient(to right, transparent, transparent), 
+    linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef);
+}
+
+/* Button Gradient */
+.btn-gradient {
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+}
+
+/* 3D Text Effect */
+.text-3d {
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.1),
+               2px 2px 2px rgba(0,0,0,0.05);
+}
+
+/* Background Grid Pattern */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Typography Classes */
+.heading-1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.body-large {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: rgba(55, 65, 81, 0.9);
+}
+
+.body-small {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(107, 114, 128, 0.9);
+}
+
+/* Container Responsive */
+.container-responsive {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Input Group Spacing */
+.input-group {
+  margin-bottom: 1.5rem;
+}

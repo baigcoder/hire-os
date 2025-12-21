@@ -66,7 +66,13 @@ const AuthCallback = () => {
 
             if (response.data.success) {
               const user = response.data.user;
-              const { isNewUser, redirectTo, requiresRegistration, trialInfo } = response.data;
+              const { isNewUser, redirectTo, requiresRegistration, trialInfo, token } = response.data;
+
+              // CRITICAL: Store the JWT token for API authentication
+              if (token) {
+                localStorage.setItem("token", token);
+                console.log("✅ JWT token stored in localStorage");
+              }
 
               dispatch(setUser(user));
 

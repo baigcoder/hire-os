@@ -852,6 +852,14 @@ export const supabaseSync = async (req, res) => {
     const { supabaseId, email, fullname, profilePhoto, provider, pendingRole } =
       req.body;
 
+    // DEBUG: Log incoming data
+    console.log("🔐 supabaseSync called with:", {
+      email,
+      pendingRole,
+      provider,
+      hasSupabaseId: !!supabaseId
+    });
+
     if (!supabaseId || !email) {
       return res.status(400).json({
         message: "Supabase ID and email are required",
@@ -866,6 +874,14 @@ export const supabaseSync = async (req, res) => {
 
     let isNewUser = false;
     let trialEndDate = null;
+
+    // DEBUG: Log existing user state
+    console.log("🔐 Existing user check:", {
+      exists: !!user,
+      currentRole: user?.role,
+      hasCompanyId: !!user?.companyId,
+      pendingRole
+    });
 
     if (user) {
       // SECURITY: Recruiters must login with email/password only

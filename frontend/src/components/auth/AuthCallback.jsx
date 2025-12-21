@@ -52,6 +52,7 @@ const AuthCallback = () => {
 
             if (response.data.success) {
               const user = response.data.user;
+              const isNewUser = response.data.isNewUser;
               dispatch(setUser(user));
 
               // Clear pending role
@@ -67,11 +68,21 @@ const AuthCallback = () => {
                   "Role:",
                   user.role,
                   "isNewUser:",
-                  response.data.isNewUser,
+                  isNewUser,
                 );
-                if (user.role === "company_admin") {
+
+                // Check sessionStorage in case AuthContext already processed
+                const authIsNewUser = sessionStorage.getItem("authNewUser") === "true" || isNewUser;
+                const authRole = sessionStorage.getItem("authUserRole") || user.role;
+
+                // Clear sessionStorage after reading
+                sessionStorage.removeItem("authNewUser");
+                sessionStorage.removeItem("authUserRole");
+
+                if (authRole === "company_admin") {
                   // New company admin - redirect to pricing to select package
-                  if (response.data.isNewUser) {
+                  if (authIsNewUser) {
+                    console.log("📦 New company admin - redirecting to pricing");
                     navigate("/company/pricing", {
                       replace: true,
                       state: { fromSignup: true },
@@ -79,7 +90,7 @@ const AuthCallback = () => {
                   } else {
                     navigate("/company/admin/dashboard", { replace: true });
                   }
-                } else if (user.role === "recruiter") {
+                } else if (authRole === "recruiter") {
                   const nameSlug =
                     user.fullname?.replace(/\s+/g, "-").toLowerCase() ||
                     "dashboard";

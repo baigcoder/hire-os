@@ -56,6 +56,13 @@ export const AuthProvider = ({ children }) => {
         dispatch(setUser(response.data.user));
         setLocalUser(response.data.user);
 
+        // Store auth info for AuthCallback to handle redirect
+        // This is needed because AuthContext runs before AuthCallback
+        if (response.data.isNewUser) {
+          sessionStorage.setItem("authNewUser", "true");
+          sessionStorage.setItem("authUserRole", response.data.user?.role || "student");
+        }
+
         // Clear pending role after successful sync
         localStorage.removeItem("pendingSignupRole");
 

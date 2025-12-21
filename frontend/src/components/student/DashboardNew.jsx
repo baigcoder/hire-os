@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { logout } from "@/redux/authSlice";
 import {
   Card,
   CardContent,
@@ -52,6 +53,8 @@ import {
   Bell,
   ChevronDown,
   Settings,
+  LogOut,
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/utils/api";
@@ -102,8 +105,22 @@ const LiveBadge = ({ isLive }) => (
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useSelector((store) => store.auth);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Logout handler
+  const logoutHandler = async () => {
+    try {
+      await api.get("/user/logout");
+      dispatch(logout());
+      navigate("/");
+      toast.success("Logged out successfully");
+    } catch (error) {
+      toast.error("Logout failed");
+    }
+  };
 
   const [stats, setStats] = useState({
     applied: 0,
@@ -354,38 +371,68 @@ const StudentDashboard = () => {
       <div className="fixed top-0 left-0 right-0 h-14 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-white/5 z-50">
         <div className="max-w-[1600px] mx-auto h-full px-4 flex items-center justify-end gap-4">
           {/* Notification Bell */}
-          <button
-            className="relative p-2 text-gray-400 hover:text-[#FFD700] transition-colors rounded-sm hover:bg-white/5"
-            title="Notifications"
-          >
-            <Bell size={20} />
-            {/* Notification dot - uncomment when there are notifications */}
-            {/* <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#FFD700] rounded-full"></span> */}
+          <button className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-white border border-transparent hover:border-white/10">
+            <Bell size={18} />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#00FF94] rounded-full"></span>
           </button>
 
-          {/* Edit Profile */}
+          {/* Settings */}
           <button
-            onClick={() => navigate("/profile/edit")}
-            className="p-2 text-gray-400 hover:text-[#FFD700] transition-colors rounded-sm hover:bg-white/5"
-            title="Edit Profile"
+            onClick={() => navigate("/settings")}
+            className="p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-[#FFD700] border border-transparent hover:border-[#FFD700]/30"
+            title="Settings"
           >
-            <Settings size={20} />
+            <Settings size={18} />
           </button>
 
-          {/* User Info */}
-          <div className="flex items-center gap-3 pl-3 border-l border-white/10">
-            <span className="text-sm font-medium text-white uppercase tracking-wider hidden sm:block">
-              {user?.fullname?.split(" ")[0] || "User"}
-            </span>
-            <Avatar className="h-8 w-8 border border-[#FFD700]/50">
-              <AvatarImage
-                src={user?.profile?.profilePhoto}
-                alt={user?.fullname}
-              />
-              <AvatarFallback className="bg-[#FFD700] text-black text-sm font-bold">
+          {/* User Menu Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2 p-1.5 pl-3 pr-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 transition-all hover:border-[#FFD700]/30"
+            >
+              <span className="hidden sm:inline text-sm font-medium text-gray-300 font-mono">
+                {user?.fullname?.split(" ")[0]?.toUpperCase()}
+              </span>
+              <div className="w-7 h-7 rounded-sm bg-[#FFD700] flex items-center justify-center text-black font-bold text-xs">
                 {user?.fullname?.charAt(0)?.toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
+              </div>
+            </button>
+
+            {showUserMenu && (
+              <div className="absolute right-0 mt-2 w-64 bg-[#111111] rounded-md shadow-2xl border border-white/10 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="p-4 border-b border-white/5 bg-white/5">
+                  <p className="text-sm font-bold text-white truncate font-mono">
+                    {user?.fullname?.toUpperCase()}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate font-mono">
+                    {user?.email}
+                  </p>
+                </div>
+
+                <div className="p-2">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 rounded-md transition-colors hover:text-[#FFD700] font-medium"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <User size={14} />
+                    Profile Settings
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      logoutHandler();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 rounded-md transition-colors mt-2 font-medium"
+                  >
+                    <LogOut size={14} />
+                    System Logout
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

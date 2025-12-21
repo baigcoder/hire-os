@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import axios from "axios";
+import api from "@/utils/api";  // Uses JWT token interceptor
 import { toast } from "sonner";
 import { CAREER_INSIGHTS_API_END_POINT } from "@/utils/constant";
 import { dashboardCache } from "../../hooks/useDashboardPrefetch";
@@ -49,9 +49,7 @@ const LearningResources = () => {
   const fetchLearningResources = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${CAREER_INSIGHTS_API_END_POINT}/learning`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`${CAREER_INSIGHTS_API_END_POINT}/learning`);
       if (res.data.success) {
         setResources(res.data.resources || null);
         setUserSkills(res.data.userSkills || []);

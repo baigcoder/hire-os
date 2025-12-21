@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import axios from "axios";
+import api from "@/utils/api";  // Uses JWT token interceptor
 import { toast } from "sonner";
 import { CAREER_INSIGHTS_API_END_POINT } from "@/utils/constant";
 import { dashboardCache } from "../../hooks/useDashboardPrefetch";
@@ -48,9 +48,7 @@ const SalaryInsights = () => {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
-      const res = await axios.get(`${CAREER_INSIGHTS_API_END_POINT}/salary`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`${CAREER_INSIGHTS_API_END_POINT}/salary`);
       if (res.data.success) {
         setInsights(res.data.insights || null);
         setUserSkills(res.data.userSkills || []);
@@ -295,10 +293,10 @@ const SalaryInsights = () => {
               ))}
               {(!insights?.topPayingRoles ||
                 insights.topPayingRoles.length === 0) && (
-                <p className="text-gray-500 text-sm text-center py-4">
-                  Add skills to see matching roles
-                </p>
-              )}
+                  <p className="text-gray-500 text-sm text-center py-4">
+                    Add skills to see matching roles
+                  </p>
+                )}
             </div>
           </motion.div>
 
@@ -328,10 +326,10 @@ const SalaryInsights = () => {
               ))}
               {(!insights?.negotiationTips ||
                 insights.negotiationTips.length === 0) && (
-                <p className="text-gray-500 text-sm text-center py-4">
-                  Tips will appear after analysis
-                </p>
-              )}
+                  <p className="text-gray-500 text-sm text-center py-4">
+                    Tips will appear after analysis
+                  </p>
+                )}
             </div>
           </motion.div>
 

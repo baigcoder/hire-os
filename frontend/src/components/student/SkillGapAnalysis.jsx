@@ -20,7 +20,7 @@ import {
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
-import axios from "axios";
+import api from "@/utils/api";  // Uses JWT token interceptor
 import { toast } from "sonner";
 import { CAREER_INSIGHTS_API_END_POINT } from "@/utils/constant";
 import { dashboardCache } from "../../hooks/useDashboardPrefetch";
@@ -50,9 +50,8 @@ const SkillGapAnalysis = () => {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
-      const res = await axios.get(
+      const res = await api.get(
         `${CAREER_INSIGHTS_API_END_POINT}/skill-gap`,
-        { withCredentials: true },
       );
       if (res.data.success) {
         setUserSkills(res.data.userSkills || []);

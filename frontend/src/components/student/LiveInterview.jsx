@@ -422,14 +422,14 @@ const LiveInterview = () => {
       const currentTranscript = (transcriptRef.current || "").trim();
       const currentInterim = (interimTranscriptRef.current || "").trim();
       if (currentTranscript.length >= 5 || currentInterim.length >= 5) {
-        resetSilenceTimer(700);
+        resetSilenceTimer(500);  // Faster response after speech ends
       }
     };
 
     return recognition;
   };
 
-  const resetSilenceTimer = (silenceMs = 1200) => {
+  const resetSilenceTimer = (silenceMs = 800) => {  // Reduced from 1200ms for faster response
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
     }

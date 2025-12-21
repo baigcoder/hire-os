@@ -289,35 +289,20 @@ router.post("/respond", isAuthenticated, async (req, res) => {
       )
       .join("\n");
 
-    // Generate AI response
+    // Generate AI response (optimized for speed)
     const responsePrompt = `${session.persona.personality}
 
-Current interview context:
-- Type: ${session.type}
-- Position: ${session.jobTitle}
-- Candidate: ${session.candidateName}
-- Current question: ${currentQuestion?.question || "Introduction"}
+Context: ${session.type} interview for ${session.jobTitle}
+Candidate said: "${userSpeech}"
 
-Recent conversation:
-${recentHistory}
-
-Candidate just said: "${userSpeech}"
-
-${isInterrupt ? "The candidate interrupted you. Acknowledge briefly and adapt." : ""}
-
-Generate a natural response that:
-1. Briefly acknowledges what they said (1 sentence)
-2. Provides quick feedback or follow-up (1 sentence)
-3. Either asks a follow-up OR moves to next topic
-
-IMPORTANT: Keep response under 200 characters for voice. Be conversational, not formal.`;
+Respond naturally in 1-2 SHORT sentences (max 150 chars). Either acknowledge + follow-up OR move to next topic.`;
 
     const aiResult = await callAI(responsePrompt, {
       temperature: 0.7,
-      maxTokens: 250,
+      maxTokens: 120,  // Reduced for faster response
     });
 
-    const aiText = aiResult.content.replace(/"/g, "").trim().substring(0, 300);
+    const aiText = aiResult.content.replace(/"/g, "").trim().substring(0, 180);
     console.log(`💬 [LiveInterview] AI: "${aiText}"`);
 
     // Generate audio
@@ -474,13 +459,13 @@ Candidate: ${session.candidateName}
 
 Questions and Answers:
 ${session.responses
-  .map(
-    (r, i) => `
+          .map(
+            (r, i) => `
 Q${i + 1}: ${r.question?.question || "Introduction"}
 A${i + 1}: ${r.answer}
 `,
-  )
-  .join("\n")}
+          )
+          .join("\n")}
 
 Provide JSON:
 {

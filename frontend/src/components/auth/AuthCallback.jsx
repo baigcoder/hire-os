@@ -33,8 +33,14 @@ const AuthCallback = () => {
 
           // Check for pending signup role (from Google signup flow)
           const pendingRole = localStorage.getItem("pendingSignupRole");
+          console.log("🔐 AuthCallback - pendingRole from localStorage:", pendingRole);
 
           try {
+            console.log("🔐 Calling supabase-sync with:", {
+              email: supabaseUser.email,
+              pendingRole: pendingRole || "student",
+            });
+
             const response = await axios.post(
               `${USER_API_END_POINT}/supabase-sync`,
               {
@@ -49,6 +55,14 @@ const AuthCallback = () => {
               },
               { withCredentials: true },
             );
+
+            console.log("🔐 supabase-sync response:", {
+              success: response.data.success,
+              role: response.data.user?.role,
+              redirectTo: response.data.redirectTo,
+              isNewUser: response.data.isNewUser,
+              requiresRegistration: response.data.requiresRegistration,
+            });
 
             if (response.data.success) {
               const user = response.data.user;

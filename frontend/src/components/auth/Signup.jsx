@@ -261,7 +261,10 @@ const Signup = () => {
   const handleGoogleSignUp = async () => {
     setLoading(true);
     try {
+      // DEBUG: Log the role being stored
+      console.log("🔐 Google Signup - Storing pendingRole:", formData.role);
       localStorage.setItem("pendingSignupRole", formData.role);
+      console.log("🔐 Stored pendingRole:", localStorage.getItem("pendingSignupRole"));
       await signInWithGoogle();
     } catch (err) {
       setError("Google sign-up failed");
@@ -486,11 +489,10 @@ const Signup = () => {
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "student" })}
-                  className={`p-3 border rounded-sm text-center transition-all ${
-                    formData.role === "student"
+                  className={`p-3 border rounded-sm text-center transition-all ${formData.role === "student"
                       ? "border-[#00FF94] bg-[#00FF94]/10 text-[#00FF94]"
                       : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
-                  }`}
+                    }`}
                 >
                   <User className="w-5 h-5 mx-auto mb-1" />
                   <span className="text-xs font-bold uppercase tracking-wider block">
@@ -502,11 +504,10 @@ const Signup = () => {
                   onClick={() =>
                     setFormData({ ...formData, role: "company_admin" })
                   }
-                  className={`p-3 border rounded-sm text-center transition-all ${
-                    formData.role === "company_admin"
+                  className={`p-3 border rounded-sm text-center transition-all ${formData.role === "company_admin"
                       ? "border-[#FFD700] bg-[#FFD700]/10 text-[#FFD700]"
                       : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
-                  }`}
+                    }`}
                 >
                   <Building className="w-5 h-5 mx-auto mb-1" />
                   <span className="text-xs font-bold uppercase tracking-wider block">

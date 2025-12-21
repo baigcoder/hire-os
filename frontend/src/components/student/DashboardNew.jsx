@@ -53,9 +53,8 @@ import {
   ChevronDown,
   Settings,
 } from "lucide-react";
-import axios from "axios";
-import { APPLICATION_API_END_POINT, JOB_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
+import api from "@/utils/api";
 import { motion, AnimatePresence } from "framer-motion";
 import MockTestPrep from "./MockTestPrep";
 import LiveInterview from "./LiveInterview";
@@ -160,9 +159,7 @@ const StudentDashboard = () => {
     const fetchApplicationData = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${APPLICATION_API_END_POINT}/get`, {
-          withCredentials: true,
-        });
+        const res = await api.get("/application/get");
         if (res.data.success) {
           const applications = res.data.application || [];
           const pendingCount = applications.filter(
@@ -210,8 +207,7 @@ const StudentDashboard = () => {
       if (withLoader) {
         setAiLoading(true);
       }
-      const res = await axios.get(`${JOB_API_END_POINT}/ai-matched`, {
-        withCredentials: true,
+      const res = await api.get("/job/ai-matched", {
         params: { limit: 20 },
       });
 

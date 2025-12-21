@@ -1,5 +1,14 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const getBaseUrl = () => {
+  let base = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+  if (base.endsWith("/")) base = base.slice(0, -1);
+  // If base doesn't end with /api/v1 but starts with http, append it (unless it's already got another version)
+  if (!base.endsWith("/api/v1") && base.startsWith("http") && !base.includes("/api/v")) {
+    base = `${base}/api/v1`;
+  }
+  return base;
+};
+
+const API_BASE_URL = getBaseUrl();
 
 export const USER_API_END_POINT = `${API_BASE_URL}/user`;
 export const JOB_API_END_POINT = `${API_BASE_URL}/job`;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 import {
   Briefcase,
@@ -22,7 +22,6 @@ import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { ComponentLoader } from "../shared/DashboardLoader";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 const JobsForYou = () => {
   const [jobs, setJobs] = useState([]);
@@ -37,9 +36,7 @@ const JobsForYou = () => {
   const fetchMatchedJobs = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/job/ai-matched`, {
-        withCredentials: true,
-      });
+      const res = await api.get("/job/ai-matched");
 
       if (res.data.success) {
         const rawJobs = res.data.data?.jobs || [];
@@ -134,11 +131,10 @@ const JobsForYou = () => {
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm transition-all ${
-                activeFilter === filter
+              className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm transition-all ${activeFilter === filter
                   ? "bg-[#FFD700] text-black"
                   : "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10"
-              }`}
+                }`}
             >
               {filter}
             </button>
@@ -202,9 +198,8 @@ const JobsForYou = () => {
                 transition={{ delay: index * 0.05 }}
                 onMouseEnter={() => setHoveredId(job._id)}
                 onMouseLeave={() => setHoveredId(null)}
-                className={`relative group bg-[#0a0a0a] border rounded-sm overflow-hidden transition-all duration-300 ${
-                  isHovered ? `${badge.border} shadow-lg` : "border-white/10"
-                }`}
+                className={`relative group bg-[#0a0a0a] border rounded-sm overflow-hidden transition-all duration-300 ${isHovered ? `${badge.border} shadow-lg` : "border-white/10"
+                  }`}
               >
                 {/* Glow Effect on Hover */}
                 <motion.div

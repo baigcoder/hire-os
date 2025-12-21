@@ -7,8 +7,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Clock, Sparkles, Crown, AlertTriangle, X, Zap } from "lucide-react";
-import axios from "axios";
-import { TRIAL_API_END_POINT } from "@/utils/constant";
+import api from "@/utils/api";
 
 const TrialBanner = () => {
   const navigate = useNavigate();
@@ -22,9 +21,7 @@ const TrialBanner = () => {
 
   const fetchTrialStatus = async () => {
     try {
-      const res = await axios.get(`${TRIAL_API_END_POINT}/status`, {
-        withCredentials: true,
-      });
+      const res = await api.get("/trial/status");
       if (res.data.success) {
         setTrialStatus(res.data);
       }
@@ -54,13 +51,12 @@ const TrialBanner = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className={`relative overflow-hidden rounded-lg border p-4 mb-6 ${
-          isUrgent
+        className={`relative overflow-hidden rounded-lg border p-4 mb-6 ${isUrgent
             ? "bg-gradient-to-r from-red-500/10 to-orange-500/10 border-red-500/30"
             : isWarning
               ? "bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30"
               : "bg-gradient-to-r from-[#FFD700]/10 to-emerald-500/10 border-[#FFD700]/30"
-        }`}
+          }`}
       >
         {/* Background Animation */}
         <div className="absolute inset-0 overflow-hidden">
@@ -81,13 +77,12 @@ const TrialBanner = () => {
           {/* Left: Trial Info */}
           <div className="flex items-start gap-4">
             <div
-              className={`p-3 rounded-lg ${
-                isUrgent
+              className={`p-3 rounded-lg ${isUrgent
                   ? "bg-red-500/20 text-red-400"
                   : isWarning
                     ? "bg-amber-500/20 text-amber-400"
                     : "bg-[#FFD700]/20 text-[#FFD700]"
-              }`}
+                }`}
             >
               {isUrgent ? (
                 <AlertTriangle className="w-6 h-6 animate-pulse" />
@@ -106,13 +101,12 @@ const TrialBanner = () => {
                       : "🎉 Free Trial Active"}
                 </h3>
                 <span
-                  className={`px-2 py-0.5 rounded text-xs font-bold ${
-                    isUrgent
+                  className={`px-2 py-0.5 rounded text-xs font-bold ${isUrgent
                       ? "bg-red-500/30 text-red-300"
                       : isWarning
                         ? "bg-amber-500/30 text-amber-300"
                         : "bg-[#FFD700]/30 text-[#FFD700]"
-                  }`}
+                    }`}
                 >
                   PRO ACCESS
                 </span>
@@ -122,13 +116,12 @@ const TrialBanner = () => {
                 {daysRemaining > 0 ? (
                   <>
                     <span
-                      className={`font-bold ${
-                        isUrgent
+                      className={`font-bold ${isUrgent
                           ? "text-red-400"
                           : isWarning
                             ? "text-amber-400"
                             : "text-[#FFD700]"
-                      }`}
+                        }`}
                     >
                       {daysRemaining} day{daysRemaining !== 1 ? "s" : ""}
                     </span>{" "}
@@ -172,13 +165,12 @@ const TrialBanner = () => {
                 width: `${Math.max(0, ((30 - daysRemaining) / 30) * 100)}%`,
               }}
               transition={{ duration: 1, delay: 0.5 }}
-              className={`h-full rounded-full ${
-                isUrgent
+              className={`h-full rounded-full ${isUrgent
                   ? "bg-gradient-to-r from-red-500 to-orange-500"
                   : isWarning
                     ? "bg-gradient-to-r from-amber-500 to-yellow-500"
                     : "bg-gradient-to-r from-[#FFD700] to-emerald-500"
-              }`}
+                }`}
             />
           </div>
           <div className="flex justify-between mt-1 text-xs text-gray-500">

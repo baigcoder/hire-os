@@ -894,6 +894,19 @@ export const supabaseSync = async (req, res) => {
       user.isEmailVerified = true;
       user.authProvider = provider || user.authProvider || "email";
 
+      // Allow role upgrade from student to company_admin during signup
+      // Only if user has no company association and is currently a student
+      if (
+        pendingRole === "company_admin" &&
+        user.role === "student" &&
+        !user.companyId
+      ) {
+        console.log(`📦 Upgrading user ${email} from student to company_admin`);
+        user.role = "company_admin";
+        user.subscriptionStatus = "none"; // Reset subscription for owner flow
+        isNewUser = true; // Treat as new user to trigger pricing flow
+      }
+
       await user.save();
 
       // Get existing trial end date for returning user

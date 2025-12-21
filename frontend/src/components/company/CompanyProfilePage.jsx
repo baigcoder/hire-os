@@ -46,9 +46,8 @@ const CompanyProfilePage = () => {
 
   const fetchCompanyDetails = async () => {
     try {
-      const response = await axios.get(`${COMPANY_API_END_POINT}/${id}`, {
-        withCredentials: true,
-      });
+      // Use public endpoint for company profile viewing (no auth required)
+      const response = await axios.get(`${COMPANY_API_END_POINT}/public/${id}`);
       if (response.data.success) {
         setCompany(response.data.company);
       }

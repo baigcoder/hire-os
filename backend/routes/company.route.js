@@ -25,9 +25,10 @@ import { singleUpload } from "../middlewares/mutler.js";
 
 const router = express.Router();
 
-// Public routes
+// Public routes (no authentication required)
 router.route("/accept-invite").post(acceptRecruiterInvitation);
 router.route("/featured").get(getFeaturedCompanies);
+router.route("/public/:id").get(getCompanyById);  // Public company profile view
 
 // Company registration (creates both company and admin user)
 router.route("/register").post(registerCompany);

@@ -350,6 +350,46 @@ const StudentDashboard = () => {
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
       </div>
 
+      {/* Top Header Bar */}
+      <div className="fixed top-0 left-0 right-0 h-14 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-white/5 z-50">
+        <div className="max-w-[1600px] mx-auto h-full px-4 flex items-center justify-end gap-4">
+          {/* Notification Bell */}
+          <button
+            className="relative p-2 text-gray-400 hover:text-[#FFD700] transition-colors rounded-sm hover:bg-white/5"
+            title="Notifications"
+          >
+            <Bell size={20} />
+            {/* Notification dot - uncomment when there are notifications */}
+            {/* <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#FFD700] rounded-full"></span> */}
+          </button>
+
+          {/* Edit Profile */}
+          <button
+            onClick={() => navigate("/profile/edit")}
+            className="p-2 text-gray-400 hover:text-[#FFD700] transition-colors rounded-sm hover:bg-white/5"
+            title="Edit Profile"
+          >
+            <Settings size={20} />
+          </button>
+
+          {/* User Info */}
+          <div className="flex items-center gap-3 pl-3 border-l border-white/10">
+            <span className="text-sm font-medium text-white uppercase tracking-wider hidden sm:block">
+              {user?.fullname?.split(" ")[0] || "User"}
+            </span>
+            <Avatar className="h-8 w-8 border border-[#FFD700]/50">
+              <AvatarImage
+                src={user?.profile?.profilePhoto}
+                alt={user?.fullname}
+              />
+              <AvatarFallback className="bg-[#FFD700] text-black text-sm font-bold">
+                {user?.fullname?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-[1600px] mx-auto px-4 py-8 pt-20 relative z-10">
         {/* Trial Status Banner */}
         <TrialBanner />

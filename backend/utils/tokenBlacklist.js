@@ -4,6 +4,8 @@
  * For production with multiple instances, use Redis instead
  */
 
+import crypto from 'crypto';
+
 // In-memory store for blacklisted tokens
 // Format: { tokenHash: expiryTimestamp }
 const blacklistedTokens = new Map();
@@ -15,7 +17,6 @@ const CLEANUP_INTERVAL = 5 * 60 * 1000;
  * Hash a token for storage (we don't need to store the full token)
  */
 const hashToken = (token) => {
-    const crypto = require('crypto');
     return crypto.createHash('sha256').update(token).digest('hex').substring(0, 32);
 };
 

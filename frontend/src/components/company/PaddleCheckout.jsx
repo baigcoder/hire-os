@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import {
   CheckCircle,
@@ -17,10 +18,12 @@ import { toast } from "sonner";
 import { COMPANY_API_END_POINT } from "@/utils/constant";
 import api from "@/utils/api";
 import Navbar from "../shared/Navbar";
+import { setUser } from "@/redux/authSlice";
 
 
 const PaddleCheckout = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [paddleReady, setPaddleReady] = useState(false);
@@ -114,6 +117,23 @@ const PaddleCheckout = () => {
       if (registerResponse.data.success) {
         sessionStorage.removeItem("pendingRegistration");
         sessionStorage.removeItem("pendingTransactionRef");
+
+        // ========== SET USER AUTH FOR DASHBOARD ACCESS ==========
+        // Backend returns user and token - use them!
+        const { user: registeredUser, token } = registerResponse.data;
+
+        if (registeredUser) {
+          // Update Redux state with user data
+          dispatch(setUser(registeredUser));
+          console.log("✅ User set in Redux:", registeredUser.email);
+        }
+
+        if (token) {
+          // Store token in localStorage for API calls
+          localStorage.setItem("token", token);
+          console.log("✅ Token stored in localStorage");
+        }
+
         setRegistrationResult({
           ...registerResponse.data,
           company: registrationData.company,
@@ -121,7 +141,12 @@ const PaddleCheckout = () => {
           plan: registrationData.plan,
         });
         setPaymentSuccess(true);
-        toast.success("Registration complete");
+        toast.success("Registration complete! Redirecting to dashboard...");
+
+        // Auto-redirect to dashboard after a short delay
+        setTimeout(() => {
+          navigate("/company/admin/dashboard", { replace: true });
+        }, 2000);
       } else {
         throw new Error(registerResponse.data.message || "Registration failed");
       }

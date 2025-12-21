@@ -69,11 +69,7 @@ const connectDB = async () => {
       );
     }
 
-    // Exit process with failure in production
-    if (process.env.NODE_ENV === "production") {
-      process.exit(1);
-    }
-
+    // Throw error to be handled by the caller (Vercel handler)
     throw error;
   }
 };

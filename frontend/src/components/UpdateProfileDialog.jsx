@@ -18,13 +18,12 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { USER_API_END_POINT } from "@/utils/constant";
+import api from "@/utils/api";
 import { setUser } from "@/redux/authSlice";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 
-const UpdateProfileDialog = ({ open = false, setOpen = () => {} }) => {
+const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
@@ -92,12 +91,11 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => {} }) => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await axios.post(
-        `${USER_API_END_POINT}/profile/photo`,
+      const res = await api.post(
+        "/user/profile/photo",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
         },
       );
 
@@ -185,14 +183,13 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => {} }) => {
       // Passing original name isn't strictly necessary if backend handles it from file object,
       // but we can pass it if backend logic relies on it (it doesn't, it uses req.file.originalname)
 
-      const res = await axios.post(
-        `${USER_API_END_POINT}/profile/update`,
+      const res = await api.post(
+        "/user/profile/update",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true,
         },
       );
 
@@ -260,11 +257,10 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => {} }) => {
                 type="button"
                 onClick={() => !photoLoading && photoInputRef.current?.click()}
                 disabled={photoLoading}
-                className={`absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all border-2 border-white dark:border-zinc-800 ${
-                  photoLoading
+                className={`absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all border-2 border-white dark:border-zinc-800 ${photoLoading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-500 hover:bg-emerald-600"
-                }`}
+                  }`}
               >
                 <Camera className="w-4 h-4 text-white" />
               </button>

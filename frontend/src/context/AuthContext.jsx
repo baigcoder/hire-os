@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase, supabaseAuth } from "../lib/supabase";
 import { useDispatch } from "react-redux";
 import { setUser, logout as reduxLogout } from "../redux/authSlice";
-import axios from "axios";
+import api from "../utils/api";
 
 const AuthContext = createContext({});
 
@@ -20,8 +20,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
-  const API_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+
 
   // Sync Supabase user with backend and Redux
   const syncUserWithBackend = async (supabaseUser) => {
@@ -33,8 +32,8 @@ export const AuthProvider = ({ children }) => {
 
     try {
       // Try to get or create user in backend
-      const response = await axios.post(
-        `${API_URL}/user/supabase-sync`,
+      const response = await api.post(
+        "/user/supabase-sync",
         {
           supabaseId: supabaseUser.id,
           email: supabaseUser.email,
@@ -47,7 +46,6 @@ export const AuthProvider = ({ children }) => {
             supabaseUser.user_metadata?.picture,
           provider: supabaseUser.app_metadata?.provider || "email",
         },
-        { withCredentials: true },
       );
 
       if (response.data.success) {
@@ -163,10 +161,9 @@ export const AuthProvider = ({ children }) => {
           const trimmedEmail = email?.trim();
           const trimmedPassword = password?.trim();
 
-          const response = await axios.post(
-            `${API_URL}/user/login`,
+          const response = await api.post(
+            "/user/login",
             { email: trimmedEmail, password: trimmedPassword, role },
-            { withCredentials: true },
           );
 
           if (response.data.success) {
@@ -203,10 +200,9 @@ export const AuthProvider = ({ children }) => {
       // If Supabase fails and role is student, try backend
       if (role === "student") {
         try {
-          const response = await axios.post(
-            `${API_URL}/user/login`,
+          const response = await api.post(
+            "/user/login",
             { email, password, role: "student" },
-            { withCredentials: true },
           );
 
           if (response.data.success) {

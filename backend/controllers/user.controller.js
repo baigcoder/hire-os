@@ -17,8 +17,8 @@ const generateToken = (userId, expiresIn = "7d") => {
 const getCookieOptions = (maxAge = 7 * 24 * 60 * 60 * 1000) => ({
   maxAge,
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  secure: true, // Required for sameSite: "none"
+  sameSite: "none", // Required for cross-domain cookies in production
 });
 
 export const register = async (req, res) => {
@@ -144,13 +144,13 @@ export const login = async (req, res) => {
       "👤 User found:",
       user
         ? {
-            id: user._id,
-            email: user.email,
-            role: user.role,
-            hasPassword: !!user.password,
-            passwordLength: user.password?.length,
-            passwordHash: user.password?.substring(0, 20) + "...",
-          }
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          hasPassword: !!user.password,
+          passwordLength: user.password?.length,
+          passwordHash: user.password?.substring(0, 20) + "...",
+        }
         : "NOT FOUND",
     );
 

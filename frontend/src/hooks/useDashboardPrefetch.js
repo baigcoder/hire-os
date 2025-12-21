@@ -4,8 +4,7 @@
  */
 
 import { useEffect, useRef, useCallback } from "react";
-import axios from "axios";
-import { CAREER_INSIGHTS_API_END_POINT } from "@/utils/constant";
+import api from "@/utils/api";
 
 // Simple in-memory cache
 const prefetchCache = new Map();
@@ -40,16 +39,16 @@ export const useDashboardPrefetch = () => {
     prefetchedRef.current = true;
 
     const endpoints = [
-      { key: "skill-gap", url: `${CAREER_INSIGHTS_API_END_POINT}/skill-gap` },
-      { key: "salary", url: `${CAREER_INSIGHTS_API_END_POINT}/salary` },
-      { key: "learning", url: `${CAREER_INSIGHTS_API_END_POINT}/learning` },
+      { key: "skill-gap", url: "/career-insights/skill-gap" },
+      { key: "salary", url: "/career-insights/salary" },
+      { key: "learning", url: "/career-insights/learning" },
     ];
 
     // Prefetch in parallel without blocking
     endpoints.forEach(async ({ key, url }) => {
       if (!isCacheValid(key)) {
         try {
-          const res = await axios.get(url, { withCredentials: true });
+          const res = await api.get(url);
           if (res.data.success) {
             prefetchCache.set(key, {
               data: res.data,

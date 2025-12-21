@@ -155,6 +155,15 @@ app.use((req, res, next) => {
 // Rate limiting for API routes
 app.use("/api", rateLimiter);
 
+// Root entry point for diagnostics
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "HIRE.OS Backend API is live",
+    env: process.env.NODE_ENV,
+    version: "1.0.0",
+  });
+});
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({

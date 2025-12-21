@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 import {
   User,
@@ -238,9 +238,8 @@ const PipelineColumn = ({
 
   return (
     <div
-      className={`flex-shrink-0 w-80 bg-[#111111] border rounded-sm transition-colors ${
-        isDragOver ? "border-[#FFD700]/50 bg-[#FFD700]/5" : "border-white/10"
-      }`}
+      className={`flex-shrink-0 w-80 bg-[#111111] border rounded-sm transition-colors ${isDragOver ? "border-[#FFD700]/50 bg-[#FFD700]/5" : "border-white/10"
+        }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -315,10 +314,8 @@ const CandidatePipeline = () => {
     try {
       setLoading(true);
       const [appsRes, jobsRes] = await Promise.all([
-        axios.get(`${APPLICATION_API_END_POINT}/company`, {
-          withCredentials: true,
-        }),
-        axios.get(`${JOB_API_END_POINT}/admin`, { withCredentials: true }),
+        api.get("/application/company"),
+        api.get("/job/admin"),
       ]);
 
       if (appsRes.data.success) {
@@ -337,10 +334,9 @@ const CandidatePipeline = () => {
 
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
-      const response = await axios.put(
-        `${APPLICATION_API_END_POINT}/${applicationId}/status`,
+      const response = await api.put(
+        `/${applicationId}/status`,
         { status: newStatus },
-        { withCredentials: true },
       );
 
       if (response.data.success) {

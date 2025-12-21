@@ -6,11 +6,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 import { setUser } from "@/redux/authSlice";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 // Subscription plan features mapping
 const PLAN_FEATURES = {
@@ -62,9 +60,7 @@ export const useSubscription = () => {
     try {
       setLoading(true);
       // Use /current endpoint which works for both company_admin and recruiters
-      const res = await axios.get(`${API_BASE}/subscription/current`, {
-        withCredentials: true,
-      });
+      const res = await api.get("/subscription/current");
 
       if (res.data.success) {
         // Merge subscription data with features and usage from response

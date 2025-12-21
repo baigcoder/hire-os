@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/authSlice";
 import { USER_API_END_POINT } from "@/utils/constant";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 import {
   Lock,
@@ -62,10 +62,9 @@ const ChangePassword = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${USER_API_END_POINT}/change-initial-password`,
         { email, newPassword, confirmPassword },
-        { withCredentials: true },
       );
 
       if (response.data.success) {
@@ -248,11 +247,10 @@ const ChangePassword = () => {
             <Button
               type="submit"
               disabled={!isPasswordValid || loading}
-              className={`w-full py-4 rounded-sm font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                isPasswordValid
+              className={`w-full py-4 rounded-sm font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${isPasswordValid
                   ? "bg-[#FFD700] text-black hover:bg-[#FFE44D] hover:shadow-[0_0_30px_rgba(255,215,0,0.2)]"
                   : "bg-gray-800 text-gray-600 cursor-not-allowed"
-              }`}
+                }`}
             >
               {loading ? (
                 <>

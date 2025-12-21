@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 import { setUser } from "@/redux/authSlice";
 import Navbar from "./shared/Navbar";
@@ -105,13 +105,12 @@ const SettingsPage = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(
+      const res = await api.post(
         `${USER_API_END_POINT}/change-password`,
         {
           currentPassword: settings.currentPassword,
           newPassword: settings.newPassword,
         },
-        { withCredentials: true },
       );
 
       if (res.data.success) {
@@ -162,9 +161,7 @@ const SettingsPage = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get(`${USER_API_END_POINT}/logout`, {
-        withCredentials: true,
-      });
+      await api.get(`${USER_API_END_POINT}/logout`);
       dispatch(setUser(null));
       navigate("/login");
       toast.success("Logged out successfully");
@@ -238,8 +235,8 @@ const SettingsPage = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm text-sm font-medium transition-all ${activeTab === tab.id
-                      ? "bg-white/10 text-white"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                    ? "bg-white/10 text-white"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
                     }`}
                   style={
                     activeTab === tab.id
@@ -636,8 +633,8 @@ const SettingsPage = () => {
                                 handleSettingChange("theme", theme)
                               }
                               className={`p-4 rounded-sm border transition-all flex items-center gap-3 ${settings.theme === theme
-                                  ? "bg-white/10 border-white/30"
-                                  : "bg-[#0A0A0A] border-white/10 hover:border-white/20"
+                                ? "bg-white/10 border-white/30"
+                                : "bg-[#0A0A0A] border-white/10 hover:border-white/20"
                                 }`}
                             >
                               {theme === "dark" ? (

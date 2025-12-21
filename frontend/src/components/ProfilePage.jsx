@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 import { setUser } from "@/redux/authSlice";
 import Navbar from "./shared/Navbar";
@@ -175,12 +175,11 @@ const ProfilePage = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(
+      const res = await api.post(
         `${USER_API_END_POINT}/profile/photo`,
         form,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
         },
       );
       if (res.data.success) {
@@ -226,12 +225,11 @@ const ProfilePage = () => {
         form.append("file", resumeFile);
       }
 
-      const res = await axios.post(
+      const res = await api.post(
         `${USER_API_END_POINT}/profile/update`,
         form,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
         },
       );
 
@@ -414,7 +412,7 @@ const ProfilePage = () => {
                   value:
                     typeof user?.profile?.location === "object"
                       ? `${user?.profile?.location?.city || ""}${user?.profile?.location?.city && user?.profile?.location?.country ? ", " : ""}${user?.profile?.location?.country || ""}` ||
-                        "Not set"
+                      "Not set"
                       : user?.profile?.location || "Not set",
                   color: "#00BFFF",
                 },

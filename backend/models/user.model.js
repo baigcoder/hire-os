@@ -278,7 +278,7 @@ const userSchema = new mongoose.Schema(
     // Subscription Status (applies to all user types)
     subscriptionStatus: {
       type: String,
-      enum: ["active", "trial", "expired", "cancelled", "pending"],
+      enum: ["none", "active", "trial", "expired", "cancelled", "pending"],
       default: "active",
     },
 

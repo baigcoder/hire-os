@@ -110,25 +110,48 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   process.env.FRONTEND_URL,
+  // Add common Vercel patterns
+  "https://hire-os.vercel.app",
+  "https://hireos.vercel.app",
 ].filter(Boolean);
+
+// Also allow any Vercel preview deployments
+const isVercelPreview = (origin) => {
+  if (!origin) return false;
+  return origin.includes('.vercel.app') || origin.includes('vercel.app');
+};
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // Allow requests with no origin (mobile apps, Postman, curl, etc.)
     if (!origin) return callback(null, true);
 
+    // Check exact match first
     if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+      return callback(null, true);
     }
+
+    // Allow any Vercel deployment (preview URLs)
+    if (isVercelPreview(origin)) {
+      console.log(`✅ CORS: Allowing Vercel origin: ${origin}`);
+      return callback(null, true);
+    }
+
+    // Log rejected origins for debugging
+    console.log(`❌ CORS: Rejected origin: ${origin}`);
+    console.log(`   Allowed: ${allowedOrigins.join(', ')}`);
+    callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+  exposedHeaders: ["set-cookie"],
 };
 
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly for all routes
+app.options('*', cors(corsOptions));
 
 // NOTE: Socket.io has been removed - using Supabase Realtime for all WebSocket features
 // WebRTC signaling, chat, presence, and dashboard updates are handled by Supabase Realtime on the frontend

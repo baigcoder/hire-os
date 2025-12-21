@@ -3,12 +3,12 @@
 /* Custom color variables */
 :root {
   /* Primary brand colors */
-  --primary-purple: #6A38C2;
+  --primary-purple: #6a38c2;
   --primary-purple-dark: #5b30a6;
   --primary-purple-light: #8a5fe0;
-  --primary-orange: #F83002;
+  --primary-orange: #f83002;
   --primary-orange-light: #ff5a33;
-  
+
   /* Neutral colors */
   --neutral-50: #f9fafb;
   --neutral-100: #f3f4f6;
@@ -20,18 +20,20 @@
   --neutral-700: #374151;
   --neutral-800: #1f2937;
   --neutral-900: #111827;
-  
+
   /* Success/Error states */
   --success: #10b981;
   --error: #ef4444;
   --warning: #f59e0b;
   --info: #3b82f6;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -47,11 +49,17 @@
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  background-image: linear-gradient(to right, var(--primary-purple), var(--primary-orange));
+  background-image: linear-gradient(
+    to right,
+    var(--primary-purple),
+    var(--primary-orange)
+  );
 }
 
 .card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card-hover:hover {
@@ -60,13 +68,21 @@
 }
 
 .btn-gradient {
-  background-image: linear-gradient(to right, var(--primary-purple), var(--primary-purple-dark));
+  background-image: linear-gradient(
+    to right,
+    var(--primary-purple),
+    var(--primary-purple-dark)
+  );
   color: white;
   transition: all 0.2s ease;
 }
 
 .btn-gradient:hover {
-  background-image: linear-gradient(to right, var(--primary-purple-dark), var(--primary-purple));
+  background-image: linear-gradient(
+    to right,
+    var(--primary-purple-dark),
+    var(--primary-purple)
+  );
   transform: translateY(-1px);
 }
 
@@ -90,8 +106,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .slide-up {
@@ -99,8 +119,14 @@
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Custom scrollbar */

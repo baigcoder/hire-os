@@ -3,8 +3,8 @@
  * Handles trial initialization, status checking, and expiration
  */
 
-import { User } from '../models/user.model.js';
-import { sendEmail } from './emailService.js';
+import { User } from "../models/user.model.js";
+import { sendEmail } from "./emailService.js";
 
 const TRIAL_DURATION_DAYS = 30;
 
@@ -14,55 +14,60 @@ const TRIAL_DURATION_DAYS = 30;
  * @returns {Object} Trial details
  */
 export const initializeStudentTrial = async (userId) => {
-    try {
-        const user = await User.findById(userId);
+  try {
+    const user = await User.findById(userId);
 
-        if (!user) {
-            throw new Error('User not found');
-        }
-
-        if (user.role !== 'student') {
-            return { success: false, message: 'Trials only available for students' };
-        }
-
-        if (user.hasUsedTrial) {
-            return { success: false, message: 'User has already used their free trial' };
-        }
-
-        const trialStartDate = new Date();
-        const trialEndDate = new Date();
-        trialEndDate.setDate(trialEndDate.getDate() + TRIAL_DURATION_DAYS);
-
-        user.trialStartDate = trialStartDate;
-        user.trialEndDate = trialEndDate;
-        user.hasUsedTrial = true;
-        user.trialExpired = false;
-        user.subscriptionStatus = 'trial';
-
-        // Log the trial start event
-        user.subscriptionEvents.push({
-            event: 'trial_started',
-            date: new Date(),
-            details: `30-day free trial started. Ends on ${trialEndDate.toDateString()}`
-        });
-
-        await user.save();
-
-        // Send welcome email with trial info
-        await sendWelcomeTrialEmail(user);
-
-        console.log(`✅ Trial started for ${user.email} - Expires: ${trialEndDate.toDateString()}`);
-
-        return {
-            success: true,
-            trialStartDate,
-            trialEndDate,
-            daysRemaining: TRIAL_DURATION_DAYS
-        };
-    } catch (error) {
-        console.error('Trial initialization error:', error);
-        throw error;
+    if (!user) {
+      throw new Error("User not found");
     }
+
+    if (user.role !== "student") {
+      return { success: false, message: "Trials only available for students" };
+    }
+
+    if (user.hasUsedTrial) {
+      return {
+        success: false,
+        message: "User has already used their free trial",
+      };
+    }
+
+    const trialStartDate = new Date();
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + TRIAL_DURATION_DAYS);
+
+    user.trialStartDate = trialStartDate;
+    user.trialEndDate = trialEndDate;
+    user.hasUsedTrial = true;
+    user.trialExpired = false;
+    user.subscriptionStatus = "trial";
+
+    // Log the trial start event
+    user.subscriptionEvents.push({
+      event: "trial_started",
+      date: new Date(),
+      details: `30-day free trial started. Ends on ${trialEndDate.toDateString()}`,
+    });
+
+    await user.save();
+
+    // Send welcome email with trial info
+    await sendWelcomeTrialEmail(user);
+
+    console.log(
+      `✅ Trial started for ${user.email} - Expires: ${trialEndDate.toDateString()}`,
+    );
+
+    return {
+      success: true,
+      trialStartDate,
+      trialEndDate,
+      daysRemaining: TRIAL_DURATION_DAYS,
+    };
+  } catch (error) {
+    console.error("Trial initialization error:", error);
+    throw error;
+  }
 };
 
 /**
@@ -71,79 +76,79 @@ export const initializeStudentTrial = async (userId) => {
  * @returns {Object} Trial status details
  */
 export const checkTrialStatus = async (userId) => {
-    try {
-        const user = await User.findById(userId);
+  try {
+    const user = await User.findById(userId);
 
-        if (!user) {
-            return { isActive: false, message: 'User not found' };
-        }
-
-        // Non-students don't use trial system
-        if (user.role !== 'student') {
-            return {
-                isActive: true,
-                isPremium: user.subscriptionStatus === 'active',
-                message: 'Non-student account'
-            };
-        }
-
-        // Active subscription (paid)
-        if (user.subscriptionStatus === 'active') {
-            return {
-                isActive: true,
-                isPremium: true,
-                subscription: 'premium',
-                message: 'Active premium subscription'
-            };
-        }
-
-        // Check trial status
-        if (user.trialExpired || user.subscriptionStatus === 'expired') {
-            return {
-                isActive: false,
-                isTrialExpired: true,
-                message: 'Trial period has ended'
-            };
-        }
-
-        if (!user.trialStartDate || !user.trialEndDate) {
-            // No trial started - this shouldn't happen for new students
-            return {
-                isActive: false,
-                needsTrial: true,
-                message: 'No trial started'
-            };
-        }
-
-        const now = new Date();
-        const trialEnd = new Date(user.trialEndDate);
-        const daysRemaining = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
-
-        if (now >= trialEnd) {
-            // Trial has expired - update user
-            await expireTrial(userId);
-            return {
-                isActive: false,
-                isTrialExpired: true,
-                daysRemaining: 0,
-                message: 'Trial has expired'
-            };
-        }
-
-        // Trial is active
-        return {
-            isActive: true,
-            isTrial: true,
-            subscription: 'trial',
-            trialEndDate: user.trialEndDate,
-            daysRemaining,
-            isWarning: daysRemaining <= 7,
-            message: `Trial active - ${daysRemaining} days remaining`
-        };
-    } catch (error) {
-        console.error('Trial status check error:', error);
-        return { isActive: false, error: error.message };
+    if (!user) {
+      return { isActive: false, message: "User not found" };
     }
+
+    // Non-students don't use trial system
+    if (user.role !== "student") {
+      return {
+        isActive: true,
+        isPremium: user.subscriptionStatus === "active",
+        message: "Non-student account",
+      };
+    }
+
+    // Active subscription (paid)
+    if (user.subscriptionStatus === "active") {
+      return {
+        isActive: true,
+        isPremium: true,
+        subscription: "premium",
+        message: "Active premium subscription",
+      };
+    }
+
+    // Check trial status
+    if (user.trialExpired || user.subscriptionStatus === "expired") {
+      return {
+        isActive: false,
+        isTrialExpired: true,
+        message: "Trial period has ended",
+      };
+    }
+
+    if (!user.trialStartDate || !user.trialEndDate) {
+      // No trial started - this shouldn't happen for new students
+      return {
+        isActive: false,
+        needsTrial: true,
+        message: "No trial started",
+      };
+    }
+
+    const now = new Date();
+    const trialEnd = new Date(user.trialEndDate);
+    const daysRemaining = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+
+    if (now >= trialEnd) {
+      // Trial has expired - update user
+      await expireTrial(userId);
+      return {
+        isActive: false,
+        isTrialExpired: true,
+        daysRemaining: 0,
+        message: "Trial has expired",
+      };
+    }
+
+    // Trial is active
+    return {
+      isActive: true,
+      isTrial: true,
+      subscription: "trial",
+      trialEndDate: user.trialEndDate,
+      daysRemaining,
+      isWarning: daysRemaining <= 7,
+      message: `Trial active - ${daysRemaining} days remaining`,
+    };
+  } catch (error) {
+    console.error("Trial status check error:", error);
+    return { isActive: false, error: error.message };
+  }
 };
 
 /**
@@ -151,28 +156,28 @@ export const checkTrialStatus = async (userId) => {
  * @param {string} userId - The user ID
  */
 export const expireTrial = async (userId) => {
-    try {
-        const user = await User.findById(userId);
+  try {
+    const user = await User.findById(userId);
 
-        if (!user) return;
+    if (!user) return;
 
-        user.trialExpired = true;
-        user.subscriptionStatus = 'expired';
-        user.subscriptionEvents.push({
-            event: 'trial_expired',
-            date: new Date(),
-            details: 'Free trial period has ended'
-        });
+    user.trialExpired = true;
+    user.subscriptionStatus = "expired";
+    user.subscriptionEvents.push({
+      event: "trial_expired",
+      date: new Date(),
+      details: "Free trial period has ended",
+    });
 
-        await user.save();
+    await user.save();
 
-        // Send trial expired email
-        await sendTrialExpiredEmail(user);
+    // Send trial expired email
+    await sendTrialExpiredEmail(user);
 
-        console.log(`⏰ Trial expired for ${user.email}`);
-    } catch (error) {
-        console.error('Trial expiration error:', error);
-    }
+    console.log(`⏰ Trial expired for ${user.email}`);
+  } catch (error) {
+    console.error("Trial expiration error:", error);
+  }
 };
 
 /**
@@ -180,68 +185,73 @@ export const expireTrial = async (userId) => {
  * Should run daily
  */
 export const runTrialExpiryCheck = async () => {
-    console.log('🔍 Running trial expiry check...');
+  console.log("🔍 Running trial expiry check...");
 
-    try {
-        const now = new Date();
+  try {
+    const now = new Date();
 
-        // Find users with expired trials
-        const expiredTrials = await User.find({
-            role: 'student',
-            subscriptionStatus: 'trial',
-            trialEndDate: { $lte: now },
-            trialExpired: { $ne: true }
-        });
+    // Find users with expired trials
+    const expiredTrials = await User.find({
+      role: "student",
+      subscriptionStatus: "trial",
+      trialEndDate: { $lte: now },
+      trialExpired: { $ne: true },
+    });
 
-        for (const user of expiredTrials) {
-            await expireTrial(user._id);
-        }
-
-        // Find users with trials ending in 3 days (warning)
-        const warningDate = new Date();
-        warningDate.setDate(warningDate.getDate() + 3);
-
-        const warningTrials = await User.find({
-            role: 'student',
-            subscriptionStatus: 'trial',
-            trialEndDate: { $lte: warningDate, $gt: now },
-            'emailsSent.trialWarningEmail': { $ne: true }
-        });
-
-        for (const user of warningTrials) {
-            await sendTrialWarningEmail(user);
-            user.emailsSent = user.emailsSent || {};
-            user.emailsSent.trialWarningEmail = true;
-            await user.save();
-        }
-
-        console.log(`✅ Trial check complete: ${expiredTrials.length} expired, ${warningTrials.length} warnings sent`);
-
-        return {
-            expired: expiredTrials.length,
-            warnings: warningTrials.length
-        };
-    } catch (error) {
-        console.error('Trial expiry check failed:', error);
+    for (const user of expiredTrials) {
+      await expireTrial(user._id);
     }
+
+    // Find users with trials ending in 3 days (warning)
+    const warningDate = new Date();
+    warningDate.setDate(warningDate.getDate() + 3);
+
+    const warningTrials = await User.find({
+      role: "student",
+      subscriptionStatus: "trial",
+      trialEndDate: { $lte: warningDate, $gt: now },
+      "emailsSent.trialWarningEmail": { $ne: true },
+    });
+
+    for (const user of warningTrials) {
+      await sendTrialWarningEmail(user);
+      user.emailsSent = user.emailsSent || {};
+      user.emailsSent.trialWarningEmail = true;
+      await user.save();
+    }
+
+    console.log(
+      `✅ Trial check complete: ${expiredTrials.length} expired, ${warningTrials.length} warnings sent`,
+    );
+
+    return {
+      expired: expiredTrials.length,
+      warnings: warningTrials.length,
+    };
+  } catch (error) {
+    console.error("Trial expiry check failed:", error);
+  }
 };
 
 /**
  * Send welcome email with trial information
  */
 const sendWelcomeTrialEmail = async (user) => {
-    try {
-        const trialEndDate = new Date(user.trialEndDate).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+  try {
+    const trialEndDate = new Date(user.trialEndDate).toLocaleDateString(
+      "en-US",
+      {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
+    );
 
-        const emailData = {
-            to: user.email,
-            subject: '🎉 Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!',
-            html: `
+    const emailData = {
+      to: user.email,
+      subject: "🎉 Welcome to Hire.iOS - Your 30-Day Free Trial Has Started!",
+      html: `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
                     <div style="text-align: center; margin-bottom: 30px;">
                         <h1 style="color: #FFD700; margin: 0;">HIRE.iOS</h1>
@@ -268,7 +278,7 @@ const sendWelcomeTrialEmail = async (user) => {
                         </p>
                     </div>
                     
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/student/dashboard" 
+                    <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/student/dashboard" 
                        style="display: inline-block; background: #FFD700; color: #000; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 10px;">
                         Go to Dashboard
                     </a>
@@ -279,33 +289,35 @@ const sendWelcomeTrialEmail = async (user) => {
                         © ${new Date().getFullYear()} Hire.iOS. All rights reserved.
                     </p>
                 </div>
-            `
-        };
+            `,
+    };
 
-        await sendEmail(emailData);
+    await sendEmail(emailData);
 
-        // Mark email as sent
-        user.emailsSent = user.emailsSent || {};
-        user.emailsSent.welcomeEmail = true;
-        await user.save();
+    // Mark email as sent
+    user.emailsSent = user.emailsSent || {};
+    user.emailsSent.welcomeEmail = true;
+    await user.save();
 
-        console.log(`📧 Welcome email sent to ${user.email}`);
-    } catch (error) {
-        console.error('Welcome email failed:', error);
-    }
+    console.log(`📧 Welcome email sent to ${user.email}`);
+  } catch (error) {
+    console.error("Welcome email failed:", error);
+  }
 };
 
 /**
  * Send trial warning email (3 days before expiry)
  */
 const sendTrialWarningEmail = async (user) => {
-    try {
-        const daysRemaining = Math.ceil((new Date(user.trialEndDate) - new Date()) / (1000 * 60 * 60 * 24));
+  try {
+    const daysRemaining = Math.ceil(
+      (new Date(user.trialEndDate) - new Date()) / (1000 * 60 * 60 * 24),
+    );
 
-        const emailData = {
-            to: user.email,
-            subject: `⚠️ Your Hire.iOS Trial Ends in ${daysRemaining} Days`,
-            html: `
+    const emailData = {
+      to: user.email,
+      subject: `⚠️ Your Hire.iOS Trial Ends in ${daysRemaining} Days`,
+      html: `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
                     <div style="text-align: center; margin-bottom: 30px;">
                         <h1 style="color: #FFD700; margin: 0;">HIRE.iOS</h1>
@@ -321,7 +333,7 @@ const sendTrialWarningEmail = async (user) => {
                         Don't lose access to premium features! Upgrade now to continue your job search journey.
                     </p>
                     
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/pricing" 
+                    <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/pricing" 
                        style="display: inline-block; background: #FFD700; color: #000; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px;">
                         Upgrade to Premium
                     </a>
@@ -332,25 +344,25 @@ const sendTrialWarningEmail = async (user) => {
                         If you have questions, reply to this email.
                     </p>
                 </div>
-            `
-        };
+            `,
+    };
 
-        await sendEmail(emailData);
-        console.log(`📧 Trial warning sent to ${user.email}`);
-    } catch (error) {
-        console.error('Trial warning email failed:', error);
-    }
+    await sendEmail(emailData);
+    console.log(`📧 Trial warning sent to ${user.email}`);
+  } catch (error) {
+    console.error("Trial warning email failed:", error);
+  }
 };
 
 /**
  * Send trial expired email
  */
 const sendTrialExpiredEmail = async (user) => {
-    try {
-        const emailData = {
-            to: user.email,
-            subject: '⏰ Your Hire.iOS Trial Has Ended - Upgrade to Continue',
-            html: `
+  try {
+    const emailData = {
+      to: user.email,
+      subject: "⏰ Your Hire.iOS Trial Has Ended - Upgrade to Continue",
+      html: `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
                     <div style="text-align: center; margin-bottom: 30px;">
                         <h1 style="color: #FFD700; margin: 0;">HIRE.iOS</h1>
@@ -372,7 +384,7 @@ const sendTrialExpiredEmail = async (user) => {
                         </p>
                     </div>
                     
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/pricing" 
+                    <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/pricing" 
                        style="display: inline-block; background: #FFD700; color: #000; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
                         View Pricing Plans
                     </a>
@@ -383,25 +395,25 @@ const sendTrialExpiredEmail = async (user) => {
                         © ${new Date().getFullYear()} Hire.iOS
                     </p>
                 </div>
-            `
-        };
+            `,
+    };
 
-        await sendEmail(emailData);
+    await sendEmail(emailData);
 
-        user.emailsSent = user.emailsSent || {};
-        user.emailsSent.trialExpiredEmail = true;
-        await user.save();
+    user.emailsSent = user.emailsSent || {};
+    user.emailsSent.trialExpiredEmail = true;
+    await user.save();
 
-        console.log(`📧 Trial expired email sent to ${user.email}`);
-    } catch (error) {
-        console.error('Trial expired email failed:', error);
-    }
+    console.log(`📧 Trial expired email sent to ${user.email}`);
+  } catch (error) {
+    console.error("Trial expired email failed:", error);
+  }
 };
 
 export default {
-    initializeStudentTrial,
-    checkTrialStatus,
-    expireTrial,
-    runTrialExpiryCheck,
-    TRIAL_DURATION_DAYS
+  initializeStudentTrial,
+  checkTrialStatus,
+  expireTrial,
+  runTrialExpiryCheck,
+  TRIAL_DURATION_DAYS,
 };

@@ -5,39 +5,39 @@
  */
 
 const GPT5_API_KEY = process.env.GPT5_API_KEY;
-const GPT5_API_URL = 'https://api.chatanywhere.tech/v1/chat/completions';
+const GPT5_API_URL = "https://api.chatanywhere.tech/v1/chat/completions";
 
 // Model configuration - VERIFIED via testAIModels.js (Dec 2024)
-// Tested models with actual latency: gpt-4o-mini (979ms), gpt-5-mini-ca (1344ms), 
+// Tested models with actual latency: gpt-4o-mini (979ms), gpt-5-mini-ca (1344ms),
 // gpt-5-ca (1945ms), gpt-5.1-ca (2807ms), deepseek-r1 (57910ms with reasoning)
 const AI_MODELS = {
-    // Most accurate - for deep analysis (verified working)
-    ACCURATE: 'gpt-5.1-ca',  // 2807ms latency
-    // Balanced - for generation tasks (verified working)
-    BALANCED: 'gpt-5-ca',    // 1945ms latency
-    // Fast - for real-time responses (verified working)
-    FAST: 'gpt-5-mini-ca',   // 1344ms latency
-    // Ultra-fast - for instant feedback (FASTEST verified)
-    INSTANT: 'gpt-4o-mini',  // 979ms latency ⚡
-    // Reasoning - for complex problem solving (verified with 7079 char reasoning)
-    REASONING: 'deepseek-r1', // 57910ms but includes chain-of-thought
-    // Nano fallback
-    NANO: 'gpt-5-nano-ca'
+  // Most accurate - for deep analysis (verified working)
+  ACCURATE: "gpt-5.1-ca", // 2807ms latency
+  // Balanced - for generation tasks (verified working)
+  BALANCED: "gpt-5-ca", // 1945ms latency
+  // Fast - for real-time responses (verified working)
+  FAST: "gpt-5-mini-ca", // 1344ms latency
+  // Ultra-fast - for instant feedback (FASTEST verified)
+  INSTANT: "gpt-4o-mini", // 979ms latency ⚡
+  // Reasoning - for complex problem solving (verified with 7079 char reasoning)
+  REASONING: "deepseek-r1", // 57910ms but includes chain-of-thought
+  // Nano fallback
+  NANO: "gpt-5-nano-ca",
 };
 
 // Feature-to-Model mapping - optimized based on test results
 const FEATURE_MODELS = {
-    RESUME_ANALYSIS: AI_MODELS.ACCURATE,      // Deep, thorough analysis
-    MCQ_GENERATION: AI_MODELS.BALANCED,       // Creative, accurate questions
-    LIVE_INTERVIEW: AI_MODELS.INSTANT,        // Real-time (gpt-4o-mini fastest!)
-    FRAUD_DETECTION: AI_MODELS.INSTANT,       // Instant risk assessment
-    REPORT_GENERATION: AI_MODELS.REASONING,   // CEO reports with reasoning
-    JOB_MATCHING: AI_MODELS.FAST,             // Quick matching
-    APPLICANT_RANKING: AI_MODELS.BALANCED     // ATS scoring
+  RESUME_ANALYSIS: AI_MODELS.ACCURATE, // Deep, thorough analysis
+  MCQ_GENERATION: AI_MODELS.BALANCED, // Creative, accurate questions
+  LIVE_INTERVIEW: AI_MODELS.INSTANT, // Real-time (gpt-4o-mini fastest!)
+  FRAUD_DETECTION: AI_MODELS.INSTANT, // Instant risk assessment
+  REPORT_GENERATION: AI_MODELS.REASONING, // CEO reports with reasoning
+  JOB_MATCHING: AI_MODELS.FAST, // Quick matching
+  APPLICANT_RANKING: AI_MODELS.BALANCED, // ATS scoring
 };
 
 // TTS API configuration
-const TTS_API_URL = 'https://api.chatanywhere.tech/v1/audio/speech';
+const TTS_API_URL = "https://api.chatanywhere.tech/v1/audio/speech";
 
 // Fallback to Gemini if ChatAnywhere unavailable
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -50,215 +50,232 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
  * @returns {Promise<Object>} AI response with content and metadata
  */
 export const callGPT5 = async (messages, options = {}) => {
-    const {
-        temperature = 0.6,
-        maxTokens = 4000,
-        responseFormat = 'text',
-        retries = 2,
-        model = AI_MODELS.INSTANT, // Default to gpt-4o-mini (fastest!)
-        feature = null,
-        useReasoning = false, // Force deepseek-r1 for reasoning
-        preferSpeed = true // Prefer faster models
-    } = options;
+  const {
+    temperature = 0.6,
+    maxTokens = 4000,
+    responseFormat = "text",
+    retries = 2,
+    model = AI_MODELS.INSTANT, // Default to gpt-4o-mini (fastest!)
+    feature = null,
+    useReasoning = false, // Force deepseek-r1 for reasoning
+    preferSpeed = true, // Prefer faster models
+  } = options;
 
-    // Auto-select model based on feature or preferences
-    let selectedModel = feature ? FEATURE_MODELS[feature] || model : model;
+  // Auto-select model based on feature or preferences
+  let selectedModel = feature ? FEATURE_MODELS[feature] || model : model;
 
-    // Override for speed if requested
-    if (preferSpeed && !useReasoning) {
-        selectedModel = AI_MODELS.INSTANT; // gpt-4o-mini (979ms)
-    }
+  // Override for speed if requested
+  if (preferSpeed && !useReasoning) {
+    selectedModel = AI_MODELS.INSTANT; // gpt-4o-mini (979ms)
+  }
 
-    // Override for reasoning tasks
-    if (useReasoning) {
-        selectedModel = AI_MODELS.REASONING; // deepseek-r1
-    }
+  // Override for reasoning tasks
+  if (useReasoning) {
+    selectedModel = AI_MODELS.REASONING; // deepseek-r1
+  }
 
-    // Fallback model chain (fastest to most accurate)
-    const FALLBACK_CHAIN = [
-        selectedModel,
-        AI_MODELS.INSTANT,     // gpt-4o-mini (979ms)
-        AI_MODELS.FAST,        // gpt-5-mini-ca (1344ms)
-        AI_MODELS.BALANCED,    // gpt-5-ca (1945ms)
-        'gemini-1.5-flash'     // Gemini fallback
-    ];
+  // Fallback model chain (fastest to most accurate)
+  const FALLBACK_CHAIN = [
+    selectedModel,
+    AI_MODELS.INSTANT, // gpt-4o-mini (979ms)
+    AI_MODELS.FAST, // gpt-5-mini-ca (1344ms)
+    AI_MODELS.BALANCED, // gpt-5-ca (1945ms)
+    "gemini-1.5-flash", // Gemini fallback
+  ];
 
-    // Remove duplicates while preserving order
-    const modelsToTry = [...new Set(FALLBACK_CHAIN)];
+  // Remove duplicates while preserving order
+  const modelsToTry = [...new Set(FALLBACK_CHAIN)];
 
-    // Try ChatAnywhere models
-    if (GPT5_API_KEY) {
-        for (const modelToTry of modelsToTry) {
-            // Skip Gemini in this loop (handled separately)
-            if (modelToTry.includes('gemini')) continue;
+  // Try ChatAnywhere models
+  if (GPT5_API_KEY) {
+    for (const modelToTry of modelsToTry) {
+      // Skip Gemini in this loop (handled separately)
+      if (modelToTry.includes("gemini")) continue;
 
-            try {
-                console.log(`🤖 Calling ${modelToTry}...`);
-                const startTime = Date.now();
+      try {
+        console.log(`🤖 Calling ${modelToTry}...`);
+        const startTime = Date.now();
 
-                const response = await fetch(GPT5_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${GPT5_API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: modelToTry,
-                        messages: Array.isArray(messages) ? messages : [{ role: 'user', content: messages }],
-                        temperature,
-                        max_tokens: maxTokens,
-                        ...(responseFormat === 'json' && { response_format: { type: 'json_object' } })
-                    })
-                });
+        const response = await fetch(GPT5_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${GPT5_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: modelToTry,
+            messages: Array.isArray(messages)
+              ? messages
+              : [{ role: "user", content: messages }],
+            temperature,
+            max_tokens: maxTokens,
+            ...(responseFormat === "json" && {
+              response_format: { type: "json_object" },
+            }),
+          }),
+        });
 
-                const data = await response.json();
-                const latency = Date.now() - startTime;
+        const data = await response.json();
+        const latency = Date.now() - startTime;
 
-                // Check for rate limit error
-                if (data.error?.message?.includes('限制') || data.error?.message?.includes('limit')) {
-                    console.warn(`⚠️ ${modelToTry} rate limited, trying next model...`);
-                    continue;
-                }
-
-                // Check for model not supported
-                if (data.error?.message?.includes('不支持') || data.error?.message?.includes('not supported')) {
-                    console.warn(`⚠️ ${modelToTry} not supported, trying next model...`);
-                    continue;
-                }
-
-                if (data.error) {
-                    console.error(`❌ ${modelToTry} error:`, data.error.message);
-                    continue;
-                }
-
-                const content = data.choices?.[0]?.message?.content;
-                const reasoning = data.choices?.[0]?.message?.reasoning_content;
-
-                if (!content) {
-                    console.error(`❌ ${modelToTry} returned no content`);
-                    continue;
-                }
-
-                console.log(`✅ ${modelToTry} response (${data.usage?.total_tokens || 0} tokens, ${latency}ms)`);
-
-                return {
-                    content,
-                    reasoning, // Only for deepseek-r1
-                    model: data.model || modelToTry,
-                    tokens: data.usage?.total_tokens || 0,
-                    latency,
-                    success: true
-                };
-            } catch (error) {
-                console.error(`❌ ${modelToTry} failed:`, error.message);
-                continue;
-            }
+        // Check for rate limit error
+        if (
+          data.error?.message?.includes("限制") ||
+          data.error?.message?.includes("limit")
+        ) {
+          console.warn(`⚠️ ${modelToTry} rate limited, trying next model...`);
+          continue;
         }
-    }
 
-    // Final fallback: Gemini
-    if (GEMINI_API_KEY) {
-        try {
-            console.log('🤖 Falling back to Gemini...');
-            const prompt = Array.isArray(messages)
-                ? messages.map(m => `${m.role}: ${m.content}`).join('\n')
-                : messages;
-
-            const startTime = Date.now();
-            const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            temperature,
-                            maxOutputTokens: maxTokens
-                        }
-                    })
-                }
-            );
-
-            const data = await response.json();
-            const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            const latency = Date.now() - startTime;
-
-            if (!content) {
-                throw new Error('No content in Gemini response');
-            }
-
-            console.log(`✅ Gemini response (${latency}ms)`);
-
-            return {
-                content,
-                model: 'gemini-1.5-flash',
-                latency,
-                success: true
-            };
-        } catch (error) {
-            console.error('❌ Gemini fallback failed:', error.message);
+        // Check for model not supported
+        if (
+          data.error?.message?.includes("不支持") ||
+          data.error?.message?.includes("not supported")
+        ) {
+          console.warn(`⚠️ ${modelToTry} not supported, trying next model...`);
+          continue;
         }
-    }
 
-    throw new Error('All AI services failed - no API keys configured or all models rate limited');
+        if (data.error) {
+          console.error(`❌ ${modelToTry} error:`, data.error.message);
+          continue;
+        }
+
+        const content = data.choices?.[0]?.message?.content;
+        const reasoning = data.choices?.[0]?.message?.reasoning_content;
+
+        if (!content) {
+          console.error(`❌ ${modelToTry} returned no content`);
+          continue;
+        }
+
+        console.log(
+          `✅ ${modelToTry} response (${data.usage?.total_tokens || 0} tokens, ${latency}ms)`,
+        );
+
+        return {
+          content,
+          reasoning, // Only for deepseek-r1
+          model: data.model || modelToTry,
+          tokens: data.usage?.total_tokens || 0,
+          latency,
+          success: true,
+        };
+      } catch (error) {
+        console.error(`❌ ${modelToTry} failed:`, error.message);
+        continue;
+      }
+    }
+  }
+
+  // Final fallback: Gemini
+  if (GEMINI_API_KEY) {
+    try {
+      console.log("🤖 Falling back to Gemini...");
+      const prompt = Array.isArray(messages)
+        ? messages.map((m) => `${m.role}: ${m.content}`).join("\n")
+        : messages;
+
+      const startTime = Date.now();
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature,
+              maxOutputTokens: maxTokens,
+            },
+          }),
+        },
+      );
+
+      const data = await response.json();
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const latency = Date.now() - startTime;
+
+      if (!content) {
+        throw new Error("No content in Gemini response");
+      }
+
+      console.log(`✅ Gemini response (${latency}ms)`);
+
+      return {
+        content,
+        model: "gemini-1.5-flash",
+        latency,
+        success: true,
+      };
+    } catch (error) {
+      console.error("❌ Gemini fallback failed:", error.message);
+    }
+  }
+
+  throw new Error(
+    "All AI services failed - no API keys configured or all models rate limited",
+  );
 };
 
 /**
  * Parse JSON from AI response (handles markdown code blocks)
  */
 export const parseAIJson = (text) => {
-    try {
-        // Try direct parse first
-        return JSON.parse(text);
-    } catch {
-        // Extract from markdown code blocks
-        const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-            return JSON.parse(jsonMatch[1]);
-        }
-        // Try to find JSON object
-        const objectMatch = text.match(/\{[\s\S]*\}/);
-        if (objectMatch) {
-            return JSON.parse(objectMatch[0]);
-        }
-        throw new Error('Could not parse JSON from response');
+  try {
+    // Try direct parse first
+    return JSON.parse(text);
+  } catch {
+    // Extract from markdown code blocks
+    const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[1]);
     }
+    // Try to find JSON object
+    const objectMatch = text.match(/\{[\s\S]*\}/);
+    if (objectMatch) {
+      return JSON.parse(objectMatch[0]);
+    }
+    throw new Error("Could not parse JSON from response");
+  }
 };
 
 /**
  * Generate TTS audio using OpenAI-compatible API
  */
-export const generateSpeech = async (text, voice = 'alloy') => {
-    if (!GPT5_API_KEY) {
-        throw new Error('TTS requires GPT5_API_KEY');
-    }
+export const generateSpeech = async (text, voice = "alloy") => {
+  if (!GPT5_API_KEY) {
+    throw new Error("TTS requires GPT5_API_KEY");
+  }
 
-    const response = await fetch(TTS_API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${GPT5_API_KEY}`
-        },
-        body: JSON.stringify({
-            model: 'tts-1',
-            input: text.substring(0, 4096), // TTS limit
-            voice // alloy, echo, fable, onyx, nova, shimmer
-        })
-    });
+  const response = await fetch(TTS_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${GPT5_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "tts-1",
+      input: text.substring(0, 4096), // TTS limit
+      voice, // alloy, echo, fable, onyx, nova, shimmer
+    }),
+  });
 
-    if (!response.ok) {
-        throw new Error(`TTS API error: ${response.status}`);
-    }
+  if (!response.ok) {
+    throw new Error(`TTS API error: ${response.status}`);
+  }
 
-    return response.arrayBuffer();
+  return response.arrayBuffer();
 };
 
 /**
  * Resume Analysis with GPT-5
  */
-export const analyzeResumeWithGPT5 = async (resumeText, jobDescription = '') => {
-    const systemPrompt = `You are an expert resume analyst and ATS (Applicant Tracking System) specialist with 20+ years of experience in recruiting and talent acquisition.
+export const analyzeResumeWithGPT5 = async (
+  resumeText,
+  jobDescription = "",
+) => {
+  const systemPrompt = `You are an expert resume analyst and ATS (Applicant Tracking System) specialist with 20+ years of experience in recruiting and talent acquisition.
 
 Your analysis must be:
 - Accurate and data-driven
@@ -268,14 +285,14 @@ Your analysis must be:
 
 Always return valid JSON.`;
 
-    const userPrompt = `Analyze this resume thoroughly and provide a comprehensive evaluation.
+  const userPrompt = `Analyze this resume thoroughly and provide a comprehensive evaluation.
 
 RESUME:
 """
 ${resumeText}
 """
 
-${jobDescription ? `JOB DESCRIPTION FOR MATCHING:\n"""\n${jobDescription}\n"""` : 'No specific job provided - analyze for general software/tech roles.'}
+${jobDescription ? `JOB DESCRIPTION FOR MATCHING:\n"""\n${jobDescription}\n"""` : "No specific job provided - analyze for general software/tech roles."}
 
 Return a detailed JSON analysis:
 {
@@ -347,39 +364,47 @@ Return a detailed JSON analysis:
     ]
 }`;
 
-    try {
-        const result = await callGPT5([
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-        ], {
-            temperature: 0.3,
-            maxTokens: 3000,
-            feature: 'RESUME_ANALYSIS' // Uses gpt-5.1-ca for deep analysis
-        });
+  try {
+    const result = await callGPT5(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      {
+        temperature: 0.3,
+        maxTokens: 3000,
+        feature: "RESUME_ANALYSIS", // Uses gpt-5.1-ca for deep analysis
+      },
+    );
 
-        const analysis = parseAIJson(result.content);
-        analysis.source = result.model;
-        analysis.analyzedAt = new Date().toISOString();
+    const analysis = parseAIJson(result.content);
+    analysis.source = result.model;
+    analysis.analyzedAt = new Date().toISOString();
 
-        return analysis;
-    } catch (error) {
-        console.error('Resume analysis error:', error);
-        throw error;
-    }
+    return analysis;
+  } catch (error) {
+    console.error("Resume analysis error:", error);
+    throw error;
+  }
 };
 
 /**
  * Generate Dynamic MCQ Questions with GPT-5
  */
-export const generateMCQWithGPT5 = async (jobTitle, skills, experienceLevel = 'Mid', questionCount = 15) => {
-    const systemPrompt = `You are an expert technical interviewer and assessment designer. 
+export const generateMCQWithGPT5 = async (
+  jobTitle,
+  skills,
+  experienceLevel = "Mid",
+  questionCount = 15,
+) => {
+  const systemPrompt = `You are an expert technical interviewer and assessment designer. 
 Create challenging, realistic interview questions that accurately test candidate knowledge.
 Questions must be specific, not generic, and have exactly one correct answer.`;
 
-    const userPrompt = `Generate ${questionCount} multiple choice questions for a job interview assessment.
+  const userPrompt = `Generate ${questionCount} multiple choice questions for a job interview assessment.
 
 JOB TITLE: ${jobTitle}
-REQUIRED SKILLS: ${skills.join(', ')}
+REQUIRED SKILLS: ${skills.join(", ")}
 EXPERIENCE LEVEL: ${experienceLevel}
 
 Requirements:
@@ -414,46 +439,56 @@ Return JSON:
     }
 }`;
 
-    try {
-        const result = await callGPT5([
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-        ], {
-            temperature: 0.7,
-            maxTokens: 6000,
-            feature: 'MCQ_GENERATION' // Uses gpt-5-ca for creative generation
-        });
+  try {
+    const result = await callGPT5(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      {
+        temperature: 0.7,
+        maxTokens: 6000,
+        feature: "MCQ_GENERATION", // Uses gpt-5-ca for creative generation
+      },
+    );
 
-        const mcqData = parseAIJson(result.content);
-        mcqData.generatedBy = result.model;
-        mcqData.generatedAt = new Date().toISOString();
+    const mcqData = parseAIJson(result.content);
+    mcqData.generatedBy = result.model;
+    mcqData.generatedAt = new Date().toISOString();
 
-        return mcqData;
-    } catch (error) {
-        console.error('GPT-5 MCQ generation error:', error);
-        throw error;
-    }
+    return mcqData;
+  } catch (error) {
+    console.error("GPT-5 MCQ generation error:", error);
+    throw error;
+  }
 };
 
 /**
  * Live AI Interview - Conversational Response
  */
-export const getInterviewResponse = async (question, candidateAnswer, jobContext = '', previousQA = []) => {
-    const systemPrompt = `You are an AI interviewer conducting a live technical interview. 
+export const getInterviewResponse = async (
+  question,
+  candidateAnswer,
+  jobContext = "",
+  previousQA = [],
+) => {
+  const systemPrompt = `You are an AI interviewer conducting a live technical interview. 
 Be conversational, professional, and encouraging. 
 Provide real-time feedback and follow-up questions.
 Keep responses concise (2-3 sentences for feedback, then the follow-up).`;
 
-    const contextHistory = previousQA.map(qa => [
-        { role: 'assistant', content: `Question: ${qa.question}` },
-        { role: 'user', content: qa.answer }
-    ]).flat();
+  const contextHistory = previousQA
+    .map((qa) => [
+      { role: "assistant", content: `Question: ${qa.question}` },
+      { role: "user", content: qa.answer },
+    ])
+    .flat();
 
-    const userPrompt = `Current question asked: "${question}"
+  const userPrompt = `Current question asked: "${question}"
 
 Candidate's answer: "${candidateAnswer}"
 
-${jobContext ? `Job context: ${jobContext}` : ''}
+${jobContext ? `Job context: ${jobContext}` : ""}
 
 Provide:
 1. Brief feedback on their answer (what was good, what could be better)
@@ -470,37 +505,40 @@ Return JSON:
     "shouldContinue": <true if follow-up needed, false if ready for next question>
 }`;
 
-    try {
-        const result = await callGPT5([
-            { role: 'system', content: systemPrompt },
-            ...contextHistory,
-            { role: 'assistant', content: `Question: ${question}` },
-            { role: 'user', content: userPrompt }
-        ], {
-            temperature: 0.7,
-            maxTokens: 500,
-            feature: 'LIVE_INTERVIEW' // Uses gpt-5-mini-ca for fast responses
-        });
+  try {
+    const result = await callGPT5(
+      [
+        { role: "system", content: systemPrompt },
+        ...contextHistory,
+        { role: "assistant", content: `Question: ${question}` },
+        { role: "user", content: userPrompt },
+      ],
+      {
+        temperature: 0.7,
+        maxTokens: 500,
+        feature: "LIVE_INTERVIEW", // Uses gpt-5-mini-ca for fast responses
+      },
+    );
 
-        return parseAIJson(result.content);
-    } catch (error) {
-        console.error('GPT-5 interview response error:', error);
-        return {
-            feedback: "I heard your response. Let me process that.",
-            followUp: "Could you elaborate on that point?",
-            score: 5,
-            strengths: [],
-            improvements: [],
-            shouldContinue: true
-        };
-    }
+    return parseAIJson(result.content);
+  } catch (error) {
+    console.error("GPT-5 interview response error:", error);
+    return {
+      feedback: "I heard your response. Let me process that.",
+      followUp: "Could you elaborate on that point?",
+      score: 5,
+      strengths: [],
+      improvements: [],
+      shouldContinue: true,
+    };
+  }
 };
 
 /**
  * Enhanced Fraud Detection with AI
  */
 export const analyzeFraudWithAI = async (behaviorData, contextData = {}) => {
-    const prompt = `Analyze this interview behavior data for potential fraud/cheating indicators.
+  const prompt = `Analyze this interview behavior data for potential fraud/cheating indicators.
 
 BEHAVIOR DATA:
 - Tab switches: ${behaviorData.tabSwitches || 0}
@@ -512,9 +550,9 @@ BEHAVIOR DATA:
 - Idle periods (> 30s): ${behaviorData.idlePeriods || 0}
 
 CONTEXT:
-- Test duration: ${contextData.duration || 'Unknown'}
-- Total questions: ${contextData.totalQuestions || 'Unknown'}
-- Test type: ${contextData.testType || 'MCQ'}
+- Test duration: ${contextData.duration || "Unknown"}
+- Total questions: ${contextData.totalQuestions || "Unknown"}
+- Test type: ${contextData.testType || "MCQ"}
 
 Provide fraud analysis:
 {
@@ -533,25 +571,25 @@ Provide fraud analysis:
     "summary": "<1-2 sentence summary>"
 }`;
 
-    try {
-        const result = await callGPT5(prompt, {
-            temperature: 0.2,
-            maxTokens: 800,
-            feature: 'FRAUD_DETECTION' // Uses gpt-5-nano-ca for instant assessment
-        });
-        return parseAIJson(result.content);
-    } catch (error) {
-        console.error('GPT-5 fraud analysis error:', error);
-        // Return basic algorithmic analysis on error
-        return null;
-    }
+  try {
+    const result = await callGPT5(prompt, {
+      temperature: 0.2,
+      maxTokens: 800,
+      feature: "FRAUD_DETECTION", // Uses gpt-5-nano-ca for instant assessment
+    });
+    return parseAIJson(result.content);
+  } catch (error) {
+    console.error("GPT-5 fraud analysis error:", error);
+    // Return basic algorithmic analysis on error
+    return null;
+  }
 };
 
 /**
  * Generate Interview Report with GPT-5
  */
 export const generateReportWithGPT5 = async (interviewData) => {
-    const prompt = `Generate a comprehensive interview report for CEO review.
+  const prompt = `Generate a comprehensive interview report for CEO review.
 
 CANDIDATE: ${interviewData.candidateName} (${interviewData.candidateEmail})
 POSITION: ${interviewData.jobTitle}
@@ -566,7 +604,7 @@ SCORES:
 - Fraud Risk: ${interviewData.fraudRiskScore}/100
 
 RECRUITER NOTES:
-${interviewData.recruiterNotes || 'None provided'}
+${interviewData.recruiterNotes || "None provided"}
 
 Generate executive summary:
 {
@@ -581,43 +619,45 @@ Generate executive summary:
     "nextSteps": ["<recommended actions>"]
 }`;
 
-    try {
-        const result = await callGPT5(prompt, {
-            temperature: 0.4,
-            maxTokens: 2000,
-            useReasoning: true, // Use deepseek-r1 for chain-of-thought reasoning!
-            preferSpeed: false  // Accuracy over speed for CEO reports
-        });
+  try {
+    const result = await callGPT5(prompt, {
+      temperature: 0.4,
+      maxTokens: 2000,
+      useReasoning: true, // Use deepseek-r1 for chain-of-thought reasoning!
+      preferSpeed: false, // Accuracy over speed for CEO reports
+    });
 
-        const report = parseAIJson(result.content);
-        report.generatedBy = result.model;
-        report.generatedAt = new Date().toISOString();
+    const report = parseAIJson(result.content);
+    report.generatedBy = result.model;
+    report.generatedAt = new Date().toISOString();
 
-        // Include reasoning if available (deepseek-r1)
-        if (result.reasoning) {
-            report.aiReasoning = result.reasoning;
-            console.log(`📝 CEO Report includes ${result.reasoning.length} chars of AI reasoning`);
-        }
-
-        return report;
-    } catch (error) {
-        console.error('Report generation error:', error);
-        throw error;
+    // Include reasoning if available (deepseek-r1)
+    if (result.reasoning) {
+      report.aiReasoning = result.reasoning;
+      console.log(
+        `📝 CEO Report includes ${result.reasoning.length} chars of AI reasoning`,
+      );
     }
+
+    return report;
+  } catch (error) {
+    console.error("Report generation error:", error);
+    throw error;
+  }
 };
 
 // Export models and features for external use
 export { AI_MODELS, FEATURE_MODELS };
 
 export default {
-    callGPT5,
-    parseAIJson,
-    generateSpeech,
-    analyzeResumeWithGPT5,
-    generateMCQWithGPT5,
-    getInterviewResponse,
-    analyzeFraudWithAI,
-    generateReportWithGPT5,
-    AI_MODELS,
-    FEATURE_MODELS
+  callGPT5,
+  parseAIJson,
+  generateSpeech,
+  analyzeResumeWithGPT5,
+  generateMCQWithGPT5,
+  getInterviewResponse,
+  analyzeFraudWithAI,
+  generateReportWithGPT5,
+  AI_MODELS,
+  FEATURE_MODELS,
 };

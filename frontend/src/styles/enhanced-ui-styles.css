@@ -7,7 +7,7 @@
   border: 1px solid rgba(229, 231, 235, 0.6);
   border-radius: 1.5rem;
   padding: 2.5rem;
-  box-shadow: 
+  box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.08),
     0 8px 10px -6px rgba(0, 0, 0, 0.03),
     0 0 0 1px rgba(255, 255, 255, 0.2) inset;
@@ -18,7 +18,7 @@
 }
 
 .auth-form:hover {
-  box-shadow: 
+  box-shadow:
     0 20px 30px -10px rgba(79, 70, 229, 0.2),
     0 10px 15px -5px rgba(79, 70, 229, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.3) inset;
@@ -32,7 +32,11 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.08) 0%,
+    transparent 70%
+  );
   z-index: -1;
   opacity: 0;
   transition: opacity 0.6s ease;
@@ -65,7 +69,12 @@
   transform: translateX(-50%);
   width: 80px;
   height: 4px;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 102, 241, 0.5),
+    transparent
+  );
   border-radius: 2px;
 }
 
@@ -85,7 +94,9 @@
 .enhanced-input:focus {
   background: white;
   border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 2px 8px rgba(99, 102, 241, 0.1);
+  box-shadow:
+    0 0 0 4px rgba(99, 102, 241, 0.15),
+    0 2px 8px rgba(99, 102, 241, 0.1);
   outline: none;
   transform: translateY(-1px);
 }
@@ -193,7 +204,7 @@
   border: 1px solid rgba(229, 231, 235, 0.6);
   border-radius: 1.5rem;
   padding: 2.5rem;
-  box-shadow: 
+  box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.08),
     0 8px 10px -6px rgba(0, 0, 0, 0.03),
     0 0 0 1px rgba(255, 255, 255, 0.2) inset;
@@ -204,7 +215,7 @@
 }
 
 .auth-form:hover {
-  box-shadow: 
+  box-shadow:
     0 20px 30px -10px rgba(79, 70, 229, 0.2),
     0 10px 15px -5px rgba(79, 70, 229, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.3) inset;
@@ -218,7 +229,11 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.08) 0%,
+    transparent 70%
+  );
   z-index: -1;
   opacity: 0;
   transition: opacity 0.6s ease;
@@ -251,7 +266,12 @@
   transform: translateX(-50%);
   width: 80px;
   height: 4px;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 102, 241, 0.5),
+    transparent
+  );
   border-radius: 2px;
 }
 
@@ -274,13 +294,17 @@
 .enhanced-button-primary {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
-  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2), 0 2px 4px -1px rgba(99, 102, 241, 0.1);
+  box-shadow:
+    0 4px 6px -1px rgba(99, 102, 241, 0.2),
+    0 2px 4px -1px rgba(99, 102, 241, 0.1);
   letter-spacing: 0.025em;
 }
 
 .enhanced-button-primary:hover {
   background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3), 0 4px 6px -2px rgba(79, 70, 229, 0.1);
+  box-shadow:
+    0 10px 15px -3px rgba(79, 70, 229, 0.3),
+    0 4px 6px -2px rgba(79, 70, 229, 0.1);
   transform: translateY(-2px);
 }
 
@@ -386,7 +410,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
+  background-image:
     linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -434,14 +458,14 @@
   border: 1px solid rgba(229, 231, 235, 0.5);
   border-radius: 1rem;
   padding: 0.5rem 0.5rem 0.5rem 1.5rem;
-  box-shadow: 
+  box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.05),
     0 8px 10px -6px rgba(0, 0, 0, 0.01);
   transition: all 0.3s ease;
 }
 
 .enhanced-hero-search:focus-within {
-  box-shadow: 
+  box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04),
     0 0 0 3px rgba(99, 102, 241, 0.1);
@@ -492,7 +516,9 @@
 
 .enhanced-stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .enhanced-stat-icon {
@@ -523,15 +549,15 @@
   .enhanced-hero-title {
     font-size: 2.5rem;
   }
-  
+
   .enhanced-hero-subtitle {
     font-size: 1.125rem;
   }
-  
+
   .enhanced-stats {
     grid-template-columns: repeat(1, 1fr);
   }
-  
+
   .auth-form {
     padding: 2rem;
   }

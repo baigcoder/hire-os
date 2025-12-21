@@ -1,87 +1,123 @@
-import React, { Suspense } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { PageLoader } from './components/LazyComponents';
-import Login from './components/auth/Login'
-import Signup from './components/auth/Signup'
-import AuthCallback from './components/auth/AuthCallback'
-import ForgotPassword from './components/auth/ForgotPassword'
-import ResetPassword from './components/auth/ResetPassword'
-import ChangePassword from './components/auth/ChangePassword'
-import Home from './components/Home'
-import FeaturesPage from './components/FeaturesPage'
-import Jobs from './components/Jobs'
-import Browse from './components/Browse'
-import Profile from './components/Profile'
-import ProfilePage from './components/ProfilePage'
-import SettingsPage from './components/SettingsPage'
-import JobDescription from './components/JobDescription'
-import Companies from './components/admin/Companies'
-import CompanyCreate from './components/admin/CompanyCreate'
-import CompanySetup from './components/admin/CompanySetup'
-import AdminJobs from "./components/admin/AdminJobs"
-import PostJob from './components/admin/PostJob'
-import Applicants from './components/admin/Applicants'
-import AdminApplications from './components/admin/AdminApplications'
-import AdminInterviews from './components/admin/AdminInterviews'
-import AdminAnalytics from './components/admin/AdminAnalytics'
-import ProtectedRoute, { RecruiterRoute, CompanyAdminRoute } from './components/admin/ProtectedRoute'
-import AppliedJobs from './components/student/AppliedJobs'
-import PricingPage from './components/company/PricingPage'
-import BillingPage from './components/company/BillingPage'
-import CompanyProfilePage from './components/company/CompanyProfilePage'
-import CompanyRegistration from './components/company/CompanyRegistration'
-import PaymentPage from './components/company/PaymentPage'
-import PaymentSuccess from './components/company/PaymentSuccess'
-import PaymentSimulator from './components/company/PaymentSimulator'
-import PaddleCheckout from './components/company/PaddleCheckout'
-import AdminSignupFlow from './components/company/AdminSignupFlow'
+import React, { Suspense } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { PageLoader } from "./components/LazyComponents";
+import Login from "./components/auth/Login";
+import Signup from "./components/auth/Signup";
+import AuthCallback from "./components/auth/AuthCallback";
+import { RealtimeProvider } from "./context/SocketContext";
+import { Toaster } from "./components/ui/sonner";
+import ForgotPassword from "./components/auth/ForgotPassword";
+import ResetPassword from "./components/auth/ResetPassword";
+import ChangePassword from "./components/auth/ChangePassword";
+import Home from "./components/Home";
+import FeaturesPage from "./components/FeaturesPage";
+import Jobs from "./components/Jobs";
+import Browse from "./components/Browse";
+import Profile from "./components/Profile";
+import ProfilePage from "./components/ProfilePage";
+import SettingsPage from "./components/SettingsPage";
+import JobDescription from "./components/JobDescription";
+import Companies from "./components/admin/Companies";
+import CompanyCreate from "./components/admin/CompanyCreate";
+import CompanySetup from "./components/admin/CompanySetup";
+import AdminJobs from "./components/admin/AdminJobs";
+import PostJob from "./components/admin/PostJob";
+import Applicants from "./components/admin/Applicants";
+import AdminApplications from "./components/admin/AdminApplications";
+import AdminInterviews from "./components/admin/AdminInterviews";
+import AdminAnalytics from "./components/admin/AdminAnalytics";
+import ProtectedRoute, {
+  RecruiterRoute,
+  CompanyAdminRoute,
+} from "./components/admin/ProtectedRoute";
+import AppliedJobs from "./components/student/AppliedJobs";
+import PricingPage from "./components/company/PricingPage";
+import BillingPage from "./components/company/BillingPage";
+import CompanyProfilePage from "./components/company/CompanyProfilePage";
+import CompanyRegistration from "./components/company/CompanyRegistration";
+import PaymentPage from "./components/company/PaymentPage";
+import PaymentSuccess from "./components/company/PaymentSuccess";
+import PaymentSimulator from "./components/company/PaymentSimulator";
+import PaddleCheckout from "./components/company/PaddleCheckout";
+import AdminSignupFlow from "./components/company/AdminSignupFlow";
 // import CompanyDashboard from './components/company/CompanyDashboard' // Lazy loaded
 // import CompanyAdminDashboard from './components/company/CompanyAdminDashboard' // Lazy loaded
 // import Dashboard from './components/student/DashboardNew' // Lazy loaded
 // import RecruiterDashboard from './components/admin/RecruiterDashboardNew' // Lazy loaded
-import RecruiterJobs from './components/recruiter/RecruiterJobs'
+import RecruiterJobs from "./components/recruiter/RecruiterJobs";
 // import LiveInterview from './components/interview/LiveInterview' // Lazy loaded
-import MCQTestPage from './components/interview/MCQTestPage'
-import InterviewReport from './components/interview/InterviewReport'
-import NotificationCenter from './components/notifications/NotificationCenter'
-import AnalysisResult from './components/student/AnalysisResult'
-import CompanyReport from './components/admin/CompanyReport'
-import CEOReportReview from './components/admin/CEOReportReview'
+import MCQTestPage from "./components/interview/MCQTestPage";
+import InterviewReport from "./components/interview/InterviewReport";
+import NotificationCenter from "./components/notifications/NotificationCenter";
+import AnalysisResult from "./components/student/AnalysisResult";
+import CompanyReport from "./components/admin/CompanyReport";
+import CEOReportReview from "./components/admin/CEOReportReview";
 // import CEODashboard from './components/admin/CEODashboard' // Lazy loaded
-import MockInterview from './components/student/MockInterview'
-import { AlertCircle, ArrowLeft } from 'lucide-react'
+import MockInterview from "./components/student/MockInterview";
+import CallDialog from "./components/shared/CallDialog";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 
 // Lazy Load Heavy Dashboards
-const Dashboard = React.lazy(() => import('./components/student/DashboardNew'));
-const RecruiterDashboard = React.lazy(() => import('./components/admin/RecruiterDashboardNew'));
-const CEODashboard = React.lazy(() => import('./components/admin/CEODashboard'));
-const CompanyDashboard = React.lazy(() => import('./components/company/CompanyDashboard'));
-const CompanyAdminDashboard = React.lazy(() => import('./components/company/CompanyAdminDashboard'));
-const LiveInterview = React.lazy(() => import('./components/interview/LiveInterview'));
+const Dashboard = React.lazy(() => import("./components/student/DashboardNew"));
+const RecruiterDashboard = React.lazy(
+  () => import("./components/admin/RecruiterDashboardNew"),
+);
+const CEODashboard = React.lazy(
+  () => import("./components/admin/CEODashboard"),
+);
+const CompanyDashboard = React.lazy(
+  () => import("./components/company/CompanyDashboard"),
+);
+const CompanyAdminDashboard = React.lazy(
+  () => import("./components/company/CompanyAdminDashboard"),
+);
+const LiveInterview = React.lazy(
+  () => import("./components/interview/LiveInterview"),
+);
 
 // New Recruiter Dashboard Components
-const RecruiterDashboardEnhanced = React.lazy(() => import('./components/recruiter/RecruiterDashboardEnhanced'));
-const CandidatePipeline = React.lazy(() => import('./components/recruiter/CandidatePipeline'));
-const AnalyticsDashboard = React.lazy(() => import('./components/recruiter/AnalyticsDashboard'));
-const EmailTemplates = React.lazy(() => import('./components/recruiter/EmailTemplates'));
-const InterviewFeedbackForm = React.lazy(() => import('./components/recruiter/InterviewFeedbackForm'));
+const RecruiterDashboardEnhanced = React.lazy(
+  () => import("./components/recruiter/RecruiterDashboardEnhanced"),
+);
+const CandidatePipeline = React.lazy(
+  () => import("./components/recruiter/CandidatePipeline"),
+);
+const AnalyticsDashboard = React.lazy(
+  () => import("./components/recruiter/AnalyticsDashboard"),
+);
+const EmailTemplates = React.lazy(
+  () => import("./components/recruiter/EmailTemplates"),
+);
+const InterviewFeedbackForm = React.lazy(
+  () => import("./components/recruiter/InterviewFeedbackForm"),
+);
+const RecruiterInterviewSchedule = React.lazy(
+  () => import("./components/recruiter/InterviewSchedule"),
+);
+const RecruiterMessagesPage = React.lazy(
+  () => import("./components/recruiter/MessagesPage"),
+);
+const StudentMessagesPage = React.lazy(
+  () => import("./components/student/StudentMessagesPage"),
+);
 
 // Lazy Wrapper
 const LazyWrapper = ({ children }) => (
-  <Suspense fallback={<PageLoader />}>
-    {children}
-  </Suspense>
+  <Suspense fallback={<PageLoader />}>{children}</Suspense>
 );
 
 // Redesigned 404 Component - Industrial Theme
 const NotFound = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A0A0A] font-['Space_Grotesk',sans-serif] relative overflow-hidden">
     {/* Industrial Grid Background */}
-    <div className="fixed inset-0 opacity-30 pointer-events-none" style={{
-      backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    <div
+      className="fixed inset-0 opacity-30 pointer-events-none"
+      style={{
+        backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
                         linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-      backgroundSize: '50px 50px'
-    }} />
+        backgroundSize: "50px 50px",
+      }}
+    />
 
     {/* Glow Effects */}
     <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
@@ -102,15 +138,21 @@ const NotFound = () => (
       </div>
 
       {/* Error Code */}
-      <h1 className="text-7xl font-black text-[#FFD700] font-mono tracking-tighter mb-2">404</h1>
+      <h1 className="text-7xl font-black text-[#FFD700] font-mono tracking-tighter mb-2">
+        404
+      </h1>
 
       {/* Terminal-style Status */}
       <div className="flex items-center justify-center gap-2 mb-4">
         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-        <span className="text-xs font-mono text-red-400 uppercase tracking-wider">Route Not Found</span>
+        <span className="text-xs font-mono text-red-400 uppercase tracking-wider">
+          Route Not Found
+        </span>
       </div>
 
-      <h2 className="text-xl font-bold text-white uppercase tracking-wider mb-3">System Error</h2>
+      <h2 className="text-xl font-bold text-white uppercase tracking-wider mb-3">
+        System Error
+      </h2>
       <p className="text-gray-500 text-sm font-mono mb-8 max-w-sm mx-auto">
         The requested endpoint does not exist in the current routing matrix.
         Please verify your navigation path.
@@ -143,277 +185,514 @@ const NotFound = () => (
   </div>
 );
 
+// Footer Pages
+import About from "./components/pages/About";
+import Contact from "./components/pages/Contact";
+import Careers from "./components/pages/Careers";
+import Press from "./components/pages/Press";
+import LegalPage from "./components/pages/LegalPage";
+import ResourcePage from "./components/pages/ResourcePage";
+
 const appRouter = createBrowserRouter([
   {
     path: "/",
     element: <Home />, // Pure Landing Page
-    errorElement: <NotFound />
+    errorElement: <NotFound />,
   },
   {
     path: "/login",
-    element: <Login />
+    element: <Login />,
   },
   {
     path: "/signup",
-    element: <Signup />
+    element: <Signup />,
   },
   {
     path: "/auth/callback",
-    element: <AuthCallback />
+    element: <AuthCallback />,
   },
   {
     path: "/forgot-password",
-    element: <ForgotPassword />
+    element: <ForgotPassword />,
   },
   {
     path: "/reset-password",
-    element: <ResetPassword />
+    element: <ResetPassword />,
   },
   {
     path: "/change-password",
-    element: <ChangePassword />
+    element: <ChangePassword />,
   },
+
+  // Footer Pages - Company
+  { path: "/about", element: <About /> },
+  { path: "/contact", element: <Contact /> },
+  { path: "/careers", element: <Careers /> },
+  { path: "/press", element: <Press /> },
+
+  // Footer Pages - Legal
+  { path: "/privacy", element: <LegalPage type="privacy" /> },
+  { path: "/terms", element: <LegalPage type="terms" /> },
+  { path: "/cookies", element: <LegalPage type="cookies" /> },
+
+  // Footer Pages - Resources
+  { path: "/help", element: <ResourcePage type="help" /> },
+  { path: "/resume", element: <ResourcePage type="resume" /> },
+  { path: "/salary", element: <ResourcePage type="salary" /> },
+  { path: "/tips", element: <ResourcePage type="tips" /> },
+
   {
     path: "/jobs",
-    element: <Jobs />
+    element: <Jobs />,
   },
   {
     path: "/features",
-    element: <FeaturesPage />
+    element: <FeaturesPage />,
   },
   {
     path: "/browse",
-    element: <Browse />
+    element: <Browse />,
   },
   {
     path: "/profile",
-    element: <ProtectedRoute><ProfilePage /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/profile/old", // Keep old profile as fallback
-    element: <ProtectedRoute><Profile /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/settings",
-    element: <ProtectedRoute><SettingsPage /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <SettingsPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/description/:id",
     element: <JobDescription />,
-    errorElement: <NotFound />
+    errorElement: <NotFound />,
   },
   // Public Company Profile
   {
     path: "/company/:id",
-    element: <CompanyProfilePage />
+    element: <CompanyProfilePage />,
   },
 
   // Student Dashboard
   {
     path: "/student/:name",
-    element: <ProtectedRoute><LazyWrapper><Dashboard /></LazyWrapper></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <Dashboard />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/student/dashboard", // Fallback/Redirect
-    element: <ProtectedRoute><LazyWrapper><Dashboard /></LazyWrapper></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <Dashboard />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/applied-jobs",
-    element: <ProtectedRoute><AppliedJobs /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <AppliedJobs />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/resume/analysis", // New AI Analysis Route
-    element: <ProtectedRoute><AnalysisResult /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <AnalysisResult />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/interview-prep", // Mock Interview Practice
-    element: <ProtectedRoute><MockInterview /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <MockInterview />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/mock-interview", // Alternative route
-    element: <ProtectedRoute><MockInterview /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <MockInterview />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/messages", // Messages/Notifications
-    element: <ProtectedRoute><NotificationCenter /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <NotificationCenter />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/student/messages",
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <StudentMessagesPage />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
   },
 
   // Interview Routes
   {
     path: "/interview/live/:id", // Live Video Interview with ID
-    element: <ProtectedRoute><LazyWrapper><LiveInterview /></LazyWrapper></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <LiveInterview />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/interview/live", // Development access without ID
-    element: <LazyWrapper><LiveInterview /></LazyWrapper>
+    element: (
+      <LazyWrapper>
+        <LiveInterview />
+      </LazyWrapper>
+    ),
   },
   {
     path: "/interview/mcq/:id", // MCQ Test Page
-    element: <ProtectedRoute><MCQTestPage /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <MCQTestPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/interview/:id/report", // Interview Report with CEO Approval
-    element: <ProtectedRoute><InterviewReport /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <InterviewReport />
+      </ProtectedRoute>
+    ),
   },
 
   // Notifications
   {
     path: "/notifications",
-    element: <ProtectedRoute><NotificationCenter /></ProtectedRoute>
+    element: (
+      <ProtectedRoute>
+        <NotificationCenter />
+      </ProtectedRoute>
+    ),
   },
 
   // Recruiter Dashboard
   {
     path: "/recruiter/:name",
-    element: <RecruiterRoute><LazyWrapper><RecruiterDashboard /></LazyWrapper></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <RecruiterDashboard />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/recruiter/dashboard", // Fallback/Redirect
-    element: <RecruiterRoute><LazyWrapper><RecruiterDashboard /></LazyWrapper></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <RecruiterDashboard />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
   },
   {
     // Recruiter view company jobs (read-only)
     path: "/recruiter/jobs",
-    element: <RecruiterRoute><RecruiterJobs /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <RecruiterJobs />
+      </RecruiterRoute>
+    ),
   },
   {
     // Recruiter view applications for a specific job
     path: "/recruiter/job/:id/applications",
-    element: <RecruiterRoute><Applicants /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <Applicants />
+      </RecruiterRoute>
+    ),
   },
   {
     // Accept invitation (public route)
     path: "/recruiter/accept-invite",
-    element: <CompanyRegistration mode="recruiter-invite" />
+    element: <CompanyRegistration mode="recruiter-invite" />,
+  },
+  {
+    // Recruiter interview scheduling page
+    path: "/recruiter/interviews",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <RecruiterInterviewSchedule />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
+  },
+  {
+    // Recruiter messages page
+    path: "/recruiter/messages",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <RecruiterMessagesPage />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
   },
 
   // Recruiter Admin Routes
   {
     path: "/admin/companies",
-    element: <RecruiterRoute><Companies /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <Companies />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/companies/create",
-    element: <RecruiterRoute><CompanyCreate /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <CompanyCreate />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/companies/:id",
-    element: <RecruiterRoute><CompanySetup /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <CompanySetup />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/jobs",
-    element: <RecruiterRoute><AdminJobs /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <AdminJobs />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/jobs/create",
-    element: <CompanyAdminRoute><PostJob /></CompanyAdminRoute>  // Only CEO can post jobs
+    element: (
+      <CompanyAdminRoute>
+        <PostJob />
+      </CompanyAdminRoute>
+    ), // Only CEO can post jobs
   },
   {
     path: "/admin/jobs/:id/applicants",
-    element: <RecruiterRoute><Applicants /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <Applicants />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/jobs/:id/report",
-    element: <RecruiterRoute><CompanyReport /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <CompanyReport />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/applications",
-    element: <RecruiterRoute><AdminApplications /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <AdminApplications />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/interviews",
-    element: <RecruiterRoute><AdminInterviews /></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <AdminInterviews />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/analytics",
-    element: <RecruiterRoute><LazyWrapper><AnalyticsDashboard /></LazyWrapper></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <AnalyticsDashboard />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
   },
   // New Recruiter Dashboard Routes
   {
     path: "/admin/pipeline",
-    element: <RecruiterRoute><LazyWrapper><CandidatePipeline /></LazyWrapper></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <CandidatePipeline />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/email-templates",
-    element: <RecruiterRoute><LazyWrapper><EmailTemplates /></LazyWrapper></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <EmailTemplates />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/dashboard-enhanced",
-    element: <RecruiterRoute><LazyWrapper><RecruiterDashboardEnhanced /></LazyWrapper></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <RecruiterDashboardEnhanced />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/interview-feedback/:id",
-    element: <RecruiterRoute><LazyWrapper><InterviewFeedbackForm /></LazyWrapper></RecruiterRoute>
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <InterviewFeedbackForm />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
   },
 
   // Company Admin Routes
   {
     path: "/company/admin/dashboard",
-    element: <CompanyAdminRoute><LazyWrapper><CompanyAdminDashboard /></LazyWrapper></CompanyAdminRoute>
+    element: (
+      <CompanyAdminRoute>
+        <LazyWrapper>
+          <CompanyAdminDashboard />
+        </LazyWrapper>
+      </CompanyAdminRoute>
+    ),
   },
   {
     path: "/ceo/reports/:id",
-    element: <CompanyAdminRoute><CEOReportReview /></CompanyAdminRoute>
+    element: (
+      <CompanyAdminRoute>
+        <CEOReportReview />
+      </CompanyAdminRoute>
+    ),
   },
   {
     path: "/ceo/dashboard",
-    element: <CompanyAdminRoute><LazyWrapper><CEODashboard /></LazyWrapper></CompanyAdminRoute>
+    element: (
+      <CompanyAdminRoute>
+        <LazyWrapper>
+          <CEODashboard />
+        </LazyWrapper>
+      </CompanyAdminRoute>
+    ),
   },
-
 
   // Company routes
   {
     path: "/admin/signup",
-    element: <AdminSignupFlow />
+    element: <AdminSignupFlow />,
   },
   {
     path: "/company/signup",
-    element: <AdminSignupFlow />
+    element: <AdminSignupFlow />,
   },
   {
     path: "/company/pricing",
-    element: <PricingPage />
+    element: <PricingPage />,
   },
   {
     path: "/company/billing",
-    element: <CompanyAdminRoute><BillingPage /></CompanyAdminRoute>
+    element: (
+      <CompanyAdminRoute>
+        <BillingPage />
+      </CompanyAdminRoute>
+    ),
   },
   {
     path: "/company/register",
-    element: <CompanyRegistration />
+    element: <CompanyRegistration />,
   },
   {
     path: "/company/payment",
-    element: <PaymentPage />
+    element: <PaymentPage />,
   },
   {
     path: "/company/payment/success",
-    element: <PaymentSuccess />
+    element: <PaymentSuccess />,
   },
   {
     path: "/company/payment/checkout",
-    element: <PaymentSimulator />
+    element: <PaymentSimulator />,
   },
   {
     path: "/company/payment/paddle",
-    element: <PaddleCheckout />
+    element: <PaddleCheckout />,
   },
   {
     path: "/company/dashboard",
-    element: <LazyWrapper><CompanyDashboard /></LazyWrapper>
+    element: (
+      <LazyWrapper>
+        <CompanyDashboard />
+      </LazyWrapper>
+    ),
   },
   {
     path: "*",
-    element: <NotFound />
-  }
+    element: <NotFound />,
+  },
 ]);
 
 function App() {
   return (
     <div>
-      <RouterProvider router={appRouter} />
+      <RealtimeProvider>
+        <RouterProvider router={appRouter} />
+        <CallDialog />
+        <Toaster />
+      </RealtimeProvider>
     </div>
   );
 }
 
-export default App
+export default App;

@@ -1,53 +1,57 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 // Create transporter
 const createTransporter = () => {
-    const email = process.env.SMTP_USER || process.env.EMAIL_USER;
-    const password = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+  const email = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const password = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
-    if (!email || !password) {
-        console.error('❌ Email credentials missing! Check EMAIL_USER and EMAIL_PASS in .env');
-        throw new Error('Email configuration incomplete');
+  if (!email || !password) {
+    console.error(
+      "❌ Email credentials missing! Check EMAIL_USER and EMAIL_PASS in .env",
+    );
+    throw new Error("Email configuration incomplete");
+  }
+
+  console.log(`📧 Configuring email for: ${email}`);
+
+  // Explicit SMTP configuration for Gmail / Google Workspace
+  // Using port 587 with STARTTLS (more compatible than 465 for some networks)
+  const config = {
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: email,
+      pass: password,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    debug: false,
+    logger: false,
+  };
+
+  const transporter = nodemailer.createTransport(config);
+
+  // Verify connection configuration
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error("❌ Email server connection failed:", error.message);
+      console.error("   Please check your EMAIL_USER and EMAIL_PASS in .env");
+      console.error(
+        "   Make sure you are using a Gmail App Password, not your regular password",
+      );
+    } else {
+      console.log("✅ Email server is ready to send messages");
     }
+  });
 
-    console.log(`📧 Configuring email for: ${email}`);
-
-    // Explicit SMTP configuration for Gmail / Google Workspace
-    // Using port 587 with STARTTLS (more compatible than 465 for some networks)
-    const config = {
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-            user: email,
-            pass: password
-        },
-        tls: {
-            rejectUnauthorized: false
-        },
-        debug: false,
-        logger: false
-    };
-
-    const transporter = nodemailer.createTransport(config);
-
-    // Verify connection configuration
-    transporter.verify((error, success) => {
-        if (error) {
-            console.error('❌ Email server connection failed:', error.message);
-            console.error('   Please check your EMAIL_USER and EMAIL_PASS in .env');
-            console.error('   Make sure you are using a Gmail App Password, not your regular password');
-        } else {
-            console.log('✅ Email server is ready to send messages');
-        }
-    });
-
-    return transporter;
+  return transporter;
 };
 
 // Generate 6-digit OTP
 export const generateOTP = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
 // Store OTPs in memory (use Redis in production)
@@ -55,58 +59,67 @@ const otpStore = new Map();
 
 // Save OTP with expiry
 export const saveOTP = (email, otp) => {
-    otpStore.set(email.toLowerCase(), {
-        otp,
-        expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-        attempts: 0
-    });
+  otpStore.set(email.toLowerCase(), {
+    otp,
+    expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+    attempts: 0,
+  });
 };
 
 // Verify OTP
 export const verifyOTP = (email, inputOtp) => {
-    const stored = otpStore.get(email.toLowerCase());
+  const stored = otpStore.get(email.toLowerCase());
 
-    if (!stored) {
-        return { valid: false, message: 'OTP expired or not found. Please request a new code.' };
-    }
+  if (!stored) {
+    return {
+      valid: false,
+      message: "OTP expired or not found. Please request a new code.",
+    };
+  }
 
-    if (Date.now() > stored.expiresAt) {
-        otpStore.delete(email.toLowerCase());
-        return { valid: false, message: 'OTP has expired. Please request a new code.' };
-    }
-
-    stored.attempts++;
-
-    if (stored.attempts > 5) {
-        otpStore.delete(email.toLowerCase());
-        return { valid: false, message: 'Too many attempts. Please request a new code.' };
-    }
-
-    if (stored.otp !== inputOtp) {
-        return { valid: false, message: 'Invalid OTP. Please try again.' };
-    }
-
-    // OTP is valid, remove it
+  if (Date.now() > stored.expiresAt) {
     otpStore.delete(email.toLowerCase());
-    return { valid: true, message: 'OTP verified successfully' };
+    return {
+      valid: false,
+      message: "OTP has expired. Please request a new code.",
+    };
+  }
+
+  stored.attempts++;
+
+  if (stored.attempts > 5) {
+    otpStore.delete(email.toLowerCase());
+    return {
+      valid: false,
+      message: "Too many attempts. Please request a new code.",
+    };
+  }
+
+  if (stored.otp !== inputOtp) {
+    return { valid: false, message: "Invalid OTP. Please try again." };
+  }
+
+  // OTP is valid, remove it
+  otpStore.delete(email.toLowerCase());
+  return { valid: true, message: "OTP verified successfully" };
 };
 
 // Send OTP email
-export const sendOTPEmail = async (email, otp, purpose = 'verification') => {
-    const transporter = createTransporter();
+export const sendOTPEmail = async (email, otp, purpose = "verification") => {
+  const transporter = createTransporter();
 
-    const purposeText = {
-        verification: 'verify your email',
-        signup: 'complete your registration',
-        login: 'sign in to your account',
-        reset: 'reset your password'
-    };
+  const purposeText = {
+    verification: "verify your email",
+    signup: "complete your registration",
+    login: "sign in to your account",
+    reset: "reset your password",
+  };
 
-    const mailOptions = {
-        from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `HIRE.OS // Verification: ${otp}`,
-        html: `
+  const mailOptions = {
+    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `HIRE.OS // Verification: ${otp}`,
+    html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -132,7 +145,7 @@ export const sendOTPEmail = async (email, otp, purpose = 'verification') => {
                                             Verification Code
                                         </h2>
                                         <p style="margin: 0 0 25px; color: #999; font-size: 13px; line-height: 1.8;">
-                                            Use the following code to ${purposeText[purpose] || 'verify your email'}. Code expires in 10 minutes.
+                                            Use the following code to ${purposeText[purpose] || "verify your email"}. Code expires in 10 minutes.
                                         </p>
                                         
                                         <!-- OTP Code -->
@@ -168,44 +181,44 @@ export const sendOTPEmail = async (email, otp, purpose = 'verification') => {
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        console.log(`Attempting to send OTP email to ${email}...`);
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ OTP email sent successfully. MessageID:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Email send error details:', error);
+  try {
+    console.log(`Attempting to send OTP email to ${email}...`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ OTP email sent successfully. MessageID:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Email send error details:", error);
 
-        // Development fallback: Log OTP to console if email fails
-        if (process.env.NODE_ENV === 'development') {
-            console.log('\n' + '='.repeat(60));
-            console.log('📧 EMAIL SENDING FAILED - DEVELOPMENT MODE');
-            console.log('='.repeat(60));
-            console.log(`📨 OTP Code for ${email}: ${otp}`);
-            console.log(`🎯 Purpose: ${purpose}`);
-            console.log(`⏰ Valid for: 10 minutes`);
-            console.log('='.repeat(60) + '\n');
+    // Development fallback: Log OTP to console if email fails
+    if (process.env.NODE_ENV === "development") {
+      console.log("\n" + "=".repeat(60));
+      console.log("📧 EMAIL SENDING FAILED - DEVELOPMENT MODE");
+      console.log("=".repeat(60));
+      console.log(`📨 OTP Code for ${email}: ${otp}`);
+      console.log(`🎯 Purpose: ${purpose}`);
+      console.log(`⏰ Valid for: 10 minutes`);
+      console.log("=".repeat(60) + "\n");
 
-            // Return success so signup can continue in development
-            return { success: true, messageId: 'dev-mode-console-log' };
-        }
-
-        throw new Error(`Failed to send verification email: ${error.message}`);
+      // Return success so signup can continue in development
+      return { success: true, messageId: "dev-mode-console-log" };
     }
+
+    throw new Error(`Failed to send verification email: ${error.message}`);
+  }
 };
 
 // Send welcome email
 export const sendWelcomeEmail = async (email, fullname) => {
-    const transporter = createTransporter();
+  const transporter = createTransporter();
 
-    const mailOptions = {
-        from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `Welcome to HIRE.OS // ${fullname}`,
-        html: `
+  const mailOptions = {
+    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `Welcome to HIRE.OS // ${fullname}`,
+    html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -257,7 +270,7 @@ export const sendWelcomeEmail = async (email, fullname) => {
                                             </tr>
                                         </table>
                                         
-                                        <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/jobs" 
+                                        <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/jobs" 
                                            style="display: inline-block; background-color: #FFD700; color: #000; padding: 14px 32px; text-decoration: none; font-weight: bold; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;">
                                             INITIALIZE SEARCH
                                         </a>
@@ -277,28 +290,34 @@ export const sendWelcomeEmail = async (email, fullname) => {
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        return { success: true };
-    } catch (error) {
-        console.error('Welcome email error:', error);
-        // Don't throw - welcome email is not critical
-        return { success: false, error: error.message };
-    }
+  try {
+    await transporter.sendMail(mailOptions);
+    return { success: true };
+  } catch (error) {
+    console.error("Welcome email error:", error);
+    // Don't throw - welcome email is not critical
+    return { success: false, error: error.message };
+  }
 };
 
 // Send recruiter invitation email with login credentials
-export const sendRecruiterInvitation = async (recruiterEmail, recruiterName, companyName, password, loginUrl) => {
-    const transporter = createTransporter();
+export const sendRecruiterInvitation = async (
+  recruiterEmail,
+  recruiterName,
+  companyName,
+  password,
+  loginUrl,
+) => {
+  const transporter = createTransporter();
 
-    const mailOptions = {
-        from: `"JobPortal" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: recruiterEmail,
-        subject: `🎉 You've been invited to join ${companyName} on JobPortal`,
-        html: `
+  const mailOptions = {
+    from: `"JobPortal" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: recruiterEmail,
+    subject: `🎉 You've been invited to join ${companyName} on JobPortal`,
+    html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -401,45 +420,57 @@ export const sendRecruiterInvitation = async (recruiterEmail, recruiterName, com
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        console.log(`Sending recruiter invitation to ${recruiterEmail}...`);
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Recruiter invitation sent. MessageID:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Recruiter invitation email error:', error);
+  try {
+    console.log(`Sending recruiter invitation to ${recruiterEmail}...`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Recruiter invitation sent. MessageID:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Recruiter invitation email error:", error);
 
-        // Development fallback
-        if (process.env.NODE_ENV === 'development') {
-            console.log('\n' + '='.repeat(60));
-            console.log('📧 RECRUITER INVITATION EMAIL - DEVELOPMENT MODE');
-            console.log('='.repeat(60));
-            console.log(`📨 To: ${recruiterEmail}`);
-            console.log(`👤 Name: ${recruiterName}`);
-            console.log(`🏢 Company: ${companyName}`);
-            console.log(`🔐 Password: ${password}`);
-            console.log(`🔗 Login URL: ${loginUrl}`);
-            console.log('='.repeat(60) + '\n');
-            return { success: true, messageId: 'dev-mode-console-log' };
-        }
-
-        return { success: false, error: error.message };
+    // Development fallback
+    if (process.env.NODE_ENV === "development") {
+      console.log("\n" + "=".repeat(60));
+      console.log("📧 RECRUITER INVITATION EMAIL - DEVELOPMENT MODE");
+      console.log("=".repeat(60));
+      console.log(`📨 To: ${recruiterEmail}`);
+      console.log(`👤 Name: ${recruiterName}`);
+      console.log(`🏢 Company: ${companyName}`);
+      console.log(`🔐 Password: ${password}`);
+      console.log(`🔗 Login URL: ${loginUrl}`);
+      console.log("=".repeat(60) + "\n");
+      return { success: true, messageId: "dev-mode-console-log" };
     }
+
+    return { success: false, error: error.message };
+  }
 };
 
 // Send payment invoice email to admin
-export const sendPaymentInvoice = async (adminEmail, adminName, invoiceData) => {
-    const transporter = createTransporter();
-    const { companyName, planName, amount, transactionId, paymentDate, billingCycle, validUntil } = invoiceData;
+export const sendPaymentInvoice = async (
+  adminEmail,
+  adminName,
+  invoiceData,
+) => {
+  const transporter = createTransporter();
+  const {
+    companyName,
+    planName,
+    amount,
+    transactionId,
+    paymentDate,
+    billingCycle,
+    validUntil,
+  } = invoiceData;
 
-    const mailOptions = {
-        from: `"JobPortal" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: adminEmail,
-        subject: `✅ Payment Confirmed - Invoice for ${companyName}`,
-        html: `
+  const mailOptions = {
+    from: `"JobPortal" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: adminEmail,
+    subject: `✅ Payment Confirmed - Invoice for ${companyName}`,
+    html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -493,7 +524,7 @@ export const sendPaymentInvoice = async (adminEmail, adminName, invoiceData) => 
                                                 </tr>
                                                 <tr>
                                                     <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Date:</td>
-                                                    <td style="padding: 8px 0; color: #fff; font-size: 14px; text-align: right;">${new Date(paymentDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                                                    <td style="padding: 8px 0; color: #fff; font-size: 14px; text-align: right;">${new Date(paymentDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td>
                                                 </tr>
                                                 <tr>
                                                     <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Company:</td>
@@ -509,7 +540,7 @@ export const sendPaymentInvoice = async (adminEmail, adminName, invoiceData) => 
                                                 </tr>
                                                 <tr>
                                                     <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Valid Until:</td>
-                                                    <td style="padding: 8px 0; color: #22c55e; font-size: 14px; text-align: right; font-weight: 600;">${new Date(validUntil).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                                                    <td style="padding: 8px 0; color: #22c55e; font-size: 14px; text-align: right; font-weight: 600;">${new Date(validUntil).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td>
                                                 </tr>
                                             </table>
                                             
@@ -524,7 +555,7 @@ export const sendPaymentInvoice = async (adminEmail, adminName, invoiceData) => 
                                         </div>
                                         
                                         <!-- Dashboard Button -->
-                                        <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/company/admin/dashboard" 
+                                        <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/company/admin/dashboard" 
                                            style="display: inline-block; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #000; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;">
                                             Go to Dashboard →
                                         </a>
@@ -551,45 +582,45 @@ export const sendPaymentInvoice = async (adminEmail, adminName, invoiceData) => 
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        console.log(`Sending payment invoice to ${adminEmail}...`);
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Payment invoice sent. MessageID:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Payment invoice email error:', error);
+  try {
+    console.log(`Sending payment invoice to ${adminEmail}...`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Payment invoice sent. MessageID:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Payment invoice email error:", error);
 
-        // Development fallback
-        if (process.env.NODE_ENV === 'development') {
-            console.log('\n' + '='.repeat(60));
-            console.log('📧 PAYMENT INVOICE EMAIL - DEVELOPMENT MODE');
-            console.log('='.repeat(60));
-            console.log(`📨 To: ${adminEmail}`);
-            console.log(`👤 Admin: ${adminName}`);
-            console.log(`🏢 Company: ${companyName}`);
-            console.log(`💳 Transaction: ${transactionId}`);
-            console.log(`💰 Amount: Rs ${amount}`);
-            console.log(`📅 Plan: ${planName} (${billingCycle})`);
-            console.log('='.repeat(60) + '\n');
-            return { success: true, messageId: 'dev-mode-console-log' };
-        }
-
-        return { success: false, error: error.message };
+    // Development fallback
+    if (process.env.NODE_ENV === "development") {
+      console.log("\n" + "=".repeat(60));
+      console.log("📧 PAYMENT INVOICE EMAIL - DEVELOPMENT MODE");
+      console.log("=".repeat(60));
+      console.log(`📨 To: ${adminEmail}`);
+      console.log(`👤 Admin: ${adminName}`);
+      console.log(`🏢 Company: ${companyName}`);
+      console.log(`💳 Transaction: ${transactionId}`);
+      console.log(`💰 Amount: Rs ${amount}`);
+      console.log(`📅 Plan: ${planName} (${billingCycle})`);
+      console.log("=".repeat(60) + "\n");
+      return { success: true, messageId: "dev-mode-console-log" };
     }
+
+    return { success: false, error: error.message };
+  }
 };
 
 // Send password reset email
 export const sendPasswordResetEmail = async (email, fullname, resetUrl) => {
-    const transporter = createTransporter();
+  const transporter = createTransporter();
 
-    const mailOptions = {
-        from: `"JobPortal" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `Reset Your Password - JobPortal`,
-        html: `
+  const mailOptions = {
+    from: `"JobPortal" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `Reset Your Password - JobPortal`,
+    html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -657,77 +688,81 @@ export const sendPasswordResetEmail = async (email, fullname, resetUrl) => {
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        console.log(`Sending password reset email to ${email}...`);
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Password reset email sent. MessageID:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Password reset email error:', error);
+  try {
+    console.log(`Sending password reset email to ${email}...`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Password reset email sent. MessageID:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Password reset email error:", error);
 
-        // Development fallback
-        if (process.env.NODE_ENV === 'development') {
-            console.log('\n' + '='.repeat(60));
-            console.log('📧 PASSWORD RESET EMAIL - DEVELOPMENT MODE');
-            console.log('='.repeat(60));
-            console.log(`📨 To: ${email}`);
-            console.log(`👤 Name: ${fullname}`);
-            console.log(`🔗 Reset URL: ${resetUrl}`);
-            console.log('='.repeat(60) + '\n');
-            return { success: true, messageId: 'dev-mode-console-log' };
-        }
-
-        throw new Error(`Failed to send password reset email: ${error.message}`);
+    // Development fallback
+    if (process.env.NODE_ENV === "development") {
+      console.log("\n" + "=".repeat(60));
+      console.log("📧 PASSWORD RESET EMAIL - DEVELOPMENT MODE");
+      console.log("=".repeat(60));
+      console.log(`📨 To: ${email}`);
+      console.log(`👤 Name: ${fullname}`);
+      console.log(`🔗 Reset URL: ${resetUrl}`);
+      console.log("=".repeat(60) + "\n");
+      return { success: true, messageId: "dev-mode-console-log" };
     }
+
+    throw new Error(`Failed to send password reset email: ${error.message}`);
+  }
 };
 
 // Send interview reminder email
-export const sendInterviewReminder = async (email, candidateName, interviewDetails) => {
-    const transporter = createTransporter();
-    const {
-        jobTitle,
-        companyName,
-        interviewDate,
-        interviewTime,
-        interviewType = 'video', // video, phone, in-person
-        meetingLink,
-        recruiterName,
-        reminderType = '24h' // 24h, 1h, 15min
-    } = interviewDetails;
+export const sendInterviewReminder = async (
+  email,
+  candidateName,
+  interviewDetails,
+) => {
+  const transporter = createTransporter();
+  const {
+    jobTitle,
+    companyName,
+    interviewDate,
+    interviewTime,
+    interviewType = "video", // video, phone, in-person
+    meetingLink,
+    recruiterName,
+    reminderType = "24h", // 24h, 1h, 15min
+  } = interviewDetails;
 
-    const formattedDate = new Date(interviewDate).toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+  const formattedDate = new Date(interviewDate).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-    const reminderMessages = {
-        '24h': 'Your interview is tomorrow!',
-        '1h': 'Your interview starts in 1 hour!',
-        '15min': 'Your interview starts in 15 minutes!'
-    };
+  const reminderMessages = {
+    "24h": "Your interview is tomorrow!",
+    "1h": "Your interview starts in 1 hour!",
+    "15min": "Your interview starts in 15 minutes!",
+  };
 
-    const urgencyColors = {
-        '24h': '#3B82F6', // Blue
-        '1h': '#F59E0B',  // Yellow
-        '15min': '#EF4444' // Red
-    };
+  const urgencyColors = {
+    "24h": "#3B82F6", // Blue
+    "1h": "#F59E0B", // Yellow
+    "15min": "#EF4444", // Red
+  };
 
-    const interviewEmojis = {
-        'video': '📹',
-        'phone': '📞',
-        'in-person': '🏢'
-    };
+  const interviewEmojis = {
+    video: "📹",
+    phone: "📞",
+    "in-person": "🏢",
+  };
 
-    const mailOptions = {
-        from: `"JobPortal Interviews" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `${reminderType === '15min' ? '⏰ URGENT: ' : ''}Interview Reminder - ${jobTitle} at ${companyName}`,
-        html: `
+  const mailOptions = {
+    from: `"JobPortal Interviews" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `${reminderType === "15min" ? "⏰ URGENT: " : ""}Interview Reminder - ${jobTitle} at ${companyName}`,
+    html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -784,26 +819,34 @@ export const sendInterviewReminder = async (email, candidateName, interviewDetai
                                                         <span style="color: #fff; font-size: 16px;">${interviewType.charAt(0).toUpperCase() + interviewType.slice(1)} Interview</span>
                                                     </td>
                                                 </tr>
-                                                ${recruiterName ? `
+                                                ${
+                                                  recruiterName
+                                                    ? `
                                                 <tr>
                                                     <td style="padding: 8px 0;">
                                                         <span style="color: #71717a; font-size: 14px;">Interviewer</span><br>
                                                         <span style="color: #fff; font-size: 16px;">${recruiterName}</span>
                                                     </td>
                                                 </tr>
-                                                ` : ''}
+                                                `
+                                                    : ""
+                                                }
                                             </table>
                                         </div>
                                         
-                                        ${meetingLink ? `
+                                        ${
+                                          meetingLink
+                                            ? `
                                         <!-- Join Button -->
                                         <div style="text-align: center; margin-bottom: 30px;">
                                             <a href="${meetingLink}" 
                                                style="display: inline-block; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #fff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;">
-                                                ${interviewType === 'video' ? '🎥 Join Video Call' : '📞 Join Interview'}
+                                                ${interviewType === "video" ? "🎥 Join Video Call" : "📞 Join Interview"}
                                             </a>
                                         </div>
-                                        ` : ''}
+                                        `
+                                            : ""
+                                        }
                                         
                                         <!-- Tips -->
                                         <div style="background-color: #1E3A8A20; border: 1px solid #3B82F640; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
@@ -836,45 +879,58 @@ export const sendInterviewReminder = async (email, candidateName, interviewDetai
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        console.log(`📧 Sending interview reminder (${reminderType}) to ${email}...`);
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Interview reminder sent. MessageID:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Interview reminder email error:', error);
+  try {
+    console.log(
+      `📧 Sending interview reminder (${reminderType}) to ${email}...`,
+    );
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Interview reminder sent. MessageID:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Interview reminder email error:", error);
 
-        // Development fallback
-        if (process.env.NODE_ENV === 'development') {
-            console.log('\n' + '='.repeat(60));
-            console.log(`📧 INTERVIEW REMINDER (${reminderType}) - DEV MODE`);
-            console.log('='.repeat(60));
-            console.log(`📨 To: ${email}`);
-            console.log(`👤 Candidate: ${candidateName}`);
-            console.log(`💼 Job: ${jobTitle} at ${companyName}`);
-            console.log(`📅 Date: ${formattedDate} at ${interviewTime}`);
-            console.log(`🔗 Link: ${meetingLink || 'N/A'}`);
-            console.log('='.repeat(60) + '\n');
-            return { success: true, messageId: 'dev-mode-console-log' };
-        }
-
-        throw new Error(`Failed to send interview reminder: ${error.message}`);
+    // Development fallback
+    if (process.env.NODE_ENV === "development") {
+      console.log("\n" + "=".repeat(60));
+      console.log(`📧 INTERVIEW REMINDER (${reminderType}) - DEV MODE`);
+      console.log("=".repeat(60));
+      console.log(`📨 To: ${email}`);
+      console.log(`👤 Candidate: ${candidateName}`);
+      console.log(`💼 Job: ${jobTitle} at ${companyName}`);
+      console.log(`📅 Date: ${formattedDate} at ${interviewTime}`);
+      console.log(`🔗 Link: ${meetingLink || "N/A"}`);
+      console.log("=".repeat(60) + "\n");
+      return { success: true, messageId: "dev-mode-console-log" };
     }
+
+    throw new Error(`Failed to send interview reminder: ${error.message}`);
+  }
 };
 
 // Send MCQ test invitation email
-export const sendMCQTestInvitation = async (email, candidateName, testDetails) => {
-    const transporter = createTransporter();
-    const { jobTitle, companyName, testLink, expiresIn = '7 days', duration = 30, passingScore = 60 } = testDetails;
+export const sendMCQTestInvitation = async (
+  email,
+  candidateName,
+  testDetails,
+) => {
+  const transporter = createTransporter();
+  const {
+    jobTitle,
+    companyName,
+    testLink,
+    expiresIn = "7 days",
+    duration = 30,
+    passingScore = 60,
+  } = testDetails;
 
-    const mailOptions = {
-        from: `"JobPortal Assessments" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `🧠 MCQ Assessment Invitation - ${jobTitle} at ${companyName}`,
-        html: `
+  const mailOptions = {
+    from: `"JobPortal Assessments" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `🧠 MCQ Assessment Invitation - ${jobTitle} at ${companyName}`,
+    html: `
             <!DOCTYPE html>
             <html>
             <head><meta charset="UTF-8"></head>
@@ -925,37 +981,41 @@ export const sendMCQTestInvitation = async (email, candidateName, testDetails) =
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ MCQ test invitation sent to', email);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ MCQ test invitation error:', error);
-        if (process.env.NODE_ENV === 'development') {
-            console.log(`📧 DEV: MCQ Test invitation for ${candidateName} - ${testLink}`);
-            return { success: true, messageId: 'dev-mode' };
-        }
-        throw error;
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ MCQ test invitation sent to", email);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ MCQ test invitation error:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `📧 DEV: MCQ Test invitation for ${candidateName} - ${testLink}`,
+      );
+      return { success: true, messageId: "dev-mode" };
     }
+    throw error;
+  }
 };
 
 // =============== TRIAL & SUBSCRIPTION EMAILS ===============
 
 // Send Trial Welcome Email to Students
 export const sendTrialWelcomeEmail = async (email, fullname, trialEndDate) => {
-    const transporter = createTransporter();
-    const formattedEndDate = new Date(trialEndDate).toLocaleDateString('en-US', {
-        year: 'numeric', month: 'long', day: 'numeric'
-    });
+  const transporter = createTransporter();
+  const formattedEndDate = new Date(trialEndDate).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-    const mailOptions = {
-        from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject: '🎉 Welcome to HIRE.OS - Your Free Trial Has Started!',
-        html: `
+  const mailOptions = {
+    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "🎉 Welcome to HIRE.OS - Your Free Trial Has Started!",
+    html: `
             <!DOCTYPE html>
             <html>
             <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a;">
@@ -992,7 +1052,7 @@ export const sendTrialWelcomeEmail = async (email, fullname, trialEndDate) => {
                                         </p>
                                         
                                         <div style="text-align: center; margin: 30px 0;">
-                                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/student/dashboard" style="display: inline-block; background: #FFD700; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; text-transform: uppercase;">
+                                            <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/student/dashboard" style="display: inline-block; background: #FFD700; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; text-transform: uppercase;">
                                                 Go to Dashboard →
                                             </a>
                                         </div>
@@ -1009,31 +1069,36 @@ export const sendTrialWelcomeEmail = async (email, fullname, trialEndDate) => {
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Trial welcome email sent to', email);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Trial welcome email error:', error);
-        throw error;
-    }
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Trial welcome email sent to", email);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Trial welcome email error:", error);
+    throw error;
+  }
 };
 
 // Send Trial Expiry Warning Email
-export const sendTrialExpiryEmail = async (email, fullname, daysLeft, companyName = null) => {
-    const transporter = createTransporter();
-    const subject = companyName
-        ? `⚠️ ${companyName} Subscription Expiring in ${daysLeft} Days`
-        : `⚠️ Your HIRE.OS Trial Ends in ${daysLeft} Days`;
+export const sendTrialExpiryEmail = async (
+  email,
+  fullname,
+  daysLeft,
+  companyName = null,
+) => {
+  const transporter = createTransporter();
+  const subject = companyName
+    ? `⚠️ ${companyName} Subscription Expiring in ${daysLeft} Days`
+    : `⚠️ Your HIRE.OS Trial Ends in ${daysLeft} Days`;
 
-    const mailOptions = {
-        from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject,
-        html: `
+  const mailOptions = {
+    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject,
+    html: `
             <!DOCTYPE html>
             <html>
             <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a;">
@@ -1044,14 +1109,14 @@ export const sendTrialExpiryEmail = async (email, fullname, daysLeft, companyNam
                                 <tr>
                                     <td style="padding: 40px; text-align: center;">
                                         <h1 style="color: #F59E0B; margin: 0 0 20px; font-size: 48px;">⏰</h1>
-                                        <h2 style="color: #fff; margin: 0;">Your ${companyName ? 'Subscription' : 'Trial'} Expires Soon</h2>
+                                        <h2 style="color: #fff; margin: 0;">Your ${companyName ? "Subscription" : "Trial"} Expires Soon</h2>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 0 40px 40px;">
                                         <p style="color: #aaa; font-size: 16px; line-height: 1.6;">
                                             Hi ${fullname},<br><br>
-                                            You have <strong style="color: #F59E0B; font-size: 24px;">${daysLeft} days</strong> left on your ${companyName ? `${companyName} subscription` : 'free trial'}.
+                                            You have <strong style="color: #F59E0B; font-size: 24px;">${daysLeft} days</strong> left on your ${companyName ? `${companyName} subscription` : "free trial"}.
                                         </p>
                                         
                                         <p style="color: #888; font-size: 14px;">
@@ -1059,7 +1124,7 @@ export const sendTrialExpiryEmail = async (email, fullname, daysLeft, companyNam
                                         </p>
                                         
                                         <div style="text-align: center; margin: 30px 0;">
-                                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/company/pricing" style="display: inline-block; background: #F59E0B; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                                            <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/company/pricing" style="display: inline-block; background: #F59E0B; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold;">
                                                 Upgrade Now →
                                             </a>
                                         </div>
@@ -1071,28 +1136,28 @@ export const sendTrialExpiryEmail = async (email, fullname, daysLeft, companyNam
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Trial expiry warning sent to', email);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Trial expiry email error:', error);
-        throw error;
-    }
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Trial expiry warning sent to", email);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Trial expiry email error:", error);
+    throw error;
+  }
 };
 
 // Send Trial Expired Email
 export const sendTrialExpiredEmail = async (email, fullname) => {
-    const transporter = createTransporter();
+  const transporter = createTransporter();
 
-    const mailOptions = {
-        from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject: '🔒 Your HIRE.OS Trial Has Ended',
-        html: `
+  const mailOptions = {
+    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "🔒 Your HIRE.OS Trial Has Ended",
+    html: `
             <!DOCTYPE html>
             <html>
             <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a;">
@@ -1124,28 +1189,32 @@ export const sendTrialExpiredEmail = async (email, fullname) => {
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Trial expired email sent to', email);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Trial expired email error:', error);
-        throw error;
-    }
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Trial expired email sent to", email);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Trial expired email error:", error);
+    throw error;
+  }
 };
 
 // Send Subscription Expired Email to CEO
-export const sendSubscriptionExpiryEmail = async (email, fullname, companyName) => {
-    const transporter = createTransporter();
+export const sendSubscriptionExpiryEmail = async (
+  email,
+  fullname,
+  companyName,
+) => {
+  const transporter = createTransporter();
 
-    const mailOptions = {
-        from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `🔒 ${companyName} Subscription Has Expired`,
-        html: `
+  const mailOptions = {
+    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `🔒 ${companyName} Subscription Has Expired`,
+    html: `
             <!DOCTYPE html>
             <html>
             <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a;">
@@ -1173,7 +1242,7 @@ export const sendSubscriptionExpiryEmail = async (email, fullname, companyName) 
                                         </div>
                                         
                                         <div style="text-align: center; margin: 30px 0;">
-                                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/company/pricing" style="display: inline-block; background: #FFD700; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                                            <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/company/pricing" style="display: inline-block; background: #FFD700; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold;">
                                                 Renew Subscription →
                                             </a>
                                         </div>
@@ -1185,32 +1254,32 @@ export const sendSubscriptionExpiryEmail = async (email, fullname, companyName) 
                 </table>
             </body>
             </html>
-        `
-    };
+        `,
+  };
 
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Subscription expiry email sent to', email);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Subscription expiry email error:', error);
-        throw error;
-    }
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Subscription expiry email sent to", email);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Subscription expiry email error:", error);
+    throw error;
+  }
 };
 
 export default {
-    generateOTP,
-    saveOTP,
-    verifyOTP,
-    sendOTPEmail,
-    sendWelcomeEmail,
-    sendRecruiterInvitation,
-    sendPaymentInvoice,
-    sendPasswordResetEmail,
-    sendInterviewReminder,
-    sendMCQTestInvitation,
-    sendTrialWelcomeEmail,
-    sendTrialExpiryEmail,
-    sendTrialExpiredEmail,
-    sendSubscriptionExpiryEmail
+  generateOTP,
+  saveOTP,
+  verifyOTP,
+  sendOTPEmail,
+  sendWelcomeEmail,
+  sendRecruiterInvitation,
+  sendPaymentInvoice,
+  sendPasswordResetEmail,
+  sendInterviewReminder,
+  sendMCQTestInvitation,
+  sendTrialWelcomeEmail,
+  sendTrialExpiryEmail,
+  sendTrialExpiredEmail,
+  sendSubscriptionExpiryEmail,
 };

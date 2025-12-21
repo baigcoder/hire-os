@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Label } from '../ui/label';
-import { Input } from '../ui/input';
-import { Textarea } from '../ui/textarea';
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 const InterviewDialog = ({ application, onClose, onSchedule }) => {
-  const [interviewDate, setInterviewDate] = useState('');
-  const [interviewDetails, setInterviewDetails] = useState('');
+  const [interviewDate, setInterviewDate] = useState("");
+  const [interviewDetails, setInterviewDetails] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSchedule = () => {
     if (!interviewDate) {
       return;
     }
-    
+
     setLoading(true);
     onSchedule(application._id, interviewDate, interviewDetails);
   };
@@ -25,7 +32,8 @@ const InterviewDialog = ({ application, onClose, onSchedule }) => {
         <DialogHeader>
           <DialogTitle>Schedule Interview</DialogTitle>
           <DialogDescription>
-            Set a date and time for the interview with {application?.applicant?.fullname}.
+            Set a date and time for the interview with{" "}
+            {application?.applicant?.fullname}.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -49,16 +57,10 @@ const InterviewDialog = ({ application, onClose, onSchedule }) => {
           </div>
         </div>
         <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-          >
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSchedule}
-            disabled={loading || !interviewDate}
-          >
+          <Button onClick={handleSchedule} disabled={loading || !interviewDate}>
             Schedule
           </Button>
         </DialogFooter>

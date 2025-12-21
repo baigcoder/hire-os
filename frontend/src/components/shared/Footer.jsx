@@ -1,41 +1,49 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Linkedin, Twitter, Github, Facebook } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Twitter,
+  Github,
+  Facebook,
+} from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     product: [
-      { label: 'Find Jobs', path: '/jobs' },
-      { label: 'Browse Companies', path: '/browse' },
-      { label: 'Post a Job', path: '/admin/jobs' },
-      { label: 'Pricing', path: '/company/pricing' },
+      { label: "Find Jobs", path: "/jobs" },
+      { label: "Browse Companies", path: "/browse" },
+      { label: "Post a Job", path: "/admin/jobs" },
+      { label: "Pricing", path: "/company/pricing" },
     ],
     company: [
-      { label: 'About Us', path: '/about' },
-      { label: 'Careers', path: '/careers' },
-      { label: 'Press', path: '/press' },
-      { label: 'Contact', path: '/contact' },
+      { label: "About Us", path: "/about" },
+      { label: "Careers", path: "/careers" },
+      { label: "Press", path: "/press" },
+      { label: "Contact", path: "/contact" },
     ],
     resources: [
-      { label: 'Help Center', path: '/help' },
-      { label: 'Resume Builder', path: '/resume' },
-      { label: 'Salary Guide', path: '/salary' },
-      { label: 'Interview Tips', path: '/tips' },
+      { label: "Help Center", path: "/help" },
+      { label: "Resume Builder", path: "/resume" },
+      { label: "Salary Guide", path: "/salary" },
+      { label: "Interview Tips", path: "/tips" },
     ],
     legal: [
-      { label: 'Privacy', path: '/privacy' },
-      { label: 'Terms', path: '/terms' },
-      { label: 'Cookies', path: '/cookies' },
+      { label: "Privacy", path: "/privacy" },
+      { label: "Terms", path: "/terms" },
+      { label: "Cookies", path: "/cookies" },
     ],
   };
 
   const socialLinks = [
-    { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-    { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-    { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
-    { icon: Github, href: 'https://github.com', label: 'GitHub' },
+    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+    { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
+    { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
+    { icon: Github, href: "https://github.com", label: "GitHub" },
   ];
 
   return (
@@ -54,7 +62,8 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-gray-500 leading-relaxed mb-8 max-w-sm text-sm">
-              Industrial grade talent acquisition. Precision matching. Real-time analytics. The operating system for modern hiring.
+              Industrial grade talent acquisition. Precision matching. Real-time
+              analytics. The operating system for modern hiring.
             </p>
 
             {/* Social Links */}
@@ -76,11 +85,18 @@ const Footer = () => {
 
           {/* Product Links */}
           <div>
-            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Platform</h3>
+            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">
+              Platform
+            </h3>
             <ul className="space-y-3">
               {footerLinks.product.map((link, idx) => (
                 <li key={idx}>
-                  <Link to={link.path} className="text-gray-500 hover:text-[#FFD700] transition-colors text-sm">{link.label}</Link>
+                  <Link
+                    to={link.path}
+                    className="text-gray-500 hover:text-[#FFD700] transition-colors text-sm"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -88,11 +104,18 @@ const Footer = () => {
 
           {/* Company Links */}
           <div>
-            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Company</h3>
+            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">
+              Company
+            </h3>
             <ul className="space-y-3">
               {footerLinks.company.map((link, idx) => (
                 <li key={idx}>
-                  <Link to={link.path} className="text-gray-500 hover:text-[#FFD700] transition-colors text-sm">{link.label}</Link>
+                  <Link
+                    to={link.path}
+                    className="text-gray-500 hover:text-[#FFD700] transition-colors text-sm"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -100,10 +123,15 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Contact</h3>
+            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">
+              Contact
+            </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-gray-500 group">
-                <MapPin size={16} className="flex-shrink-0 mt-0.5 text-[#FFD700]/70" />
+                <MapPin
+                  size={16}
+                  className="flex-shrink-0 mt-0.5 text-[#FFD700]/70"
+                />
                 <span className="text-sm">Lahore, Pakistan</span>
               </li>
               <li className="flex items-center gap-3 text-gray-500 group">
@@ -139,6 +167,6 @@ const Footer = () => {
       </div>
     </footer>
   );
-}
+};
 
 export default Footer;

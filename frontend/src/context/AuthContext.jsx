@@ -1,15 +1,15 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, supabaseAuth } from '../lib/supabase';
-import { useDispatch } from 'react-redux';
-import { setUser, logout as reduxLogout } from '../redux/authSlice';
-import axios from 'axios';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { supabase, supabaseAuth } from "../lib/supabase";
+import { useDispatch } from "react-redux";
+import { setUser, logout as reduxLogout } from "../redux/authSlice";
+import axios from "axios";
 
 const AuthContext = createContext({});
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -20,7 +20,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
   // Sync Supabase user with backend and Redux
   const syncUserWithBackend = async (supabaseUser) => {
@@ -37,11 +38,16 @@ export const AuthProvider = ({ children }) => {
         {
           supabaseId: supabaseUser.id,
           email: supabaseUser.email,
-          fullname: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0],
-          profilePhoto: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
-          provider: supabaseUser.app_metadata?.provider || 'email'
+          fullname:
+            supabaseUser.user_metadata?.full_name ||
+            supabaseUser.user_metadata?.name ||
+            supabaseUser.email?.split("@")[0],
+          profilePhoto:
+            supabaseUser.user_metadata?.avatar_url ||
+            supabaseUser.user_metadata?.picture,
+          provider: supabaseUser.app_metadata?.provider || "email",
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (response.data.success) {
@@ -49,24 +55,31 @@ export const AuthProvider = ({ children }) => {
         setLocalUser(response.data.user);
 
         // If this is a new user (first-time signup), trigger trial welcome modal
-        if (response.data.isNewUser && response.data.user?.role === 'student') {
-          console.log('🎉 New student signup detected - showing trial welcome!');
-          localStorage.setItem('showTrialWelcome', 'true');
-          localStorage.setItem('trialEndDate', response.data.trialEndDate || '');
+        if (response.data.isNewUser && response.data.user?.role === "student") {
+          console.log(
+            "🎉 New student signup detected - showing trial welcome!",
+          );
+          localStorage.setItem("showTrialWelcome", "true");
+          localStorage.setItem(
+            "trialEndDate",
+            response.data.trialEndDate || "",
+          );
           // Store in sessionStorage for immediate access
-          sessionStorage.setItem('newUserTrialStart', 'true');
+          sessionStorage.setItem("newUserTrialStart", "true");
         }
 
         return response.data.user;
       }
     } catch (error) {
-      console.error('Error syncing user with backend:', error);
+      console.error("Error syncing user with backend:", error);
       // Still set a basic user if backend sync fails
       const basicUser = {
         id: supabaseUser.id,
         email: supabaseUser.email,
-        fullname: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0],
-        profilePhoto: supabaseUser.user_metadata?.avatar_url
+        fullname:
+          supabaseUser.user_metadata?.full_name ||
+          supabaseUser.email?.split("@")[0],
+        profilePhoto: supabaseUser.user_metadata?.avatar_url,
       };
       dispatch(setUser(basicUser));
       setLocalUser(basicUser);
@@ -85,7 +98,7 @@ export const AuthProvider = ({ children }) => {
           await syncUserWithBackend(currentSession.user);
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error("Auth initialization error:", error);
       } finally {
         setLoading(false);
       }
@@ -94,19 +107,19 @@ export const AuthProvider = ({ children }) => {
     initAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log('Auth state changed:', event);
-        setSession(currentSession);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+      console.log("Auth state changed:", event);
+      setSession(currentSession);
 
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          await syncUserWithBackend(currentSession?.user);
-        } else if (event === 'SIGNED_OUT') {
-          dispatch(reduxLogout());
-          setLocalUser(null);
-        }
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        await syncUserWithBackend(currentSession?.user);
+      } else if (event === "SIGNED_OUT") {
+        dispatch(reduxLogout());
+        setLocalUser(null);
       }
-    );
+    });
 
     return () => {
       subscription?.unsubscribe();
@@ -117,7 +130,11 @@ export const AuthProvider = ({ children }) => {
   const signUp = async (email, password, metadata = {}) => {
     setLoading(true);
     try {
-      const { data, error } = await supabaseAuth.signUp(email, password, metadata);
+      const { data, error } = await supabaseAuth.signUp(
+        email,
+        password,
+        metadata,
+      );
       if (error) throw error;
       return { data, error: null };
     } catch (error) {
@@ -132,14 +149,14 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       // If role is specified, try backend authentication first (for recruiters/company_admin)
-      if (role && (role === 'recruiter' || role === 'company_admin')) {
+      if (role && (role === "recruiter" || role === "company_admin")) {
         console.log(`Trying backend auth for role: ${role}`);
-        console.log('📧 Auth data being sent:', {
+        console.log("📧 Auth data being sent:", {
           email: email,
           emailLength: email?.length,
           password: password,
           passwordLength: password?.length,
-          role: role
+          role: role,
         });
         try {
           // Trim email and password to remove accidental whitespace from copy-paste
@@ -149,7 +166,7 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.post(
             `${API_URL}/user/login`,
             { email: trimmedEmail, password: trimmedPassword, role },
-            { withCredentials: true }
+            { withCredentials: true },
           );
 
           if (response.data.success) {
@@ -159,15 +176,20 @@ export const AuthProvider = ({ children }) => {
 
             // Store token if available
             if (response.data.token) {
-              localStorage.setItem('token', response.data.token);
+              localStorage.setItem("token", response.data.token);
             }
 
             return { data: response.data, error: null };
           }
         } catch (backendError) {
-          console.log(`Backend auth failed for role ${role}:`, backendError.response?.data?.message);
+          console.log(
+            `Backend auth failed for role ${role}:`,
+            backendError.response?.data?.message,
+          );
           // If role-specific backend fails, throw error with specific message
-          throw new Error(backendError.response?.data?.message || 'Invalid login credentials');
+          throw new Error(
+            backendError.response?.data?.message || "Invalid login credentials",
+          );
         }
       }
 
@@ -179,12 +201,12 @@ export const AuthProvider = ({ children }) => {
       }
 
       // If Supabase fails and role is student, try backend
-      if (role === 'student') {
+      if (role === "student") {
         try {
           const response = await axios.post(
             `${API_URL}/user/login`,
-            { email, password, role: 'student' },
-            { withCredentials: true }
+            { email, password, role: "student" },
+            { withCredentials: true },
           );
 
           if (response.data.success) {
@@ -192,18 +214,21 @@ export const AuthProvider = ({ children }) => {
             setLocalUser(response.data.user);
 
             if (response.data.token) {
-              localStorage.setItem('token', response.data.token);
+              localStorage.setItem("token", response.data.token);
             }
 
             return { data: response.data, error: null };
           }
         } catch (backendError) {
-          console.log(`Backend auth failed for student:`, backendError.response?.data?.message);
+          console.log(
+            `Backend auth failed for student:`,
+            backendError.response?.data?.message,
+          );
         }
       }
 
       // If all attempts fail, return error
-      throw error || new Error('Invalid login credentials');
+      throw error || new Error("Invalid login credentials");
     } catch (error) {
       return { data: null, error };
     } finally {
@@ -262,7 +287,7 @@ export const AuthProvider = ({ children }) => {
       setLocalUser(null);
       setSession(null);
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error("Sign out error:", error);
     } finally {
       setLoading(false);
     }
@@ -290,14 +315,10 @@ export const AuthProvider = ({ children }) => {
     verifyOTP,
     signOut,
     resetPassword,
-    isAuthenticated: !!session
+    isAuthenticated: !!session,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;

@@ -123,9 +123,11 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-    font-feature-settings: "rlig" 1, "calt" 1;
-    background-color: #0A0A0A;
+    font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    background-color: #0a0a0a;
     /* Strict fallback */
   }
 
@@ -136,7 +138,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #0A0A0A;
+    background: #0a0a0a;
     border-left: 1px solid #222;
   }
 
@@ -146,12 +148,12 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #FFD700;
+    background: #ffd700;
   }
 
   ::selection {
     background: rgba(255, 215, 0, 0.25);
-    color: #FFD700;
+    color: #ffd700;
   }
 }
 
@@ -159,14 +161,13 @@
    TYPOGRAPHY - TECHNICAL PRECISION
    ============================================ */
 @layer base {
-
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     @apply font-bold tracking-tight text-white;
   }
 
@@ -185,7 +186,7 @@
   }
 
   p {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     @apply leading-relaxed text-gray-400;
   }
 
@@ -193,7 +194,7 @@
   .font-mono,
   code,
   .data-text {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: "JetBrains Mono", monospace;
   }
 }
 
@@ -201,10 +202,13 @@
    COMPONENT STYLES - INDUSTRIAL TOOLKIT
    ============================================ */
 @layer components {
-
   /* HUD Card - Glassmorphism + Noise */
   .card-hud {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.01) 100%
+    );
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: var(--shadow-lg);
@@ -212,7 +216,7 @@
   }
 
   .card-hud::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
@@ -236,13 +240,13 @@
   /* Primary Button - Signal Yellow */
   .btn-primary-industrial {
     @apply relative overflow-hidden px-6 py-3 rounded-md font-bold text-black transition-all duration-200;
-    font-family: 'Space Grotesk', sans-serif;
-    background: #FFD700;
+    font-family: "Space Grotesk", sans-serif;
+    background: #ffd700;
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.25);
   }
 
   .btn-primary-industrial:hover {
-    background: #FFE44D;
+    background: #ffe44d;
     box-shadow: 0 6px 25px rgba(255, 215, 0, 0.4);
     transform: translateY(-1px);
   }
@@ -255,15 +259,15 @@
   /* Secondary Button - Outlined */
   .btn-outline-industrial {
     @apply px-6 py-3 rounded-md font-bold transition-all duration-200;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
   }
 
   .btn-outline-industrial:hover {
-    border-color: #FFD700;
-    color: #FFD700;
+    border-color: #ffd700;
+    color: #ffd700;
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
   }
 
@@ -273,13 +277,12 @@
   }
 
   .status-live::before {
-    content: '';
+    content: "";
     @apply w-2 h-2 bg-green-500 rounded-full;
     animation: pulse-live 2s ease-in-out infinite;
   }
 
   @keyframes pulse-live {
-
     0%,
     100% {
       opacity: 1;
@@ -297,10 +300,9 @@
    SPECIAL EFFECTS - INDUSTRIAL AESTHETICS
    ============================================ */
 @layer utilities {
-
   /* Signal Yellow Gradient Text */
   .text-gradient-gold {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+    background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -309,7 +311,7 @@
 
   /* Signal Green Gradient Text */
   .text-gradient-signal {
-    background: linear-gradient(135deg, #00FF94 0%, #00BFFF 100%);
+    background: linear-gradient(135deg, #00ff94 0%, #00bfff 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -326,14 +328,16 @@
 
   /* Scanline Effect */
   .scanlines::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.1) 2px,
-        rgba(0, 0, 0, 0.1) 4px);
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.1) 2px,
+      rgba(0, 0, 0, 0.1) 4px
+    );
     pointer-events: none;
   }
 

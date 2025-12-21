@@ -21,24 +21,32 @@
 /* 3D Card Effects */
 .job-card-3d {
   transform-style: preserve-3d;
-  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  transition:
+    transform 0.5s ease,
+    box-shadow 0.5s ease;
 }
 
 .job-card-3d:hover {
   transform: translateY(-10px) rotateX(5deg);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* 3D Button Effects */
 .button-3d {
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .button-3d:hover {
   transform: translateY(-3px) translateZ(10px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .button-3d:active {
@@ -78,18 +86,19 @@
 
 /* 3D Text Effect */
 .text-3d {
-  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5),
-               0px 2px 0px rgba(255, 255, 255, 0.4),
-               0px 3px 0px rgba(255, 255, 255, 0.3),
-               0px 4px 0px rgba(255, 255, 255, 0.2),
-               0px 5px 0px rgba(255, 255, 255, 0.1),
-               0px 6px 0px rgba(255, 255, 255, 0.05),
-               0px 7px 10px rgba(0, 0, 0, 0.2);
+  text-shadow:
+    0px 1px 0px rgba(255, 255, 255, 0.5),
+    0px 2px 0px rgba(255, 255, 255, 0.4),
+    0px 3px 0px rgba(255, 255, 255, 0.3),
+    0px 4px 0px rgba(255, 255, 255, 0.2),
+    0px 5px 0px rgba(255, 255, 255, 0.1),
+    0px 6px 0px rgba(255, 255, 255, 0.05),
+    0px 7px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Gradient Text Animation */
 .text-gradient {
-  background: linear-gradient(90deg, #6A38C2, #F83002, #6A38C2);
+  background: linear-gradient(90deg, #6a38c2, #f83002, #6a38c2);
   background-size: 200% auto;
   color: transparent;
   -webkit-background-clip: text;

@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Label } from '../ui/label';
-import { Input } from '../ui/input';
-import { Textarea } from '../ui/textarea';
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 const InterviewScheduleDialog = ({ applicantId, onClose, onSchedule }) => {
-  const [interviewDate, setInterviewDate] = useState('');
-  const [interviewDetails, setInterviewDetails] = useState('');
+  const [interviewDate, setInterviewDate] = useState("");
+  const [interviewDetails, setInterviewDetails] = useState("");
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -42,7 +49,7 @@ const InterviewScheduleDialog = ({ applicantId, onClose, onSchedule }) => {
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={() => onSchedule(interviewDate, interviewDetails)}
             disabled={!interviewDate}
           >

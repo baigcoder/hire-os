@@ -4,22 +4,37 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="HIRE.OS - Industrial Grade Talent Acquisition. The operating system for modern hiring." />
-    <meta name="keywords" content="hiring, recruitment, AI interviews, talent acquisition, job search, HR tech" />
+    <meta
+      name="description"
+      content="HIRE.OS - Industrial Grade Talent Acquisition. The operating system for modern hiring."
+    />
+    <meta
+      name="keywords"
+      content="hiring, recruitment, AI interviews, talent acquisition, job search, HR tech"
+    />
     <meta name="author" content="HIRE.OS" />
-    
+
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="HIRE.OS - Industrial Grade Talent Acquisition" />
-    <meta property="og:description" content="The operating system for modern hiring. AI-powered interviews, real-time analytics, and precision talent matching." />
-    
+    <meta
+      property="og:title"
+      content="HIRE.OS - Industrial Grade Talent Acquisition"
+    />
+    <meta
+      property="og:description"
+      content="The operating system for modern hiring. AI-powered interviews, real-time analytics, and precision talent matching."
+    />
+
     <!-- Google Fonts - Industrial Typography: Space Grotesk + Inter + JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <title>HIRE.OS - Industrial Grade Talent Acquisition</title>
-    
+
     <style>
       /* Critical CSS for faster loading */
       * {
@@ -28,11 +43,16 @@
         box-sizing: border-box;
       }
       body {
-        font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
-        background-color: #0A0A0A;
+        font-family:
+          "Space Grotesk",
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background-color: #0a0a0a;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        color: #E1E1E1;
+        color: #e1e1e1;
       }
       #root {
         min-height: 100vh;
@@ -44,14 +64,14 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background: #0A0A0A;
+        background: #0a0a0a;
         gap: 20px;
       }
       .loading-brand {
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: "Space Grotesk", sans-serif;
         font-size: 24px;
         font-weight: 700;
-        color: #FFD700;
+        color: #ffd700;
         letter-spacing: 0.1em;
       }
       .loading-bar-container {
@@ -64,13 +84,22 @@
       .loading-bar {
         width: 0%;
         height: 100%;
-        background: linear-gradient(90deg, #FFD700, #00FF94);
+        background: linear-gradient(90deg, #ffd700, #00ff94);
         animation: load 1.5s ease-out infinite;
       }
       @keyframes load {
-        0% { width: 0%; transform: translateX(0); }
-        50% { width: 100%; transform: translateX(0); }
-        100% { width: 100%; transform: translateX(200px); }
+        0% {
+          width: 0%;
+          transform: translateX(0);
+        }
+        50% {
+          width: 100%;
+          transform: translateX(0);
+        }
+        100% {
+          width: 100%;
+          transform: translateX(200px);
+        }
       }
     </style>
   </head>

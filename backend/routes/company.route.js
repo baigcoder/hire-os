@@ -1,22 +1,25 @@
 import express from "express";
-import isAuthenticated, { isCompanyAdmin, checkUsageLimit } from "../middlewares/isAuthenticated.js";
+import isAuthenticated, {
+  isCompanyAdmin,
+  checkUsageLimit,
+} from "../middlewares/isAuthenticated.js";
 import {
-    getCompany,
-    getCompanyById,
-    registerCompany,
-    updateCompany,
-    inviteRecruiter,
-    acceptRecruiterInvitation,
-    getRecruiters,
-    updateRecruiter,
-    removeRecruiter,
-    getCompanyDashboard,
-    resendInvitation,
-    getPendingApprovals,
-    approveCandidateHire,
-    updateCompanyProfile,
-    getRecruiterPerformance,
-    getFeaturedCompanies
+  getCompany,
+  getCompanyById,
+  registerCompany,
+  updateCompany,
+  inviteRecruiter,
+  acceptRecruiterInvitation,
+  getRecruiters,
+  updateRecruiter,
+  removeRecruiter,
+  getCompanyDashboard,
+  resendInvitation,
+  getPendingApprovals,
+  approveCandidateHire,
+  updateCompanyProfile,
+  getRecruiterPerformance,
+  getFeaturedCompanies,
 } from "../controllers/company.controller.js";
 import { singleUpload } from "../middlewares/mutler.js";
 
@@ -38,24 +41,39 @@ router.route("/update/:id").put(isAuthenticated, singleUpload, updateCompany);
 router.route("/dashboard").get(isAuthenticated, getCompanyDashboard);
 
 // Company Profile Update (CEO can change name, recruiter cannot)
-router.route("/profile").put(isAuthenticated, singleUpload, updateCompanyProfile);
+router
+  .route("/profile")
+  .put(isAuthenticated, singleUpload, updateCompanyProfile);
 
 // Recruiter Management (Company Admin only)
 router.route("/recruiters").get(isAuthenticated, isCompanyAdmin, getRecruiters);
-router.route("/recruiters/invite").post(
+router
+  .route("/recruiters/invite")
+  .post(
     isAuthenticated,
     isCompanyAdmin,
-    checkUsageLimit('recruiter'),
-    inviteRecruiter
-);
-router.route("/recruiters/:recruiterId").put(isAuthenticated, isCompanyAdmin, updateRecruiter);
-router.route("/recruiters/:recruiterId").delete(isAuthenticated, isCompanyAdmin, removeRecruiter);
-router.route("/recruiters/:recruiterId/resend-invite").post(isAuthenticated, isCompanyAdmin, resendInvitation);
+    checkUsageLimit("recruiter"),
+    inviteRecruiter,
+  );
+router
+  .route("/recruiters/:recruiterId")
+  .put(isAuthenticated, isCompanyAdmin, updateRecruiter);
+router
+  .route("/recruiters/:recruiterId")
+  .delete(isAuthenticated, isCompanyAdmin, removeRecruiter);
+router
+  .route("/recruiters/:recruiterId/resend-invite")
+  .post(isAuthenticated, isCompanyAdmin, resendInvitation);
 
 // CEO Exclusive Routes
-router.route("/pending-approvals").get(isAuthenticated, isCompanyAdmin, getPendingApprovals);
-router.route("/candidates/:applicationId/approve").post(isAuthenticated, isCompanyAdmin, approveCandidateHire);
-router.route("/recruiter-performance").get(isAuthenticated, isCompanyAdmin, getRecruiterPerformance);
+router
+  .route("/pending-approvals")
+  .get(isAuthenticated, isCompanyAdmin, getPendingApprovals);
+router
+  .route("/candidates/:applicationId/approve")
+  .post(isAuthenticated, isCompanyAdmin, approveCandidateHire);
+router
+  .route("/recruiter-performance")
+  .get(isAuthenticated, isCompanyAdmin, getRecruiterPerformance);
 
 export default router;
-

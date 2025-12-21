@@ -1,23 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, LineChart, Line } from 'recharts';
-import { Calendar, Users, Briefcase, Clock, ArrowUpRight, PlusCircle, BarChart3, TrendingUp, CheckCircle, XCircle, Bell, Filter, Search, Award, Building, Target, MapPin, Star, Zap, Globe, Phone, Mail } from 'lucide-react';
-import { Badge } from '../ui/badge';
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+  LineChart,
+  Line,
+} from "recharts";
+import {
+  Calendar,
+  Users,
+  Briefcase,
+  Clock,
+  ArrowUpRight,
+  PlusCircle,
+  BarChart3,
+  TrendingUp,
+  CheckCircle,
+  XCircle,
+  Bell,
+  Filter,
+  Search,
+  Award,
+  Building,
+  Target,
+  MapPin,
+  Star,
+  Zap,
+  Globe,
+  Phone,
+  Mail,
+} from "lucide-react";
+import { Badge } from "../ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import JobStatisticsCard from './JobStatisticsCard';
-import ApplicantTrackingCard from './ApplicantTrackingCard';
-import InterviewSchedulingCard from './InterviewSchedulingCard';
-import QuickActionCard from './QuickActionCard';
+import JobStatisticsCard from "./JobStatisticsCard";
+import ApplicantTrackingCard from "./ApplicantTrackingCard";
+import InterviewSchedulingCard from "./InterviewSchedulingCard";
+import QuickActionCard from "./QuickActionCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 // import { Progress } from "../ui/progress";
 
 const RecruiterDashboard = () => {
   const navigate = useNavigate();
-  const { allAdminJobs } = useSelector(store => store.job);
-  const { user } = useSelector(store => store.auth);
+  const { allAdminJobs } = useSelector((store) => store.job);
+  const { user } = useSelector((store) => store.auth);
   const [stats, setStats] = useState({
     totalJobs: 0,
     activeJobs: 0,
@@ -25,17 +69,17 @@ const RecruiterDashboard = () => {
     pendingInterviews: 0,
     recentApplications: [],
     applicationsByStatus: [],
-    upcomingInterviews: []
+    upcomingInterviews: [],
   });
 
   // Colors for the pie chart
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
   useEffect(() => {
     if (allAdminJobs) {
       // Calculate dashboard statistics
       const totalJobs = allAdminJobs.length;
-      const activeJobs = allAdminJobs.filter(job => job.isActive).length;
+      const activeJobs = allAdminJobs.filter((job) => job.isActive).length;
 
       let totalApplicants = 0;
       let pendingInterviews = 0;
@@ -47,43 +91,47 @@ const RecruiterDashboard = () => {
         pending: 0,
         accepted: 0,
         rejected: 0,
-        interview: 0
+        interview: 0,
       };
 
       // Process job applications
-      allAdminJobs.forEach(job => {
+      allAdminJobs.forEach((job) => {
         if (job.applications) {
           totalApplicants += job.applications.length;
 
-          job.applications.forEach(app => {
+          job.applications.forEach((app) => {
             // Count by status
             if (statusCounts[app.status] !== undefined) {
               statusCounts[app.status]++;
             }
 
             // Count pending interviews
-            if (app.status === 'interview' && app.interviewDetails && !app.interviewDetails.completed) {
+            if (
+              app.status === "interview" &&
+              app.interviewDetails &&
+              !app.interviewDetails.completed
+            ) {
               pendingInterviews++;
 
               // Add to upcoming interviews if date is in the future
               const interviewDate = new Date(app.interviewDetails.date);
               if (interviewDate > new Date()) {
                 upcomingInterviews.push({
-                  applicantName: app.user?.fullname || 'Applicant',
+                  applicantName: app.user?.fullname || "Applicant",
                   jobTitle: job.title,
                   date: app.interviewDetails.date,
-                  id: app._id
+                  id: app._id,
                 });
               }
             }
 
             // Add to recent applications (last 5)
             recentApplications.push({
-              applicantName: app.user?.fullname || 'Applicant',
+              applicantName: app.user?.fullname || "Applicant",
               jobTitle: job.title,
               status: app.status,
               date: app.createdAt,
-              id: app._id
+              id: app._id,
             });
           });
         }
@@ -99,10 +147,10 @@ const RecruiterDashboard = () => {
 
       // Format data for pie chart
       const applicationsByStatus = [
-        { name: 'Pending', value: statusCounts.pending },
-        { name: 'Accepted', value: statusCounts.accepted },
-        { name: 'Rejected', value: statusCounts.rejected },
-        { name: 'Interview', value: statusCounts.interview }
+        { name: "Pending", value: statusCounts.pending },
+        { name: "Accepted", value: statusCounts.accepted },
+        { name: "Rejected", value: statusCounts.rejected },
+        { name: "Interview", value: statusCounts.interview },
       ];
 
       setStats({
@@ -112,36 +160,41 @@ const RecruiterDashboard = () => {
         pendingInterviews,
         recentApplications,
         applicationsByStatus,
-        upcomingInterviews
+        upcomingInterviews,
       });
     }
   }, [allAdminJobs]);
 
   // Format date for display
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   // Format time for display
   const formatTime = (dateString) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   // Get status badge color
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'accepted': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'interview': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "accepted":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "interview":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -156,7 +209,8 @@ const RecruiterDashboard = () => {
       employees: "5,000+",
       openings: 12,
       rating: 4.5,
-      description: "Pakistan's premier technology company providing innovative IT solutions globally."
+      description:
+        "Pakistan's premier technology company providing innovative IT solutions globally.",
     },
     {
       id: 2,
@@ -167,7 +221,8 @@ const RecruiterDashboard = () => {
       employees: "10,000+",
       openings: 8,
       rating: 4.2,
-      description: "Pakistan's only vertically-integrated power utility, serving Karachi and its surrounding areas."
+      description:
+        "Pakistan's only vertically-integrated power utility, serving Karachi and its surrounding areas.",
     },
     {
       id: 3,
@@ -178,7 +233,8 @@ const RecruiterDashboard = () => {
       employees: "7,500+",
       openings: 15,
       rating: 4.7,
-      description: "One of Pakistan's largest conglomerates with businesses in fertilizers, foods, energy, and petrochemicals."
+      description:
+        "One of Pakistan's largest conglomerates with businesses in fertilizers, foods, energy, and petrochemicals.",
     },
     {
       id: 4,
@@ -189,19 +245,20 @@ const RecruiterDashboard = () => {
       employees: "8,000+",
       openings: 10,
       rating: 4.3,
-      description: "Pakistan's leading digital communications company, offering voice, data, and digital services."
-    }
+      description:
+        "Pakistan's leading digital communications company, offering voice, data, and digital services.",
+    },
   ];
 
   // Application trend data for line chart
   const applicationTrendData = [
-    { name: 'Jan', applications: 65 },
-    { name: 'Feb', applications: 80 },
-    { name: 'Mar', applications: 95 },
-    { name: 'Apr', applications: 75 },
-    { name: 'May', applications: 110 },
-    { name: 'Jun', applications: 145 },
-    { name: 'Jul', applications: 130 },
+    { name: "Jan", applications: 65 },
+    { name: "Feb", applications: 80 },
+    { name: "Mar", applications: 95 },
+    { name: "Apr", applications: 75 },
+    { name: "May", applications: 110 },
+    { name: "Jun", applications: 145 },
+    { name: "Jul", applications: 130 },
   ];
 
   return (
@@ -211,8 +268,15 @@ const RecruiterDashboard = () => {
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="flex items-center gap-6 mb-4 md:mb-0">
             <Avatar className="h-20 w-20 border-4 border-white/30 shadow-lg">
-              <AvatarImage src={user?.profilePicture || "https://ui-avatars.com/api/?name=" + user?.fullname} />
-              <AvatarFallback>{user?.fullname?.charAt(0) || "R"}</AvatarFallback>
+              <AvatarImage
+                src={
+                  user?.profilePicture ||
+                  "https://ui-avatars.com/api/?name=" + user?.fullname
+                }
+              />
+              <AvatarFallback>
+                {user?.fullname?.charAt(0) || "R"}
+              </AvatarFallback>
             </Avatar>
             <div>
               <div className="flex items-center gap-2">
@@ -223,12 +287,18 @@ const RecruiterDashboard = () => {
                   <CheckCircle className="h-3 w-3 mr-1" /> Active
                 </Badge>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold mt-1">Welcome, {user?.fullname || 'Recruiter'}!</h1>
-              <p className="text-indigo-100 text-sm mt-1">Manage your recruitment pipeline efficiently</p>
+              <h1 className="text-2xl md:text-3xl font-bold mt-1">
+                Welcome, {user?.fullname || "Recruiter"}!
+              </h1>
+              <p className="text-indigo-100 text-sm mt-1">
+                Manage your recruitment pipeline efficiently
+              </p>
               <div className="flex items-center gap-4 mt-3">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
-                  <p className="text-sm text-indigo-100">{user?.email || 'recruiter@example.com'}</p>
+                  <p className="text-sm text-indigo-100">
+                    {user?.email || "recruiter@example.com"}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
@@ -236,16 +306,18 @@ const RecruiterDashboard = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Building className="h-4 w-4" />
-                  <p className="text-sm text-indigo-100">{user?.company?.name || 'Your Company'}</p>
+                  <p className="text-sm text-indigo-100">
+                    {user?.company?.name || "Your Company"}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-3">
-            {user?.role === 'company_admin' ? (
+            {user?.role === "company_admin" ? (
               <Button
-                onClick={() => navigate('/admin/jobs/create')}
+                onClick={() => navigate("/admin/jobs/create")}
                 className="bg-white text-indigo-700 hover:bg-indigo-50 w-full md:w-auto shadow-md"
               >
                 <PlusCircle className="mr-2 h-4 w-4" /> Post New Job
@@ -261,7 +333,11 @@ const RecruiterDashboard = () => {
             )}
 
             <div className="relative mt-3 md:mt-0">
-              <Button variant="outline" size="icon" className="rounded-full bg-white/20 hover:bg-white/30 border-none">
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full bg-white/20 hover:bg-white/30 border-none"
+              >
                 <Bell className="h-5 w-5 text-white" />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {stats.recentApplications.length}
@@ -280,7 +356,9 @@ const RecruiterDashboard = () => {
           </div>
           <div>
             <p className="text-sm text-gray-500">Active Jobs</p>
-            <p className="text-xl font-bold text-indigo-700">{stats.activeJobs}</p>
+            <p className="text-xl font-bold text-indigo-700">
+              {stats.activeJobs}
+            </p>
           </div>
         </div>
 
@@ -290,7 +368,9 @@ const RecruiterDashboard = () => {
           </div>
           <div>
             <p className="text-sm text-gray-500">Applicants</p>
-            <p className="text-xl font-bold text-purple-700">{stats.totalApplicants}</p>
+            <p className="text-xl font-bold text-purple-700">
+              {stats.totalApplicants}
+            </p>
           </div>
         </div>
 
@@ -300,7 +380,9 @@ const RecruiterDashboard = () => {
           </div>
           <div>
             <p className="text-sm text-gray-500">Interviews</p>
-            <p className="text-xl font-bold text-blue-700">{stats.pendingInterviews}</p>
+            <p className="text-xl font-bold text-blue-700">
+              {stats.pendingInterviews}
+            </p>
           </div>
         </div>
 
@@ -310,7 +392,18 @@ const RecruiterDashboard = () => {
           </div>
           <div>
             <p className="text-sm text-gray-500">Conversion Rate</p>
-            <p className="text-xl font-bold text-emerald-700">{stats.totalApplicants > 0 ? Math.round((stats.applicationsByStatus.find(s => s.name === 'Accepted')?.value || 0) / stats.totalApplicants * 100) : 0}%</p>
+            <p className="text-xl font-bold text-emerald-700">
+              {stats.totalApplicants > 0
+                ? Math.round(
+                    ((stats.applicationsByStatus.find(
+                      (s) => s.name === "Accepted",
+                    )?.value || 0) /
+                      stats.totalApplicants) *
+                      100,
+                  )
+                : 0}
+              %
+            </p>
           </div>
         </div>
       </div>
@@ -329,13 +422,21 @@ const RecruiterDashboard = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Button
                   variant="outline"
-                  className={`h-auto py-3 flex flex-col items-center justify-center gap-2 border-indigo-100 ${user?.role === 'company_admin'
-                      ? 'hover:bg-indigo-50 hover:text-indigo-700'
-                      : 'opacity-50 cursor-not-allowed'
-                    }`}
-                  onClick={() => user?.role === 'company_admin' && navigate('/admin/jobs/create')}
-                  disabled={user?.role !== 'company_admin'}
-                  title={user?.role !== 'company_admin' ? 'Only CEOs can post jobs' : ''}
+                  className={`h-auto py-3 flex flex-col items-center justify-center gap-2 border-indigo-100 ${
+                    user?.role === "company_admin"
+                      ? "hover:bg-indigo-50 hover:text-indigo-700"
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
+                  onClick={() =>
+                    user?.role === "company_admin" &&
+                    navigate("/admin/jobs/create")
+                  }
+                  disabled={user?.role !== "company_admin"}
+                  title={
+                    user?.role !== "company_admin"
+                      ? "Only CEOs can post jobs"
+                      : ""
+                  }
                 >
                   <div className="bg-indigo-100 p-2 rounded-full">
                     <PlusCircle className="h-5 w-5 text-indigo-600" />
@@ -346,7 +447,7 @@ const RecruiterDashboard = () => {
                 <Button
                   variant="outline"
                   className="h-auto py-3 flex flex-col items-center justify-center gap-2 hover:bg-purple-50 hover:text-purple-700 border-purple-100"
-                  onClick={() => navigate('/admin/jobs')}
+                  onClick={() => navigate("/admin/jobs")}
                 >
                   <div className="bg-purple-100 p-2 rounded-full">
                     <Users className="h-5 w-5 text-purple-600" />
@@ -357,7 +458,7 @@ const RecruiterDashboard = () => {
                 <Button
                   variant="outline"
                   className="h-auto py-3 flex flex-col items-center justify-center gap-2 hover:bg-blue-50 hover:text-blue-700 border-blue-100"
-                  onClick={() => navigate('/admin/jobs')}
+                  onClick={() => navigate("/admin/jobs")}
                 >
                   <div className="bg-blue-100 p-2 rounded-full">
                     <Calendar className="h-5 w-5 text-blue-600" />
@@ -368,7 +469,7 @@ const RecruiterDashboard = () => {
                 <Button
                   variant="outline"
                   className="h-auto py-3 flex flex-col items-center justify-center gap-2 hover:bg-green-50 hover:text-green-700 border-green-100"
-                  onClick={() => navigate('/admin/companies')}
+                  onClick={() => navigate("/admin/companies")}
                 >
                   <div className="bg-green-100 p-2 rounded-full">
                     <Building className="h-5 w-5 text-green-600" />
@@ -428,7 +529,9 @@ const RecruiterDashboard = () => {
                     outerRadius={80}
                     paddingAngle={5}
                     dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
                     labelLine={false}
                   >
                     {stats.applicationsByStatus.map((entry, index) => (
@@ -443,9 +546,9 @@ const RecruiterDashboard = () => {
                   <Tooltip
                     formatter={(value) => [`${value} applications`, null]}
                     contentStyle={{
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      border: 'none'
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      border: "none",
                     }}
                   />
                 </PieChart>
@@ -481,24 +584,39 @@ const RecruiterDashboard = () => {
             <div className="space-y-4">
               {stats.recentApplications.length > 0 ? (
                 stats.recentApplications.map((app, index) => (
-                  <div key={index} className="flex items-center justify-between border-b pb-3 last:border-0 hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between border-b pb-3 last:border-0 hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium">
-                        {typeof app.applicantName === 'string' && app.applicantName.length > 0 ? app.applicantName.charAt(0) : '?'}
+                        {typeof app.applicantName === "string" &&
+                        app.applicantName.length > 0
+                          ? app.applicantName.charAt(0)
+                          : "?"}
                       </div>
                       <div>
-                        <h3 className="font-medium">{app.applicantName || 'N/A'}</h3>
+                        <h3 className="font-medium">
+                          {app.applicantName || "N/A"}
+                        </h3>
                         <p className="text-sm text-gray-500 flex items-center">
-                          <Briefcase className="h-3 w-3 mr-1" /> {app.jobTitle || 'N/A'}
+                          <Briefcase className="h-3 w-3 mr-1" />{" "}
+                          {app.jobTitle || "N/A"}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge className={`${getStatusColor(app.status)} px-3 py-1`}>
-                        {typeof app.status === 'string' && app.status.length > 0 ? app.status.charAt(0).toUpperCase() + app.status.slice(1) : 'Unknown'}
+                      <Badge
+                        className={`${getStatusColor(app.status)} px-3 py-1`}
+                      >
+                        {typeof app.status === "string" && app.status.length > 0
+                          ? app.status.charAt(0).toUpperCase() +
+                            app.status.slice(1)
+                          : "Unknown"}
                       </Badge>
                       <p className="text-xs text-gray-500 mt-1 flex items-center justify-end">
-                        <Clock className="h-3 w-3 mr-1" /> {formatDate(app.date)}
+                        <Clock className="h-3 w-3 mr-1" />{" "}
+                        {formatDate(app.date)}
                       </p>
                     </div>
                   </div>
@@ -507,7 +625,9 @@ const RecruiterDashboard = () => {
                 <div className="text-center py-8 bg-gray-50 rounded-lg">
                   <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                   <p className="text-gray-500">No recent applications</p>
-                  <p className="text-sm text-gray-400 mt-1">New applications will appear here</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    New applications will appear here
+                  </p>
                 </div>
               )}
             </div>
@@ -516,7 +636,7 @@ const RecruiterDashboard = () => {
             <Button
               variant="outline"
               className="w-full flex items-center justify-center gap-2 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
-              onClick={() => navigate('/admin/jobs')}
+              onClick={() => navigate("/admin/jobs")}
             >
               View All Applications <ArrowUpRight className="h-4 w-4" />
             </Button>
@@ -529,18 +649,29 @@ const RecruiterDashboard = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold">Top Pakistani Companies</h2>
-            <p className="text-gray-500">Leading employers with active job openings</p>
+            <p className="text-gray-500">
+              Leading employers with active job openings
+            </p>
           </div>
-          <Button variant="outline" onClick={() => navigate('/admin/companies')}>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/admin/companies")}
+          >
             View All Companies
           </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Add console log here */}
-          {console.log('Rendering Top Pakistani Companies:', topPakistanCompanies)}
-          {topPakistanCompanies.map(company => (
-            <Card key={company.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+          {console.log(
+            "Rendering Top Pakistani Companies:",
+            topPakistanCompanies,
+          )}
+          {topPakistanCompanies.map((company) => (
+            <Card
+              key={company.id}
+              className="overflow-hidden hover:shadow-lg transition-shadow"
+            >
               <div className="h-32 bg-gray-50 flex items-center justify-center p-4 border-b">
                 <img
                   src={company.logo}
@@ -553,7 +684,9 @@ const RecruiterDashboard = () => {
                   <CardTitle className="text-lg">{company.name}</CardTitle>
                   <div className="flex items-center">
                     <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                    <span className="text-sm font-medium ml-1">{company.rating}</span>
+                    <span className="text-sm font-medium ml-1">
+                      {company.rating}
+                    </span>
                   </div>
                 </div>
                 <CardDescription className="flex items-center">
@@ -561,7 +694,9 @@ const RecruiterDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pb-2">
-                <div className="text-sm text-gray-600 mb-2">{company.description}</div>
+                <div className="text-sm text-gray-600 mb-2">
+                  {company.description}
+                </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="flex items-center">
                     <Briefcase className="h-3 w-3 mr-1 text-gray-500" />
@@ -577,7 +712,11 @@ const RecruiterDashboard = () => {
                 <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                   {company.openings} Open Positions
                 </Badge>
-                <Button size="sm" variant="ghost" className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50"
+                >
                   View Details
                 </Button>
               </CardFooter>
@@ -592,7 +731,9 @@ const RecruiterDashboard = () => {
           <JobStatisticsCard jobs={allAdminJobs} />
         </div>
         <div className="hover:shadow-md transition-all duration-300 border border-indigo-100 rounded-xl overflow-hidden">
-          <ApplicantTrackingCard applications={allAdminJobs.flatMap(job => job.applications || [])} />
+          <ApplicantTrackingCard
+            applications={allAdminJobs.flatMap((job) => job.applications || [])}
+          />
         </div>
       </div>
 
@@ -604,62 +745,84 @@ const RecruiterDashboard = () => {
               <Award className="h-5 w-5 text-emerald-600 mr-2" />
               Top Talent Pool
             </CardTitle>
-            <CardDescription>Track and manage your best candidates</CardDescription>
+            <CardDescription>
+              Track and manage your best candidates
+            </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-medium mr-3">A</div>
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-medium mr-3">
+                      A
+                    </div>
                     <div>
                       <h3 className="font-medium">Ahmed Khan</h3>
-                      <p className="text-sm text-gray-500">Full Stack Developer</p>
+                      <p className="text-sm text-gray-500">
+                        Full Stack Developer
+                      </p>
                     </div>
                   </div>
-                  <Badge className="bg-blue-100 text-blue-800 px-2">Top Match</Badge>
+                  <Badge className="bg-blue-100 text-blue-800 px-2">
+                    Top Match
+                  </Badge>
                 </div>
                 <div className="text-sm text-gray-600 mb-3">
                   <p>Skills: React, Node.js, MongoDB</p>
                   <p>Experience: 5 years</p>
                 </div>
-                <Button variant="outline" size="sm" className="w-full">View Profile</Button>
+                <Button variant="outline" size="sm" className="w-full">
+                  View Profile
+                </Button>
               </div>
 
               <div className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-medium mr-3">F</div>
+                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-medium mr-3">
+                      F
+                    </div>
                     <div>
                       <h3 className="font-medium">Fatima Ali</h3>
                       <p className="text-sm text-gray-500">UI/UX Designer</p>
                     </div>
                   </div>
-                  <Badge className="bg-purple-100 text-purple-800 px-2">Recommended</Badge>
+                  <Badge className="bg-purple-100 text-purple-800 px-2">
+                    Recommended
+                  </Badge>
                 </div>
                 <div className="text-sm text-gray-600 mb-3">
                   <p>Skills: Figma, Adobe XD, Sketch</p>
                   <p>Experience: 3 years</p>
                 </div>
-                <Button variant="outline" size="sm" className="w-full">View Profile</Button>
+                <Button variant="outline" size="sm" className="w-full">
+                  View Profile
+                </Button>
               </div>
 
               <div className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-medium mr-3">M</div>
+                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-medium mr-3">
+                      M
+                    </div>
                     <div>
                       <h3 className="font-medium">Muhammad Usman</h3>
                       <p className="text-sm text-gray-500">Data Scientist</p>
                     </div>
                   </div>
-                  <Badge className="bg-green-100 text-green-800 px-2">Shortlisted</Badge>
+                  <Badge className="bg-green-100 text-green-800 px-2">
+                    Shortlisted
+                  </Badge>
                 </div>
                 <div className="text-sm text-gray-600 mb-3">
                   <p>Skills: Python, TensorFlow, SQL</p>
                   <p>Experience: 4 years</p>
                 </div>
-                <Button variant="outline" size="sm" className="w-full">View Profile</Button>
+                <Button variant="outline" size="sm" className="w-full">
+                  View Profile
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -678,20 +841,20 @@ const RecruiterDashboard = () => {
           </CardHeader>
           <CardContent className="p-0">
             <InterviewSchedulingCard
-              interviews={allAdminJobs.flatMap(job =>
-                job.applications ?
-                  job.applications.filter(app =>
-                    app.status === 'interview' &&
-                    app.interviewDetails &&
-                    !app.interviewDetails.completed
-                  ) : []
+              interviews={allAdminJobs.flatMap((job) =>
+                job.applications
+                  ? job.applications.filter(
+                      (app) =>
+                        app.status === "interview" &&
+                        app.interviewDetails &&
+                        !app.interviewDetails.completed,
+                    )
+                  : [],
               )}
             />
           </CardContent>
         </Card>
       </div>
-
-
 
       {/* Application Trends Section */}
       <div className="mb-8">
@@ -712,14 +875,18 @@ const RecruiterDashboard = () => {
                   data={applicationTrendData}
                   margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#f0f0f0"
+                  />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip
                     contentStyle={{
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      border: 'none'
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      border: "none",
                     }}
                   />
                   <Line
@@ -728,7 +895,12 @@ const RecruiterDashboard = () => {
                     stroke="#8884d8"
                     strokeWidth={2}
                     dot={{ r: 4 }}
-                    activeDot={{ r: 6, stroke: '#8884d8', strokeWidth: 2, fill: '#fff' }}
+                    activeDot={{
+                      r: 6,
+                      stroke: "#8884d8",
+                      strokeWidth: 2,
+                      fill: "#fff",
+                    }}
                   />
                 </LineChart>
               </ResponsiveContainer>

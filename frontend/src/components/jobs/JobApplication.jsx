@@ -33,13 +33,13 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
         `${APPLICATION_API_END_POINT}/apply/${jobId}`,
         {
           coverLetter,
-          resumeAnalysisId: resumeAnalysis._id
+          resumeAnalysisId: resumeAnalysis._id,
         },
         {
           headers: {
-            "x-auth-token": token
-          }
-        }
+            "x-auth-token": token,
+          },
+        },
       );
 
       setSuccess(true);
@@ -52,7 +52,7 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
       console.error("Application submission error:", error);
       setError(
         error.response?.data?.message ||
-        "Failed to submit application. Please try again."
+          "Failed to submit application. Please try again.",
       );
       setSubmitting(false);
     }
@@ -63,7 +63,10 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Apply for Job</h2>
         {onCancel && (
-          <button onClick={onCancel} className="text-gray-500 hover:text-white transition-colors">
+          <button
+            onClick={onCancel}
+            className="text-gray-500 hover:text-white transition-colors"
+          >
             <X size={20} />
           </button>
         )}
@@ -81,15 +84,25 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
               <div className="flex items-start">
                 <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 mr-3" />
                 <div>
-                  <h4 className="font-bold text-green-400">Resume Analysis Complete</h4>
+                  <h4 className="font-bold text-green-400">
+                    Resume Analysis Complete
+                  </h4>
                   <div className="mt-2 grid grid-cols-2 gap-4">
                     <div className="bg-black/20 p-2 rounded-lg">
-                      <p className="text-xs text-gray-400 uppercase tracking-wider">Overall Score</p>
-                      <p className="text-xl font-bold text-white">{resumeAnalysis.analysisScore}%</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">
+                        Overall Score
+                      </p>
+                      <p className="text-xl font-bold text-white">
+                        {resumeAnalysis.analysisScore}%
+                      </p>
                     </div>
                     <div className="bg-black/20 p-2 rounded-lg">
-                      <p className="text-xs text-gray-400 uppercase tracking-wider">Match Rating</p>
-                      <p className="text-xl font-bold text-white capitalize">{resumeAnalysis.overallFit}</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">
+                        Match Rating
+                      </p>
+                      <p className="text-xl font-bold text-white capitalize">
+                        {resumeAnalysis.overallFit}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -125,10 +138,11 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
             <Button
               type="submit"
               disabled={!resumeAnalysis || submitting}
-              className={`w-full py-6 text-lg font-bold rounded-xl transition-all ${!resumeAnalysis
+              className={`w-full py-6 text-lg font-bold rounded-xl transition-all ${
+                !resumeAnalysis
                   ? "bg-white/5 text-gray-500 cursor-not-allowed border border-white/5"
                   : "bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.2)]"
-                }`}
+              }`}
             >
               {submitting ? (
                 <span className="flex items-center justify-center">
@@ -150,7 +164,8 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
             Application Submitted!
           </h3>
           <p className="text-gray-400 mb-8 max-w-xs mx-auto">
-            Your application has been successfully sent. You can track its status in your dashboard.
+            Your application has been successfully sent. You can track its
+            status in your dashboard.
           </p>
           <Button
             onClick={onCancel || onApplicationSubmit}

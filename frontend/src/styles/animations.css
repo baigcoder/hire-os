@@ -2,8 +2,12 @@
 
 /* Fade In Animation */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fadeIn {
@@ -106,10 +110,12 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, 
-    rgba(255,255,255,0) 0%, 
-    rgba(255,255,255,0.8) 50%, 
-    rgba(255,255,255,0) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
   background-size: 200% 100%;
   animation: shimmer 3s infinite;
 }
@@ -122,13 +128,13 @@
 }
 
 .btn-hover-effect:before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
 }
@@ -139,12 +145,16 @@
 
 /* Card Hover Animation */
 .card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .card-hover:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Glass Effect */
@@ -188,9 +198,15 @@
 }
 
 @keyframes textGradient {
-  0% { background-position: 0% center; }
-  50% { background-position: 100% center; }
-  100% { background-position: 0% center; }
+  0% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+  100% {
+    background-position: 0% center;
+  }
 }
 
 /* Border Gradient */
@@ -198,8 +214,8 @@
   border: 2px solid transparent;
   background-clip: padding-box, border-box;
   background-origin: padding-box, border-box;
-  background-image: 
-    linear-gradient(to right, transparent, transparent), 
+  background-image:
+    linear-gradient(to right, transparent, transparent),
     linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef);
 }
 
@@ -217,15 +233,16 @@
 
 /* 3D Text Effect */
 .text-3d {
-  text-shadow: 1px 1px 1px rgba(0,0,0,0.1),
-               2px 2px 2px rgba(0,0,0,0.05);
+  text-shadow:
+    1px 1px 1px rgba(0, 0, 0, 0.1),
+    2px 2px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Background Grid Pattern */
 .bg-grid-pattern {
-  background-image: 
-    linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 

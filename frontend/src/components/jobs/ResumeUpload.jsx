@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { RESUME_API_END_POINT } from "@/utils/constant";
-import { Loader2, Upload, CheckCircle, AlertCircle, FileText } from "lucide-react";
+import {
+  Loader2,
+  Upload,
+  CheckCircle,
+  AlertCircle,
+  FileText,
+} from "lucide-react";
 import { Button } from "../ui/button";
 
 const ResumeUpload = ({ jobId, onUploadComplete }) => {
@@ -52,11 +58,11 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
           },
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
+              (progressEvent.loaded * 100) / progressEvent.total,
             );
             setUploadProgress(percentCompleted);
           },
-        }
+        },
       );
 
       // Simulate analysis progress
@@ -74,7 +80,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
       console.error("Resume upload error:", error);
       setError(
         error.response?.data?.message ||
-        "Failed to upload resume. Please try again."
+          "Failed to upload resume. Please try again.",
       );
       setUploading(false);
     }
@@ -83,7 +89,9 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
   return (
     <div className="bg-[#111111] rounded-md border border-white/10 p-6 mb-6 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-      <h3 className="text-sm font-bold mb-4 text-white uppercase tracking-wider">Upload Resume</h3>
+      <h3 className="text-sm font-bold mb-4 text-white uppercase tracking-wider">
+        Upload Resume
+      </h3>
 
       {!uploading && !success ? (
         <form onSubmit={handleUpload}>
@@ -104,9 +112,14 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
                     <Upload className="w-6 h-6 text-gray-500 group-hover:text-[#FFD700] transition-colors" />
                   </div>
                   <p className="mb-2 text-xs text-gray-500">
-                    <span className="font-bold text-gray-400 group-hover:text-[#FFD700] transition-colors">Click to upload</span> or drag
+                    <span className="font-bold text-gray-400 group-hover:text-[#FFD700] transition-colors">
+                      Click to upload
+                    </span>{" "}
+                    or drag
                   </p>
-                  <p className="text-[10px] text-gray-600 font-mono">PDF (MAX. 5MB)</p>
+                  <p className="text-[10px] text-gray-600 font-mono">
+                    PDF (MAX. 5MB)
+                  </p>
                 </div>
                 <input
                   id="resume"
@@ -156,9 +169,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
       ) : (
         <div className="py-6">
           <h4 className="text-sm font-bold text-white mb-6 text-center uppercase tracking-wider">
-            {uploadProgress < 100
-              ? "Uploading..."
-              : "AI Analyzing..."}
+            {uploadProgress < 100 ? "Uploading..." : "AI Analyzing..."}
           </h4>
 
           <div className="mb-6 px-4">
@@ -176,8 +187,9 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
               <div
                 className="bg-[#FFD700] h-full rounded-sm transition-all duration-300 shadow-[0_0_10px_rgba(255,215,0,0.5)]"
                 style={{
-                  width: `${uploadProgress < 100 ? uploadProgress : analysisProgress
-                    }%`,
+                  width: `${
+                    uploadProgress < 100 ? uploadProgress : analysisProgress
+                  }%`,
                 }}
               ></div>
             </div>

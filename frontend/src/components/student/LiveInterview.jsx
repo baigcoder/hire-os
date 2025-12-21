@@ -764,12 +764,11 @@ const LiveInterview = () => {
     setIsProcessing(true);
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${API_BASE}/live-interview/end`,
         {
           sessionId,
         },
-        { withCredentials: true },
       );
 
       if (response.data.success) {

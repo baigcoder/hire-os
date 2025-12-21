@@ -14,11 +14,10 @@ import {
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
-import axios from "axios";
 import { COMPANY_API_END_POINT } from "@/utils/constant";
+import api from "@/utils/api";
 import Navbar from "../shared/Navbar";
 
-const PADDLE_API = "http://localhost:8000/api/v1/paddle";
 
 const PaddleCheckout = () => {
   const navigate = useNavigate();
@@ -40,7 +39,7 @@ const PaddleCheckout = () => {
 
   const initializePaddle = async () => {
     try {
-      const configResponse = await axios.get(`${PADDLE_API}/config`);
+      const configResponse = await api.get("/paddle/config");
       const { clientToken, environment } = configResponse.data;
 
       if (!clientToken || clientToken === "your_client_token_here") {
@@ -94,24 +93,22 @@ const PaddleCheckout = () => {
       if (!pendingData) throw new Error("Registration data not found");
 
       const registrationData = JSON.parse(pendingData);
-      const registerResponse = await axios.post(
-        `${COMPANY_API_END_POINT}/register`,
-        {
-          companyName: registrationData.company.name,
-          website: registrationData.company.website,
-          location: registrationData.company.location,
-          description: registrationData.company.description,
-          industry: registrationData.company.industry,
-          companySize: registrationData.company.size,
-          adminName: registrationData.admin.fullname,
-          adminEmail: registrationData.admin.email,
-          adminPhone: registrationData.admin.phoneNumber,
-          adminPassword: registrationData.admin.password,
-          planId: registrationData.plan.id,
-          billingCycle: "monthly",
-          paymentToken: data?.transaction_id || `PADDLE_${Date.now()}`,
-          recruitersToInvite: registrationData.recruiters || [],
-        },
+      const registerResponse = await api.post("/company/register", {
+        companyName: registrationData.company.name,
+        website: registrationData.company.website,
+        location: registrationData.company.location,
+        description: registrationData.company.description,
+        industry: registrationData.company.industry,
+        companySize: registrationData.company.size,
+        adminName: registrationData.admin.fullname,
+        adminEmail: registrationData.admin.email,
+        adminPhone: registrationData.admin.phoneNumber,
+        adminPassword: registrationData.admin.password,
+        planId: registrationData.plan.id,
+        billingCycle: "monthly",
+        paymentToken: data?.transaction_id || `PADDLE_${Date.now()}`,
+        recruitersToInvite: registrationData.recruiters || [],
+      },
       );
 
       if (registerResponse.data.success) {

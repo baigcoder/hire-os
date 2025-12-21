@@ -83,6 +83,7 @@ import DailyJobAlerts from "./DailyJobAlerts";
 import PracticeHistory from "./PracticeHistory";
 import { useSupabaseDashboard } from "../../hooks/useSupabaseDashboard";
 import DashboardLoader from "../shared/DashboardLoader";
+import { useAuth } from "../../context/AuthContext";
 
 // LIVE Badge Component
 const LiveBadge = ({ isLive }) => (
@@ -108,17 +109,27 @@ const StudentDashboard = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useSelector((store) => store.auth);
+  const { signOut } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // Logout handler
+  // Logout handler - clears both backend session AND Supabase session
   const logoutHandler = async () => {
     try {
+      // Sign out from Supabase first (clears Google session)
+      await signOut();
+      // Then clear backend session
       await api.get("/user/logout");
       dispatch(logout());
+      localStorage.removeItem("token");
+      localStorage.removeItem("pendingSignupRole");
       navigate("/");
       toast.success("Logged out successfully");
     } catch (error) {
-      toast.error("Logout failed");
+      console.error("Logout error:", error);
+      dispatch(logout());
+      localStorage.removeItem("token");
+      navigate("/");
+      toast.success("Logged out");
     }
   };
 

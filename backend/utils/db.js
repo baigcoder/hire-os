@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
 const connectDB = async () => {
+  // Check if we already have a connection to reuse
+  if (mongoose.connection.readyState === 1) {
+    console.log("♻️  Using existing MongoDB connection");
+    return mongoose.connection;
+  }
+
   try {
     const mongoUri = process.env.MONGO_URI;
 
@@ -31,6 +37,7 @@ const connectDB = async () => {
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📊 Database: ${conn.connection.name}`);
+    console.log(`📡 Ready State: ${conn.connection.readyState}`);
 
     // Connection event handlers
     mongoose.connection.on("connected", () => {

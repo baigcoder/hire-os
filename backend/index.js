@@ -210,6 +210,28 @@ app.get("/health/realtime", (req, res) => {
   });
 });
 
+// Diagnostic Health Check
+app.get("/api/v1/health", async (req, res) => {
+  const dbHealth = await checkDBHealth();
+  return res.status(200).json({
+    success: true,
+    message: "HIRE.OS API Health Check",
+    timestamp: new Date().toISOString(),
+    db: dbHealth,
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      hasSecretKey: !!process.env.SECRET_KEY,
+      hasMongoUri: !!process.env.MONGO_URI,
+      hasSupabaseUrl: !!process.env.SUPABASE_URL,
+      hasFrontendUrl: !!process.env.FRONTEND_URL,
+    },
+    vercel: {
+      isVercel: !!process.env.VERCEL,
+      region: process.env.VERCEL_REGION,
+    },
+  });
+});
+
 // API Routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/company", companyRoute);

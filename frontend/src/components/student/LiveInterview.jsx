@@ -12,7 +12,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import api from "@/utils/api";  // Uses interceptor with JWT token
 import { toast } from "sonner";
 import {
   Video,
@@ -132,7 +132,7 @@ const LiveInterview = () => {
     const fetchVoices = async () => {
       try {
         console.log("🎤 [LiveInterview] Fetching available voices...");
-        const response = await axios.get(`${API_BASE}/live-interview/voices`);
+        const response = await api.get(`${API_BASE}/live-interview/voices`);
         if (response.data.success && response.data.voices?.length > 0) {
           setAvailableVoices(response.data.voices);
           console.log(
@@ -190,7 +190,7 @@ const LiveInterview = () => {
     const fetchLanguages = async () => {
       try {
         console.log("🌐 [LiveInterview] Fetching available languages...");
-        const response = await axios.get(
+        const response = await api.get(
           `${API_BASE}/live-interview/languages`,
         );
         if (response.data.success) {
@@ -696,7 +696,7 @@ const LiveInterview = () => {
     setInterimTranscript("");
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${API_BASE}/live-interview/respond`,
         {
           sessionId: currentSessionId,
@@ -896,11 +896,10 @@ const LiveInterview = () => {
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.6 + idx * 0.1 }}
-                className={`w-full flex items-center gap-4 p-4 rounded-sm transition-all duration-200 ${
-                  interviewType === type.id
-                    ? "bg-[#FFD700] border-2 border-[#FFD700]"
-                    : "bg-transparent border-2 border-white/10 hover:border-[#FFD700]/30"
-                }`}
+                className={`w-full flex items-center gap-4 p-4 rounded-sm transition-all duration-200 ${interviewType === type.id
+                  ? "bg-[#FFD700] border-2 border-[#FFD700]"
+                  : "bg-transparent border-2 border-white/10 hover:border-[#FFD700]/30"
+                  }`}
               >
                 <div className="flex-1 text-left">
                   <h4
@@ -936,22 +935,20 @@ const LiveInterview = () => {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => setCallType("video")}
-                className={`flex items-center justify-center gap-2 p-4 rounded-sm transition-all duration-200 ${
-                  callType === "video"
-                    ? "bg-[#FFD700] text-black font-bold"
-                    : "border-2 border-white/10 text-gray-400 hover:border-[#FFD700]/30"
-                }`}
+                className={`flex items-center justify-center gap-2 p-4 rounded-sm transition-all duration-200 ${callType === "video"
+                  ? "bg-[#FFD700] text-black font-bold"
+                  : "border-2 border-white/10 text-gray-400 hover:border-[#FFD700]/30"
+                  }`}
               >
                 <Video className="w-5 h-5" />
                 <span className="font-semibold">Video</span>
               </button>
               <button
                 onClick={() => setCallType("audio")}
-                className={`flex items-center justify-center gap-2 p-4 rounded-sm transition-all duration-200 ${
-                  callType === "audio"
-                    ? "bg-[#FFD700] text-black font-bold"
-                    : "border-2 border-white/10 text-gray-400 hover:border-[#FFD700]/30"
-                }`}
+                className={`flex items-center justify-center gap-2 p-4 rounded-sm transition-all duration-200 ${callType === "audio"
+                  ? "bg-[#FFD700] text-black font-bold"
+                  : "border-2 border-white/10 text-gray-400 hover:border-[#FFD700]/30"
+                  }`}
               >
                 <Phone className="w-5 h-5" />
                 <span className="font-semibold">Audio</span>
@@ -970,13 +967,12 @@ const LiveInterview = () => {
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    selectedVoice?.gender === "female"
-                      ? "bg-gradient-to-br from-[#FF69B4] to-[#FF1493]"
-                      : selectedVoice?.gender === "male"
-                        ? "bg-gradient-to-br from-[#00BFFF] to-[#0080FF]"
-                        : "bg-gradient-to-br from-[#FFD700] to-[#FFA500]"
-                  }`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedVoice?.gender === "female"
+                    ? "bg-gradient-to-br from-[#FF69B4] to-[#FF1493]"
+                    : selectedVoice?.gender === "male"
+                      ? "bg-gradient-to-br from-[#00BFFF] to-[#0080FF]"
+                      : "bg-gradient-to-br from-[#FFD700] to-[#FFA500]"
+                    }`}
                 >
                   <Volume2 className="w-5 h-5 text-white" />
                 </div>
@@ -1134,11 +1130,10 @@ const LiveInterview = () => {
               <button
                 key={speed}
                 onClick={() => setSpeedPreset(speed)}
-                className={`flex-1 py-2 px-3 rounded-sm text-sm font-medium transition-all capitalize ${
-                  speedPreset === speed
-                    ? "bg-[#FFD700] text-black"
-                    : "border border-[#2a2a2a] bg-[#111111] text-gray-400 hover:border-[#FFD700]/50"
-                }`}
+                className={`flex-1 py-2 px-3 rounded-sm text-sm font-medium transition-all capitalize ${speedPreset === speed
+                  ? "bg-[#FFD700] text-black"
+                  : "border border-[#2a2a2a] bg-[#111111] text-gray-400 hover:border-[#FFD700]/50"
+                  }`}
               >
                 {speed}
               </button>
@@ -1156,11 +1151,10 @@ const LiveInterview = () => {
               <button
                 key={style}
                 onClick={() => setStylePreset(style)}
-                className={`flex-1 py-2 px-3 rounded-sm text-xs font-medium transition-all capitalize ${
-                  stylePreset === style
-                    ? "bg-[#FFD700] text-black"
-                    : "border border-[#2a2a2a] bg-[#111111] text-gray-400 hover:border-[#FFD700]/50"
-                }`}
+                className={`flex-1 py-2 px-3 rounded-sm text-xs font-medium transition-all capitalize ${stylePreset === style
+                  ? "bg-[#FFD700] text-black"
+                  : "border border-[#2a2a2a] bg-[#111111] text-gray-400 hover:border-[#FFD700]/50"
+                  }`}
               >
                 {style}
               </button>
@@ -1527,11 +1521,10 @@ const LiveInterview = () => {
                   </div>
                 )}
                 <div
-                  className={`max-w-[85%] px-3 py-2 rounded-xl text-sm ${
-                    msg.role === "user"
-                      ? "bg-[#2a2a2a] text-white"
-                      : "bg-[#1a1a1a] text-gray-300 border border-[#2a2a2a]"
-                  }`}
+                  className={`max-w-[85%] px-3 py-2 rounded-xl text-sm ${msg.role === "user"
+                    ? "bg-[#2a2a2a] text-white"
+                    : "bg-[#1a1a1a] text-gray-300 border border-[#2a2a2a]"
+                    }`}
                 >
                   {msg.text}
                 </div>
@@ -1563,22 +1556,20 @@ const LiveInterview = () => {
     >
       <div className="text-center mb-8">
         <div
-          className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-4 ${
-            summary.overallScore >= 80
-              ? "bg-[#00FF94]/20 border-2 border-[#00FF94]/40"
-              : summary.overallScore >= 60
-                ? "bg-[#FFD700]/20 border-2 border-[#FFD700]/40"
-                : "bg-red-500/20 border-2 border-red-500/40"
-          }`}
+          className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-4 ${summary.overallScore >= 80
+            ? "bg-[#00FF94]/20 border-2 border-[#00FF94]/40"
+            : summary.overallScore >= 60
+              ? "bg-[#FFD700]/20 border-2 border-[#FFD700]/40"
+              : "bg-red-500/20 border-2 border-red-500/40"
+            }`}
         >
           <span
-            className={`text-4xl font-bold ${
-              summary.overallScore >= 80
-                ? "text-[#00FF94]"
-                : summary.overallScore >= 60
-                  ? "text-[#FFD700]"
-                  : "text-red-400"
-            }`}
+            className={`text-4xl font-bold ${summary.overallScore >= 80
+              ? "text-[#00FF94]"
+              : summary.overallScore >= 60
+                ? "text-[#FFD700]"
+                : "text-red-400"
+              }`}
           >
             {summary.overallScore}
           </span>

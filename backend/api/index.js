@@ -20,10 +20,7 @@ const handler = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: "Database connection failed",
-        error:
-          process.env.NODE_ENV === "development"
-            ? error.message
-            : "Internal server error",
+        error: error.message, // Temporarily show actual error for debugging
       });
     }
   }

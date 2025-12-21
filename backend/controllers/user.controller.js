@@ -268,6 +268,7 @@ export const login = async (req, res) => {
       email: user.email,
       phoneNumber: user.phoneNumber,
       role: user.role,
+      companyId: user.companyId || null, // Include companyId for registration status check
       profile: user.profile,
       lastLogin: user.lastLogin,
       mustChangePassword: user.mustChangePassword || false,
@@ -962,6 +963,7 @@ export const supabaseSync = async (req, res) => {
       email: user.email,
       phoneNumber: user.phoneNumber,
       role: user.role,
+      companyId: user.companyId || null, // Include companyId for registration status check
       profile: user.profile,
       createdAt: user.createdAt,
       // Include trial info

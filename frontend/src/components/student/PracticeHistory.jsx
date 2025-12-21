@@ -20,10 +20,9 @@ import {
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { ComponentLoader } from "../shared/DashboardLoader";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 const PracticeHistory = () => {
   const [history, setHistory] = useState([]);
@@ -43,9 +42,8 @@ const PracticeHistory = () => {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE}/practice-history`, {
+      const response = await api.get("/practice-history", {
         params: { type: filter, page, limit: 10 },
-        withCredentials: true,
       });
 
       if (response.data.success) {
@@ -62,9 +60,7 @@ const PracticeHistory = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/practice-history/stats`, {
-        withCredentials: true,
-      });
+      const response = await api.get("/practice-history/stats");
 
       if (response.data.success) {
         setStats(response.data);
@@ -78,9 +74,7 @@ const PracticeHistory = () => {
     if (!confirm("Delete this practice session?")) return;
 
     try {
-      await axios.delete(`${API_BASE}/practice-history/${id}`, {
-        withCredentials: true,
-      });
+      await api.delete(`/practice-history/${id}`);
       toast.success("Session deleted");
       fetchHistory();
       fetchStats();
@@ -153,11 +147,10 @@ const PracticeHistory = () => {
                 setFilter(f.id);
                 setPage(1);
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-all ${
-                filter === f.id
+              className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-all ${filter === f.id
                   ? "bg-[#FFD700] text-black"
                   : "bg-[#111111] border border-[#2a2a2a] text-gray-400 hover:border-[#FFD700]/30"
-              }`}
+                }`}
             >
               <f.icon className="w-4 h-4" />
               {f.label}
@@ -202,7 +195,7 @@ const PracticeHistory = () => {
               {Math.round(
                 ((stats.stats?.mock_test?.avgScore || 0) +
                   (stats.stats?.mock_interview?.avgScore || 0)) /
-                  2,
+                2,
               )}
               %
             </p>
@@ -281,11 +274,10 @@ const PracticeHistory = () => {
                 <div className="flex items-center gap-4">
                   {/* Type Icon */}
                   <div
-                    className={`w-12 h-12 rounded-sm flex items-center justify-center ${
-                      session.type === "mock_interview"
+                    className={`w-12 h-12 rounded-sm flex items-center justify-center ${session.type === "mock_interview"
                         ? "bg-cyan-400/10"
                         : "bg-[#FFD700]/10"
-                    }`}
+                      }`}
                   >
                     {session.type === "mock_interview" ? (
                       <Video className="w-6 h-6 text-cyan-400" />
@@ -338,9 +330,8 @@ const PracticeHistory = () => {
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <ChevronRight
-                      className={`w-5 h-5 text-gray-500 transition-transform ${
-                        selectedSession?._id === session._id ? "rotate-90" : ""
-                      }`}
+                      className={`w-5 h-5 text-gray-500 transition-transform ${selectedSession?._id === session._id ? "rotate-90" : ""
+                        }`}
                     />
                   </div>
                 </div>
@@ -394,47 +385,47 @@ const PracticeHistory = () => {
 
                             {session.interviewData.summary.strengths?.length >
                               0 && (
-                              <div>
-                                <p className="text-xs text-gray-500 uppercase mb-2">
-                                  Strengths
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {session.interviewData.summary.strengths.map(
-                                    (s, i) => (
-                                      <Badge
-                                        key={i}
-                                        className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30"
-                                      >
-                                        <CheckCircle className="w-3 h-3 mr-1" />{" "}
-                                        {s}
-                                      </Badge>
-                                    ),
-                                  )}
+                                <div>
+                                  <p className="text-xs text-gray-500 uppercase mb-2">
+                                    Strengths
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {session.interviewData.summary.strengths.map(
+                                      (s, i) => (
+                                        <Badge
+                                          key={i}
+                                          className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30"
+                                        >
+                                          <CheckCircle className="w-3 h-3 mr-1" />{" "}
+                                          {s}
+                                        </Badge>
+                                      ),
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
 
                             {session.interviewData.summary.improvements
                               ?.length > 0 && (
-                              <div>
-                                <p className="text-xs text-gray-500 uppercase mb-2">
-                                  Areas to Improve
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {session.interviewData.summary.improvements.map(
-                                    (s, i) => (
-                                      <Badge
-                                        key={i}
-                                        className="bg-orange-400/10 text-orange-400 border-orange-400/30"
-                                      >
-                                        <AlertCircle className="w-3 h-3 mr-1" />{" "}
-                                        {s}
-                                      </Badge>
-                                    ),
-                                  )}
+                                <div>
+                                  <p className="text-xs text-gray-500 uppercase mb-2">
+                                    Areas to Improve
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {session.interviewData.summary.improvements.map(
+                                      (s, i) => (
+                                        <Badge
+                                          key={i}
+                                          className="bg-orange-400/10 text-orange-400 border-orange-400/30"
+                                        >
+                                          <AlertCircle className="w-3 h-3 mr-1" />{" "}
+                                          {s}
+                                        </Badge>
+                                      ),
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
                           </div>
                         )}
 

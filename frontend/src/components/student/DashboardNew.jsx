@@ -589,7 +589,7 @@ const StudentDashboard = () => {
                     </div>
                   </div>
                   <Button
-                    className="relative z-10 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 font-bold rounded-sm px-5 border border-cyan-500/30 text-xs uppercase tracking-wider"
+                    className="relative z-10 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 font-bold rounded-sm px-5 py-2.5 h-auto border border-cyan-500/30 text-xs uppercase tracking-wider w-full sm:w-auto mt-2 sm:mt-0"
                     onClick={() => setActiveTab("interview")}
                   >
                     Start Practice <Sparkles className="ml-2 h-3 w-3" />
@@ -620,7 +620,7 @@ const StudentDashboard = () => {
                     </div>
                   </div>
                   <Button
-                    className="relative z-10 bg-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/30 font-bold rounded-sm px-5 border border-[#FFD700]/30 text-xs uppercase tracking-wider"
+                    className="relative z-10 bg-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/30 font-bold rounded-sm px-5 py-2 h-auto border border-[#FFD700]/30 text-xs uppercase tracking-wider w-full sm:w-auto"
                     onClick={() => {
                       setSearchParams({ tab: "practice" });
                       setActiveTab("practice");
@@ -654,7 +654,7 @@ const StudentDashboard = () => {
                     </div>
                   </div>
                   <Button
-                    className="relative z-10 bg-[#00FF94]/20 text-[#00FF94] hover:bg-[#00FF94]/30 font-bold rounded-sm px-5 border border-[#00FF94]/30 text-xs uppercase tracking-wider"
+                    className="relative z-10 bg-[#00FF94]/20 text-[#00FF94] hover:bg-[#00FF94]/30 font-bold rounded-sm px-5 py-2 h-auto border border-[#00FF94]/30 text-xs uppercase tracking-wider w-full sm:w-auto"
                     onClick={() => {
                       setSearchParams({ tab: "career", sub: "skills" });
                       setActiveTab("career");
@@ -675,7 +675,7 @@ const StudentDashboard = () => {
           transition={{ delay: 0.5 }}
           className="mb-8 flex justify-center"
         >
-          <div className="bg-[#111111] border border-white/10 rounded-md p-2 inline-flex gap-2 flex-wrap justify-center">
+          <div className="bg-[#111111] border border-white/10 rounded-md p-1.5 inline-flex gap-1.5 flex-wrap justify-center sm:p-2 sm:gap-2">
             {[
               {
                 id: "overview",
@@ -719,8 +719,8 @@ const StudentDashboard = () => {
                   : "text-gray-400 hover:text-white hover:bg-white/5"
                   }`}
               >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <tab.icon className="w-4 h-4 shrink-0" />
+                <span className="whitespace-nowrap">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -738,7 +738,7 @@ const StudentDashboard = () => {
               className="space-y-8"
             >
               {/* Sub-navigation for Jobs */}
-              <div className="flex gap-2 justify-center">
+              <div className="flex gap-2 justify-center flex-wrap px-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -784,7 +784,7 @@ const StudentDashboard = () => {
               className="space-y-8"
             >
               {/* Sub-navigation for Interviews */}
-              <div className="flex gap-2 justify-center">
+              <div className="flex gap-2 justify-center flex-wrap px-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -834,7 +834,7 @@ const StudentDashboard = () => {
               className="space-y-8"
             >
               {/* Sub-navigation for Career */}
-              <div className="flex gap-2 justify-center">
+              <div className="flex gap-2 justify-center flex-wrap px-2">
                 <Button
                   variant="outline"
                   size="sm"

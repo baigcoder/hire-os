@@ -31,6 +31,9 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
+      // Get pending role from localStorage (set during Google signup flow)
+      const pendingRole = localStorage.getItem("pendingSignupRole");
+
       // Try to get or create user in backend
       const response = await api.post(
         "/user/supabase-sync",
@@ -45,6 +48,7 @@ export const AuthProvider = ({ children }) => {
             supabaseUser.user_metadata?.avatar_url ||
             supabaseUser.user_metadata?.picture,
           provider: supabaseUser.app_metadata?.provider || "email",
+          pendingRole: pendingRole || "student", // Pass pending role for new user creation
         },
       );
 
@@ -52,7 +56,10 @@ export const AuthProvider = ({ children }) => {
         dispatch(setUser(response.data.user));
         setLocalUser(response.data.user);
 
-        // If this is a new user (first-time signup), trigger trial welcome modal
+        // Clear pending role after successful sync
+        localStorage.removeItem("pendingSignupRole");
+
+        // If this is a new user (first-time signup), trigger trial welcome modal for students
         if (response.data.isNewUser && response.data.user?.role === "student") {
           console.log(
             "🎉 New student signup detected - showing trial welcome!",

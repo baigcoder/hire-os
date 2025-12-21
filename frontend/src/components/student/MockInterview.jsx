@@ -534,15 +534,15 @@ const MockInterview = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-10 h-10 rounded-sm bg-[#FFD700]/10 flex items-center justify-center border border-[#FFD700]/30">
-              <Video className="w-5 h-5 text-[#FFD700]" />
+          <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-sm bg-[#FFD700]/10 flex items-center justify-center border border-[#FFD700]/30">
+              <Video className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD700]" />
             </div>
             Mock Interview
           </h2>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">
             Practice with AI-powered interview simulation
           </p>
         </div>
@@ -550,7 +550,8 @@ const MockInterview = () => {
           <Button
             onClick={resetInterview}
             variant="outline"
-            className="border-white/10 text-gray-400 hover:bg-white/5"
+            size="sm"
+            className="border-white/10 text-gray-400 hover:bg-white/5 w-full sm:w-auto"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             New Interview
@@ -578,11 +579,10 @@ const MockInterview = () => {
                   <button
                     key={type.id}
                     onClick={() => setInterviewType(type.id)}
-                    className={`p-4 rounded-sm border transition-all text-left ${
-                      interviewType === type.id
-                        ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
-                        : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
+                    className={`p-4 rounded-sm border transition-all text-left ${interviewType === type.id
+                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
+                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                      }`}
                   >
                     <div className="font-semibold text-sm">{type.name}</div>
                     <div
@@ -600,51 +600,48 @@ const MockInterview = () => {
               <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
                 Recording Settings
               </label>
-              <div className="flex gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 <button
                   onClick={() => setVideoEnabled(!videoEnabled)}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-sm border text-sm font-medium ${
-                    videoEnabled
-                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
-                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                  }`}
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${videoEnabled
+                    ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                    }`}
                 >
                   {videoEnabled ? (
-                    <Video className="w-5 h-5" />
+                    <Video className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <VideoOff className="w-5 h-5" />
+                    <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
-                  Video {videoEnabled ? "On" : "Off"}
+                  <span className="hidden xs:inline">Video</span> {videoEnabled ? "On" : "Off"}
                 </button>
                 <button
                   onClick={() => setAudioEnabled(!audioEnabled)}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-sm border text-sm font-medium ${
-                    audioEnabled
-                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
-                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                  }`}
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${audioEnabled
+                    ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                    }`}
                 >
                   {audioEnabled ? (
-                    <Mic className="w-5 h-5" />
+                    <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <MicOff className="w-5 h-5" />
+                    <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
-                  Mic {audioEnabled ? "On" : "Off"}
+                  <span className="hidden xs:inline">Mic</span> {audioEnabled ? "On" : "Off"}
                 </button>
                 <button
                   onClick={() => setVoiceEnabled(!voiceEnabled)}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-sm border text-sm font-medium ${
-                    voiceEnabled
-                      ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
-                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                  }`}
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${voiceEnabled
+                    ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
+                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                    }`}
                 >
                   {voiceEnabled ? (
-                    <Volume2 className="w-5 h-5" />
+                    <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <VolumeX className="w-5 h-5" />
+                    <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
-                  AI Voice {voiceEnabled ? "On" : "Off"}
+                  <span className="hidden xs:inline">AI</span> {voiceEnabled ? "On" : "Off"}
                 </button>
                 <button
                   onClick={() =>
@@ -652,20 +649,19 @@ const MockInterview = () => {
                       conversationMode === "live" ? "manual" : "live",
                     )
                   }
-                  className={`flex items-center gap-2 px-5 py-3 rounded-sm border text-sm font-medium ${
-                    conversationMode === "live"
-                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
-                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                  }`}
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${conversationMode === "live"
+                    ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                    }`}
                 >
-                  <Sparkles className="w-5 h-5" />
-                  {conversationMode === "live" ? "Live Mode" : "Manual Mode"}
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {conversationMode === "live" ? "Live" : "Manual"}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-3">
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-3">
                 {conversationMode === "live"
-                  ? "🔴 LIVE MODE: AI will speak questions, listen to your response, provide feedback, and auto-advance to next question - just like a real interview!"
-                  : "💡 MANUAL MODE: You control the pace. Use Next button to advance questions."}
+                  ? "🔴 LIVE: AI speaks, listens, and auto-advances"
+                  : "💡 MANUAL: You control the pace"}
               </p>
             </div>
 
@@ -725,14 +721,14 @@ const MockInterview = () => {
             </div>
 
             {/* Video Preview & Question */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {/* Video */}
-              <div className="bg-[#111111] border border-white/10 rounded-md p-4 relative overflow-hidden">
+              <div className="bg-[#111111] border border-white/10 rounded-md p-3 sm:p-4 relative overflow-hidden order-2 md:order-1">
                 <div className="absolute top-2 right-2 z-10 flex gap-2">
                   {isRecording && (
-                    <Badge className="bg-red-500 text-white animate-pulse">
-                      <span className="w-2 h-2 bg-white rounded-full mr-2" />
-                      Recording
+                    <Badge className="bg-red-500 text-white animate-pulse text-xs">
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full mr-1.5 sm:mr-2" />
+                      REC
                     </Badge>
                   )}
                 </div>
@@ -747,26 +743,26 @@ const MockInterview = () => {
                   />
                 ) : (
                   <div className="w-full aspect-video rounded-sm bg-[#0A0A0A] flex items-center justify-center">
-                    <User className="w-20 h-20 text-gray-600" />
+                    <User className="w-12 h-12 sm:w-20 sm:h-20 text-gray-600" />
                   </div>
                 )}
 
-                <div className="flex justify-center gap-2 mt-4">
+                <div className="flex justify-center gap-2 mt-3 sm:mt-4">
                   <Button
                     onClick={toggleRecording}
-                    className={`${
-                      isRecording
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-green-500 hover:bg-green-600"
-                    } text-white`}
+                    size="sm"
+                    className={`${isRecording
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-green-500 hover:bg-green-600"
+                      } text-white text-xs sm:text-sm px-4 sm:px-6`}
                   >
                     {isRecording ? (
                       <>
-                        <StopCircle className="w-4 h-4 mr-2" /> Stop
+                        <StopCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" /> Stop
                       </>
                     ) : (
                       <>
-                        <Mic className="w-4 h-4 mr-2" /> Record Answer
+                        <Mic className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" /> Record
                       </>
                     )}
                   </Button>
@@ -774,18 +770,18 @@ const MockInterview = () => {
               </div>
 
               {/* Question & Response */}
-              <div className="space-y-4">
-                <div className="bg-[#111111] border border-[#FFD700]/30 rounded-md p-6">
-                  <div className="flex items-center justify-between mb-3">
+              <div className="space-y-3 sm:space-y-4 order-1 md:order-2">
+                <div className="bg-[#111111] border border-[#FFD700]/30 rounded-md p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-2 sm:mb-3 flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <Bot className="w-5 h-5 text-[#FFD700]" />
-                      <span className="text-xs text-[#FFD700] uppercase tracking-wider font-mono">
+                      <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD700]" />
+                      <span className="text-[10px] sm:text-xs text-[#FFD700] uppercase tracking-wider font-mono">
                         Interviewer
                       </span>
                       {isSpeaking && (
-                        <Badge className="bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30 animate-pulse">
-                          <Volume2 className="w-3 h-3 mr-1" />
-                          Speaking...
+                        <Badge className="bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30 animate-pulse text-[10px] sm:text-xs">
+                          <Volume2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
+                          Speaking
                         </Badge>
                       )}
                     </div>
@@ -796,18 +792,18 @@ const MockInterview = () => {
                       variant="ghost"
                       size="sm"
                       disabled={isSpeaking}
-                      className="text-[#FFD700] hover:bg-[#FFD700]/10"
+                      className="text-[#FFD700] hover:bg-[#FFD700]/10 text-xs h-7 px-2"
                     >
-                      <Volume2 className="w-4 h-4 mr-1" />
-                      Replay
+                      <Volume2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      <span className="hidden sm:inline">Replay</span>
                     </Button>
                   </div>
-                  <p className="text-white text-lg">
+                  <p className="text-white text-sm sm:text-base md:text-lg leading-relaxed">
                     {questions[currentQIndex]?.question}
                   </p>
                   {questions[currentQIndex]?.tips && (
-                    <p className="text-gray-500 text-xs mt-3 italic">
-                      💡 Tip: {questions[currentQIndex].tips}
+                    <p className="text-gray-500 text-[10px] sm:text-xs mt-2 sm:mt-3 italic">
+                      💡 {questions[currentQIndex].tips}
                     </p>
                   )}
                 </div>
@@ -899,15 +895,15 @@ const MockInterview = () => {
                     isRecording ||
                     isAnalyzing
                   }
-                  className="w-full py-3 bg-[#FFD700] text-black hover:bg-[#FFE44D] text-xs font-semibold rounded-full tracking-[0.14em] uppercase flex items-center justify-center gap-2"
+                  className="w-full py-2.5 sm:py-3 bg-[#FFD700] text-black hover:bg-[#FFE44D] text-[10px] sm:text-xs font-semibold rounded-full tracking-wider uppercase flex items-center justify-center gap-1.5 sm:gap-2"
                 >
                   {currentQIndex < questions.length - 1 ? (
                     <>
-                      Next Question <ChevronRight className="w-4 h-4 ml-1" />
+                      Next <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                     </>
                   ) : (
                     <>
-                      Finish Interview <Award className="w-4 h-4 ml-1" />
+                      Finish <Award className="w-3 h-3 sm:w-4 sm:h-4" />
                     </>
                   )}
                 </Button>
@@ -923,75 +919,72 @@ const MockInterview = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
           >
             {/* Overall Score */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-8 text-center relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-[#FFD700]/30" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-[#FFD700]/30" />
+            <div className="bg-[#111111] border border-white/10 rounded-md p-5 sm:p-8 text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-10 h-10 sm:w-16 sm:h-16 border-t border-r border-[#FFD700]/30" />
+              <div className="absolute bottom-0 left-0 w-10 h-10 sm:w-16 sm:h-16 border-b border-l border-[#FFD700]/30" />
 
-              <Award className="w-16 h-16 mx-auto mb-4 text-[#FFD700]" />
+              <Award className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-[#FFD700]" />
 
-              <div className="text-5xl font-bold font-mono text-white mb-2">
+              <div className="text-4xl sm:text-5xl font-bold font-mono text-white mb-2">
                 {overallScore}%
               </div>
 
               <Badge
-                className={`text-lg px-4 py-1 ${
-                  overallScore >= 80
-                    ? "bg-green-500/20 text-green-400 border-green-500/30"
-                    : overallScore >= 60
-                      ? "bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30"
-                      : "bg-red-500/20 text-red-400 border-red-500/30"
-                }`}
+                className={`text-sm sm:text-lg px-3 sm:px-4 py-0.5 sm:py-1 ${overallScore >= 80
+                  ? "bg-green-500/20 text-green-400 border-green-500/30"
+                  : overallScore >= 60
+                    ? "bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30"
+                    : "bg-red-500/20 text-red-400 border-red-500/30"
+                  }`}
               >
                 {overallScore >= 80
-                  ? "Excellent Performance!"
+                  ? "Excellent!"
                   : overallScore >= 60
                     ? "Good Job!"
                     : "Keep Practicing!"}
               </Badge>
 
-              <p className="text-gray-500 text-sm mt-4">
-                You answered {responses.length} out of {questions.length}{" "}
-                questions
+              <p className="text-gray-500 text-xs sm:text-sm mt-3 sm:mt-4">
+                {responses.length}/{questions.length} questions answered
               </p>
             </div>
 
             {/* Response Reviews */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-6">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
+            <div className="bg-[#111111] border border-white/10 rounded-md p-4 sm:p-6">
+              <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider mb-3 sm:mb-4">
                 Response Review
               </h3>
-              <div className="space-y-4 max-h-[400px] overflow-y-auto">
+              <div className="space-y-3 sm:space-y-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
                 {responses.map((r, idx) => (
                   <div
                     key={idx}
-                    className="p-4 border border-white/5 rounded-sm bg-white/5"
+                    className="p-3 sm:p-4 border border-white/5 rounded-sm bg-white/5"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <p className="text-sm text-[#FFD700] font-medium mb-1">
+                    <div className="flex items-start justify-between gap-2 sm:gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm text-[#FFD700] font-medium mb-1 line-clamp-2">
                           Q{idx + 1}: {r.question.question}
                         </p>
-                        <p className="text-gray-300 text-sm">{r.answer}</p>
+                        <p className="text-gray-300 text-xs sm:text-sm line-clamp-3">{r.answer}</p>
                       </div>
                       {r.feedback && (
                         <Badge
-                          className={`${
-                            r.feedback.score >= 7
-                              ? "bg-green-500/20 text-green-400"
-                              : r.feedback.score >= 5
-                                ? "bg-[#FFD700]/20 text-[#FFD700]"
-                                : "bg-red-500/20 text-red-400"
-                          }`}
+                          className={`flex-shrink-0 text-xs ${r.feedback.score >= 7
+                            ? "bg-green-500/20 text-green-400"
+                            : r.feedback.score >= 5
+                              ? "bg-[#FFD700]/20 text-[#FFD700]"
+                              : "bg-red-500/20 text-red-400"
+                            }`}
                         >
                           {r.feedback.score}/10
                         </Badge>
                       )}
                     </div>
                     {r.feedback?.tip && (
-                      <p className="text-xs text-gray-500 mt-2 italic">
+                      <p className="text-[10px] sm:text-xs text-gray-500 mt-2 italic line-clamp-2">
                         💡 {r.feedback.tip}
                       </p>
                     )}
@@ -1003,9 +996,9 @@ const MockInterview = () => {
             {/* Try Again */}
             <Button
               onClick={resetInterview}
-              className="w-full py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+              className="w-full py-4 sm:py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2"
             >
-              <RefreshCw className="w-5 h-5 mr-2" />
+              <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
               Practice Again
             </Button>
           </motion.div>

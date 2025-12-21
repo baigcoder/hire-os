@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchedQuery } from "@/redux/jobSlice";
 import { USER_API_END_POINT, MESSAGE_API_END_POINT } from "@/utils/constant";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 import { setUser, logout } from "@/redux/authSlice";
 import { useAuth } from "../../context/AuthContext";
@@ -54,9 +54,7 @@ const Navbar = () => {
     const fetchUnreadCount = async () => {
       if (user?.role === "company_admin") {
         try {
-          const res = await axios.get(`${MESSAGE_API_END_POINT}/unread-count`, {
-            withCredentials: true,
-          });
+          const res = await api.get(`${MESSAGE_API_END_POINT}/unread-count`);
           if (res.data.success) {
             setUnreadMessageCount(res.data.data?.unreadCount || 0);
           }
@@ -76,10 +74,8 @@ const Navbar = () => {
     try {
       await signOut();
       try {
-        await axios.get(`${USER_API_END_POINT}/logout`, {
-          withCredentials: true,
-        });
-      } catch (e) {}
+        await api.get(`${USER_API_END_POINT}/logout`);
+      } catch (e) { }
       localStorage.removeItem("token");
       localStorage.removeItem("pendingSignupRole");
       toast.success("System logout complete");
@@ -104,45 +100,45 @@ const Navbar = () => {
 
   const navLinks = isStudent
     ? [
-        { path: `/student/${nameSlug}`, label: "Dashboard", icon: Terminal },
-        { path: "/browse", label: "Browse", icon: Search },
-        { path: "/applied-jobs", label: "Applications", icon: Briefcase },
-      ]
+      { path: `/student/${nameSlug}`, label: "Dashboard", icon: Terminal },
+      { path: "/browse", label: "Browse", icon: Search },
+      { path: "/applied-jobs", label: "Applications", icon: Briefcase },
+    ]
     : isCompanyAdmin
       ? [
-          {
-            path: "/company/admin/dashboard",
-            label: "Dashboard",
-            icon: Terminal,
-          },
-          { path: "/admin/jobs", label: "Jobs", icon: Briefcase },
-          { path: "/admin/companies", label: "Companies", icon: Building },
-          {
-            path: "/recruiter/messages",
-            label: "Messages",
-            icon: MessageSquare,
-          },
-          { path: "/company/pricing", label: "Pricing", icon: CreditCard },
-        ]
+        {
+          path: "/company/admin/dashboard",
+          label: "Dashboard",
+          icon: Terminal,
+        },
+        { path: "/admin/jobs", label: "Jobs", icon: Briefcase },
+        { path: "/admin/companies", label: "Companies", icon: Building },
+        {
+          path: "/recruiter/messages",
+          label: "Messages",
+          icon: MessageSquare,
+        },
+        { path: "/company/pricing", label: "Pricing", icon: CreditCard },
+      ]
       : [
-          // Recruiter navbar - no Pricing (subscription managed by CEO)
-          {
-            path: `/recruiter/${nameSlug}`,
-            label: "Dashboard",
-            icon: Terminal,
-          },
-          { path: "/admin/jobs", label: "Jobs", icon: Briefcase },
-          {
-            path: "/recruiter/interviews",
-            label: "Interviews",
-            icon: Calendar,
-          },
-          {
-            path: "/recruiter/messages",
-            label: "Messages",
-            icon: MessageSquare,
-          },
-        ];
+        // Recruiter navbar - no Pricing (subscription managed by CEO)
+        {
+          path: `/recruiter/${nameSlug}`,
+          label: "Dashboard",
+          icon: Terminal,
+        },
+        { path: "/admin/jobs", label: "Jobs", icon: Briefcase },
+        {
+          path: "/recruiter/interviews",
+          label: "Interviews",
+          icon: Calendar,
+        },
+        {
+          path: "/recruiter/messages",
+          label: "Messages",
+          icon: MessageSquare,
+        },
+      ];
 
   return (
     <>

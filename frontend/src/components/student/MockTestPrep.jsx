@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import api from "@/utils/api";
 import { toast } from "sonner";
 import {
   Brain,
@@ -26,7 +26,6 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 const MockTestPrep = () => {
   const [mode, setMode] = useState("select"); // select, test, result
@@ -70,9 +69,7 @@ const MockTestPrep = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/practice/categories`, {
-        withCredentials: true,
-      });
+      const res = await api.get("/practice/categories");
       if (res.data.success) {
         setCategories(res.data.categories);
       }
@@ -118,17 +115,13 @@ const MockTestPrep = () => {
     }, 2000);
 
     try {
-      const res = await axios.post(
-        `${API_BASE}/practice/mcq/generate`,
-        {
-          category: selectedCategory,
-          topic: selectedTopic,
-          difficulty,
-          questionCount,
-          timeLimit: questionCount * 1.5, // 1.5 min per question
-        },
-        { withCredentials: true },
-      );
+      const res = await api.post("/practice/mcq/generate", {
+        category: selectedCategory,
+        topic: selectedTopic,
+        difficulty,
+        questionCount,
+        timeLimit: questionCount * 1.5, // 1.5 min per question
+      });
 
       if (res.data.success) {
         setTest(res.data.test);
@@ -160,14 +153,10 @@ const MockTestPrep = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        `${API_BASE}/practice/mcq/submit`,
-        {
-          testId: test.testId,
-          answers,
-        },
-        { withCredentials: true },
-      );
+      const res = await api.post("/practice/mcq/submit", {
+        testId: test.testId,
+        answers,
+      });
 
       if (res.data.success) {
         setResult(res.data.result);
@@ -214,7 +203,7 @@ const MockTestPrep = () => {
             </div>
             Mock Test Prep
           </h2>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">
             AI-generated practice tests powered by Gemini
           </p>
         </div>
@@ -253,11 +242,10 @@ const MockTestPrep = () => {
                       setSelectedCategory(cat.id);
                       setSelectedTopic(null);
                     }}
-                    className={`p-4 rounded-sm border transition-all text-left ${
-                      selectedCategory === cat.id
-                        ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
-                        : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
+                    className={`p-4 rounded-sm border transition-all text-left ${selectedCategory === cat.id
+                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
+                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                      }`}
                   >
                     <div className="font-medium text-sm">{cat.name}</div>
                     <div className="text-xs text-gray-500 mt-1">
@@ -277,11 +265,10 @@ const MockTestPrep = () => {
                 <div className="flex flex-wrap gap-2">
                   <Badge
                     onClick={() => setSelectedTopic(null)}
-                    className={`cursor-pointer ${
-                      !selectedTopic
-                        ? "bg-[#FFD700] text-black"
-                        : "bg-white/5 text-gray-400 hover:bg-white/10"
-                    }`}
+                    className={`cursor-pointer ${!selectedTopic
+                      ? "bg-[#FFD700] text-black"
+                      : "bg-white/5 text-gray-400 hover:bg-white/10"
+                      }`}
                   >
                     Random
                   </Badge>
@@ -291,11 +278,10 @@ const MockTestPrep = () => {
                       <Badge
                         key={topic}
                         onClick={() => setSelectedTopic(topic)}
-                        className={`cursor-pointer ${
-                          selectedTopic === topic
-                            ? "bg-[#FFD700] text-black"
-                            : "bg-white/5 text-gray-400 hover:bg-white/10"
-                        }`}
+                        className={`cursor-pointer ${selectedTopic === topic
+                          ? "bg-[#FFD700] text-black"
+                          : "bg-white/5 text-gray-400 hover:bg-white/10"
+                          }`}
                       >
                         {topic}
                       </Badge>
@@ -315,15 +301,14 @@ const MockTestPrep = () => {
                     <button
                       key={d}
                       onClick={() => setDifficulty(d)}
-                      className={`flex-1 py-3 rounded-sm border text-sm font-medium capitalize transition-all ${
-                        difficulty === d
-                          ? d === "easy"
-                            ? "bg-green-500/10 border-green-500/50 text-green-400"
-                            : d === "medium"
-                              ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
-                              : "bg-red-500/10 border-red-500/50 text-red-400"
-                          : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                      }`}
+                      className={`flex-1 py-3 rounded-sm border text-sm font-medium capitalize transition-all ${difficulty === d
+                        ? d === "easy"
+                          ? "bg-green-500/10 border-green-500/50 text-green-400"
+                          : d === "medium"
+                            ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                            : "bg-red-500/10 border-red-500/50 text-red-400"
+                        : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
+                        }`}
                     >
                       {d}
                     </button>
@@ -396,9 +381,8 @@ const MockTestPrep = () => {
                   </span>
                 </div>
                 <div
-                  className={`flex items-center gap-2 font-mono text-lg ${
-                    timeLeft < 60 ? "text-red-400" : "text-white"
-                  }`}
+                  className={`flex items-center gap-2 font-mono text-lg ${timeLeft < 60 ? "text-red-400" : "text-white"
+                    }`}
                 >
                   <Timer className="w-5 h-5" />
                   {formatTime(timeLeft)}
@@ -420,7 +404,7 @@ const MockTestPrep = () => {
                 <span className="text-[#FFD700] text-xs uppercase tracking-wider font-mono">
                   Question {currentQuestion + 1}
                 </span>
-                <h3 className="text-xl text-white font-medium mt-2">
+                <h3 className="text-lg sm:text-xl text-white font-medium mt-2">
                   {test.questions[currentQuestion]?.question}
                 </h3>
               </div>
@@ -432,11 +416,10 @@ const MockTestPrep = () => {
                     onClick={() =>
                       handleAnswer(test.questions[currentQuestion].id, idx)
                     }
-                    className={`w-full p-4 rounded-sm border text-left transition-all ${
-                      answers[test.questions[currentQuestion].id] === idx
-                        ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
-                        : "bg-white/5 border-white/10 text-gray-300 hover:border-white/20"
-                    }`}
+                    className={`w-full p-4 rounded-sm border text-left transition-all ${answers[test.questions[currentQuestion].id] === idx
+                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
+                      : "bg-white/5 border-white/10 text-gray-300 hover:border-white/20"
+                      }`}
                   >
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-sm bg-white/10 text-xs mr-3 font-mono">
                       {String.fromCharCode(65 + idx)}
@@ -460,18 +443,17 @@ const MockTestPrep = () => {
                 Previous
               </Button>
 
-              <div className="flex gap-1">
+              <div className="flex gap-1 flex-wrap justify-center">
                 {test.questions.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentQuestion(idx)}
-                    className={`w-8 h-8 rounded-sm text-xs font-mono transition-all ${
-                      currentQuestion === idx
-                        ? "bg-[#FFD700] text-black"
-                        : answers[test.questions[idx]?.id] !== undefined
-                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                          : "bg-white/5 text-gray-500 border border-white/10"
-                    }`}
+                    className={`w-8 h-8 rounded-sm text-xs font-mono transition-all ${currentQuestion === idx
+                      ? "bg-[#FFD700] text-black"
+                      : answers[test.questions[idx]?.id] !== undefined
+                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                        : "bg-white/5 text-gray-500 border border-white/10"
+                      }`}
                   >
                     {idx + 1}
                   </button>
@@ -518,9 +500,8 @@ const MockTestPrep = () => {
               <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-[#FFD700]/30" />
 
               <Trophy
-                className={`w-16 h-16 mx-auto mb-4 ${
-                  result.passed ? "text-[#FFD700]" : "text-gray-500"
-                }`}
+                className={`w-16 h-16 mx-auto mb-4 ${result.passed ? "text-[#FFD700]" : "text-gray-500"
+                  }`}
               />
 
               <div
@@ -530,17 +511,16 @@ const MockTestPrep = () => {
               </div>
 
               <Badge
-                className={`text-lg px-4 py-1 ${
-                  result.passed
-                    ? "bg-green-500/20 text-green-400 border-green-500/30"
-                    : "bg-red-500/20 text-red-400 border-red-500/30"
-                }`}
+                className={`text-lg px-4 py-1 ${result.passed
+                  ? "bg-green-500/20 text-green-400 border-green-500/30"
+                  : "bg-red-500/20 text-red-400 border-red-500/30"
+                  }`}
               >
                 Grade: {result.grade} |{" "}
                 {result.passed ? "Passed!" : "Keep Practicing"}
               </Badge>
 
-              <div className="grid grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
                 <div className="p-4 bg-white/5 rounded-sm">
                   <div className="text-2xl font-bold text-[#00FF94]">
                     {result.correctAnswers}
@@ -572,11 +552,10 @@ const MockTestPrep = () => {
                 {result.detailedResults?.map((q, idx) => (
                   <div
                     key={idx}
-                    className={`p-4 rounded-sm border ${
-                      q.isCorrect
-                        ? "border-green-500/30 bg-green-500/5"
-                        : "border-red-500/30 bg-red-500/5"
-                    }`}
+                    className={`p-4 rounded-sm border ${q.isCorrect
+                      ? "border-green-500/30 bg-green-500/5"
+                      : "border-red-500/30 bg-red-500/5"
+                      }`}
                   >
                     <div className="flex items-start gap-3">
                       {q.isCorrect ? (

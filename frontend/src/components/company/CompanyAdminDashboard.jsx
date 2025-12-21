@@ -150,12 +150,50 @@ const CompanyAdminDashboard = () => {
   const [updatingProfile, setUpdatingProfile] = useState(false);
   const [approvalNotes, setApprovalNotes] = useState("");
   const [processingApproval, setProcessingApproval] = useState(null);
+  const [registrationIncomplete, setRegistrationIncomplete] = useState(false);
+
+  // Security guard: Check if company_admin has completed registration
+  useEffect(() => {
+    const checkRegistrationStatus = async () => {
+      // Check if user has companyId (indicates completed registration)
+      if (user?.role === "company_admin" && !user?.companyId) {
+        // Check for pending registration in sessionStorage
+        const pendingRegistration = sessionStorage.getItem("pendingCompanyRegistration");
+
+        if (!pendingRegistration) {
+          // No company and no pending registration - redirect to pricing
+          console.log("⚠️ Company admin without company - redirecting to pricing");
+          setRegistrationIncomplete(true);
+          toast.error("Please complete your company registration first");
+          navigate("/company/pricing", {
+            replace: true,
+            state: { fromIncompleteRegistration: true }
+          });
+          return;
+        }
+      }
+    };
+
+    if (user) {
+      checkRegistrationStatus();
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
-    fetchDashboardData();
-    fetchRecruiters();
-    fetchPendingApprovals();
-  }, []);
+    // Only fetch data if registration is complete
+    if (!registrationIncomplete && user?.companyId) {
+      fetchDashboardData();
+      fetchRecruiters();
+      fetchPendingApprovals();
+    } else if (!user?.companyId && user?.role === "company_admin") {
+      // Don't fetch, will redirect
+      setLoading(false);
+    } else {
+      fetchDashboardData();
+      fetchRecruiters();
+      fetchPendingApprovals();
+    }
+  }, [registrationIncomplete, user]);
 
   const fetchDashboardData = async () => {
     try {
@@ -376,11 +414,10 @@ const CompanyAdminDashboard = () => {
               </h1>
               <div className="flex items-center gap-3 mt-2">
                 <Badge
-                  className={`rounded-sm text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 ${
-                    subscription?.isActive
+                  className={`rounded-sm text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 ${subscription?.isActive
                       ? "bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30"
                       : "bg-red-500/10 text-red-400 border border-red-500/30"
-                  }`}
+                    }`}
                 >
                   {subscription?.isActive ? "Active" : "Inactive"}
                 </Badge>
@@ -435,7 +472,7 @@ const CompanyAdminDashboard = () => {
             progress={
               features.maxRecruiters > 0
                 ? ((company?.recruitersCount || 0) / features.maxRecruiters) *
-                  100
+                100
                 : 20
             }
             color="#3B82F6"
@@ -715,11 +752,10 @@ const CompanyAdminDashboard = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <Badge
-                        className={`rounded-sm text-[10px] font-mono uppercase ${
-                          recruiter.status === "active"
+                        className={`rounded-sm text-[10px] font-mono uppercase ${recruiter.status === "active"
                             ? "bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30"
                             : "bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30"
-                        }`}
+                          }`}
                       >
                         {recruiter.status}
                       </Badge>

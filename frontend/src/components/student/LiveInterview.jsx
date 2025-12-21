@@ -531,7 +531,7 @@ const LiveInterview = () => {
         `🚀 [LiveInterview] Starting interview - Type: ${interviewType}, Voice: ${selectedVoice?.name || "auto"}, Call: ${callType}`,
       );
 
-      const response = await axios.post(
+      const response = await api.post(
         `${API_BASE}/live-interview/start`,
         {
           type: interviewType,

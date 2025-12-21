@@ -12,6 +12,10 @@ import {
   refreshToken,
   updateProfilePhoto,
   supabaseSync,
+  // Session management
+  getActiveSessions,
+  revokeSession,
+  revokeAllSessions,
 } from "../controllers/user.controller.js";
 // TODO: Uncomment after npm install
 // import {
@@ -58,6 +62,9 @@ router
   .post(authLimiter, changeInitialPassword); // For first-time recruiter login
 router.route("/unlock-account").post(authLimiter, unlockAccount); // Reset failed login attempts
 
+// Token refresh - public (uses refresh token cookie)
+router.route("/refresh-token").post(refreshToken);
+
 // Password reset routes (public) - TODO: Uncomment after npm install
 // router.route("/forgot-password").post(passwordResetLimiter, validate(forgotPasswordSchema), forgotPassword);
 // router.route("/verify-reset-token/:token").get(verifyResetToken);
@@ -82,6 +89,11 @@ router
   .post(isAuthenticated, uploadLimiter, singleUpload, updateProfilePhoto);
 router.route("/change-password").post(isAuthenticated, changePassword);
 router.route("/delete-account").post(isAuthenticated, deleteAccount);
-router.route("/refresh-token").get(isAuthenticated, refreshToken);
+
+// =============== SESSION MANAGEMENT ROUTES ===============
+router.route("/sessions").get(isAuthenticated, getActiveSessions);
+router.route("/sessions/:sessionId").delete(isAuthenticated, revokeSession);
+router.route("/sessions/revoke-all").post(isAuthenticated, revokeAllSessions);
 
 export default router;
+

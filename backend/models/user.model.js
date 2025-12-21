@@ -308,6 +308,74 @@ const userSchema = new mongoose.Schema(
     lastSubscriptionCheck: {
       type: Date,
     },
+
+    // =============== ADVANCED SESSION MANAGEMENT ===============
+    // Active Sessions (for multi-device login tracking)
+    activeSessions: [{
+      sessionId: {
+        type: String,
+        required: true,
+        index: true,
+      },
+      refreshToken: {
+        type: String,
+        required: true,
+      },
+      deviceInfo: {
+        type: String,
+        default: "Unknown Device",
+      },
+      ipAddress: {
+        type: String,
+      },
+      userAgent: {
+        type: String,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+      lastUsed: {
+        type: Date,
+        default: Date.now,
+      },
+      expiresAt: {
+        type: Date,
+        required: true,
+      },
+    }],
+
+    // Security Settings
+    securitySettings: {
+      loginNotifications: {
+        type: Boolean,
+        default: true,
+      },
+      twoFactorEnabled: {
+        type: Boolean,
+        default: false,
+      },
+      twoFactorSecret: {
+        type: String,
+        select: false, // Don't include in queries by default
+      },
+      trustedDevices: [{
+        deviceId: String,
+        name: String,
+        addedAt: Date,
+      }],
+      lastSecurityReview: {
+        type: Date,
+      },
+    },
+
+    // Last login tracking for security
+    lastLoginIp: {
+      type: String,
+    },
+    lastLoginDevice: {
+      type: String,
+    },
   },
   {
     timestamps: true,

@@ -7,19 +7,90 @@ import crypto from "crypto";
 import { uploadFileToSupabase } from "../utils/supabase.js";
 import { initializeStudentTrial } from "../utils/trialService.js";
 import logger from "../utils/logger.js";
+import { blacklistToken, isTokenBlacklisted } from "../utils/tokenBlacklist.js";
 
-// Token generation helper
+// =============== TOKEN GENERATION SYSTEM ===============
+// Access token: Short-lived (15 minutes) - used for API requests
+// Refresh token: Long-lived (7 days) - used to get new access tokens
+
+const ACCESS_TOKEN_EXPIRY = "15m";
+const REFRESH_TOKEN_EXPIRY = "7d";
+const ACCESS_TOKEN_MAX_AGE = 15 * 60 * 1000; // 15 minutes in ms
+const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+
+// Generate access token (short-lived)
+const generateAccessToken = (userId) => {
+  return jwt.sign(
+    { userId, type: "access" },
+    process.env.SECRET_KEY,
+    { expiresIn: ACCESS_TOKEN_EXPIRY }
+  );
+};
+
+// Generate refresh token (long-lived)  
+const generateRefreshToken = (userId, sessionId) => {
+  return jwt.sign(
+    { userId, sessionId, type: "refresh" },
+    process.env.SECRET_KEY,
+    { expiresIn: REFRESH_TOKEN_EXPIRY }
+  );
+};
+
+// Generate unique session ID
+const generateSessionId = () => {
+  return crypto.randomBytes(32).toString("hex");
+};
+
+// Legacy token generation (kept for backwards compatibility)
 const generateToken = (userId, expiresIn = "7d") => {
   return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn });
 };
 
-// Cookie options
+// Cookie options for access token
+const getAccessCookieOptions = () => ({
+  maxAge: ACCESS_TOKEN_MAX_AGE,
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: "/",
+});
+
+// Cookie options for refresh token
+const getRefreshCookieOptions = () => ({
+  maxAge: REFRESH_TOKEN_MAX_AGE,
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: "/api/v1/user/refresh-token", // Only sent to refresh endpoint
+});
+
+// Legacy cookie options (kept for backwards compatibility)
 const getCookieOptions = (maxAge = 7 * 24 * 60 * 60 * 1000) => ({
   maxAge,
   httpOnly: true,
-  secure: true, // Required for sameSite: "none"
-  sameSite: "none", // Required for cross-domain cookies in production
+  secure: true,
+  sameSite: "none",
 });
+
+// Extract device info from request
+const getDeviceInfo = (req) => {
+  const ua = req.headers["user-agent"] || "Unknown";
+  // Simple device detection
+  if (ua.includes("Mobile")) return "Mobile Device";
+  if (ua.includes("Tablet")) return "Tablet";
+  if (ua.includes("Windows")) return "Windows PC";
+  if (ua.includes("Mac")) return "Mac";
+  if (ua.includes("Linux")) return "Linux";
+  return "Unknown Device";
+};
+
+// Get client IP address
+const getClientIp = (req) => {
+  return req.headers["x-forwarded-for"]?.split(",")[0]?.trim()
+    || req.connection?.remoteAddress
+    || req.ip
+    || "Unknown";
+};
 
 export const register = async (req, res) => {
   try {
@@ -301,14 +372,295 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
-      message: "Logged out successfully.",
-      success: true,
-    });
+    // Get token from cookie or header
+    const token = req.cookies.token ||
+      (req.headers.authorization?.startsWith("Bearer ")
+        ? req.headers.authorization.substring(7)
+        : null);
+
+    // Blacklist the current token
+    if (token) {
+      try {
+        const decoded = jwt.decode(token);
+        if (decoded?.exp) {
+          blacklistToken(token, decoded.exp);
+          logger.info(`🔒 Token blacklisted for logout`);
+        }
+      } catch (e) {
+        // Token might be invalid, but we still clear cookies
+      }
+    }
+
+    // Clear all auth cookies
+    return res
+      .status(200)
+      .cookie("token", "", { maxAge: 0, path: "/" })
+      .cookie("refreshToken", "", { maxAge: 0, path: "/" })
+      .json({
+        message: "Logged out successfully.",
+        success: true,
+      });
   } catch (error) {
     logger.error("Logout error:", error);
     return res.status(500).json({
       message: "Error during logout",
+      success: false,
+    });
+  }
+};
+
+// =============== REFRESH TOKEN ENDPOINT ===============
+export const refreshToken = async (req, res) => {
+  try {
+    // Get refresh token from cookie or body
+    const refreshTokenValue = req.cookies.refreshToken || req.body.refreshToken;
+
+    if (!refreshTokenValue) {
+      return res.status(401).json({
+        message: "Refresh token required",
+        success: false,
+        code: "NO_REFRESH_TOKEN",
+      });
+    }
+
+    // Check if token is blacklisted
+    if (isTokenBlacklisted(refreshTokenValue)) {
+      return res.status(401).json({
+        message: "Token has been revoked. Please login again.",
+        success: false,
+        code: "TOKEN_REVOKED",
+      });
+    }
+
+    // Verify refresh token
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshTokenValue, process.env.SECRET_KEY);
+    } catch (jwtError) {
+      if (jwtError.name === "TokenExpiredError") {
+        return res.status(401).json({
+          message: "Refresh token expired. Please login again.",
+          success: false,
+          code: "REFRESH_TOKEN_EXPIRED",
+        });
+      }
+      throw jwtError;
+    }
+
+    // Verify it's a refresh token
+    if (decoded.type !== "refresh") {
+      return res.status(401).json({
+        message: "Invalid token type",
+        success: false,
+        code: "INVALID_TOKEN_TYPE",
+      });
+    }
+
+    // Find user and verify session exists
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found",
+        success: false,
+        code: "USER_NOT_FOUND",
+      });
+    }
+
+    // Find and update the session
+    const sessionIndex = user.activeSessions?.findIndex(
+      s => s.sessionId === decoded.sessionId
+    );
+
+    if (sessionIndex === -1 || sessionIndex === undefined) {
+      // Session not found - might have been revoked
+      return res.status(401).json({
+        message: "Session has been revoked. Please login again.",
+        success: false,
+        code: "SESSION_REVOKED",
+      });
+    }
+
+    // Check if session is expired
+    const session = user.activeSessions[sessionIndex];
+    if (new Date(session.expiresAt) < new Date()) {
+      // Remove expired session
+      user.activeSessions.splice(sessionIndex, 1);
+      await user.save();
+      return res.status(401).json({
+        message: "Session expired. Please login again.",
+        success: false,
+        code: "SESSION_EXPIRED",
+      });
+    }
+
+    // Generate new tokens (rotate both for security)
+    const newAccessToken = generateAccessToken(user._id);
+    const newSessionId = generateSessionId();
+    const newRefreshToken = generateRefreshToken(user._id, newSessionId);
+
+    // Update session with new refresh token
+    user.activeSessions[sessionIndex].refreshToken = newRefreshToken;
+    user.activeSessions[sessionIndex].sessionId = newSessionId;
+    user.activeSessions[sessionIndex].lastUsed = new Date();
+    user.activeSessions[sessionIndex].expiresAt = new Date(Date.now() + REFRESH_TOKEN_MAX_AGE);
+    await user.save();
+
+    // Blacklist old refresh token
+    blacklistToken(refreshTokenValue, decoded.exp);
+
+    logger.info(`🔄 Token refreshed for user: ${user.email}`);
+
+    return res
+      .status(200)
+      .cookie("token", newAccessToken, getAccessCookieOptions())
+      .cookie("refreshToken", newRefreshToken, getRefreshCookieOptions())
+      .json({
+        message: "Token refreshed successfully",
+        token: newAccessToken,
+        success: true,
+      });
+  } catch (error) {
+    logger.error("Token refresh error:", error);
+    return res.status(500).json({
+      message: "Error refreshing token",
+      success: false,
+    });
+  }
+};
+
+// =============== SESSION MANAGEMENT ===============
+// Get all active sessions for current user
+export const getActiveSessions = async (req, res) => {
+  try {
+    const user = await User.findById(req.id).select("activeSessions");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    // Map sessions to safe response (without refresh tokens)
+    const sessions = (user.activeSessions || []).map((session, index) => ({
+      id: session.sessionId,
+      deviceInfo: session.deviceInfo,
+      ipAddress: session.ipAddress?.replace(/(\d+)\.(\d+)\.(\d+)\.(\d+)/, "$1.$2.***.**"),
+      createdAt: session.createdAt,
+      lastUsed: session.lastUsed,
+      isCurrent: false, // Will be set by frontend comparing session IDs
+    }));
+
+    return res.status(200).json({
+      sessions,
+      count: sessions.length,
+      success: true,
+    });
+  } catch (error) {
+    logger.error("Get sessions error:", error);
+    return res.status(500).json({
+      message: "Error fetching sessions",
+      success: false,
+    });
+  }
+};
+
+// Revoke a specific session
+export const revokeSession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const user = await User.findById(req.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    const sessionIndex = user.activeSessions?.findIndex(
+      s => s.sessionId === sessionId
+    );
+
+    if (sessionIndex === -1 || sessionIndex === undefined) {
+      return res.status(404).json({
+        message: "Session not found",
+        success: false,
+      });
+    }
+
+    // Blacklist the session's refresh token
+    const session = user.activeSessions[sessionIndex];
+    try {
+      const decoded = jwt.decode(session.refreshToken);
+      if (decoded?.exp) {
+        blacklistToken(session.refreshToken, decoded.exp);
+      }
+    } catch (e) { }
+
+    // Remove session
+    user.activeSessions.splice(sessionIndex, 1);
+    await user.save();
+
+    logger.info(`🔒 Session revoked: ${sessionId.substring(0, 8)}...`);
+
+    return res.status(200).json({
+      message: "Session revoked successfully",
+      success: true,
+    });
+  } catch (error) {
+    logger.error("Revoke session error:", error);
+    return res.status(500).json({
+      message: "Error revoking session",
+      success: false,
+    });
+  }
+};
+
+// Revoke all sessions except current
+export const revokeAllSessions = async (req, res) => {
+  try {
+    const currentSessionId = req.body.currentSessionId;
+    const user = await User.findById(req.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    // Blacklist all refresh tokens except current
+    let revokedCount = 0;
+    for (const session of user.activeSessions || []) {
+      if (session.sessionId !== currentSessionId) {
+        try {
+          const decoded = jwt.decode(session.refreshToken);
+          if (decoded?.exp) {
+            blacklistToken(session.refreshToken, decoded.exp);
+            revokedCount++;
+          }
+        } catch (e) { }
+      }
+    }
+
+    // Keep only current session
+    user.activeSessions = (user.activeSessions || []).filter(
+      s => s.sessionId === currentSessionId
+    );
+    await user.save();
+
+    logger.info(`🔒 All sessions revoked for user: ${user.email} (${revokedCount} sessions)`);
+
+    return res.status(200).json({
+      message: `${revokedCount} session(s) revoked successfully`,
+      revokedCount,
+      success: true,
+    });
+  } catch (error) {
+    logger.error("Revoke all sessions error:", error);
+    return res.status(500).json({
+      message: "Error revoking sessions",
       success: false,
     });
   }
@@ -762,33 +1114,7 @@ export const deleteAccount = async (req, res) => {
   }
 };
 
-// Refresh token
-export const refreshToken = async (req, res) => {
-  try {
-    const userId = req.id;
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false,
-      });
-    }
-
-    const newToken = generateToken(user._id);
-
-    return res.status(200).cookie("token", newToken, getCookieOptions()).json({
-      token: newToken,
-      success: true,
-    });
-  } catch (error) {
-    logger.error("Refresh token error:", error);
-    return res.status(500).json({
-      message: "Error refreshing token",
-      success: false,
-    });
-  }
-};
+// Note: refreshToken function moved to line ~410 with enhanced security features
 
 // Update profile photo
 export const updateProfilePhoto = async (req, res) => {
@@ -953,12 +1279,16 @@ export const supabaseSync = async (req, res) => {
         },
         isEmailVerified: true,
         lastLogin: new Date(),
+        lastLoginIp: getClientIp(req),
+        lastLoginDevice: getDeviceInfo(req),
         // Trial fields for students
         trialEndDate: trialEndDate,
         subscriptionStatus: userRole === "student" ? "trial" : "none",
         // Generate random password for Supabase users (won't be used)
         password: await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 12),
       });
+
+      console.log(`🎉 New ${userRole} user created: ${email}`);
 
       // Send welcome email with trial info for new students
       if (userRole === "student" && trialEndDate) {
@@ -985,6 +1315,44 @@ export const supabaseSync = async (req, res) => {
     // Generate JWT token for backend authentication
     const token = generateToken(user._id);
 
+    // =============== DETERMINE REDIRECT DESTINATION ===============
+    // This helps frontend know exactly where to send the user
+    let redirectTo = null;
+    let requiresRegistration = false;
+    let trialInfo = null;
+
+    if (user.role === "student") {
+      // Students always go to dashboard
+      // If new user, they have a 30-day trial
+      const nameSlug = user.fullname?.replace(/\s+/g, "-").toLowerCase() || "dashboard";
+      redirectTo = `/student/${nameSlug}`;
+
+      // Calculate trial days remaining
+      if (user.trialEndDate) {
+        const daysRemaining = Math.ceil((new Date(user.trialEndDate) - new Date()) / (1000 * 60 * 60 * 24));
+        trialInfo = {
+          isActive: daysRemaining > 0,
+          daysRemaining: Math.max(0, daysRemaining),
+          endDate: user.trialEndDate,
+          isNewUser: isNewUser,
+        };
+      }
+    } else if (user.role === "company_admin") {
+      // CEOs/Owners:
+      // - If new user OR no company -> go to pricing/registration
+      // - If has company -> go to dashboard
+      if (isNewUser || !user.companyId) {
+        redirectTo = "/company/pricing";
+        requiresRegistration = true;
+        console.log(`📦 CEO redirect to pricing: isNewUser=${isNewUser}, hasCompanyId=${!!user.companyId}`);
+      } else {
+        redirectTo = "/company/admin/dashboard";
+      }
+    } else if (user.role === "recruiter") {
+      const nameSlug = user.fullname?.replace(/\s+/g, "-").toLowerCase() || "dashboard";
+      redirectTo = `/recruiter/${nameSlug}`;
+    }
+
     const userResponse = {
       _id: user._id,
       supabaseId: user.supabaseId,
@@ -992,13 +1360,15 @@ export const supabaseSync = async (req, res) => {
       email: user.email,
       phoneNumber: user.phoneNumber,
       role: user.role,
-      companyId: user.companyId || null, // Include companyId for registration status check
+      companyId: user.companyId || null,
       profile: user.profile,
       createdAt: user.createdAt,
-      // Include trial info
+      // Include subscription/trial info
       trialEndDate: user.trialEndDate,
       subscriptionStatus: user.subscriptionStatus,
     };
+
+    console.log(`✅ Supabase sync complete: ${email}, role=${user.role}, redirectTo=${redirectTo}`);
 
     return res
       .status(200)
@@ -1010,7 +1380,11 @@ export const supabaseSync = async (req, res) => {
         user: userResponse,
         token,
         isNewUser,
-        // Include trial info for frontend modal trigger
+        // ========== ENHANCED REDIRECT INFO ==========
+        redirectTo,              // Clear redirect destination
+        requiresRegistration,    // True if CEO needs to complete registration
+        trialInfo,               // Trial details for students
+        // Legacy fields for backwards compatibility
         trialEndDate: trialEndDate ? trialEndDate.toISOString() : null,
         success: true,
       });

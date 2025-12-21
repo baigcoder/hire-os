@@ -52,55 +52,57 @@ const AuthCallback = () => {
 
             if (response.data.success) {
               const user = response.data.user;
-              const isNewUser = response.data.isNewUser;
+              const { isNewUser, redirectTo, requiresRegistration, trialInfo } = response.data;
+
               dispatch(setUser(user));
 
               // Clear pending role
               localStorage.removeItem("pendingSignupRole");
 
+              // Store trial info for welcome modal (students)
+              if (trialInfo && trialInfo.isNewUser) {
+                localStorage.setItem("showTrialWelcome", "true");
+                localStorage.setItem("trialEndDate", trialInfo.endDate);
+                localStorage.setItem("trialDaysRemaining", trialInfo.daysRemaining);
+              }
+
               setStatus("success");
 
-              // Redirect based on role
+              // Use backend's redirectTo for navigation
               setTimeout(() => {
                 console.log(
-                  "🔐 Auth redirect - User:",
-                  user.fullname,
-                  "Role:",
-                  user.role,
-                  "isNewUser:",
-                  isNewUser,
+                  "🔐 Auth redirect:",
+                  {
+                    user: user.fullname,
+                    role: user.role,
+                    isNewUser,
+                    redirectTo,
+                    requiresRegistration,
+                  }
                 );
 
-                // Check sessionStorage in case AuthContext already processed
-                const authIsNewUser = sessionStorage.getItem("authNewUser") === "true" || isNewUser;
-                const authRole = sessionStorage.getItem("authUserRole") || user.role;
-
-                // Clear sessionStorage after reading
-                sessionStorage.removeItem("authNewUser");
-                sessionStorage.removeItem("authUserRole");
-
-                if (authRole === "company_admin") {
-                  // New company admin - redirect to pricing to select package
-                  if (authIsNewUser) {
-                    console.log("📦 New company admin - redirecting to pricing");
-                    navigate("/company/pricing", {
-                      replace: true,
-                      state: { fromSignup: true },
-                    });
-                  } else {
-                    navigate("/company/admin/dashboard", { replace: true });
-                  }
-                } else if (authRole === "recruiter") {
-                  const nameSlug =
-                    user.fullname?.replace(/\s+/g, "-").toLowerCase() ||
-                    "dashboard";
-                  navigate(`/recruiter/${nameSlug}`, { replace: true });
+                if (redirectTo) {
+                  // Backend provided explicit redirect destination
+                  navigate(redirectTo, {
+                    replace: true,
+                    state: requiresRegistration ? { fromSignup: true } : undefined,
+                  });
                 } else {
-                  // Default to student dashboard for job seekers
-                  const nameSlug =
-                    user.fullname?.replace(/\s+/g, "-").toLowerCase() ||
-                    "dashboard";
-                  navigate(`/student/${nameSlug}`, { replace: true });
+                  // Fallback: determine redirect based on role
+                  if (user.role === "company_admin") {
+                    if (isNewUser || !user.companyId) {
+                      navigate("/company/pricing", { replace: true, state: { fromSignup: true } });
+                    } else {
+                      navigate("/company/admin/dashboard", { replace: true });
+                    }
+                  } else if (user.role === "recruiter") {
+                    const nameSlug = user.fullname?.replace(/\s+/g, "-").toLowerCase() || "dashboard";
+                    navigate(`/recruiter/${nameSlug}`, { replace: true });
+                  } else {
+                    // Student
+                    const nameSlug = user.fullname?.replace(/\s+/g, "-").toLowerCase() || "dashboard";
+                    navigate(`/student/${nameSlug}`, { replace: true });
+                  }
                 }
               }, 1500);
             }

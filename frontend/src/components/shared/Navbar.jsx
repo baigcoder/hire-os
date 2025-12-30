@@ -207,20 +207,24 @@ const Navbar = () => {
                   </Link>
                 )}
 
-                {/* Notifications */}
-                <button className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-white border border-transparent hover:border-white/10">
-                  <Bell size={18} />
-                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#00FF94] rounded-full"></span>
-                </button>
+                {/* Notifications - hide for recruiters */}
+                {user?.role !== "recruiter" && (
+                  <button className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-white border border-transparent hover:border-white/10">
+                    <Bell size={18} />
+                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#00FF94] rounded-full"></span>
+                  </button>
+                )}
 
-                {/* Write Review */}
-                <button
-                  onClick={() => setShowReviewModal(true)}
-                  className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-[#FFD700] border border-transparent hover:border-[#FFD700]/30"
-                  title="Write a Review"
-                >
-                  <PenLine size={18} />
-                </button>
+                {/* Write Review - hide for recruiters */}
+                {user?.role !== "recruiter" && (
+                  <button
+                    onClick={() => setShowReviewModal(true)}
+                    className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-[#FFD700] border border-transparent hover:border-[#FFD700]/30"
+                    title="Write a Review"
+                  >
+                    <PenLine size={18} />
+                  </button>
+                )}
 
                 {/* User Menu */}
                 <div className="relative">

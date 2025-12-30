@@ -14,9 +14,32 @@ if (!supabaseUrl || !supabaseKey) {
   );
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Create client only if credentials are available (prevents test failures)
+let supabase = null;
+if (supabaseUrl && supabaseKey) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+} else {
+  // Mock client for testing or when credentials are missing
+  supabase = {
+    storage: {
+      from: () => ({
+        upload: async () => ({ data: null, error: new Error("Supabase not configured") }),
+        getPublicUrl: () => ({ data: { publicUrl: "" } }),
+      }),
+    },
+    channel: () => ({
+      on: () => ({ subscribe: () => { } }),
+      subscribe: () => { },
+      unsubscribe: () => { },
+    }),
+  };
+}
 
 export const uploadFileToSupabase = async (file, bucket, folder = "") => {
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error("Supabase credentials not configured");
+  }
+
   try {
     const timestamp = Date.now();
     const fileExtension = file.originalname.split(".").pop();
@@ -48,3 +71,4 @@ export const uploadFileToSupabase = async (file, bucket, folder = "") => {
 };
 
 export default supabase;
+

@@ -121,13 +121,12 @@ const Navbar = () => {
         { path: "/company/pricing", label: "Pricing", icon: CreditCard },
       ]
       : [
-        // Recruiter navbar - no Pricing (subscription managed by CEO)
+        // Recruiter navbar - no Jobs or Pricing (managed by CEO)
         {
           path: `/recruiter/${nameSlug}`,
           label: "Dashboard",
           icon: Terminal,
         },
-        { path: "/admin/jobs", label: "Jobs", icon: Briefcase },
         {
           path: "/recruiter/interviews",
           label: "Interviews",

@@ -163,6 +163,9 @@ const LiveInterview = () => {
     "Where do you see yourself in 5 years?",
   ]);
 
+  // MCQ Results for recruiter
+  const [mcqResults, setMcqResults] = useState(null);
+
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
@@ -180,6 +183,30 @@ const LiveInterview = () => {
   useEffect(() => {
     initializeMedia().catch(console.error);
   }, []);
+
+  // Fetch MCQ results for recruiter
+  useEffect(() => {
+    if (!isRecruiter || !interviewId) return;
+
+    const fetchMcqResults = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/interviews/${interviewId}/mcq/result`,
+          { credentials: 'include' }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setMcqResults(data.result);
+          }
+        }
+      } catch (error) {
+        console.log('MCQ results not available:', error);
+      }
+    };
+
+    fetchMcqResults();
+  }, [isRecruiter, interviewId]);
 
   // Update waiting state based on room
   useEffect(() => {
@@ -667,6 +694,42 @@ const LiveInterview = () => {
                         </div>
                       </motion.div>
                     ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* MCQ Results Panel - Recruiter Only */}
+            {isRecruiter && mcqResults && (
+              <div className="absolute top-6 right-6 z-20 w-64">
+                <div className={`backdrop-blur-md border rounded-lg p-3 ${mcqResults.passed
+                    ? 'bg-green-500/10 border-green-500/30'
+                    : 'bg-amber-500/10 border-amber-500/30'
+                  }`}>
+                  <div className={`flex items-center gap-2 font-bold text-xs mb-2 uppercase tracking-wider ${mcqResults.passed ? 'text-green-400' : 'text-amber-400'
+                    }`}>
+                    <BrainCircuit size={14} />
+                    MCQ Test Results
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center mb-2">
+                    <div className="bg-black/30 rounded p-2">
+                      <div className="text-xl font-bold text-white">{mcqResults.score}%</div>
+                      <div className="text-[9px] text-gray-500">SCORE</div>
+                    </div>
+                    <div className="bg-black/30 rounded p-2">
+                      <div className="text-xl font-bold text-green-400">{mcqResults.correctAnswers}</div>
+                      <div className="text-[9px] text-gray-500">CORRECT</div>
+                    </div>
+                    <div className="bg-black/30 rounded p-2">
+                      <div className="text-xl font-bold text-red-400">{mcqResults.wrongAnswers}</div>
+                      <div className="text-[9px] text-gray-500">WRONG</div>
+                    </div>
+                  </div>
+                  <div className={`text-center py-1 rounded text-xs font-bold ${mcqResults.passed
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-amber-500/20 text-amber-400'
+                    }`}>
+                    {mcqResults.passed ? '✓ PASSED' : '⚠ DID NOT PASS'}
                   </div>
                 </div>
               </div>

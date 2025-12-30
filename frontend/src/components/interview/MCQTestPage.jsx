@@ -293,22 +293,20 @@ const MCQTestPage = () => {
             className="max-w-2xl mx-auto"
           >
             <Card
-              className={`text-center ${
-                result.passed
+              className={`text-center ${result.passed
                   ? "bg-gradient-to-br from-green-500/20 to-emerald-500/10 border-green-500/30"
-                  : "bg-gradient-to-br from-red-500/20 to-orange-500/10 border-red-500/30"
-              }`}
+                  : "bg-gradient-to-br from-amber-500/20 to-orange-500/10 border-amber-500/30"
+                }`}
             >
               <CardContent className="pt-12 pb-8">
                 <div
-                  className={`w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center ${
-                    result.passed ? "bg-green-500/20" : "bg-red-500/20"
-                  }`}
+                  className={`w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center ${result.passed ? "bg-green-500/20" : "bg-amber-500/20"
+                    }`}
                 >
                   {result.passed ? (
                     <CheckCircle className="w-12 h-12 text-green-400" />
                   ) : (
-                    <XCircle className="w-12 h-12 text-red-400" />
+                    <AlertTriangle className="w-12 h-12 text-amber-400" />
                   )}
                 </div>
 
@@ -317,8 +315,8 @@ const MCQTestPage = () => {
                 </h1>
                 <p className="text-gray-400 mb-8">
                   {result.passed
-                    ? "You passed the MCQ test! Proceed to the video interview."
-                    : "Unfortunately, you did not meet the passing score."}
+                    ? "Excellent work! You passed the MCQ test."
+                    : "Your results have been recorded. You can still proceed to the interview."}
                 </p>
 
                 <div className="grid grid-cols-3 gap-4 mb-8">
@@ -342,7 +340,7 @@ const MCQTestPage = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 text-gray-400 mb-8">
+                <div className="flex items-center justify-center gap-2 text-gray-400 mb-6">
                   <Clock className="w-4 h-4" />
                   <span>
                     Time taken: {Math.floor(result.timeTaken / 60)}m{" "}
@@ -350,23 +348,27 @@ const MCQTestPage = () => {
                   </span>
                 </div>
 
-                {result.passed ? (
-                  <Button
-                    onClick={() => navigate(`/interview/live/${interviewId}`)}
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8"
-                  >
-                    Proceed to Video Interview
-                    <ChevronRight className="w-5 h-5 ml-2" />
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => navigate("/student/dashboard")}
-                    variant="outline"
-                    className="border-zinc-700 text-gray-300"
-                  >
-                    Return to Dashboard
-                  </Button>
-                )}
+                {/* Note about results being shared */}
+                <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 mb-6 text-sm text-gray-400">
+                  <Eye className="w-4 h-4 inline mr-2" />
+                  Your MCQ results will be visible to the interviewer during the video interview.
+                </div>
+
+                {/* Always show Join Interview button */}
+                <Button
+                  onClick={() => navigate(`/interview/live/${interviewId}`)}
+                  className={`px-8 ${result.passed
+                      ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                      : "bg-gradient-to-r from-[#FFD700] to-amber-500 text-black"
+                    }`}
+                >
+                  Join Interview Room
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+
+                <p className="text-xs text-gray-500 mt-4">
+                  The recruiter will be notified when you join
+                </p>
               </CardContent>
             </Card>
           </motion.div>
@@ -468,11 +470,10 @@ const MCQTestPage = () => {
               )}
             </div>
             <div
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                timeLeft < 60
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg ${timeLeft < 60
                   ? "bg-red-500/20 text-red-400 animate-pulse"
                   : "bg-zinc-800 text-white"
-              }`}
+                }`}
             >
               <Timer className="w-5 h-5" />
               <span className="text-xl font-mono font-bold">
@@ -499,13 +500,12 @@ const MCQTestPage = () => {
                 <CardHeader>
                   <div className="flex items-center justify-between mb-4">
                     <Badge
-                      className={`${
-                        currentQuestion?.difficulty === "easy"
+                      className={`${currentQuestion?.difficulty === "easy"
                           ? "bg-green-500/20 text-green-400"
                           : currentQuestion?.difficulty === "medium"
                             ? "bg-yellow-500/20 text-yellow-400"
                             : "bg-red-500/20 text-red-400"
-                      }`}
+                        }`}
                     >
                       {currentQuestion?.difficulty}
                     </Badge>
@@ -529,11 +529,10 @@ const MCQTestPage = () => {
                       <Label
                         key={index}
                         htmlFor={`option-${index}`}
-                        className={`flex items-center p-4 rounded-xl cursor-pointer transition-all ${
-                          answers[currentQuestionIndex] === index
+                        className={`flex items-center p-4 rounded-xl cursor-pointer transition-all ${answers[currentQuestionIndex] === index
                             ? "bg-yellow-500/20 border-2 border-yellow-500"
                             : "bg-zinc-800/50 border-2 border-zinc-700 hover:border-zinc-600"
-                        }`}
+                          }`}
                       >
                         <RadioGroupItem
                           value={index.toString()}
@@ -573,13 +572,12 @@ const MCQTestPage = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentQuestionIndex(index)}
-                  className={`w-8 h-8 rounded text-sm font-medium transition-all ${
-                    index === currentQuestionIndex
+                  className={`w-8 h-8 rounded text-sm font-medium transition-all ${index === currentQuestionIndex
                       ? "bg-yellow-500 text-black"
                       : answers[index] !== undefined
                         ? "bg-green-500/30 text-green-400"
                         : "bg-zinc-800 text-gray-400 hover:bg-zinc-700"
-                  }`}
+                    }`}
                 >
                   {index + 1}
                 </button>

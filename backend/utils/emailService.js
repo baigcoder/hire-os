@@ -210,16 +210,15 @@ export const sendOfferLetterEmail = async (data) => {
                                 <td style="padding: 8px 0; color: #888;">Position:</td>
                                 <td style="padding: 8px 0; font-weight: bold;">${position}</td>
                             </tr>
-                            ${
-                              department
-                                ? `
+                            ${department
+        ? `
                             <tr>
                                 <td style="padding: 8px 0; color: #888;">Department:</td>
                                 <td style="padding: 8px 0;">${department}</td>
                             </tr>
                             `
-                                : ""
-                            }
+        : ""
+      }
                             <tr>
                                 <td style="padding: 8px 0; color: #888;">Monthly Salary:</td>
                                 <td style="padding: 8px 0; font-weight: bold; color: #00FF94;">${formattedSalary}</td>
@@ -228,16 +227,15 @@ export const sendOfferLetterEmail = async (data) => {
                                 <td style="padding: 8px 0; color: #888;">Joining Date:</td>
                                 <td style="padding: 8px 0;">${formattedJoiningDate}</td>
                             </tr>
-                            ${
-                              benefits
-                                ? `
+                            ${benefits
+        ? `
                             <tr>
                                 <td style="padding: 8px 0; color: #888; vertical-align: top;">Benefits:</td>
                                 <td style="padding: 8px 0;">${benefits}</td>
                             </tr>
                             `
-                                : ""
-                            }
+        : ""
+      }
                         </table>
                     </div>
                     
@@ -280,9 +278,137 @@ export const sendOfferLetterEmail = async (data) => {
   });
 };
 
+/**
+ * Send interview scheduled email to candidate
+ */
+export const sendInterviewScheduledEmail = async (data) => {
+  const {
+    candidateName,
+    candidateEmail,
+    companyName,
+    jobTitle,
+    scheduledAt,
+    mcqEnabled,
+    videoEnabled,
+    interviewUrl,
+  } = data;
+
+  const formattedDate = new Date(scheduledAt).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const formattedTime = new Date(scheduledAt).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const interviewType = mcqEnabled && videoEnabled
+    ? "MCQ Test + Video Interview"
+    : mcqEnabled
+      ? "MCQ Test"
+      : "Video Interview";
+
+  return sendEmail({
+    to: candidateEmail,
+    subject: `🎯 Interview Scheduled: ${jobTitle} at ${companyName}`,
+    html: `
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #ffffff;">
+                <!-- Header -->
+                <div style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); padding: 30px; text-align: center;">
+                    <h1 style="color: #000; margin: 0; font-size: 24px; font-weight: bold;">
+                        Interview Scheduled! 🎉
+                    </h1>
+                    <p style="color: #000; margin: 10px 0 0; font-size: 14px; opacity: 0.8;">
+                        Your application is moving forward
+                    </p>
+                </div>
+                
+                <!-- Content -->
+                <div style="padding: 30px;">
+                    <p style="color: #fff; font-size: 16px; line-height: 1.6;">
+                        Hi <strong>${candidateName}</strong>,
+                    </p>
+                    
+                    <p style="color: #ccc; font-size: 14px; line-height: 1.8;">
+                        Great news! <strong style="color: #FFD700;">${companyName}</strong> has scheduled an interview for your application to the <strong>${jobTitle}</strong> position.
+                    </p>
+                    
+                    <!-- Interview Details Box -->
+                    <div style="background: #1a1a1a; border: 1px solid #333; border-left: 3px solid #FFD700; border-radius: 4px; padding: 20px; margin: 25px 0;">
+                        <h2 style="color: #FFD700; margin: 0 0 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                            Interview Details
+                        </h2>
+                        
+                        <table style="width: 100%; color: #fff; font-size: 14px;">
+                            <tr>
+                                <td style="padding: 8px 0; color: #888; width: 120px;">Position:</td>
+                                <td style="padding: 8px 0; font-weight: bold;">${jobTitle}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #888;">Company:</td>
+                                <td style="padding: 8px 0;">${companyName}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #888;">Date:</td>
+                                <td style="padding: 8px 0; font-weight: bold;">${formattedDate}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #888;">Time:</td>
+                                <td style="padding: 8px 0; font-weight: bold;">${formattedTime}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #888;">Type:</td>
+                                <td style="padding: 8px 0; color: #00FF94;">${interviewType}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    ${mcqEnabled ? `
+                    <div style="background: #1a1a00; border: 1px solid #FFD700; border-radius: 4px; padding: 15px; margin: 20px 0;">
+                        <p style="color: #FFD700; margin: 0; font-size: 13px;">
+                            ⚠️ <strong>MCQ Test Required:</strong> You must complete the MCQ assessment before proceeding to the video interview.
+                        </p>
+                    </div>
+                    ` : ""}
+                    
+                    <!-- CTA Button -->
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${interviewUrl}" 
+                           style="display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); 
+                                  color: #000; padding: 14px 35px; text-decoration: none; border-radius: 4px; 
+                                  font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                            View Interview Details
+                        </a>
+                    </div>
+                    
+                    <p style="color: #888; font-size: 13px; line-height: 1.6;">
+                        Make sure to prepare well and be available at the scheduled time. Good luck!
+                    </p>
+                    
+                    <p style="color: #888; font-size: 13px; margin-top: 25px;">
+                        Best regards,<br>
+                        <strong style="color: #fff;">The ${companyName} Team</strong>
+                    </p>
+                </div>
+                
+                <!-- Footer -->
+                <div style="background: #111; padding: 15px 30px; text-align: center; border-top: 1px solid #333;">
+                    <p style="color: #666; font-size: 11px; margin: 0;">
+                        Sent via HIRE.OS Platform
+                    </p>
+                </div>
+            </div>
+        `,
+  });
+};
+
 export default {
   sendEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendOfferLetterEmail,
+  sendInterviewScheduledEmail,
 };

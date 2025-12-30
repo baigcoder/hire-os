@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -67,6 +67,10 @@ import {
   ChevronRight,
   ExternalLink,
   Crown,
+  MessageSquare,
+  LayoutDashboard,
+  UserCheck,
+  FileText,
 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -90,15 +94,19 @@ import {
   USER_API_END_POINT,
   RECRUITER_ANALYTICS_API_END_POINT,
   INTERVIEW_API_END_POINT,
+  JOB_API_END_POINT,
 } from "@/utils/constant";
 import Navbar from "../shared/Navbar";
 import SubscriptionPanel from "../shared/SubscriptionPanel";
 import { WriteReviewButton } from "../shared/AddReviewModal";
+import RealtimeNotifications from "../shared/RealtimeNotifications";
+import { supabaseRealtime } from "@/lib/supabase";
 
 const RecruiterDashboard = () => {
   const navigate = useNavigate();
   const { allAdminJobs } = useSelector((store) => store.job);
   const { user } = useSelector((store) => store.auth);
+  const channelRef = useRef(null);
 
   // State management
   const [stats, setStats] = useState({
@@ -148,6 +156,190 @@ const RecruiterDashboard = () => {
     confirmPassword: "",
   });
 
+  // Fetch applications directly from API (not relying on stale Redux)
+  const fetchApplicationsFromAPI = async () => {
+    try {
+      const response = await axios.get(`${APPLICATION_API_END_POINT}/company`, {
+        withCredentials: true,
+      });
+
+      if (response.data.success) {
+        const applications = response.data.applications || [];
+
+        // Calculate stats from API data
+        const statusCounts = { pending: 0, accepted: 0, rejected: 0, interview: 0 };
+        applications.forEach(app => {
+          if (statusCounts[app.status] !== undefined) {
+            statusCounts[app.status]++;
+          }
+        });
+
+        // Recent applications
+        const recentApps = applications
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 10)
+          .map(app => ({
+            id: app._id,
+            applicantName: app.applicant?.fullname || "Unknown",
+            jobTitle: app.job?.title || "Unknown Position",
+            status: app.status,
+            date: app.createdAt,
+            interviewId: app.interviewId || app.interview?._id, // Include interview ID for join button
+          }));
+
+        // Application Trends (Velocity Index) - Last 7 days
+        const last7Days = [...Array(7)].map((_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          return d;
+        }).reverse();
+
+        const trendsData = last7Days.map(date => {
+          const dateStr = date.toISOString().split('T')[0];
+          const count = applications.filter(app =>
+            app.createdAt.startsWith(dateStr)
+          ).length;
+          return {
+            name: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            applications: count
+          };
+        });
+
+        // Top Performing Jobs
+        const jobCounts = {};
+        applications.forEach(app => {
+          const title = app.job?.title || "Unknown Position";
+          jobCounts[title] = (jobCounts[title] || 0) + 1;
+        });
+
+        const topJobs = Object.entries(jobCounts)
+          .map(([title, count]) => ({ title, applicants: count }))
+          .sort((a, b) => b.applicants - a.applicants)
+          .slice(0, 5);
+
+        setStats(prev => ({
+          ...prev,
+          totalApplicants: applications.length,
+          pendingInterviews: statusCounts.interview,
+          acceptedCandidates: statusCounts.accepted,
+          recentApplications: recentApps,
+          applicationTrends: trendsData,
+          topPerformingJobs: topJobs,
+          applicationsByStatus: [
+            { name: "Pending", value: statusCounts.pending, color: "#EAB308" },
+            { name: "Interview", value: statusCounts.interview, color: "#A855F7" },
+            { name: "Accepted", value: statusCounts.accepted, color: "#10B981" },
+            { name: "Rejected", value: statusCounts.rejected, color: "#EF4444" },
+          ],
+          conversionRate: applications.length > 0
+            ? ((statusCounts.accepted / applications.length) * 100).toFixed(1)
+            : 0,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch applications:", error);
+    }
+  };
+
+  // Fetch jobs count from API
+  const fetchJobsFromAPI = async () => {
+    try {
+      const response = await axios.get(`${JOB_API_END_POINT}/getadminjobs`, {
+        withCredentials: true,
+      });
+
+      if (response.data.success) {
+        const jobs = response.data.jobs || [];
+        setStats(prev => ({
+          ...prev,
+          totalJobs: jobs.length,
+          activeJobs: jobs.filter(job => job.isActive !== false).length,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch jobs:", error);
+    }
+  };
+
+  // Setup realtime subscription for new applications
+  useEffect(() => {
+    // Initial data fetch
+    fetchApplicationsFromAPI();
+    fetchJobsFromAPI();
+
+    // Setup Supabase Realtime subscription
+    const companyId = user?.profile?.company?._id || user?.companyId;
+    if (companyId) {
+      const channelName = `recruiter-dashboard-${companyId}`;
+
+      channelRef.current = supabaseRealtime.subscribe(channelName, {
+        onBroadcast: {
+          new_application: (payload) => {
+            console.log("📬 New application received:", payload);
+
+            // Show toast notification
+            toast.success(`🎉 New Application!`, {
+              description: `${payload.applicantName} applied for ${payload.jobTitle}`,
+              duration: 5000,
+              action: {
+                label: "View",
+                onClick: () => navigate(`/recruiter/job/${payload.jobId}/applications`),
+              },
+            });
+
+            // Refresh data from API
+            fetchApplicationsFromAPI();
+          },
+        },
+        onSubscribe: (status) => {
+          if (status === "SUBSCRIBED") {
+            console.log("✅ Subscribed to real-time updates:", channelName);
+          }
+        },
+      });
+    }
+
+    return () => {
+      if (channelRef.current) {
+        supabaseRealtime.removeChannel(channelRef.current);
+      }
+    };
+  }, [user?.profile?.company?._id, user?.companyId]);
+
+  // Separate useEffect for student join notifications - always runs for recruiters
+  const joinChannelRef = useRef(null);
+  useEffect(() => {
+    // Subscribe to student-joined-notify channel for interview join alerts
+    console.log("🔔 Setting up student join notification listener");
+
+    joinChannelRef.current = supabaseRealtime.subscribe("student-joined-notify", {
+      onBroadcast: {
+        student_joined_interview: (payload) => {
+          console.log("🎯 Student joined interview:", payload);
+          toast.info(`🎥 ${payload.studentName} is waiting for you!`, {
+            description: "Click to join the interview now",
+            duration: 15000,
+            action: {
+              label: "Join Now",
+              onClick: () => navigate(`/interview/${payload.interviewId}/video`),
+            },
+          });
+        },
+      },
+      onSubscribe: (status) => {
+        if (status === "SUBSCRIBED") {
+          console.log("✅ Subscribed to student-joined-notify channel");
+        }
+      },
+    });
+
+    return () => {
+      if (joinChannelRef.current) {
+        supabaseRealtime.removeChannel(joinChannelRef.current);
+      }
+    };
+  }, [navigate]);
+
   // Toggle select all candidates
   const handleSelectAll = () => {
     if (selectAll) {
@@ -167,24 +359,128 @@ const RecruiterDashboard = () => {
     }
   };
 
-  // Bulk actions
+  // Bulk actions - actually update applications
   const handleBulkAction = async (action) => {
     if (selectedCandidates.length === 0) {
       toast.error("No candidates selected");
       return;
     }
-    toast.success(`${action} ${selectedCandidates.length} candidates`);
-    setSelectedCandidates([]);
-    setSelectAll(false);
+
+    try {
+      const statusMap = {
+        "Mark as Reviewed": "reviewed",
+        "Schedule Interview": "interview",
+        "Send Message": "message",
+        "Reject": "rejected",
+        "Shortlist": "shortlisted",
+      };
+
+      const newStatus = statusMap[action];
+      if (!newStatus || action === "Send Message") {
+        // For messaging, navigate to messages page
+        if (action === "Send Message") {
+          navigate("/recruiter/messages");
+        }
+        return;
+      }
+
+      // Call bulk update API
+      const response = await axios.post(
+        `${APPLICATION_API_END_POINT}/bulk-update`,
+        { applicationIds: selectedCandidates, status: newStatus },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        toast.success(`${action} applied to ${selectedCandidates.length} candidates`);
+        // Refresh data after bulk action
+        refreshData();
+      }
+    } catch (error) {
+      console.error("Bulk action error:", error);
+      toast.error(error.response?.data?.message || `Failed to ${action.toLowerCase()}`);
+    } finally {
+      setSelectedCandidates([]);
+      setSelectAll(false);
+    }
   };
 
-  // Refresh data
+  // Refresh data - refetch all data from APIs
   const refreshData = async () => {
     setRefreshing(true);
-    // Simulate refresh
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setRefreshing(false);
-    toast.success("Dashboard refreshed");
+    try {
+      // Fetch fresh applications and jobs data
+      await Promise.all([
+        fetchApplicationsFromAPI(),
+        fetchJobsFromAPI(),
+      ]);
+
+      // Refetch analytics data
+      const [sourceRes, trendsRes, interviewsRes] = await Promise.all([
+        axios.get(`${RECRUITER_ANALYTICS_API_END_POINT}/source-stats`, { withCredentials: true }).catch(() => null),
+        axios.get(`${RECRUITER_ANALYTICS_API_END_POINT}/trends`, { withCredentials: true }).catch(() => null),
+        axios.get(`${INTERVIEW_API_END_POINT}/recruiter/my-interviews`, { withCredentials: true }).catch(() => null),
+      ]);
+
+      if (sourceRes?.data?.success) {
+        setSourceData(sourceRes.data.sources);
+      }
+      if (trendsRes?.data?.success) {
+        setStats(prev => ({ ...prev, trends: trendsRes.data.trends }));
+      }
+      if (interviewsRes?.data?.success) {
+        const now = new Date();
+        const upcoming = (interviewsRes.data.interviews || [])
+          .filter(int => new Date(int.scheduledAt) > now)
+          .sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))
+          .slice(0, 5)
+          .map(int => ({
+            id: int._id,
+            applicantName: int.studentId?.fullname || "Candidate",
+            applicantPhoto: int.studentId?.profile?.profilePhoto,
+            jobTitle: int.jobId?.title || "Position",
+            date: int.scheduledAt,
+            mode: int.type === "video" ? "Video Call" : int.type === "phone" ? "Phone" : "In-Person",
+            status: int.status,
+          }));
+        setUpcomingInterviews(upcoming);
+      }
+      toast.success("Dashboard refreshed successfully");
+    } catch (error) {
+      console.error("Refresh error:", error);
+      toast.error("Failed to refresh some data");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Export candidates to CSV
+  const exportToCSV = () => {
+    if (filteredApplications.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const headers = ["Candidate Name", "Job Title", "Applied Date", "Status"];
+    const csvContent = [
+      headers.join(","),
+      ...filteredApplications.map(app => [
+        `"${app.applicantName || ''}"`,
+        `"${app.jobTitle || ''}"`,
+        new Date(app.date).toLocaleDateString(),
+        app.status
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `applicants_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`Exported ${filteredApplications.length} applicants`);
   };
 
   // Filter candidates
@@ -329,6 +625,8 @@ const RecruiterDashboard = () => {
         }
       } catch (error) {
         console.error("Failed to fetch interviews:", error);
+        const errorMsg = error.response?.data?.error || error.response?.data?.message || "Failed to load interviews";
+        toast.error(errorMsg);
         // Leave interviews empty - no mock data
         setUpcomingInterviews([]);
       } finally {
@@ -455,10 +753,6 @@ const RecruiterDashboard = () => {
 
       {/* Industrial Grid Background */}
       <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[150px]" />
-      </div>
 
       <div className="max-w-[1600px] mx-auto px-4 py-8 relative z-10 pt-20">
         {/* Header */}
@@ -509,21 +803,7 @@ const RecruiterDashboard = () => {
             >
               <Users className="mr-2 h-4 w-4" /> Manage
             </Button>
-            <Button
-              onClick={() => navigate("/recruiter/jobs")}
-              className="flex-1 xl:flex-initial bg-white/5 text-white hover:bg-white/10 font-medium h-10 rounded-sm border border-white/10 uppercase tracking-wider text-xs"
-            >
-              <Briefcase className="mr-2 h-4 w-4" /> Jobs
-            </Button>
-            <Button
-              onClick={() => navigate("/notifications")}
-              className="bg-white/5 text-white hover:bg-white/10 h-10 w-10 rounded-sm border border-white/10 p-0 relative"
-            >
-              <Bell size={16} />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[9px] flex items-center justify-center">
-                3
-              </span>
-            </Button>
+            <RealtimeNotifications />
             <WriteReviewButton className="h-10 rounded-sm text-xs" />
           </div>
         </motion.div>
@@ -599,6 +879,32 @@ const RecruiterDashboard = () => {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Quick Access Modules */}
+        <div className="mb-8">
+          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Quick Access</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[
+              { label: "Pipeline", icon: LayoutDashboard, route: "/recruiter/pipeline", color: "text-purple-400", bgColor: "bg-purple-400/10" },
+              { label: "Email Templates", icon: Mail, route: "/recruiter/email-templates", color: "text-cyan-400", bgColor: "bg-cyan-400/10" },
+              { label: "Job Templates", icon: FileText, route: "/recruiter/job-templates", color: "text-orange-400", bgColor: "bg-orange-400/10" },
+              { label: "Messages", icon: MessageSquare, route: "/recruiter/messages", color: "text-green-400", bgColor: "bg-green-400/10" },
+              { label: "Talent Pool", icon: UserCheck, route: "/recruiter/talent-pool", color: "text-blue-400", bgColor: "bg-blue-400/10" },
+              { label: "Assessments", icon: Target, route: "/recruiter/assessments", color: "text-pink-400", bgColor: "bg-pink-400/10" },
+            ].map((item) => (
+              <motion.button
+                key={item.label}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate(item.route)}
+                className={`${item.bgColor} border border-white/10 rounded-sm p-4 flex flex-col items-center gap-2 hover:border-white/20 transition-all group`}
+              >
+                <item.icon className={`${item.color} w-5 h-5 group-hover:scale-110 transition-transform`} />
+                <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">{item.label}</span>
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         {/* Main Content Areas */}
@@ -830,24 +1136,33 @@ const RecruiterDashboard = () => {
                           key={status}
                           size="sm"
                           onClick={() => setStatusFilter(status)}
-                          className={`h-8 px-3 text-[10px] uppercase tracking-wider rounded-sm ${
-                            statusFilter === status
-                              ? "bg-[#FFD700] text-black font-bold"
-                              : "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10"
-                          }`}
+                          className={`h-8 px-3 text-[10px] uppercase tracking-wider rounded-sm ${statusFilter === status
+                            ? "bg-[#FFD700] text-black font-bold"
+                            : "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10"
+                            }`}
                         >
                           {status}
                         </Button>
                       ),
                     )}
                   </div>
-                  <Button
-                    variant="link"
-                    className="text-[#FFD700] text-xs uppercase tracking-wider"
-                    onClick={() => navigate("/admin/jobs")}
-                  >
-                    View All
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs uppercase tracking-wider border-white/10 text-gray-400 hover:text-white h-8"
+                      onClick={exportToCSV}
+                    >
+                      <Download className="w-3 h-3 mr-1" /> Export
+                    </Button>
+                    <Button
+                      variant="link"
+                      className="text-[#FFD700] text-xs uppercase tracking-wider"
+                      onClick={() => navigate("/recruiter/pipeline")}
+                    >
+                      View All
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -959,21 +1274,36 @@ const RecruiterDashboard = () => {
                             </Badge>
                           </td>
                           <td className="py-4 pr-4 text-right">
-                            {(app.status === "interview" ||
-                              app.status === "video_completed" ||
-                              app.status === "accepted") && (
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedApplication(app);
-                                  setPassToCeoDialogOpen(true);
-                                }}
-                                className="bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/30"
-                              >
-                                <Send className="w-3 h-3 mr-1" />
-                                To CEO
-                              </Button>
-                            )}
+                            <div className="flex items-center gap-2 justify-end">
+                              {/* Join Interview button for video_scheduled */}
+                              {(app.status === "video_scheduled" ||
+                                app.status === "mcq_passed") && app.interviewId && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => navigate(`/interview/${app.interviewId}/video`)}
+                                    className="bg-green-500/10 text-green-400 hover:bg-green-500/20 border border-green-500/30"
+                                  >
+                                    <MonitorPlay className="w-3 h-3 mr-1" />
+                                    Join Interview
+                                  </Button>
+                                )}
+                              {/* Pass to CEO button */}
+                              {(app.status === "interview" ||
+                                app.status === "video_completed" ||
+                                app.status === "accepted") && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedApplication(app);
+                                      setPassToCeoDialogOpen(true);
+                                    }}
+                                    className="bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/30"
+                                  >
+                                    <Send className="w-3 h-3 mr-1" />
+                                    To CEO
+                                  </Button>
+                                )}
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -1023,13 +1353,33 @@ const RecruiterDashboard = () => {
                       <div className="text-xs text-gray-500 mb-2 font-mono">
                         {int.jobTitle}
                       </div>
-                      <Button
-                        size="sm"
-                        className="w-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 font-medium border border-cyan-500/30 h-7 rounded-sm text-xs uppercase tracking-wider"
-                        onClick={() => navigate("/interview/lobby")}
-                      >
-                        Start Session
-                      </Button>
+                      <div className="text-xs text-gray-400 mb-3 flex items-center gap-1">
+                        <Clock size={12} />
+                        {new Date(int.date).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium border border-green-500/30 h-7 rounded-sm text-xs uppercase tracking-wider"
+                          onClick={() => navigate(`/interview/${int.id}/video`)}
+                        >
+                          <MonitorPlay className="w-3 h-3 mr-1" />
+                          Join
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 border-white/10 text-gray-400 hover:text-white h-7 rounded-sm text-xs uppercase tracking-wider"
+                          onClick={() => navigate("/recruiter/interviews")}
+                        >
+                          Reschedule
+                        </Button>
+                      </div>
                     </div>
                   ))
                 ) : (

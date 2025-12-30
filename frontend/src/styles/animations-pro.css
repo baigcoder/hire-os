@@ -114,6 +114,7 @@
 
 /* Pulse animations */
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
@@ -125,6 +126,7 @@
 }
 
 @keyframes pulseScale {
+
   0%,
   100% {
     transform: scale(1);
@@ -159,6 +161,7 @@
 
 /* Bounce animation */
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateY(0);
@@ -173,6 +176,7 @@
 
 /* Float animation */
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0);
@@ -185,6 +189,7 @@
 
 /* Glow pulse */
 @keyframes glowPulse {
+
   0%,
   100% {
     box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
@@ -212,6 +217,7 @@
 
 /* Border animation */
 @keyframes borderGlow {
+
   0%,
   100% {
     border-color: hsl(var(--primary) / 0.3);
@@ -224,6 +230,7 @@
 
 /* Shake animation */
 @keyframes shake {
+
   0%,
   100% {
     transform: translateX(0);
@@ -480,48 +487,48 @@
    STAGGER ANIMATIONS (for lists)
    ============================================ */
 
-.stagger-children > * {
+.stagger-children>* {
   opacity: 0;
   animation: fadeInUp 0.5s ease forwards;
 }
 
-.stagger-children > *:nth-child(1) {
+.stagger-children>*:nth-child(1) {
   animation-delay: 0.05s;
 }
 
-.stagger-children > *:nth-child(2) {
+.stagger-children>*:nth-child(2) {
   animation-delay: 0.1s;
 }
 
-.stagger-children > *:nth-child(3) {
+.stagger-children>*:nth-child(3) {
   animation-delay: 0.15s;
 }
 
-.stagger-children > *:nth-child(4) {
+.stagger-children>*:nth-child(4) {
   animation-delay: 0.2s;
 }
 
-.stagger-children > *:nth-child(5) {
+.stagger-children>*:nth-child(5) {
   animation-delay: 0.25s;
 }
 
-.stagger-children > *:nth-child(6) {
+.stagger-children>*:nth-child(6) {
   animation-delay: 0.3s;
 }
 
-.stagger-children > *:nth-child(7) {
+.stagger-children>*:nth-child(7) {
   animation-delay: 0.35s;
 }
 
-.stagger-children > *:nth-child(8) {
+.stagger-children>*:nth-child(8) {
   animation-delay: 0.4s;
 }
 
-.stagger-children > *:nth-child(9) {
+.stagger-children>*:nth-child(9) {
   animation-delay: 0.45s;
 }
 
-.stagger-children > *:nth-child(10) {
+.stagger-children>*:nth-child(10) {
   animation-delay: 0.5s;
 }
 
@@ -574,12 +581,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    hsl(var(--muted-foreground) / 0.1) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      transparent 100%);
   animation: shimmer 1.5s infinite;
 }
 
@@ -644,6 +649,7 @@
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -708,6 +714,7 @@
 
 /* Gradient X Animation */
 @keyframes gradient-x {
+
   0%,
   100% {
     background-size: 200% 200%;
@@ -723,4 +730,69 @@
 .animate-gradient-x {
   animation: gradient-x 3s ease infinite;
   background-size: 200% auto;
+}
+
+/* ============================================
+   INDUSTRIAL GRADE ANIMATIONS
+   HIRE.OS Supplemental System
+   ============================================ */
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-scanline {
+  animation: scanline 4s linear infinite;
+}
+
+@keyframes glitch {
+  0% {
+    clip-path: inset(40% 0 61% 0);
+  }
+
+  20% {
+    clip-path: inset(92% 0 1% 0);
+  }
+
+  40% {
+    clip-path: inset(43% 0 1% 0);
+  }
+
+  60% {
+    clip-path: inset(25% 0 58% 0);
+  }
+
+  80% {
+    clip-path: inset(54% 0 7% 0);
+  }
+
+  100% {
+    clip-path: inset(58% 0 43% 0);
+  }
+}
+
+.animate-glitch {
+  animation: glitch 1s infinite linear alternate-reverse;
+}
+
+@keyframes pulse-gold {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.2), inset 0 0 5px rgba(255, 215, 0, 0.1);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2);
+  }
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s infinite;
 }

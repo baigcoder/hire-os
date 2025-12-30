@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
 import { APPLICATION_API_END_POINT } from "@/utils/constant";
 import ResumeUpload from "./ResumeUpload";
 import { Loader2, CheckCircle, AlertCircle, X } from "lucide-react";
 import { Button } from "../ui/button";
 
 const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
-  const { token } = useAuth();
+  // Use token from localStorage (backend JWT from supabase-sync)
+  const token = localStorage.getItem("token");
   const [coverLetter, setCoverLetter] = useState("");
   const [resumeAnalysis, setResumeAnalysis] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -25,6 +25,11 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
       return;
     }
 
+    if (!token) {
+      setError("Authentication required. Please login.");
+      return;
+    }
+
     setSubmitting(true);
     setError("");
 
@@ -37,7 +42,7 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
         },
         {
           headers: {
-            "x-auth-token": token,
+            "Authorization": `Bearer ${token}`,
           },
         },
       );
@@ -52,7 +57,7 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
       console.error("Application submission error:", error);
       setError(
         error.response?.data?.message ||
-          "Failed to submit application. Please try again.",
+        "Failed to submit application. Please try again.",
       );
       setSubmitting(false);
     }
@@ -138,11 +143,10 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
             <Button
               type="submit"
               disabled={!resumeAnalysis || submitting}
-              className={`w-full py-6 text-lg font-bold rounded-xl transition-all ${
-                !resumeAnalysis
+              className={`w-full py-6 text-lg font-bold rounded-xl transition-all ${!resumeAnalysis
                   ? "bg-white/5 text-gray-500 cursor-not-allowed border border-white/5"
                   : "bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.2)]"
-              }`}
+                }`}
             >
               {submitting ? (
                 <span className="flex items-center justify-center">

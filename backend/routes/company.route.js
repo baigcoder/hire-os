@@ -20,6 +20,9 @@ import {
   updateCompanyProfile,
   getRecruiterPerformance,
   getFeaturedCompanies,
+  addOfferTemplate,
+  getOfferTemplates,
+  deleteOfferTemplate,
 } from "../controllers/company.controller.js";
 import { singleUpload } from "../middlewares/mutler.js";
 
@@ -76,5 +79,10 @@ router
 router
   .route("/recruiter-performance")
   .get(isAuthenticated, isCompanyAdmin, getRecruiterPerformance);
+
+// Offer Letter Templates
+router.route("/offer-templates").post(isAuthenticated, addOfferTemplate);
+router.route("/offer-templates").get(isAuthenticated, getOfferTemplates);
+router.route("/offer-templates/:templateId").delete(isAuthenticated, deleteOfferTemplate);
 
 export default router;

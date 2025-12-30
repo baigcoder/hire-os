@@ -5,4 +5,5 @@ export { Job } from "./job.model.js";
 export { Application } from "./application.model.js";
 export { Interview } from "./interview.model.js";
 export { Notification } from "./notification.model.js";
+export { Message } from "./message.model.js";
 export { ResumeAnalysis } from "./ResumeAnalysis.js";

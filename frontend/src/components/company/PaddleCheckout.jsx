@@ -30,6 +30,7 @@ const PaddleCheckout = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [registrationResult, setRegistrationResult] = useState(null);
   const [error, setError] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false); // Prevent duplicate registration calls
 
   const transactionRef = searchParams.get("ref");
   const amount = searchParams.get("amount") || "15000";
@@ -89,6 +90,13 @@ const PaddleCheckout = () => {
   };
 
   const handlePaymentComplete = async (data) => {
+    // Prevent duplicate processing from multiple Paddle events
+    if (isProcessing) {
+      console.log("⚠️ Already processing registration, skipping duplicate call");
+      return;
+    }
+    setIsProcessing(true);
+
     try {
       setLoading(true);
       toast.success("Payment successful!");
@@ -118,6 +126,11 @@ const PaddleCheckout = () => {
         sessionStorage.removeItem("pendingRegistration");
         sessionStorage.removeItem("pendingTransactionRef");
 
+        // Handle both new and existing registrations (idempotent behavior)
+        if (registerResponse.data.isExisting) {
+          console.log("ℹ️ Company was already registered - continuing to dashboard");
+        }
+
         // ========== SET USER AUTH FOR DASHBOARD ACCESS ==========
         // Backend returns user and token - use them!
         const { user: registeredUser, token } = registerResponse.data;
@@ -141,7 +154,9 @@ const PaddleCheckout = () => {
           plan: registrationData.plan,
         });
         setPaymentSuccess(true);
-        toast.success("Registration complete! Redirecting to dashboard...");
+        toast.success(registerResponse.data.isExisting
+          ? "Company already registered! Redirecting to dashboard..."
+          : "Registration complete! Redirecting to dashboard...");
 
         // Auto-redirect to dashboard after a short delay
         setTimeout(() => {
@@ -151,6 +166,7 @@ const PaddleCheckout = () => {
         throw new Error(registerResponse.data.message || "Registration failed");
       }
     } catch (err) {
+      setIsProcessing(false); // Reset on error to allow retry
       setError(err.response?.data?.message || err.message);
       toast.error("Registration failed");
     } finally {

@@ -1,10 +1,4 @@
-import { Interview } from "../models/interview.model.js";
-import { Application } from "../models/application.model.js";
-import { Job } from "../models/job.model.js";
-import { Company } from "../models/company.model.js";
-import { User } from "../models/user.model.js";
-import { Notification } from "../models/notification.model.js";
-import { Message } from "../models/message.model.js";
+import { Interview, Application, Job, Company, User, Notification, Message } from "../models/index.js";
 import crypto from "crypto";
 
 // ========== INTERVIEW CRUD ==========
@@ -126,34 +120,70 @@ export const createInterview = async (req, res) => {
       priority: "high",
     });
 
-    // Send personal message to candidate if provided
-    if (personalMessage && personalMessage.trim()) {
-      await Message.create({
-        senderId: recruiterId,
-        senderRole: recruiter.role,
-        receiverId: application.applicant._id,
-        receiverRole: "student",
-        subject: `Interview Scheduled: ${application.job.title} at ${company.name}`,
-        content: personalMessage,
-        type: "interview",
-        priority: "high",
-        relatedTo: {
-          applicationId: application._id,
-          jobId: application.job._id,
-          interviewId: interview._id,
-          companyId: company._id,
-        },
+    // Always send a message to candidate (use personalMessage or default)
+    const messageContent = personalMessage && personalMessage.trim()
+      ? personalMessage
+      : `Hi ${application.applicant.fullname},\n\nGreat news! Your interview for ${application.job.title} has been scheduled.\n\n📅 Date: ${new Date(scheduledAt).toLocaleDateString()}\n⏰ Time: ${new Date(scheduledAt).toLocaleTimeString()}\n${mcqEnabled ? "\n⚠️ Please complete the MCQ test before the video interview." : ""}\n\nBest of luck!\n- The ${company.name} Team`;
+
+    await Message.create({
+      senderId: recruiterId,
+      senderRole: recruiter.role,
+      receiverId: application.applicant._id,
+      receiverRole: "student",
+      subject: `Interview Scheduled: ${application.job.title} at ${company.name}`,
+      content: messageContent,
+      type: "interview",
+      priority: "high",
+      relatedTo: {
+        applicationId: application._id,
+        jobId: application.job._id,
+        interviewId: interview._id,
+        companyId: company._id,
+      },
+    });
+    console.log(`📨 Interview message sent to ${application.applicant.fullname}`);
+
+    // Broadcast real-time update to student dashboard via Supabase
+    try {
+      const { broadcastInterviewScheduled } = await import("../utils/supabaseBroadcast.js");
+      await broadcastInterviewScheduled(application.applicant._id.toString(), {
+        interviewId: interview._id,
+        applicationId: application._id,
+        jobTitle: application.job.title,
+        companyName: company.name,
+        scheduledAt: scheduledAt,
+        mcqEnabled: mcqEnabled,
+        videoEnabled: videoEnabled,
+        status: interview.status,
       });
-      console.log(
-        `📨 Personal message sent to ${application.applicant.fullname} for interview`,
-      );
+      console.log(`📡 Real-time broadcast sent to student ${application.applicant._id}`);
+    } catch (broadcastError) {
+      console.warn("Supabase broadcast failed (non-critical):", broadcastError.message);
+    }
+
+    // Send email notification to student
+    try {
+      const { sendInterviewScheduledEmail } = await import("../utils/emailService.js");
+      await sendInterviewScheduledEmail({
+        candidateName: application.applicant.fullname,
+        candidateEmail: application.applicant.email,
+        companyName: company.name,
+        jobTitle: application.job.title,
+        scheduledAt: scheduledAt,
+        mcqEnabled: mcqEnabled,
+        videoEnabled: videoEnabled,
+        interviewUrl: `${process.env.FRONTEND_URL || "http://localhost:5173"}/applied-jobs`,
+      });
+      console.log(`📧 Interview email sent to ${application.applicant.email}`);
+    } catch (emailError) {
+      console.warn("Email sending failed (non-critical):", emailError.message);
     }
 
     return res.status(201).json({
       success: true,
       message: "Interview scheduled successfully",
       interview,
-      messageSent: !!personalMessage,
+      messageSent: true,
     });
   } catch (error) {
     console.error("Create interview error:", error);
@@ -175,7 +205,8 @@ export const getInterview = async (req, res) => {
       .populate("jobId", "title description requirements skills")
       .populate("companyId", "name logo")
       .populate("studentId", "fullname email profile.profilePhoto")
-      .populate("recruiterId", "fullname email profile.profilePhoto");
+      .populate("recruiterId", "fullname email profile.profilePhoto")
+      .lean();
 
     if (!interview) {
       return res.status(404).json({
@@ -185,8 +216,12 @@ export const getInterview = async (req, res) => {
     }
 
     // Check if user has access
-    const isStudent = interview.studentId._id.toString() === userId;
-    const isRecruiter = interview.recruiterId._id.toString() === userId;
+    // Handle cases where populated fields might be null (e.g. deleted users)
+    const studentId = interview.studentId?._id?.toString();
+    const recruiterId = interview.recruiterId?._id?.toString();
+
+    const isStudent = studentId === userId;
+    const isRecruiter = recruiterId === userId;
 
     if (!isStudent && !isRecruiter) {
       return res.status(403).json({
@@ -196,11 +231,11 @@ export const getInterview = async (req, res) => {
     }
 
     // Hide correct answers from student
-    if (isStudent && interview.mcqTest.questions) {
-      interview.mcqTest.questions = interview.mcqTest.questions.map((q) => ({
-        ...q.toObject(),
-        correctAnswer: undefined,
-      }));
+    if (isStudent && interview.mcqTest?.questions) {
+      interview.mcqTest.questions = interview.mcqTest.questions.map((q) => {
+        const { correctAnswer, ...rest } = q;
+        return rest;
+      });
     }
 
     return res.status(200).json({
@@ -285,11 +320,18 @@ export const getInterviewsByRecruiter = async (req, res) => {
   try {
     const recruiterId = req.id;
 
+    // Verify recruiter exists
+    const recruiter = await User.findById(recruiterId);
+    if (!recruiter) {
+      return res.status(404).json({ success: false, message: "Recruiter not found" });
+    }
+
     const interviews = await Interview.find({ recruiterId })
       .populate("jobId", "title")
       .populate("studentId", "fullname email profile.profilePhoto")
       .populate("companyId", "name")
-      .sort({ scheduledAt: -1 });
+      .sort({ scheduledAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -551,7 +593,7 @@ export const startMCQTest = async (req, res) => {
       startedAt: interview.mcqTest.startedAt,
       expiresAt: new Date(
         interview.mcqTest.startedAt.getTime() +
-          interview.mcqTest.timeLimit * 60 * 1000,
+        interview.mcqTest.timeLimit * 60 * 1000,
       ),
     });
   } catch (error) {
@@ -880,7 +922,7 @@ export const endVideoInterview = async (req, res) => {
       interview.videoInterview.duration = Math.round(
         (interview.videoInterview.endedAt -
           interview.videoInterview.startedAt) /
-          1000,
+        1000,
       );
     }
 
@@ -1404,7 +1446,7 @@ export const submitReport = async (req, res) => {
           communicationScore +
           problemSolvingScore +
           cultureFitScore) /
-          4,
+        4,
       ),
       recommendation,
       strengths,

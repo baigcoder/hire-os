@@ -73,6 +73,41 @@ export const registerCompany = async (req, res) => {
     // Check if company exists
     let existingCompany = await Company.findOne({ name: companyName });
     if (existingCompany) {
+      // Check if this is the same admin trying to re-register (idempotent behavior)
+      const existingAdmin = await User.findOne({ email: adminEmail.toLowerCase() });
+      if (existingAdmin && existingCompany.adminUser?.toString() === existingAdmin._id.toString()) {
+        // This is the same admin - return success with existing data (idempotent behavior)
+        console.log("ℹ️ Idempotent registration - company already exists for this admin");
+
+        // Ensure user has companyId set
+        if (!existingAdmin.companyId) {
+          existingAdmin.companyId = existingCompany._id;
+          await existingAdmin.save();
+        }
+
+        const token = generateToken(existingAdmin._id);
+        return res.status(200).json({
+          message: "Company already registered!",
+          company: {
+            _id: existingCompany._id,
+            name: existingCompany.name,
+            email: existingCompany.email,
+            subscription: existingCompany.subscription,
+          },
+          user: {
+            _id: existingAdmin._id,
+            fullname: existingAdmin.fullname,
+            email: existingAdmin.email,
+            role: existingAdmin.role,
+            companyId: existingCompany._id,
+          },
+          invitedRecruiters: [],
+          token,
+          success: true,
+          isExisting: true,
+        });
+      }
+
       return res.status(400).json({
         message: "A company with this name already exists.",
         success: false,
@@ -156,20 +191,20 @@ export const registerCompany = async (req, res) => {
       features: selectedPlan.features,
       payments: paymentToken
         ? [
-            {
-              transactionId: paymentToken,
-              amount:
-                selectedPlan.prices?.[billingCycle] ||
-                selectedPlan.prices?.monthly ||
-                5000,
-              currency: "PKR",
-              plan: planId || "basic",
-              duration: billingCycle || "monthly",
-              paymentDate: new Date(),
-              paymentMethod: "safepay",
-              status: "completed",
-            },
-          ]
+          {
+            transactionId: paymentToken,
+            amount:
+              selectedPlan.prices?.[billingCycle] ||
+              selectedPlan.prices?.monthly ||
+              5000,
+            currency: "PKR",
+            plan: planId || "basic",
+            duration: billingCycle || "monthly",
+            paymentDate: new Date(),
+            paymentMethod: "safepay",
+            status: "completed",
+          },
+        ]
         : [],
     });
 
@@ -945,10 +980,15 @@ export const getCompanyDashboard = async (req, res) => {
       updatedAt: { $gte: startOfMonth },
     });
 
-    // Active jobs count
+    // Active jobs count (use isActive field, or count all as active if field not set)
     const activeJobs = await Job.countDocuments({
       company: company._id,
-      status: "open",
+      $or: [{ isActive: true }, { isActive: { $exists: false } }],
+    });
+
+    // Total jobs for this company
+    const totalJobs = await Job.countDocuments({
+      company: company._id,
     });
 
     const planDetails =
@@ -975,6 +1015,7 @@ export const getCompanyDashboard = async (req, res) => {
           interviewsConducted,
           hiresThisMonth,
           activeJobs,
+          totalJobs,
           applicationGrowth,
           appsThisMonth,
         },
@@ -1449,5 +1490,117 @@ export const getFeaturedCompanies = async (req, res) => {
       message: "Error fetching featured companies",
       success: false,
     });
+  }
+};
+
+// ========== OFFER TEMPLATE MANAGEMENT ==========
+
+export const addOfferTemplate = async (req, res) => {
+  try {
+    const { name, subject, content, isDefault } = req.body;
+    const userId = req.id;
+
+    // Determine company ID
+    let companyId;
+    const user = await User.findById(userId);
+    if (!user) return res.status(401).json({ success: false, message: "User not found" });
+
+    if (user.role === "company_admin") {
+      const company = await Company.findOne({ adminUser: userId });
+      companyId = company?._id;
+    } else {
+      companyId = user.companyId;
+    }
+
+    if (!companyId) return res.status(404).json({ success: false, message: "Company not found" });
+
+    const company = await Company.findById(companyId);
+
+    if (isDefault) {
+      company.offerTemplates.forEach((t) => (t.isDefault = false));
+    }
+
+    company.offerTemplates.push({
+      name,
+      subject,
+      content,
+      isDefault: isDefault || company.offerTemplates.length === 0,
+    });
+
+    await company.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Template saved successfully",
+      templates: company.offerTemplates,
+    });
+  } catch (error) {
+    console.error("Add template error:", error);
+    return res.status(500).json({ success: false, message: "Error saving template" });
+  }
+};
+
+export const getOfferTemplates = async (req, res) => {
+  try {
+    const userId = req.id;
+    let companyId;
+    const user = await User.findById(userId);
+    if (!user) return res.status(401).json({ success: false, message: "User not found" });
+
+    if (user.role === "company_admin") {
+      const company = await Company.findOne({ adminUser: userId });
+      companyId = company?._id;
+    } else {
+      companyId = user.companyId;
+    }
+
+    if (!companyId) return res.status(404).json({ success: false, message: "Company not found" });
+
+    const company = await Company.findById(companyId).select("offerTemplates");
+
+    return res.status(200).json({
+      success: true,
+      templates: company.offerTemplates,
+    });
+  } catch (error) {
+    console.error("Get templates error:", error);
+    return res.status(500).json({ success: false, message: "Error fetching templates" });
+  }
+};
+
+export const deleteOfferTemplate = async (req, res) => {
+  try {
+    const { templateId } = req.params;
+    const userId = req.id;
+
+    let companyId;
+    const user = await User.findById(userId);
+    if (!user) return res.status(401).json({ success: false, message: "User not found" });
+
+    if (user.role === "company_admin") {
+      const company = await Company.findOne({ adminUser: userId });
+      companyId = company?._id;
+    } else {
+      companyId = user.companyId;
+    }
+
+    if (!companyId) return res.status(404).json({ success: false, message: "Company not found" });
+
+    const company = await Company.findById(companyId);
+
+    company.offerTemplates = company.offerTemplates.filter(
+      (t) => t._id.toString() !== templateId,
+    );
+
+    await company.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Template deleted",
+      templates: company.offerTemplates,
+    });
+  } catch (error) {
+    console.error("Delete template error:", error);
+    return res.status(500).json({ success: false, message: "Error deleting template" });
   }
 };

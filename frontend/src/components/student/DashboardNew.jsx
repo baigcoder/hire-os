@@ -81,8 +81,11 @@ import LearningResources from "./LearningResources";
 import NetworkConnections from "./NetworkConnections";
 import DailyJobAlerts from "./DailyJobAlerts";
 import PracticeHistory from "./PracticeHistory";
+import AICareerCoach from "./AICareerCoach";
+import ReferralDashboard from "./ReferralDashboard";
 import { useSupabaseDashboard } from "../../hooks/useSupabaseDashboard";
 import DashboardLoader from "../shared/DashboardLoader";
+import RealtimeNotifications from "../shared/RealtimeNotifications";
 import { useAuth } from "../../context/AuthContext";
 
 // LIVE Badge Component
@@ -166,6 +169,14 @@ const StudentDashboard = () => {
       // Refresh applications list
       fetchApplicationData();
     }, []),
+    onInterviewScheduled: useCallback((data) => {
+      console.log("🎯 Interview scheduled:", data);
+      toast.success(`🎉 Interview Scheduled! ${data.jobTitle || "New Interview"}`, {
+        description: data.companyName ? `at ${data.companyName}` : undefined,
+      });
+      // Update interview count immediately
+      setStats((prev) => ({ ...prev, interviews: prev.interviews + 1 }));
+    }, []),
   });
 
   // Check if we should show trial welcome modal (on first visit after signup)
@@ -200,12 +211,15 @@ const StudentDashboard = () => {
             (app) => app.status === "rejected",
           ).length;
           const interviewCount = applications.filter(
-            (app) => app.status === "interview",
+            (app) => ["interview", "mcq_pending", "mcq_passed", "video_scheduled", "video_completed"].includes(app.status),
+          ).length;
+          const offersCount = applications.filter(
+            (app) => ["accepted", "hired", "offer_sent", "offer_accepted"].includes(app.status),
           ).length;
 
           setStats({
             applied: applications.length,
-            accepted: acceptedCount,
+            accepted: offersCount,
             rejected: rejectedCount,
             interviews: interviewCount,
             pending: pendingCount,
@@ -311,6 +325,22 @@ const StudentDashboard = () => {
         color: "bg-purple-500/10 text-purple-500 border-purple-500/30",
         label: "Interview Scheduled",
       },
+      video_scheduled: {
+        color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
+        label: "Video Interview",
+      },
+      mcq_pending: {
+        color: "bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30",
+        label: "MCQ Test Pending",
+      },
+      mcq_passed: {
+        color: "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30",
+        label: "MCQ Passed ✓",
+      },
+      video_completed: {
+        color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+        label: "Interview Complete",
+      },
       pending_ceo_approval: {
         color: "bg-orange-500/10 text-orange-500 border-orange-500/30",
         label: "Final Review",
@@ -381,10 +411,16 @@ const StudentDashboard = () => {
       {/* Top Header Bar */}
       <div className="fixed top-0 left-0 right-0 h-14 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-white/5 z-50">
         <div className="max-w-[1600px] mx-auto h-full px-4 flex items-center justify-end gap-4">
-          {/* Notification Bell */}
-          <button className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-white border border-transparent hover:border-white/10">
-            <Bell size={18} />
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#00FF94] rounded-full"></span>
+          {/* Realtime Notification Bell */}
+          <RealtimeNotifications />
+
+          {/* Messages Button */}
+          <button
+            onClick={() => navigate("/messages")}
+            className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-cyan-400 border border-transparent hover:border-cyan-500/30"
+            title="Messages"
+          >
+            <MessageSquare size={18} />
           </button>
 
           {/* Settings */}
@@ -682,13 +718,16 @@ const StudentDashboard = () => {
                         AI Interview Coach
                       </h3>
                       <p className="text-gray-500 text-xs font-mono">
-                        Gemini-powered mock interview preparation
+                        AI-powered mock interview preparation
                       </p>
                     </div>
                   </div>
                   <Button
                     className="relative z-10 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 font-bold rounded-sm px-5 py-2.5 h-auto border border-cyan-500/30 text-xs uppercase tracking-wider w-full sm:w-auto mt-2 sm:mt-0"
-                    onClick={() => setActiveTab("interview")}
+                    onClick={() => {
+                      setSearchParams({ tab: "practice" });
+                      setActiveTab("practice");
+                    }}
                   >
                     Start Practice <Sparkles className="ml-2 h-3 w-3" />
                   </Button>
@@ -773,7 +812,7 @@ const StudentDashboard = () => {
           transition={{ delay: 0.5 }}
           className="mb-8 flex justify-center"
         >
-          <div className="bg-[#111111] border border-white/10 rounded-md p-1.5 inline-flex gap-1.5 flex-wrap justify-center sm:p-2 sm:gap-2">
+          <div className="bg-[#111111] border border-white/10 rounded-md p-1.5 flex gap-1.5 overflow-x-auto scrollbar-hide sm:inline-flex sm:flex-wrap sm:justify-center sm:p-2 sm:gap-2 max-w-full">
             {[
               {
                 id: "overview",
@@ -836,7 +875,7 @@ const StudentDashboard = () => {
               className="space-y-8"
             >
               {/* Sub-navigation for Jobs */}
-              <div className="flex gap-2 justify-center flex-wrap px-2">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 px-2 sm:justify-center sm:flex-wrap">
                 <Button
                   variant="outline"
                   size="sm"
@@ -882,7 +921,7 @@ const StudentDashboard = () => {
               className="space-y-8"
             >
               {/* Sub-navigation for Interviews */}
-              <div className="flex gap-2 justify-center flex-wrap px-2">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 px-2 sm:justify-center sm:flex-wrap">
                 <Button
                   variant="outline"
                   size="sm"
@@ -932,11 +971,21 @@ const StudentDashboard = () => {
               className="space-y-8"
             >
               {/* Sub-navigation for Career */}
-              <div className="flex gap-2 justify-center flex-wrap px-2">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 px-2 sm:justify-center sm:flex-wrap">
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "skills" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "coach" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  onClick={() =>
+                    setSearchParams({ tab: "career", sub: "coach" })
+                  }
+                >
+                  <BrainCircuit className="w-4 h-4 mr-2" /> AI Coach
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`border-white/10 ${searchParams.get("sub") === "skills" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "skills" })
                   }
@@ -956,6 +1005,16 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  className={`border-white/10 ${searchParams.get("sub") === "referrals" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  onClick={() =>
+                    setSearchParams({ tab: "career", sub: "referrals" })
+                  }
+                >
+                  <Users className="w-4 h-4 mr-2" /> Referrals
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   className={`border-white/10 ${searchParams.get("sub") === "learning" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "learning" })
@@ -966,8 +1025,10 @@ const StudentDashboard = () => {
               </div>
 
               {(!searchParams.get("sub") ||
-                searchParams.get("sub") === "skills") && <SkillGapAnalysis />}
+                searchParams.get("sub") === "coach") && <AICareerCoach />}
+              {searchParams.get("sub") === "skills" && <SkillGapAnalysis />}
               {searchParams.get("sub") === "salary" && <SalaryInsights />}
+              {searchParams.get("sub") === "referrals" && <ReferralDashboard />}
               {searchParams.get("sub") === "learning" && <LearningResources />}
             </motion.div>
           )}

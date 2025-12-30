@@ -114,7 +114,7 @@ const Navbar = () => {
         { path: "/admin/jobs", label: "Jobs", icon: Briefcase },
         { path: "/admin/companies", label: "Companies", icon: Building },
         {
-          path: "/recruiter/messages",
+          path: "/ceo/messages",
           label: "Messages",
           icon: MessageSquare,
         },
@@ -195,7 +195,7 @@ const Navbar = () => {
                 {/* Messages Badge - CEO only */}
                 {user?.role === "company_admin" && (
                   <Link
-                    to="/recruiter/messages"
+                    to="/ceo/messages"
                     className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-[#FFD700] border border-transparent hover:border-[#FFD700]/30"
                     title="Messages"
                   >

@@ -10,7 +10,7 @@
  * - Real-time typing indicators and call signaling
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -36,6 +36,7 @@ import {
   Clock,
   Check,
   CheckCheck,
+  Terminal,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -81,12 +82,47 @@ const RecruiterMessagesPage = () => {
   const [showProfile, setShowProfile] = useState(false);
 
   // Contacts
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState([]); // Candidates
+  const [teamMembers, setTeamMembers] = useState([]); // Recruiters for company_admin
   const [ceoContact, setCeoContact] = useState(null);
 
   // Call state
   const [isCallActive, setIsCallActive] = useState(false);
   const [callType, setCallType] = useState(null); // 'audio' or 'video'
+
+  // Filtered contacts based on search query
+  const filteredTeamMembers = useMemo(() => {
+    if (!searchQuery) return teamMembers;
+    const lowerQuery = searchQuery.toLowerCase();
+    return teamMembers.filter((m) =>
+      m.fullname?.toLowerCase().includes(lowerQuery) ||
+      m.email?.toLowerCase().includes(lowerQuery)
+    );
+  }, [teamMembers, searchQuery]);
+
+  const filteredContacts = useMemo(() => {
+    if (!searchQuery) return contacts;
+    const lowerQuery = searchQuery.toLowerCase();
+    return contacts.filter((c) =>
+      c.fullname?.toLowerCase().includes(lowerQuery) ||
+      c.email?.toLowerCase().includes(lowerQuery) ||
+      c.jobTitle?.toLowerCase().includes(lowerQuery)
+    );
+  }, [contacts, searchQuery]);
+
+  const filteredCeoContact = useMemo(() => {
+    if (!ceoContact) return null;
+    if (!searchQuery) return ceoContact;
+    const lowerQuery = searchQuery.toLowerCase();
+    if (
+      ceoContact.fullname?.toLowerCase().includes(lowerQuery) ||
+      ceoContact.email?.toLowerCase().includes(lowerQuery) ||
+      ceoContact.companyName?.toLowerCase().includes(lowerQuery)
+    ) {
+      return ceoContact;
+    }
+    return null;
+  }, [ceoContact, searchQuery]);
 
   // Listen for incoming realtime messages
   useEffect(() => {
@@ -102,7 +138,7 @@ const RecruiterMessagesPage = () => {
           (m) =>
             m.content === newMessage.content &&
             Math.abs(new Date(m.createdAt) - new Date(newMessage.timestamp)) <
-              1000,
+            1000,
         );
         if (exists) return prev;
 
@@ -141,7 +177,9 @@ const RecruiterMessagesPage = () => {
 
   const fetchContacts = async () => {
     try {
-      // Fetch companies for the recruiter
+      const isCompanyAdmin = user?.role === "company_admin";
+
+      // Fetch companies
       const companyRes = await axios.get(`${COMPANY_API_END_POINT}/get`, {
         withCredentials: true,
       });
@@ -149,7 +187,7 @@ const RecruiterMessagesPage = () => {
       if (companyRes.data.success && companyRes.data.companies?.length > 0) {
         const company = companyRes.data.companies[0];
 
-        // Now fetch company by ID to get populated adminUser
+        // Fetch company by ID to get populated data
         const detailRes = await axios.get(
           `${COMPANY_API_END_POINT}/get/${company._id}`,
           {
@@ -157,27 +195,55 @@ const RecruiterMessagesPage = () => {
           },
         );
 
-        if (detailRes.data.success && detailRes.data.company?.adminUser) {
-          const ceo = detailRes.data.company.adminUser;
-          const ceoData = {
-            _id: ceo._id,
-            fullname: ceo.fullname || "Company Admin",
-            email: ceo.email || "",
-            role: "company_admin",
-            isCEO: true,
-            profile: ceo.profile || {},
-            companyName: company.name,
-          };
-          setCeoContact(ceoData);
-          // Default to CEO chat if no active contact
-          if (!activeContact) {
-            setActiveContact(ceoData);
-            loadConversation(ceoData._id);
+        if (detailRes.data.success) {
+          const companyData = detailRes.data.company;
+
+          if (isCompanyAdmin) {
+            // For CEO/Admin: Show recruiters as team members
+            const recruiters = (companyData.recruiters || [])
+              .filter(r => r.userId?._id !== user?._id) // Exclude self
+              .map(r => ({
+                _id: String(r.userId?._id),
+                fullname: String(r.userId?.fullname || "Recruiter"),
+                email: String(r.userId?.email || ""),
+                role: "recruiter",
+                isRecruiter: true,
+                profile: r.userId?.profile || {},
+                companyName: String(company.name),
+              }));
+
+            setTeamMembers(recruiters);
+
+            // Set first recruiter as default contact if no active contact
+            if (recruiters.length > 0 && !activeContact) {
+              setActiveContact(recruiters[0]);
+              loadConversation(recruiters[0]._id);
+            }
+          } else {
+            // For Recruiters: Show CEO as default contact
+            if (companyData.adminUser) {
+              const ceo = companyData.adminUser;
+              const ceoData = {
+                _id: String(ceo._id),
+                fullname: String(ceo.fullname || "Company Admin"),
+                email: String(ceo.email || ""),
+                role: "company_admin",
+                isCEO: true,
+                profile: ceo.profile || {},
+                companyName: String(company.name),
+              };
+              setCeoContact(ceoData);
+              // Default to CEO chat if no active contact
+              if (!activeContact) {
+                setActiveContact(ceoData);
+                loadConversation(ceoData._id);
+              }
+            }
           }
         }
       }
 
-      // Fetch interview candidates
+      // Fetch interview candidates (for both roles)
       const interviewRes = await axios.get(
         `${INTERVIEW_API_END_POINT}/recruiter/my-interviews`,
         {
@@ -189,11 +255,11 @@ const RecruiterMessagesPage = () => {
         const candidates = (interviewRes.data.interviews || [])
           .filter((int) => int.studentId)
           .map((int) => ({
-            _id: int.studentId._id,
-            fullname: int.studentId.fullname,
-            email: int.studentId.email || "",
+            _id: String(int.studentId._id),
+            fullname: String(int.studentId.fullname),
+            email: String(int.studentId.email || ""),
             role: "student",
-            jobTitle: int.jobId?.title || "Candidate",
+            jobTitle: String(int.jobId?.title || "Candidate"),
             profile: int.studentId.profile || {},
             interviewDate: int.scheduledAt,
           }));
@@ -330,13 +396,7 @@ const RecruiterMessagesPage = () => {
     }
   };
 
-  const filteredContacts = [
-    ...(ceoContact ? [ceoContact] : []),
-    ...contacts,
-  ].filter((c) => {
-    if (!searchQuery) return true;
-    return c.fullname?.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+
 
   if (loading) {
     return (
@@ -392,8 +452,8 @@ const RecruiterMessagesPage = () => {
 
           {/* Contacts List */}
           <div className="flex-1 overflow-y-auto">
-            {/* CEO Section */}
-            {ceoContact && (
+            {/* CEO Section (For Recruiters) */}
+            {filteredCeoContact && (
               <div>
                 <div className="px-4 py-2 bg-[#FFD700]/5 flex items-center gap-2">
                   <Crown className="w-3 h-3 text-[#FFD700]" />
@@ -402,54 +462,94 @@ const RecruiterMessagesPage = () => {
                   </span>
                 </div>
                 <button
-                  onClick={() => handleSelectContact(ceoContact)}
-                  className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${
-                    activeContact?._id === ceoContact._id
-                      ? "bg-[#FFD700]/10 border-[#FFD700]"
-                      : "border-transparent hover:bg-white/5"
-                  }`}
+                  onClick={() => handleSelectContact(filteredCeoContact)}
+                  className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${activeContact?._id === filteredCeoContact._id
+                    ? "bg-[#FFD700]/10 border-[#FFD700]"
+                    : "border-transparent hover:bg-white/5"
+                    }`}
                 >
                   <div className="relative">
                     <Avatar className="h-12 w-12 border-2 border-[#FFD700]/30">
-                      <AvatarImage src={ceoContact.profile?.profilePhoto} />
+                      <AvatarImage src={filteredCeoContact.profile?.profilePhoto} />
                       <AvatarFallback className="bg-[#FFD700]/10 text-[#FFD700] font-bold text-lg">
-                        {ceoContact.fullname?.charAt(0) || "C"}
+                        {filteredCeoContact.fullname?.charAt(0) || "C"}
                       </AvatarFallback>
                     </Avatar>
-                    {isUserOnline(ceoContact._id) && (
+                    {isUserOnline(filteredCeoContact._id) && (
                       <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#0D0D0D]" />
                     )}
                   </div>
                   <div className="text-left flex-1 min-w-0">
                     <div className="font-bold text-white truncate">
-                      {ceoContact.fullname}
+                      {filteredCeoContact.fullname}
                     </div>
                     <div className="text-gray-500 text-xs truncate">
-                      {ceoContact.companyName || "CEO / Administrator"}
+                      {filteredCeoContact.companyName || "CEO / Administrator"}
                     </div>
                   </div>
                 </button>
               </div>
             )}
 
+            {/* Team Members Section (For Admin) */}
+            {filteredTeamMembers.length > 0 && (
+              <div>
+                <div className="px-4 py-2 bg-[#FFD700]/5 flex items-center gap-2 mt-2">
+                  <Terminal className="w-3 h-3 text-[#FFD700]" />
+                  <span className="text-[10px] text-[#FFD700] uppercase tracking-wider font-bold">
+                    Team Members ({filteredTeamMembers.length})
+                  </span>
+                </div>
+                {filteredTeamMembers.map((member) => (
+                  <button
+                    key={member._id}
+                    onClick={() => handleSelectContact(member)}
+                    className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${activeContact?._id === member._id
+                      ? "bg-[#FFD700]/10 border-[#FFD700]"
+                      : "border-transparent hover:bg-white/5"
+                      }`}
+                  >
+                    <div className="relative">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={member.profile?.profilePhoto} />
+                        <AvatarFallback className="bg-[#FFD700]/10 text-[#FFD700]">
+                          {member.fullname?.charAt(0) || "R"}
+                        </AvatarFallback>
+                      </Avatar>
+                      {isUserOnline(member._id) && (
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#0D0D0D]" />
+                      )}
+                    </div>
+                    <div className="text-left flex-1 min-w-0">
+                      <div className="font-bold text-white truncate">
+                        {member.fullname}
+                      </div>
+                      <div className="text-gray-500 text-xs truncate">
+                        Recruiter
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Candidates Section */}
-            {contacts.length > 0 && (
+            {filteredContacts.length > 0 && (
               <div>
                 <div className="px-4 py-2 bg-cyan-500/5 flex items-center gap-2 mt-2">
                   <Users className="w-3 h-3 text-cyan-400" />
                   <span className="text-[10px] text-cyan-400 uppercase tracking-wider font-bold">
-                    Candidates ({contacts.length})
+                    Candidates ({filteredContacts.length})
                   </span>
                 </div>
-                {contacts.map((contact) => (
+                {filteredContacts.map((contact) => (
                   <button
                     key={contact._id}
                     onClick={() => handleSelectContact(contact)}
-                    className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${
-                      activeContact?._id === contact._id
-                        ? "bg-cyan-500/10 border-cyan-400"
-                        : "border-transparent hover:bg-white/5"
-                    }`}
+                    className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${activeContact?._id === contact._id
+                      ? "bg-cyan-500/10 border-cyan-400"
+                      : "border-transparent hover:bg-white/5"
+                      }`}
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12">
@@ -475,10 +575,9 @@ const RecruiterMessagesPage = () => {
               </div>
             )}
 
-            {!ceoContact && contacts.length === 0 && (
-              <div className="p-8 text-center">
-                <Users className="w-12 h-12 text-gray-700 mx-auto mb-3" />
-                <p className="text-gray-600 text-sm">No contacts available</p>
+            {!filteredCeoContact && filteredTeamMembers.length === 0 && filteredContacts.length === 0 && (
+              <div className="p-8 text-center text-gray-500">
+                {searchQuery ? "No results found" : "No contacts available"}
               </div>
             )}
           </div>
@@ -578,11 +677,10 @@ const RecruiterMessagesPage = () => {
                               className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                             >
                               <div
-                                className={`max-w-[60%] ${
-                                  isMe
-                                    ? "bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-[#000000] rounded-2xl rounded-br-sm shadow-lg shadow-[#FFD700]/20"
-                                    : "bg-white/10 text-white rounded-2xl rounded-bl-sm backdrop-blur-sm"
-                                } px-4 py-3`}
+                                className={`max-w-[60%] ${isMe
+                                  ? "bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-[#000000] rounded-2xl rounded-br-sm shadow-lg shadow-[#FFD700]/20"
+                                  : "bg-white/10 text-white rounded-2xl rounded-bl-sm backdrop-blur-sm"
+                                  } px-4 py-3`}
                               >
                                 <p
                                   className={`text-sm leading-relaxed ${isMe ? "text-[#000000]" : "text-white"}`}
@@ -590,9 +688,8 @@ const RecruiterMessagesPage = () => {
                                   {msg.content}
                                 </p>
                                 <div
-                                  className={`flex items-center justify-end gap-1 mt-2 ${
-                                    isMe ? "text-[#000000]/50" : "text-gray-500"
-                                  }`}
+                                  className={`flex items-center justify-end gap-1 mt-2 ${isMe ? "text-[#000000]/50" : "text-gray-500"
+                                    }`}
                                 >
                                   <span className="text-[10px]">
                                     {format(new Date(msg.createdAt), "HH:mm")}
@@ -710,11 +807,10 @@ const RecruiterMessagesPage = () => {
                             src={activeContact.profile?.profilePhoto}
                           />
                           <AvatarFallback
-                            className={`text-3xl ${
-                              activeContact.isCEO
-                                ? "bg-[#FFD700]/10 text-[#FFD700]"
-                                : "bg-cyan-500/10 text-cyan-400"
-                            }`}
+                            className={`text-3xl ${activeContact.isCEO
+                              ? "bg-[#FFD700]/10 text-[#FFD700]"
+                              : "bg-cyan-500/10 text-cyan-400"
+                              }`}
                           >
                             {activeContact.fullname?.charAt(0) || "U"}
                           </AvatarFallback>

@@ -36,6 +36,13 @@ import jobAlertsRoute from "./routes/jobAlerts.route.js";
 import recruiterAnalyticsRoute from "./routes/recruiterAnalytics.route.js";
 import emailTemplatesRoute from "./routes/emailTemplates.route.js";
 import interviewFeedbackRoute from "./routes/interviewFeedback.route.js";
+import referralRoute from "./routes/referral.route.js";
+import jobTemplateRoute from "./routes/jobTemplate.route.js";
+import assessmentRoute from "./routes/assessment.route.js";
+import companyReviewRoute from "./routes/companyReview.route.js";
+import salaryRoute from "./routes/salary.route.js";
+import talentPoolRoute from "./routes/talentPool.route.js";
+import careerCoachRoute from "./routes/careerCoach.route.js";
 import { rateLimiter } from "./middlewares/isAuthenticated.js";
 import { createServer } from "http";
 import logger from "./utils/logger.js";
@@ -144,7 +151,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin", "x-auth-token"],
   exposedHeaders: ["set-cookie"],
 };
 
@@ -285,6 +292,13 @@ app.use("/api/v1/job-alerts", jobAlertsRoute);
 app.use("/api/v1/recruiter-analytics", recruiterAnalyticsRoute);
 app.use("/api/v1/email-templates", emailTemplatesRoute);
 app.use("/api/v1/interview-feedback", interviewFeedbackRoute);
+app.use("/api/v1/referral", referralRoute);
+app.use("/api/v1/job-templates", jobTemplateRoute);
+app.use("/api/v1/assessments", assessmentRoute);
+app.use("/api/v1/reviews", companyReviewRoute);
+app.use("/api/v1/salaries", salaryRoute);
+app.use("/api/v1/talent-pools", talentPoolRoute);
+app.use("/api/v1/career-coach", careerCoachRoute);
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {

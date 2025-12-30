@@ -77,7 +77,19 @@ export const postJob = async (req, res) => {
         typeof requirements === "string"
           ? requirements.split(",").map((r) => r.trim())
           : requirements,
-      salary: Number(salary),
+      // Parse salary - handle string ranges like "80,000 - 120,000 PKR"
+      salary: (() => {
+        if (!salary) return 0;
+        if (typeof salary === 'number' && !isNaN(salary)) return salary;
+        if (typeof salary === 'string') {
+          // Remove non-digit characters except for the first number sequence
+          const cleaned = salary.replace(/,/g, ''); // Remove commas first
+          const match = cleaned.match(/\d+/); // Get first number sequence
+          const parsed = match ? parseInt(match[0], 10) : 0;
+          return isNaN(parsed) ? 0 : parsed;
+        }
+        return 0;
+      })(),
       location: location.trim(),
       jobType,
       experienceLevel: isNaN(Number(experience)) ? 0 : Number(experience),
@@ -257,7 +269,28 @@ export const getAdminJobs = async (req, res) => {
     const adminId = req.id;
     const { status, page = 1, limit = 10 } = req.query;
 
-    const query = { created_by: adminId };
+    const user = await User.findById(adminId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    let query = {};
+    // If recruiter, show all company jobs
+    if (user.role === "recruiter") {
+      if (!user.companyId) {
+        return res.status(400).json({
+          message: "Recruiter not associated with a company",
+          success: false,
+        });
+      }
+      query = { company: user.companyId };
+    } else {
+      // If company admin (CEO), show only jobs they created (which should be all company jobs anyway usually)
+      query = { created_by: adminId };
+    }
 
     if (status === "active") {
       query.isActive = true;

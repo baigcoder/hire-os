@@ -74,21 +74,30 @@ export const applyJob = async (req, res) => {
       const { User } = await import("../models/user.model.js");
       const applicant = await User.findById(userId).select("fullname");
 
-      // Get io instance from app
+      const applicationPayload = {
+        applicantName: applicant?.fullname || "New Applicant",
+        jobTitle: job.title,
+        jobId: job._id,
+        applicationId: newApplication._id,
+      };
+
+      // Socket.IO broadcast (legacy)
       const io = req.app.get("io");
       if (io && job.company?._id) {
         const { broadcastNewApplication } =
           await import("../utils/dashboardSocket.js");
-        broadcastNewApplication(io, job.company._id.toString(), {
-          applicantName: applicant?.fullname || "New Applicant",
-          jobTitle: job.title,
-          jobId: job._id,
-          applicationId: newApplication._id,
-        });
+        broadcastNewApplication(io, job.company._id.toString(), applicationPayload);
+      }
+
+      // Supabase Realtime broadcast (new)
+      if (job.company?._id) {
+        const { broadcastNewApplication: supabaseBroadcast } =
+          await import("../utils/supabaseBroadcast.js");
+        await supabaseBroadcast(job.company._id.toString(), applicationPayload);
       }
     } catch (socketError) {
       console.log(
-        "Dashboard socket broadcast failed (non-critical):",
+        "Dashboard broadcast failed (non-critical):",
         socketError.message,
       );
     }
@@ -625,6 +634,52 @@ export const bulkUpdateStatus = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to bulk update applications",
+    });
+  }
+};
+
+export const getCompanyApplications = async (req, res) => {
+  try {
+    const userId = req.id;
+
+    const { User } = await import("../models/user.model.js");
+    const { Job } = await import("../models/job.model.js");
+
+    const user = await User.findById(userId);
+
+    if (!user || (user.role !== "recruiter" && user.role !== "company_admin")) {
+      return res.status(403).json({
+        message: "Access denied",
+        success: false,
+      });
+    }
+
+    if (!user.companyId) {
+      return res.status(404).json({
+        message: "Company not found",
+        success: false,
+      });
+    }
+
+    // Get jobs for the company
+    const jobs = await Job.find({ company: user.companyId });
+    const jobIds = jobs.map((j) => j._id);
+
+    // Get applications
+    const applications = await Application.find({ job: { $in: jobIds } })
+      .populate("applicant")
+      .populate("job")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      applications,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Get company applications error:", error);
+    return res.status(500).json({
+      message: "Failed to fetch applications",
+      success: false,
     });
   }
 };

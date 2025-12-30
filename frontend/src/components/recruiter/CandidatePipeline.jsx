@@ -314,8 +314,8 @@ const CandidatePipeline = () => {
     try {
       setLoading(true);
       const [appsRes, jobsRes] = await Promise.all([
-        api.get("/application/company"),
-        api.get("/job/admin"),
+        api.get(`${APPLICATION_API_END_POINT}/company`),
+        api.get(`${JOB_API_END_POINT}/company-jobs`),
       ]);
 
       if (appsRes.data.success) {
@@ -334,8 +334,8 @@ const CandidatePipeline = () => {
 
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
-      const response = await api.put(
-        `/${applicationId}/status`,
+      const response = await api.post(
+        `${APPLICATION_API_END_POINT}/status/${applicationId}/update`,
         { status: newStatus },
       );
 
@@ -610,6 +610,9 @@ const CandidatePipeline = () => {
                   <Button
                     variant="outline"
                     className="border-white/10 text-gray-300"
+                    onClick={() => navigate("/recruiter/interviews", {
+                      state: { applicationId: selectedApplication._id }
+                    })}
                   >
                     <Calendar className="w-4 h-4 mr-2" /> Schedule
                   </Button>

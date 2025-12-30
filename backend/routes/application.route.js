@@ -17,6 +17,7 @@ import {
   getRecruiterNotifications,
   getRankedApplicants,
   bulkUpdateStatus,
+  getCompanyApplications,
 } from "../controllers/application.controller.js";
 
 const router = express.Router();
@@ -55,6 +56,13 @@ router
 router.route("/:id/pass-to-ceo").post(isAuthenticated, isRecruiter, passToCEO);
 router
   .route("/recruiter/notifications")
+router
+  .route("/recruiter/notifications")
   .get(isAuthenticated, isRecruiter, getRecruiterNotifications);
+
+// Get all applications for the logged in user's company (for pipeline and admin view)
+router
+  .route("/company")
+  .get(isAuthenticated, isRecruiter, getCompanyApplications);
 
 export default router;

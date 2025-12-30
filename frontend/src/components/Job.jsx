@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Users,
   Sparkles,
+  Briefcase,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

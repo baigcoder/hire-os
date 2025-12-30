@@ -63,6 +63,8 @@ import { Textarea } from "../ui/textarea";
 import Navbar from "../shared/Navbar";
 import SubscriptionPanel from "../shared/SubscriptionPanel";
 import DashboardLoader from "../shared/DashboardLoader";
+import InterviewReports from "./InterviewReports";
+import RealtimeNotifications from "../shared/RealtimeNotifications";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
@@ -541,6 +543,7 @@ const CEODashboard = () => {
               )}
               {isConnected ? "LIVE" : "OFFLINE"}
             </Badge>
+            <RealtimeNotifications />
             <Button
               variant="outline"
               onClick={refreshData}
@@ -603,13 +606,12 @@ const CEODashboard = () => {
                 </div>
                 {kpi.trend && (
                   <span
-                    className={`text-[10px] font-mono flex items-center gap-0.5 ${
-                      kpi.trendUp
-                        ? "text-emerald-400"
-                        : kpi.urgent
-                          ? "text-[#FFD700]"
-                          : "text-gray-500"
-                    }`}
+                    className={`text-[10px] font-mono flex items-center gap-0.5 ${kpi.trendUp
+                      ? "text-emerald-400"
+                      : kpi.urgent
+                        ? "text-[#FFD700]"
+                        : "text-gray-500"
+                      }`}
                   >
                     {kpi.trendUp && <ArrowUpRight className="w-3 h-3" />}
                     {kpi.trend}
@@ -650,6 +652,12 @@ const CEODashboard = () => {
               className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black font-mono text-xs"
             >
               TEAM PERFORMANCE
+            </TabsTrigger>
+            <TabsTrigger
+              value="reports"
+              className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black font-mono text-xs"
+            >
+              INTERVIEW REPORTS
             </TabsTrigger>
           </TabsList>
 
@@ -1136,15 +1144,14 @@ const CEODashboard = () => {
                       className="p-4 flex items-center gap-4 hover:bg-white/5 transition-colors"
                     >
                       <div
-                        className={`w-8 h-8 rounded-sm flex items-center justify-center font-bold font-mono ${
-                          idx === 0
-                            ? "bg-[#FFD700]/20 text-[#FFD700]"
-                            : idx === 1
-                              ? "bg-gray-300/20 text-gray-300"
-                              : idx === 2
-                                ? "bg-amber-700/20 text-amber-600"
-                                : "bg-white/5 text-gray-500"
-                        }`}
+                        className={`w-8 h-8 rounded-sm flex items-center justify-center font-bold font-mono ${idx === 0
+                          ? "bg-[#FFD700]/20 text-[#FFD700]"
+                          : idx === 1
+                            ? "bg-gray-300/20 text-gray-300"
+                            : idx === 2
+                              ? "bg-amber-700/20 text-amber-600"
+                              : "bg-white/5 text-gray-500"
+                          }`}
                       >
                         {idx + 1}
                       </div>
@@ -1199,6 +1206,11 @@ const CEODashboard = () => {
                   ))}
               </div>
             </div>
+          </TabsContent>
+
+          {/* Interview Reports Tab */}
+          <TabsContent value="reports" className="space-y-6">
+            <InterviewReports />
           </TabsContent>
         </Tabs>
       </div>

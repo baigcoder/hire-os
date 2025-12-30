@@ -88,6 +88,9 @@ const AnalyticsDashboard = React.lazy(
 const EmailTemplates = React.lazy(
   () => import("./components/recruiter/EmailTemplates"),
 );
+const OfferLetterTemplates = React.lazy(
+  () => import("./components/admin/OfferLetterTemplates"),
+);
 const InterviewFeedbackForm = React.lazy(
   () => import("./components/recruiter/InterviewFeedbackForm"),
 );
@@ -97,8 +100,29 @@ const RecruiterInterviewSchedule = React.lazy(
 const RecruiterMessagesPage = React.lazy(
   () => import("./components/recruiter/MessagesPage"),
 );
+const CompanyAdminSettingsPage = React.lazy(
+  () => import("./components/company/CompanyAdminSettingsPage"),
+);
 const StudentMessagesPage = React.lazy(
   () => import("./components/student/StudentMessagesPage"),
+);
+const ReferralDashboard = React.lazy(
+  () => import("./components/student/ReferralDashboard"),
+);
+const AICareerCoach = React.lazy(
+  () => import("./components/student/AICareerCoach"),
+);
+const SalaryBenchmark = React.lazy(
+  () => import("./components/student/SalaryBenchmark"),
+);
+const JobTemplateManager = React.lazy(
+  () => import("./components/recruiter/JobTemplateManager"),
+);
+const TalentPoolManager = React.lazy(
+  () => import("./components/recruiter/TalentPoolManager"),
+);
+const AssessmentBuilder = React.lazy(
+  () => import("./components/recruiter/AssessmentBuilder"),
 );
 
 // Lazy Wrapper
@@ -342,7 +366,7 @@ const appRouter = createBrowserRouter([
     ),
   },
   {
-    path: "/messages", // Messages/Notifications
+    path: "/notifications", // Notifications Center
     element: (
       <ProtectedRoute>
         <NotificationCenter />
@@ -350,11 +374,41 @@ const appRouter = createBrowserRouter([
     ),
   },
   {
-    path: "/student/messages",
+    path: "/messages", // Student Messages
     element: (
       <ProtectedRoute>
         <LazyWrapper>
           <StudentMessagesPage />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/referrals",
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <ReferralDashboard />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/career-coach",
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <AICareerCoach />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/salary-benchmark",
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <SalaryBenchmark />
         </LazyWrapper>
       </ProtectedRoute>
     ),
@@ -384,6 +438,24 @@ const appRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MCQTestPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/interview/:id/mcq", // Alternative MCQ path
+    element: (
+      <ProtectedRoute>
+        <MCQTestPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/interview/:id/video", // Video Interview Page
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <LiveInterview />
+        </LazyWrapper>
       </ProtectedRoute>
     ),
   },
@@ -472,8 +544,62 @@ const appRouter = createBrowserRouter([
       </RecruiterRoute>
     ),
   },
+  {
+    // Recruiter pipeline view
+    path: "/recruiter/pipeline",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <CandidatePipeline />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
+  },
+  {
+    // Email templates
+    path: "/recruiter/email-templates",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <EmailTemplates />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
+  },
+  {
+    // Job templates
+    path: "/recruiter/job-templates",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <JobTemplateManager />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
+  },
+  {
+    // Talent pool
+    path: "/recruiter/talent-pool",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <TalentPoolManager />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
+  },
+  {
+    // Assessments
+    path: "/recruiter/assessments",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <AssessmentBuilder />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
+  },
 
-  // Recruiter Admin Routes
   {
     path: "/admin/companies",
     element: (
@@ -578,6 +704,16 @@ const appRouter = createBrowserRouter([
     ),
   },
   {
+    path: "/admin/offer-templates",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <OfferLetterTemplates />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
+  },
+  {
     path: "/admin/dashboard-enhanced",
     element: (
       <RecruiterRoute>
@@ -623,6 +759,28 @@ const appRouter = createBrowserRouter([
       <CompanyAdminRoute>
         <LazyWrapper>
           <CEODashboard />
+        </LazyWrapper>
+      </CompanyAdminRoute>
+    ),
+  },
+  {
+    path: "/ceo/messages",
+    element: (
+      <CompanyAdminRoute>
+        <LazyWrapper>
+          <RecruiterMessagesPage />
+        </LazyWrapper>
+      </CompanyAdminRoute>
+    ),
+  },
+  {
+    path: "/company/settings",
+    element: (
+      <CompanyAdminRoute>
+        <LazyWrapper>
+          <React.Suspense fallback={<PageLoader />}>
+            <CompanyAdminSettingsPage />
+          </React.Suspense>
         </LazyWrapper>
       </CompanyAdminRoute>
     ),

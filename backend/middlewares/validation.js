@@ -161,8 +161,8 @@ export const validateJobPosting = (req, res, next) => {
   if (!requirements) {
     errors.push("Job requirements are required");
   }
-  if (!salary || isNaN(Number(salary)) || Number(salary) < 0) {
-    errors.push("Valid salary is required");
+  if (!salary || (typeof salary === 'string' && salary.trim().length < 1)) {
+    errors.push("Salary is required");
   }
   if (!location || location.trim().length < 2) {
     errors.push("Location is required");

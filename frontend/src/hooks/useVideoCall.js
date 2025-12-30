@@ -1,6 +1,7 @@
 /**
  * useVideoCall Hook - WebRTC Video Call Management
  * Handles peer connections, media streams, and ICE negotiation
+ * Updated to use Supabase Realtime signaling instead of Socket.io
  */
 
 import { useEffect, useRef, useCallback, useState } from "react";
@@ -17,7 +18,14 @@ const ICE_SERVERS = {
   iceCandidatePoolSize: 10,
 };
 
-export const useVideoCall = (socket, interviewId, options = {}) => {
+/**
+ * @param {Object} signaling - Supabase signaling functions { sendOffer, sendAnswer, sendIceCandidate }
+ * @param {string} interviewId - Interview room ID
+ * @param {Object} options - Optional configuration
+ */
+export const useVideoCall = (signaling = {}, interviewId, options = {}) => {
+  const { sendOffer, sendAnswer, sendIceCandidate } = signaling || {};
+
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
   const [isAudioOn, setIsAudioOn] = useState(true);
@@ -31,10 +39,12 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
   const remoteVideoRef = useRef(null);
   const screenStreamRef = useRef(null);
   const pendingCandidates = useRef([]);
+  const localStreamRef = useRef(null);
 
-  // Initialize local media stream
+  // Initialize local media stream with fallback
   const initializeMedia = useCallback(async () => {
     try {
+      // Try full video + audio first
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },
@@ -49,29 +59,50 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
       });
 
       setLocalStream(stream);
+      localStreamRef.current = stream;
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
 
-      console.log("📹 Local media initialized");
+      console.log("📹 Local media initialized (video + audio)");
       return stream;
-    } catch (error) {
-      console.error("Failed to get local media:", error);
-      setCallError(error.message);
-      throw error;
+    } catch (videoError) {
+      console.warn("Video failed, trying audio-only:", videoError.message);
+
+      try {
+        // Fallback to audio-only
+        const audioStream = await navigator.mediaDevices.getUserMedia({
+          video: false,
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+
+        setLocalStream(audioStream);
+        localStreamRef.current = audioStream;
+        setIsVideoOn(false);
+
+        console.log("🎤 Audio-only mode initialized");
+        setCallError("Camera unavailable - audio-only mode");
+        return audioStream;
+      } catch (audioError) {
+        console.error("Failed to get any media:", audioError);
+        setCallError("No camera or microphone available");
+        // Return null instead of throwing - allow UI to still render
+        return null;
+      }
     }
   }, []);
 
   // Create peer connection
-  const createPeerConnection = useCallback(() => {
+  const createPeerConnection = useCallback((targetId) => {
     const pc = new RTCPeerConnection(ICE_SERVERS);
 
     pc.onicecandidate = (event) => {
-      if (event.candidate && socket) {
-        socket.emit("ice-candidate", {
-          interviewId,
-          candidate: event.candidate,
-        });
+      if (event.candidate && sendIceCandidate) {
+        sendIceCandidate(event.candidate, targetId);
       }
     };
 
@@ -98,7 +129,7 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
 
     peerConnectionRef.current = pc;
     return pc;
-  }, [socket, interviewId]);
+  }, [sendIceCandidate]);
 
   // Add local tracks to peer connection
   const addLocalTracks = useCallback((pc, stream) => {
@@ -108,10 +139,10 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
   }, []);
 
   // Create and send offer (for initiator)
-  const createOffer = useCallback(async () => {
+  const createOffer = useCallback(async (targetId) => {
     try {
-      const pc = peerConnectionRef.current || createPeerConnection();
-      const stream = localStream || (await initializeMedia());
+      const pc = peerConnectionRef.current || createPeerConnection(targetId);
+      const stream = localStreamRef.current || await initializeMedia();
       addLocalTracks(pc, stream);
 
       const offer = await pc.createOffer({
@@ -120,8 +151,8 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
       });
       await pc.setLocalDescription(offer);
 
-      if (socket) {
-        socket.emit("offer", { interviewId, offer });
+      if (sendOffer) {
+        sendOffer(offer, targetId);
       }
 
       console.log("📤 Sent offer");
@@ -129,23 +160,16 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
       console.error("Create offer error:", error);
       setCallError(error.message);
     }
-  }, [
-    socket,
-    interviewId,
-    localStream,
-    createPeerConnection,
-    initializeMedia,
-    addLocalTracks,
-  ]);
+  }, [sendOffer, createPeerConnection, initializeMedia, addLocalTracks]);
 
-  // Handle incoming offer
+  // Handle incoming offer (called from parent component)
   const handleOffer = useCallback(
     async ({ offer, senderId }) => {
       try {
         console.log("📥 Received offer from:", senderId);
 
-        const pc = peerConnectionRef.current || createPeerConnection();
-        const stream = localStream || (await initializeMedia());
+        const pc = peerConnectionRef.current || createPeerConnection(senderId);
+        const stream = localStreamRef.current || await initializeMedia();
         addLocalTracks(pc, stream);
 
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
@@ -159,8 +183,8 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
 
-        if (socket) {
-          socket.emit("answer", { interviewId, answer, targetId: senderId });
+        if (sendAnswer) {
+          sendAnswer(answer, senderId);
         }
 
         console.log("📤 Sent answer");
@@ -169,17 +193,10 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
         setCallError(error.message);
       }
     },
-    [
-      socket,
-      interviewId,
-      localStream,
-      createPeerConnection,
-      initializeMedia,
-      addLocalTracks,
-    ],
+    [sendAnswer, createPeerConnection, initializeMedia, addLocalTracks],
   );
 
-  // Handle incoming answer
+  // Handle incoming answer (called from parent component)
   const handleAnswer = useCallback(async ({ answer, senderId }) => {
     try {
       console.log("📥 Received answer from:", senderId);
@@ -193,7 +210,7 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
     }
   }, []);
 
-  // Handle ICE candidate
+  // Handle ICE candidate (called from parent component)
   const handleIceCandidate = useCallback(async ({ candidate, senderId }) => {
     try {
       const pc = peerConnectionRef.current;
@@ -209,25 +226,27 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
 
   // Toggle audio
   const toggleAudio = useCallback(() => {
-    if (localStream) {
-      const audioTrack = localStream.getAudioTracks()[0];
+    const stream = localStreamRef.current;
+    if (stream) {
+      const audioTrack = stream.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
         setIsAudioOn(audioTrack.enabled);
       }
     }
-  }, [localStream]);
+  }, []);
 
   // Toggle video
   const toggleVideo = useCallback(() => {
-    if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
+    const stream = localStreamRef.current;
+    if (stream) {
+      const videoTrack = stream.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
         setIsVideoOn(videoTrack.enabled);
       }
     }
-  }, [localStream]);
+  }, []);
 
   // Start screen sharing
   const startScreenShare = useCallback(async () => {
@@ -271,8 +290,9 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
 
       // Restore camera video
       const pc = peerConnectionRef.current;
-      if (pc && localStream) {
-        const videoTrack = localStream.getVideoTracks()[0];
+      const stream = localStreamRef.current;
+      if (pc && stream) {
+        const videoTrack = stream.getVideoTracks()[0];
         const sender = pc.getSenders().find((s) => s.track?.kind === "video");
         if (sender && videoTrack) {
           await sender.replaceTrack(videoTrack);
@@ -284,12 +304,12 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
     } catch (error) {
       console.error("Stop screen share error:", error);
     }
-  }, [localStream]);
+  }, []);
 
   // Cleanup
   const cleanup = useCallback(() => {
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
     }
     if (screenStreamRef.current) {
       screenStreamRef.current.getTracks().forEach((track) => track.stop());
@@ -300,37 +320,7 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
     setLocalStream(null);
     setRemoteStream(null);
     setConnectionState("closed");
-  }, [localStream]);
-
-  // Socket event listeners for WebRTC signaling
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("offer", handleOffer);
-    socket.on("answer", handleAnswer);
-    socket.on("ice-candidate", handleIceCandidate);
-
-    // When new participant joins, initiate call
-    socket.on("participant-joined", ({ participant }) => {
-      // If we have local stream and peer connection, create offer
-      if (localStream && !peerConnectionRef.current) {
-        setTimeout(() => createOffer(), 1000);
-      }
-    });
-
-    return () => {
-      socket.off("offer", handleOffer);
-      socket.off("answer", handleAnswer);
-      socket.off("ice-candidate", handleIceCandidate);
-    };
-  }, [
-    socket,
-    handleOffer,
-    handleAnswer,
-    handleIceCandidate,
-    localStream,
-    createOffer,
-  ]);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -354,7 +344,12 @@ export const useVideoCall = (socket, interviewId, options = {}) => {
     startScreenShare,
     stopScreenShare,
     cleanup,
+    // Handlers for parent component to call when receiving signals
+    handleOffer,
+    handleAnswer,
+    handleIceCandidate,
   };
 };
 
 export default useVideoCall;
+

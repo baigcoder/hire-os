@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/authSlice";
@@ -50,7 +50,11 @@ const GoogleIcon = () => (
 const Signup = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const { signInWithGoogle, isAuthenticated, user } = useAuth();
+
+  // Get referral code from URL
+  const referralCode = searchParams.get('ref');
 
   const [formData, setFormData] = useState({
     fullname: "",
@@ -220,6 +224,19 @@ const Signup = () => {
         }
         if (response.data.user) {
           dispatch(setUser(response.data.user));
+
+          // Apply referral code if present
+          if (referralCode) {
+            try {
+              await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/referral/apply`, {
+                code: referralCode,
+                userId: response.data.user._id,
+              });
+              toast.success('Referral code applied!');
+            } catch (refErr) {
+              console.log('Referral code not applied:', refErr.response?.data?.message);
+            }
+          }
         }
 
         // Role-based redirect after signup
@@ -490,8 +507,8 @@ const Signup = () => {
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "student" })}
                   className={`p-3 border rounded-sm text-center transition-all ${formData.role === "student"
-                      ? "border-[#00FF94] bg-[#00FF94]/10 text-[#00FF94]"
-                      : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
+                    ? "border-[#00FF94] bg-[#00FF94]/10 text-[#00FF94]"
+                    : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
                     }`}
                 >
                   <User className="w-5 h-5 mx-auto mb-1" />
@@ -505,8 +522,8 @@ const Signup = () => {
                     setFormData({ ...formData, role: "company_admin" })
                   }
                   className={`p-3 border rounded-sm text-center transition-all ${formData.role === "company_admin"
-                      ? "border-[#FFD700] bg-[#FFD700]/10 text-[#FFD700]"
-                      : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
+                    ? "border-[#FFD700] bg-[#FFD700]/10 text-[#FFD700]"
+                    : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
                     }`}
                 >
                   <Building className="w-5 h-5 mx-auto mb-1" />

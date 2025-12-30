@@ -2,15 +2,20 @@ import jwt from "jsonwebtoken";
 
 const isAuthenticated = async (req, res, next) => {
   try {
-    // Check for token in cookies first, then Bearer token in header
+    // Check for token in cookies first, then Bearer token in header, then x-auth-token
     let token = req.cookies.token;
 
-    // Also check Authorization header for Bearer token
+    // Check Authorization header for Bearer token
     if (!token && req.headers.authorization) {
       const authHeader = req.headers.authorization;
       if (authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7);
       }
+    }
+
+    // Also check x-auth-token header (used by some frontend components)
+    if (!token && req.headers["x-auth-token"]) {
+      token = req.headers["x-auth-token"];
     }
 
     if (!token) {
@@ -337,7 +342,7 @@ export const checkUsageLimit = (limitType) => {
 // Rate limiting middleware (simple in-memory implementation)
 const requestCounts = new Map();
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-const MAX_REQUESTS = 100;
+const MAX_REQUESTS = 500; // Increased for dashboard with multiple API calls
 
 export const rateLimiter = (req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;

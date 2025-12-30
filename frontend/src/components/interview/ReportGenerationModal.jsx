@@ -23,6 +23,9 @@ import {
   Clock,
   Target,
   Shield,
+  X,
+  Cpu,
+  Terminal,
 } from "lucide-react";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -31,7 +34,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 const ReportGenerationModal = ({
   isOpen,
@@ -126,9 +130,9 @@ const ReportGenerationModal = ({
   };
 
   const getScoreColor = (score) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
-    return "text-red-600";
+    if (score >= 80) return "text-[#00FF94]";
+    if (score >= 60) return "text-[#FFD700]";
+    return "text-red-500";
   };
 
   const getMCQScore = () => {
@@ -149,211 +153,246 @@ const ReportGenerationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Wand2 className="w-5 h-5 text-purple-600" />
-            AI Interview Report Generator
+      <DialogContent className="max-w-4xl bg-[#0A0A0A] border border-white/10 text-white p-0 overflow-hidden font-sans selection:bg-[#FFD700] selection:text-black">
+        <DialogHeader className="bg-[#111] border-b border-white/10 p-4">
+          <DialogTitle className="flex items-center gap-3 text-lg font-bold tracking-tight uppercase">
+            <div className="w-8 h-8 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-sm flex items-center justify-center">
+              <Cpu className="w-4 h-4 text-[#FFD700]" />
+            </div>
+            <span>
+              <span className="text-[#FFD700]">AI.REPORT</span> // GENERATOR
+            </span>
+            <Badge
+              variant="outline"
+              className="ml-auto border-white/20 text-xs font-mono text-gray-400 rounded-sm"
+            >
+              V2.0.4
+            </Badge>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto pr-4">
+        <div className="flex-1 overflow-y-auto max-h-[70vh]">
           {step === "initial" && (
-            <div className="space-y-6 py-4">
-              {/* Candidate Info Card */}
+            <div className="p-6 space-y-6">
+              {/* Candidate Info Card - Industrial */}
               {interviewData && (
-                <div className="bg-gradient-to-r from-slate-50 to-slate-100 border rounded-lg p-5">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-16 w-16 border-2 border-white shadow">
+                <div className="bg-[#111] border border-white/10 rounded-sm p-5 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-2 opacity-50">
+                    <div className="grid grid-cols-3 gap-1">
+                      {[...Array(9)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-1 h-1 bg-white/10 rounded-full"
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4 relative z-10">
+                    <Avatar className="h-16 w-16 border border-white/10 rounded-sm">
                       <AvatarImage
                         src={interviewData.studentId?.profile?.profilePhoto}
+                        className="rounded-sm object-cover"
                       />
-                      <AvatarFallback className="bg-purple-100 text-purple-600 text-xl font-bold">
+                      <AvatarFallback className="bg-[#1A1A1A] text-[#FFD700] rounded-sm font-bold">
                         {interviewData.studentId?.fullname?.charAt(0) || "?"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900">
+                      <h3 className="text-xl font-bold text-white uppercase tracking-wider">
                         {interviewData.studentId?.fullname || "Candidate"}
                       </h3>
-                      <p className="text-sm text-gray-500 flex items-center gap-1">
-                        <Mail className="w-3 h-3" />
-                        {interviewData.studentId?.email || "No email"}
-                      </p>
-                      <p className="text-sm text-purple-600 flex items-center gap-1 mt-1">
-                        <Briefcase className="w-3 h-3" />
-                        {interviewData.jobId?.title || "Position"}
-                      </p>
+                      <div className="flex flex-col gap-1 mt-1">
+                        <p className="text-xs text-gray-500 font-mono flex items-center gap-2">
+                          <Mail className="w-3 h-3" />
+                          {interviewData.studentId?.email || "No email"}
+                        </p>
+                        <p className="text-xs text-[#FFD700] font-mono flex items-center gap-2">
+                          <Briefcase className="w-3 h-3" />
+                          TARGET: {interviewData.jobId?.title || "Position"}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Quick Stats Grid */}
-                  <div className="grid grid-cols-3 gap-3 mt-4">
-                    {/* MCQ Score */}
-                    <div className="bg-white rounded-lg p-3 border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-blue-500" />
-                        <span className="text-xs font-medium text-gray-500 uppercase">
-                          MCQ Score
+                  <div className="grid grid-cols-3 gap-3 mt-6">
+                    {/* MOQ Score */}
+                    <div className="bg-[#050505] border border-white/10 p-3 rounded-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                          MCQ_SCORE
                         </span>
+                        <Target className="w-3 h-3 text-blue-400" />
                       </div>
                       {getMCQScore() ? (
                         <div>
                           <p
-                            className={`text-2xl font-bold ${getScoreColor(getMCQScore().percentage)}`}
+                            className={`text-2xl font-mono font-bold ${getScoreColor(
+                              getMCQScore().percentage,
+                            )}`}
                           >
                             {getMCQScore().percentage}%
                           </p>
-                          <p className="text-xs text-gray-400">
-                            {getMCQScore().correct}/{getMCQScore().total}{" "}
-                            correct
-                          </p>
+                          <Progress
+                            value={getMCQScore().percentage}
+                            className="h-1 mt-2 bg-white/10"
+                            indicatorClassName={getMCQScore().percentage >= 60 ? "bg-[#FFD700]" : "bg-red-500"}
+                          />
                         </div>
                       ) : (
-                        <p className="text-gray-400 text-sm">Not taken</p>
+                        <p className="text-gray-600 font-mono text-sm">N/A</p>
                       )}
                     </div>
 
                     {/* Interview Duration */}
-                    <div className="bg-white rounded-lg p-3 border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="w-4 h-4 text-green-500" />
-                        <span className="text-xs font-medium text-gray-500 uppercase">
-                          Duration
+                    <div className="bg-[#050505] border border-white/10 p-3 rounded-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                          DURATION
                         </span>
+                        <Clock className="w-3 h-3 text-green-400" />
                       </div>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-2xl font-mono font-bold text-white">
                         {interviewData.videoInterview?.duration
                           ? Math.round(
-                              interviewData.videoInterview.duration / 60,
-                            )
+                            interviewData.videoInterview.duration / 60,
+                          )
                           : 0}
+                        <span className="text-xs text-gray-600 ml-1">MIN</span>
                       </p>
-                      <p className="text-xs text-gray-400">minutes</p>
+                      <div className="h-1 w-full bg-white/10 mt-2 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500/50 w-3/4"></div>
+                      </div>
                     </div>
 
                     {/* Fraud Alerts */}
-                    <div className="bg-white rounded-lg p-3 border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Shield className="w-4 h-4 text-orange-500" />
-                        <span className="text-xs font-medium text-gray-500 uppercase">
-                          Fraud Alerts
+                    <div className="bg-[#050505] border border-white/10 p-3 rounded-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                          FRAUD_INDEX
                         </span>
+                        <Shield className="w-3 h-3 text-red-400" />
                       </div>
                       <p
-                        className={`text-2xl font-bold ${getFraudCount() > 5 ? "text-red-600" : getFraudCount() > 2 ? "text-orange-600" : "text-green-600"}`}
+                        className={`text-2xl font-mono font-bold ${getFraudCount() > 5
+                          ? "text-red-500"
+                          : getFraudCount() > 2
+                            ? "text-orange-500"
+                            : "text-[#00FF94]"
+                          }`}
                       >
                         {getFraudCount()}
                       </p>
-                      <p className="text-xs text-gray-400">
-                        {getFraudCount() > 5
-                          ? "High risk"
-                          : getFraudCount() > 2
-                            ? "Medium risk"
-                            : "Low risk"}
-                      </p>
+                      <div className="h-1 w-full bg-white/10 mt-2 rounded-full">
+                        <div className={`h-full w-${Math.min(getFraudCount() * 10, 100)}% ${getFraudCount() > 0 ? "bg-red-500" : "bg-green-500"}`} />
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              <div className="bg-purple-50 border border-purple-100 rounded-lg p-6 text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Wand2 className="w-8 h-8 text-purple-600" />
+              <div className="bg-white/5 border border-white/10 rounded-sm p-6 text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FFD700]/50 to-transparent"></div>
+                <div className="w-12 h-12 bg-[#FFD700]/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#FFD700]/30 animate-pulse">
+                  <Terminal className="w-6 h-6 text-[#FFD700]" />
                 </div>
-                <h3 className="text-lg font-semibold text-purple-900 mb-2">
-                  Generate Comprehensive AI Report
+                <h3 className="text-lg font-bold text-white mb-2 uppercase tracking-wide">
+                  Initialize Analysis Protocol
                 </h3>
-                <p className="text-purple-700 max-w-md mx-auto mb-6">
-                  Our AI will analyze MCQ results, video interaction, fraud
-                  alerts, and your notes to create a detailed report for the
-                  CEO.
+                <p className="text-gray-500 text-sm max-w-md mx-auto font-mono">
+                  Neural engine will process transcript, behavioral signals, and validation metrics to synthesize CEO-level executive summary.
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label>Add Recruiter Notes (Optional)</Label>
+              <div className="space-y-3">
+                <Label className="text-xs font-mono text-gray-500 uppercase tracking-wider">Recruiter Observations (Optional)</Label>
                 <Textarea
-                  placeholder="Add your key observations here to help the AI..."
+                  placeholder="Enter specific behavioral notes or key observations..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="min-h-[120px]"
+                  className="min-h-[100px] bg-[#050505] border-white/10 text-white placeholder:text-gray-700 focus:border-[#FFD700]/50 font-mono text-sm resize-none"
                 />
-                <p className="text-xs text-gray-500">
-                  Your notes will be incorporated into the final analysis.
-                </p>
               </div>
             </div>
           )}
 
           {step === "generating" && (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Analyzing Interview Data...
+            <div className="flex flex-col items-center justify-center py-20 space-y-6">
+              <div className="relative">
+                <div className="w-20 h-20 border-4 border-white/10 rounded-full border-t-[#FFD700] animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Cpu className="w-8 h-8 text-white/50" />
+                </div>
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-white uppercase tracking-wider animate-pulse">
+                  Processing Data...
                 </h3>
-                <p className="text-gray-500">
-                  Processing scores, transcript, and behavioral signals
-                </p>
+                <div className="font-mono text-xs text-[#FFD700]">
+                  <p>Analyzing speech patterns...</p>
+                  <p className="opacity-70">Cross-referencing MCQ results...</p>
+                  <p className="opacity-50">Drafting executive summary...</p>
+                </div>
               </div>
             </div>
           )}
 
           {step === "review" && report && (
-            <div className="space-y-6 py-2">
-              {/* Header Stats */}
+            <div className="space-y-6 p-6">
+              {/* Report Header Grid */}
               <div className="grid grid-cols-4 gap-4">
-                <div className="bg-slate-50 p-4 rounded-lg border text-center">
-                  <p className="text-xs text-gray-500 uppercase font-medium">
+                <div className="bg-[#111] p-4 rounded-sm border border-white/10 text-center group hover:border-[#FFD700]/30 transition-colors">
+                  <p className="text-[10px] text-gray-500 uppercase font-mono mb-1">
                     Overall Score
                   </p>
                   <p
-                    className={`text-3xl font-bold ${getScoreColor(report.overallScore)}`}
+                    className={`text-3xl font-bold font-mono ${getScoreColor(
+                      report.overallScore,
+                    )}`}
                   >
-                    {report.overallScore}%
+                    {report.overallScore}
                   </p>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-lg border text-center">
-                  <p className="text-xs text-gray-500 uppercase font-medium">
+                <div className="bg-[#111] p-4 rounded-sm border border-white/10 text-center group hover:border-[#FFD700]/30 transition-colors">
+                  <p className="text-[10px] text-gray-500 uppercase font-mono mb-1">
                     Recommendation
                   </p>
                   <Badge
-                    className={`mt-1 text-sm ${
-                      report.aiRecommendation === "STRONGLY_RECOMMEND"
-                        ? "bg-green-100 text-green-800 hover:bg-green-200"
-                        : report.aiRecommendation === "RECOMMEND"
-                          ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                          : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
-                    }`}
+                    variant="outline"
+                    className={`mt-1 text-[10px] rounded-sm border ${report.aiRecommendation === "STRONGLY_RECOMMEND"
+                      ? "border-green-500/50 text-[#00FF94] bg-green-500/10"
+                      : report.aiRecommendation === "RECOMMEND"
+                        ? "border-blue-500/50 text-blue-400 bg-blue-500/10"
+                        : "border-yellow-500/50 text-[#FFD700] bg-yellow-500/10"
+                      }`}
                   >
                     {report.aiRecommendation?.replace(/_/g, " ")}
                   </Badge>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-lg border text-center">
-                  <p className="text-xs text-gray-500 uppercase font-medium">
+                <div className="bg-[#111] p-4 rounded-sm border border-white/10 text-center group hover:border-[#FFD700]/30 transition-colors">
+                  <p className="text-[10px] text-gray-500 uppercase font-mono mb-1">
                     Technical
                   </p>
-                  <p className="text-xl font-semibold text-gray-900">
+                  <p className="text-xl font-bold text-white font-mono">
                     {report.technicalScore}%
                   </p>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-lg border text-center">
-                  <p className="text-xs text-gray-500 uppercase font-medium">
+                <div className="bg-[#111] p-4 rounded-sm border border-white/10 text-center group hover:border-[#FFD700]/30 transition-colors">
+                  <p className="text-[10px] text-gray-500 uppercase font-mono mb-1">
                     Risk Level
                   </p>
-                  <div className="flex items-center justify-center gap-1 mt-1">
+                  <div className="flex items-center justify-center gap-2 mt-1">
                     {report.hiringRisk === "HIGH" && (
-                      <AlertTriangle className="w-4 h-4 text-red-500" />
+                      <AlertTriangle className="w-4 h-4 text-red-500 animate-pulse" />
                     )}
                     <span
-                      className={`font-semibold ${
-                        report.hiringRisk === "HIGH"
-                          ? "text-red-600"
-                          : report.hiringRisk === "MEDIUM"
-                            ? "text-yellow-600"
-                            : "text-green-600"
-                      }`}
+                      className={`font-bold font-mono text-sm ${report.hiringRisk === "HIGH"
+                        ? "text-red-500"
+                        : report.hiringRisk === "MEDIUM"
+                          ? "text-orange-500"
+                          : "text-[#00FF94]"
+                        }`}
                     >
                       {report.hiringRisk}
                     </span>
@@ -363,10 +402,11 @@ const ReportGenerationModal = ({
 
               {/* AI Summary */}
               <div className="space-y-2">
-                <Label className="text-base font-semibold">
-                  Executive Summary
+                <Label className="text-xs font-mono uppercase text-[#FFD700] tracking-wider flex items-center gap-2">
+                  <Terminal className="w-3 h-3" /> Executive Summary
                 </Label>
-                <div className="bg-white border rounded-md p-4 text-gray-700 leading-relaxed text-sm">
+                <div className="bg-[#111] border border-white/10 rounded-sm p-4 text-gray-300 leading-relaxed text-sm font-sans relative">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-[#FFD700]"></div>
                   {report.aiSummary}
                 </div>
               </div>
@@ -374,22 +414,28 @@ const ReportGenerationModal = ({
               {/* Strengths & Weaknesses */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-green-700 font-medium flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4" /> Key Strengths
+                  <Label className="text-[#00FF94] text-xs font-mono uppercase tracking-wider flex items-center gap-2">
+                    <CheckCircle className="w-3 h-3" /> Strengths
                   </Label>
-                  <ul className="list-disc list-inside text-sm text-gray-600 bg-green-50/50 p-3 rounded-md border border-green-100">
+                  <ul className="bg-[#050505] border border-white/10 rounded-sm p-3 space-y-2">
                     {report.strengths?.map((item, i) => (
-                      <li key={i}>{item}</li>
+                      <li key={i} className="text-xs text-gray-400 flex items-start gap-2">
+                        <span className="text-[#00FF94] mt-0.5">›</span>
+                        {item}
+                      </li>
                     ))}
                   </ul>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-amber-700 font-medium flex items-center gap-1">
-                    <AlertTriangle className="w-4 h-4" /> Areas of Concern
+                  <Label className="text-red-400 text-xs font-mono uppercase tracking-wider flex items-center gap-2">
+                    <AlertTriangle className="w-3 h-3" /> Concerns
                   </Label>
-                  <ul className="list-disc list-inside text-sm text-gray-600 bg-amber-50/50 p-3 rounded-md border border-amber-100">
+                  <ul className="bg-[#050505] border border-white/10 rounded-sm p-3 space-y-2">
                     {report.weaknesses?.map((item, i) => (
-                      <li key={i}>{item}</li>
+                      <li key={i} className="text-xs text-gray-400 flex items-start gap-2">
+                        <span className="text-red-400 mt-0.5">!</span>
+                        {item}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -397,26 +443,25 @@ const ReportGenerationModal = ({
 
               {/* Edit Notes */}
               <div className="space-y-2">
-                <Label>Edit Final Notes</Label>
+                <Label className="text-xs font-mono uppercase text-gray-500">Add Addendum Notes</Label>
                 <Textarea
                   value={report.notes || ""}
                   onChange={(e) =>
                     setReport({ ...report, notes: e.target.value })
                   }
-                  className="min-h-[100px]"
+                  className="min-h-[80px] bg-[#050505] border-white/10 text-white font-mono text-sm focus:border-[#FFD700]/50"
+                  placeholder="Additional context for CEO..."
                 />
               </div>
 
               {/* Next Steps */}
-              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 flex gap-3 items-start">
-                <div className="mt-1 bg-blue-100 p-1.5 rounded-full">
-                  <CheckCircle className="w-4 h-4 text-blue-600" />
+              <div className="bg-[#111] border border-l-4 border-l-blue-500 border-white/10 rounded-sm p-4 flex gap-4 items-center">
+                <div className="bg-blue-500/10 p-2 rounded-sm border border-blue-500/30">
+                  <Target className="w-5 h-5 text-blue-400" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-blue-900 text-sm">
-                    Suggested Next Step
-                  </h4>
-                  <p className="text-blue-700 text-sm mt-0.5">
+                  <h4 className="text-white font-bold text-sm uppercase tracking-wide">Suggested Protocol</h4>
+                  <p className="text-blue-400/80 text-xs font-mono mt-1">
                     {report.nextSteps}
                   </p>
                 </div>
@@ -425,63 +470,73 @@ const ReportGenerationModal = ({
           )}
 
           {step === "success" && (
-            <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+            <div className="flex flex-col items-center justify-center py-16 text-center space-y-6">
+              <div className="w-20 h-20 bg-[#00FF94]/10 rounded-full flex items-center justify-center border border-[#00FF94]/30 relative">
+                <div className="absolute inset-0 rounded-full animate-ping bg-[#00FF94]/5"></div>
+                <CheckCircle className="w-10 h-10 text-[#00FF94]" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Sent to CEO!</h3>
-              <p className="text-gray-500 max-w-sm">
-                The report has been successfully submitted to the CEO dashboard
-                for final review and approval.
-              </p>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold text-white uppercase tracking-tighter">Transmission Complete</h3>
+                <p className="text-gray-500 max-w-sm font-mono text-sm mx-auto">
+                  Report payload secured and transmitted to Executive Dashboard. Awaiting final decision.
+                </p>
+              </div>
             </div>
           )}
         </div>
 
-        <DialogFooter className="mt-4 border-t pt-4">
+        <DialogFooter className="bg-[#111] border-t border-white/10 p-4">
           {step === "initial" && (
-            <>
-              <Button variant="outline" onClick={onClose}>
-                Cancel
+            <div className="flex w-full justify-between gap-4">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="flex-1 border-white/10 text-gray-400 hover:text-white hover:bg-white/5 uppercase tracking-wider font-mono text-xs h-10"
+              >
+                Abort
               </Button>
               <Button
                 onClick={handleGenerateReport}
                 disabled={isLoading}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="flex-[2] bg-[#FFD700] text-black hover:bg-[#FFD700]/90 uppercase tracking-widest font-bold text-xs h-10"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 ) : (
                   <Wand2 className="w-4 h-4 mr-2" />
                 )}
-                Generate AI Report
+                EXECUTE AI ANALYSIS
               </Button>
-            </>
+            </div>
           )}
 
           {step === "review" && (
-            <>
-              <Button variant="outline" onClick={() => setStep("initial")}>
-                Regenerate
+            <div className="flex w-full justify-between gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setStep("initial")}
+                className="flex-1 border-white/10 text-gray-400 hover:text-white hover:bg-white/5 uppercase tracking-wider font-mono text-xs h-10"
+              >
+                Reinitalize
               </Button>
               <Button
                 onClick={handleSubmitToCEO}
                 disabled={isLoading}
-                className="bg-green-600 hover:bg-green-700"
+                className="flex-[2] bg-[#00FF94] text-black hover:bg-[#00FF94]/90 uppercase tracking-widest font-bold text-xs h-10"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 ) : (
                   <Send className="w-4 h-4 mr-2" />
                 )}
-                Submit to CEO
+                TRANSMIT TO CEO
               </Button>
-            </>
+            </div>
           )}
 
           {step === "success" && (
-            <Button onClick={onClose} className="w-full">
-              Close
+            <Button onClick={onClose} className="w-full bg-[#1A1A1A] text-white border border-white/10 hover:bg-[#222] uppercase tracking-widest text-xs h-10">
+              Dismiss Protocol
             </Button>
           )}
         </DialogFooter>

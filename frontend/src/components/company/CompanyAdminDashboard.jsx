@@ -415,8 +415,8 @@ const CompanyAdminDashboard = () => {
               <div className="flex items-center gap-3 mt-2">
                 <Badge
                   className={`rounded-sm text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 ${subscription?.isActive
-                      ? "bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30"
-                      : "bg-red-500/10 text-red-400 border border-red-500/30"
+                    ? "bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30"
+                    : "bg-red-500/10 text-red-400 border border-red-500/30"
                     }`}
                 >
                   {subscription?.isActive ? "Active" : "Inactive"}
@@ -433,6 +433,7 @@ const CompanyAdminDashboard = () => {
             <LiveIndicator />
             <Button
               variant="outline"
+              onClick={() => navigate("/company/settings")}
               className="border-white/10 text-gray-400 hover:bg-white/5 hover:border-[#FFD700]/30 rounded-sm font-mono text-xs uppercase tracking-wider"
             >
               <Settings className="w-4 h-4 mr-2" />
@@ -753,8 +754,8 @@ const CompanyAdminDashboard = () => {
                     <div className="flex items-center gap-3">
                       <Badge
                         className={`rounded-sm text-[10px] font-mono uppercase ${recruiter.status === "active"
-                            ? "bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30"
-                            : "bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30"
+                          ? "bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30"
+                          : "bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30"
                           }`}
                       >
                         {recruiter.status}

@@ -64,6 +64,40 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
       const presence = newPresences[0];
       console.log(`👤 ${presence.fullname} joined`);
 
+      // Broadcast to recruiter dashboard if candidate joins
+      if (presence.role === "candidate") {
+        console.log("📢 Broadcasting student_joined_interview to recruiters");
+
+        // Use the broadcast utility which handles channel management
+        const notifyPayload = {
+          interviewId,
+          studentName: presence.fullname,
+          joinedAt: presence.joinedAt,
+        };
+
+        // Create a persistent channel for the notification
+        const recruiterChannel = supabase.channel("student-joined-notify");
+        recruiterChannel.subscribe((status) => {
+          if (status === "SUBSCRIBED") {
+            // Send a broadcast message
+            recruiterChannel.send({
+              type: "broadcast",
+              event: "student_joined_interview",
+              payload: notifyPayload,
+            }).then(() => {
+              console.log("✅ Broadcast sent successfully");
+            }).catch((err) => {
+              console.error("❌ Broadcast failed:", err);
+            });
+
+            // Keep channel open for a bit then cleanup
+            setTimeout(() => {
+              supabase.removeChannel(recruiterChannel);
+            }, 3000);
+          }
+        });
+      }
+
       // Check if interview should start (both parties present)
       setTimeout(() => {
         const state = channel.presenceState();
@@ -149,6 +183,14 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
     channel.on("broadcast", { event: "fraud-alert" }, ({ payload }) => {
       if (options.onFraudAlert && userRole === "recruiter") {
         options.onFraudAlert(payload);
+      }
+    });
+
+    // Fraud monitoring toggle (candidate receives, recruiter sends)
+    channel.on("broadcast", { event: "fraud-monitoring-toggle" }, ({ payload }) => {
+      if (userRole === "candidate" && options.onMonitoringToggle) {
+        console.log("🔒 Monitoring toggled:", payload.enabled);
+        options.onMonitoringToggle(payload.enabled);
       }
     });
 
@@ -265,6 +307,17 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
     });
   }, []);
 
+  // Toggle fraud monitoring (recruiter only)
+  const toggleMonitoring = useCallback((enabled) => {
+    if (!channelRef.current) return;
+    channelRef.current.send({
+      type: "broadcast",
+      event: "fraud-monitoring-toggle",
+      payload: { enabled, timestamp: new Date().toISOString() },
+    });
+    console.log("🔒 Monitoring toggled to:", enabled);
+  }, []);
+
   // WebRTC signaling methods
   const sendOffer = useCallback(
     (offer, targetId) => {
@@ -319,6 +372,7 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
     // Interview control
     endInterview,
     reportFraudAlert,
+    toggleMonitoring, // Fraud monitoring toggle
     // WebRTC signaling
     sendOffer,
     sendAnswer,

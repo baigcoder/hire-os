@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
@@ -61,6 +61,7 @@ import {
 
 const RecruiterInterviewSchedule = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useSelector((store) => store.auth);
   const { allAdminJobs } = useSelector((store) => store.job);
 
@@ -94,7 +95,16 @@ const RecruiterInterviewSchedule = () => {
   useEffect(() => {
     fetchInterviews();
     fetchEligibleCandidates();
-  }, []);
+
+    // Check for pre-filled candidate from navigation state
+    if (location.state?.applicationId) {
+      setScheduleData(prev => ({
+        ...prev,
+        applicationId: location.state.applicationId
+      }));
+      setScheduleDialogOpen(true);
+    }
+  }, [location.state]);
 
   const fetchInterviews = async () => {
     try {
@@ -109,7 +119,8 @@ const RecruiterInterviewSchedule = () => {
       }
     } catch (error) {
       console.error("Failed to fetch interviews:", error);
-      toast.error("Failed to load interviews");
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || "Failed to load interviews";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -119,14 +130,15 @@ const RecruiterInterviewSchedule = () => {
     try {
       // Get applications in 'pending' or 'reviewing' status
       const res = await axios.get(
-        `${APPLICATION_API_END_POINT}/recruiter/all`,
+        `${APPLICATION_API_END_POINT}/company`,
         {
           withCredentials: true,
         },
       );
       if (res.data.success) {
+        // Include candidates that can be (re)scheduled for interviews
         const eligible = (res.data.applications || []).filter((app) =>
-          ["pending", "reviewing", "shortlisted"].includes(app.status),
+          ["pending", "under_review", "reviewing", "shortlisted", "interview", "mcq_passed", "video_scheduled"].includes(app.status),
         );
         setEligibleCandidates(eligible);
       }
@@ -150,9 +162,19 @@ const RecruiterInterviewSchedule = () => {
 
     setScheduling(true);
     try {
+      // Map frontend data to backend expectation
+      const payload = {
+        applicationId: scheduleData.applicationId,
+        scheduledAt: scheduleData.scheduledAt,
+        videoEnabled: scheduleData.type === "video",
+        personalMessage: scheduleData.notes,
+        // Default values for fields expected by controller
+        mcqEnabled: false
+      };
+
       const res = await axios.post(
-        `${INTERVIEW_API_END_POINT}/schedule`,
-        scheduleData,
+        `${INTERVIEW_API_END_POINT}/create`,
+        payload,
         { withCredentials: true },
       );
 
@@ -431,13 +453,12 @@ const RecruiterInterviewSchedule = () => {
                     <button
                       key={i}
                       onClick={() => setSelectedDate(day)}
-                      className={`w-full p-3 rounded-sm transition-all flex items-center justify-between ${
-                        isSelected
-                          ? "bg-[#FFD700] text-black"
-                          : isToday
-                            ? "bg-cyan-500/10 border border-cyan-500/30"
-                            : "bg-white/5 hover:bg-white/10"
-                      }`}
+                      className={`w-full p-3 rounded-sm transition-all flex items-center justify-between ${isSelected
+                        ? "bg-[#FFD700] text-black"
+                        : isToday
+                          ? "bg-cyan-500/10 border border-cyan-500/30"
+                          : "bg-white/5 hover:bg-white/10"
+                        }`}
                     >
                       <div className="text-left">
                         <div
@@ -730,11 +751,10 @@ const RecruiterInterviewSchedule = () => {
                   <button
                     key={type}
                     onClick={() => setScheduleData({ ...scheduleData, type })}
-                    className={`p-3 rounded-sm border transition-all flex flex-col items-center gap-2 ${
-                      scheduleData.type === type
-                        ? "bg-[#FFD700] border-[#FFD700] text-black"
-                        : "bg-white/5 border-white/10 text-gray-400 hover:border-white/30"
-                    }`}
+                    className={`p-3 rounded-sm border transition-all flex flex-col items-center gap-2 ${scheduleData.type === type
+                      ? "bg-[#FFD700] border-[#FFD700] text-black"
+                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/30"
+                      }`}
                   >
                     {type === "video" && <Video className="w-5 h-5" />}
                     {type === "phone" && <Phone className="w-5 h-5" />}

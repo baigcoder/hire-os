@@ -369,6 +369,17 @@ const companySchema = new mongoose.Schema(
     // Assigned Recruiters
     recruiters: [recruiterSchema],
 
+    // Offer Letter Templates
+    offerTemplates: [
+      {
+        name: { type: String, required: true, trim: true },
+        subject: { type: String, required: true, trim: true },
+        content: { type: String, required: true }, // HTML content
+        isDefault: { type: Boolean, default: false },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+
     // Company Settings
     settings: {
       emailNotifications: {

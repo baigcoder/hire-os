@@ -161,6 +161,7 @@
    TYPOGRAPHY - TECHNICAL PRECISION
    ============================================ */
 @layer base {
+
   h1,
   h2,
   h3,
@@ -202,13 +203,12 @@
    COMPONENT STYLES - INDUSTRIAL TOOLKIT
    ============================================ */
 @layer components {
+
   /* HUD Card - Glassmorphism + Noise */
   .card-hud {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.04) 0%,
-      rgba(255, 255, 255, 0.01) 100%
-    );
+    background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.04) 0%,
+        rgba(255, 255, 255, 0.01) 100%);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: var(--shadow-lg);
@@ -283,6 +283,7 @@
   }
 
   @keyframes pulse-live {
+
     0%,
     100% {
       opacity: 1;
@@ -300,6 +301,7 @@
    SPECIAL EFFECTS - INDUSTRIAL AESTHETICS
    ============================================ */
 @layer utilities {
+
   /* Signal Yellow Gradient Text */
   .text-gradient-gold {
     background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
@@ -331,13 +333,11 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.1) 2px,
-      rgba(0, 0, 0, 0.1) 4px
-    );
+    background: repeating-linear-gradient(0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 2px,
+        rgba(0, 0, 0, 0.1) 4px);
     pointer-events: none;
   }
 
@@ -348,5 +348,18 @@
 
   .glow-green {
     box-shadow: 0 0 40px rgba(0, 255, 148, 0.3);
+  }
+
+  /* Hide scrollbar for horizontal scroll on mobile */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
   }
 }

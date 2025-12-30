@@ -31,8 +31,8 @@ export const useRealtime = () => {
       isUserOnline: () => false,
       onlineUsers: new Set(),
       sendMessage: () => false,
-      startTyping: () => {},
-      stopTyping: () => {},
+      startTyping: () => { },
+      stopTyping: () => { },
       getTypingUsers: () => [],
       initiateCall: () => null,
       incomingCall: null,
@@ -201,29 +201,51 @@ export const RealtimeProvider = ({ children }) => {
 
   // Send a message to another user via broadcast
   const sendRealtimeMessage = useCallback(
-    (recipientId, message) => {
+    async (recipientId, message) => {
       if (!user?._id) return false;
 
-      const recipientChannel = supabase.channel(`user:${recipientId}`);
+      try {
+        const recipientChannel = supabase.channel(`user:${recipientId}`);
 
-      recipientChannel.subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          recipientChannel.send({
-            type: "broadcast",
-            event: "new-message",
-            payload: {
-              senderId: user._id,
-              senderName: user.fullname,
-              content: message,
-              timestamp: new Date().toISOString(),
-            },
+        // Wait for subscription to complete
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Subscription timeout')), 5000);
+
+          recipientChannel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              clearTimeout(timeout);
+              resolve();
+            } else if (status === 'CHANNEL_ERROR') {
+              clearTimeout(timeout);
+              reject(new Error('Channel error'));
+            }
           });
-          // Unsubscribe after sending
-          setTimeout(() => recipientChannel.unsubscribe(), 500);
-        }
-      });
+        });
 
-      return true;
+        // Send the message
+        await recipientChannel.send({
+          type: "broadcast",
+          event: "new-message",
+          payload: {
+            senderId: user._id,
+            senderName: user.fullname,
+            senderRole: user.role,
+            receiverId: recipientId,
+            content: message,
+            timestamp: new Date().toISOString(),
+          },
+        });
+
+        // Cleanup channel after a longer delay to ensure message is delivered
+        setTimeout(() => {
+          supabase.removeChannel(recipientChannel);
+        }, 1000);
+
+        return true;
+      } catch (error) {
+        console.error('Failed to send realtime message:', error);
+        return false;
+      }
     },
     [user],
   );
@@ -233,7 +255,7 @@ export const RealtimeProvider = ({ children }) => {
     (recipientId, chatId) => {
       if (!user?._id) return;
 
-      const recipientChannel = supabase.channel(`user:${recipientId}`);
+      const recipientChannel = supabase.channel(`user:${recipientId}:typing`);
       recipientChannel.subscribe((status) => {
         if (status === "SUBSCRIBED") {
           recipientChannel.send({
@@ -246,7 +268,7 @@ export const RealtimeProvider = ({ children }) => {
               isTyping: true,
             },
           });
-          setTimeout(() => recipientChannel.unsubscribe(), 500);
+          setTimeout(() => supabase.removeChannel(recipientChannel), 1000);
         }
       });
     },
@@ -257,7 +279,7 @@ export const RealtimeProvider = ({ children }) => {
     (recipientId, chatId) => {
       if (!user?._id) return;
 
-      const recipientChannel = supabase.channel(`user:${recipientId}`);
+      const recipientChannel = supabase.channel(`user:${recipientId}:typing`);
       recipientChannel.subscribe((status) => {
         if (status === "SUBSCRIBED") {
           recipientChannel.send({
@@ -270,7 +292,7 @@ export const RealtimeProvider = ({ children }) => {
               isTyping: false,
             },
           });
-          setTimeout(() => recipientChannel.unsubscribe(), 500);
+          setTimeout(() => supabase.removeChannel(recipientChannel), 1000);
         }
       });
     },

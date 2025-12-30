@@ -75,6 +75,13 @@ export const useSupabaseDashboard = (options = {}) => {
       if (options.onJobView) options.onJobView(payload);
     });
 
+    // Interview scheduled (for students)
+    channel.on("broadcast", { event: "interview_scheduled" }, ({ payload }) => {
+      console.log("🎯 Interview scheduled:", payload);
+      setLastUpdate(new Date());
+      if (options.onInterviewScheduled) options.onInterviewScheduled(payload);
+    });
+
     // Subscribe to channel
     channel.subscribe((status) => {
       if (status === "SUBSCRIBED") {

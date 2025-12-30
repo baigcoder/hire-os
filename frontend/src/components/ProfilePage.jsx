@@ -366,6 +366,7 @@ const ProfilePage = () => {
                       {user?.profile?.bio || `HIRE.OS ${currentRole.title}`}
                     </p>
                   </div>
+                  {/* Desktop buttons */}
                   <div className="hidden sm:flex gap-2">
                     <Button
                       onClick={() => navigate("/settings")}
@@ -388,6 +389,29 @@ const ProfilePage = () => {
                     </Button>
                   </div>
                 </div>
+              </div>
+
+              {/* Mobile action buttons - always visible on small screens */}
+              <div className="flex sm:hidden gap-2 mt-4">
+                <Button
+                  onClick={() => navigate("/settings")}
+                  variant="outline"
+                  className="flex-1 border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs uppercase tracking-wider"
+                >
+                  <Settings size={14} className="mr-2" />
+                  Settings
+                </Button>
+                <Button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="flex-1 rounded-sm text-xs uppercase tracking-wider font-bold"
+                  style={{
+                    backgroundColor: currentRole.color,
+                    color: "#000",
+                  }}
+                >
+                  <Pen size={14} className="mr-2" />
+                  {isEditing ? "Cancel" : "Edit Profile"}
+                </Button>
               </div>
             </div>
 

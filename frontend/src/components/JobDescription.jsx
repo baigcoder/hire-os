@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./shared/Navbar";
 import { useSelector } from "react-redux";
-import { JOB_API_END_POINT } from "../utils/constant";
+import { JOB_API_END_POINT, APPLICATION_API_END_POINT } from "../utils/constant";
 import JobApplication from "./jobs/JobApplication";
 import { Button } from "./ui/button";
 import {
@@ -11,11 +11,17 @@ import {
   MapPin,
   DollarSign,
   Calendar,
-  Building,
   Building2,
   Clock,
   CheckCircle2,
   ArrowLeft,
+  Users,
+  Zap,
+  Shield,
+  Target,
+  ChevronRight,
+  Sparkles,
+  TrendingUp,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -25,17 +31,18 @@ const JobDescription = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showApplication, setShowApplication] = useState(false);
-  const { user, token } = useSelector((state) => state.auth);
+  const [hasApplied, setHasApplied] = useState(false);
+  const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+
+  // Get token from localStorage (backend JWT)
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const response = await axios.get(`${JOB_API_END_POINT}/get/${id}`, {
-          headers: {
-            "x-auth-token": token,
-          },
-        });
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await axios.get(`${JOB_API_END_POINT}/get/${id}`, { headers });
         setJob(response.data.job);
         setLoading(false);
       } catch (err) {
@@ -45,31 +52,64 @@ const JobDescription = () => {
       }
     };
 
+    // Check if user already applied to this job
+    const checkApplicationStatus = async () => {
+      if (!user || !token) return;
+      try {
+        const response = await axios.get(`${APPLICATION_API_END_POINT}/get`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const appliedJobs = response.data.application || [];
+        const alreadyApplied = appliedJobs.some(app => app.job?._id === id || app.job === id);
+        setHasApplied(alreadyApplied);
+      } catch (err) {
+        console.log("Could not check application status");
+      }
+    };
+
     fetchJob();
-  }, [id, token]);
+    checkApplicationStatus();
+  }, [id, token, user]);
 
   const handleApplyClick = () => {
     if (!user) {
       navigate("/login");
       return;
     }
+    if (hasApplied) {
+      return; // Don't allow re-applying
+    }
     setShowApplication(true);
   };
 
   const handleApplicationSubmit = () => {
-    // Refresh job data or simply close to show success state in parent if needed
-    // For now we might toggle back or keep it open (JobApplication handles its own success UI)
+    setShowApplication(false);
+    setHasApplied(true); // Mark as applied after successful submission
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <Navbar />
-        <div className="max-w-4xl mx-auto py-20 px-4">
-          <div className="animate-pulse space-y-4">
-            <div className="h-40 bg-white/5 rounded-2xl border border-white/10"></div>
-            <div className="h-60 bg-white/5 rounded-2xl border border-white/10"></div>
-            <div className="h-20 bg-white/5 rounded-2xl border border-white/10"></div>
+        <div className="max-w-6xl mx-auto py-20 px-4 pt-32">
+          <div className="animate-pulse space-y-6">
+            <div className="h-48 bg-white/5 rounded-lg border border-white/10"></div>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 space-y-6">
+                <div className="h-64 bg-white/5 rounded-lg border border-white/10"></div>
+                <div className="h-48 bg-white/5 rounded-lg border border-white/10"></div>
+              </div>
+              <div className="h-64 bg-white/5 rounded-lg border border-white/10"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -78,18 +118,18 @@ const JobDescription = () => {
 
   if (error || !job) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <Navbar />
-        <div className="max-w-4xl mx-auto py-20 px-4 text-center">
-          <div className="bg-red-900/10 border border-red-500/20 p-8 rounded-2xl">
-            <p className="text-red-400 text-lg font-medium">
-              {error || "Job not found"}
+        <div className="max-w-6xl mx-auto py-20 px-4 pt-32 text-center">
+          <div className="bg-red-900/10 border border-red-500/20 p-8 rounded-lg">
+            <p className="text-red-400 text-lg font-medium font-mono">
+              [ERROR] {error || "POSITION_NOT_FOUND"}
             </p>
             <Button
               onClick={() => navigate("/browse")}
-              className="mt-6 bg-white/5 hover:bg-white/10 text-white"
+              className="mt-6 btn-outline-industrial"
             >
-              Back to Jobs
+              ← RETURN TO SEARCH
             </Button>
           </div>
         </div>
@@ -98,173 +138,340 @@ const JobDescription = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-gray-300 selection:bg-yellow-500/30 selection:text-yellow-200">
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-300 selection:bg-yellow-500/30 selection:text-yellow-200">
       <Navbar />
 
-      {/* Background Glow */}
-      <div className="fixed top-0 left-0 w-full h-[500px] bg-gradient-to-b from-yellow-900/10 to-transparent pointer-events-none"></div>
+      {/* Industrial Grid Background */}
+      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none"></div>
 
-      <div className="max-w-5xl mx-auto py-12 px-4 relative z-10 pt-32">
-        <Button
-          onClick={() => navigate(-1)}
-          variant="ghost"
-          className="mb-8 text-gray-500 hover:text-white pl-0 hover:bg-transparent"
+      {/* Top Glow */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-yellow-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+
+      <div className="max-w-6xl mx-auto py-12 px-4 relative z-10 pt-28">
+        {/* Back Navigation */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Search
-        </Button>
-
-        <div className="grid gap-8">
-          {/* Header Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 relative overflow-hidden"
+          <Button
+            onClick={() => navigate(-1)}
+            variant="ghost"
+            className="mb-6 text-gray-500 hover:text-yellow-500 pl-0 hover:bg-transparent font-mono text-sm group"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <Building2 size={120} className="text-white" />
+            <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+            BACK_TO_SEARCH
+          </Button>
+        </motion.div>
+
+        {/* Header Card - Industrial HUD Style */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="card-industrial p-8 mb-8 relative overflow-hidden group"
+        >
+          {/* Corner Accents */}
+          <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-yellow-500/30 rounded-tl-lg"></div>
+          <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-yellow-500/30 rounded-tr-lg"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-yellow-500/30 rounded-bl-lg"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-yellow-500/30 rounded-br-lg"></div>
+
+          {/* Status Badge */}
+          <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded font-mono text-xs text-green-400">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            STATUS: ACTIVE
+          </div>
+
+          {/* Background Decoration */}
+          <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+            <Building2 size={200} className="text-white" />
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-start gap-8 relative z-10">
+            {/* Company Logo */}
+            <div className="w-28 h-28 rounded-lg bg-[#111] border-2 border-white/10 flex items-center justify-center overflow-hidden shadow-2xl group-hover:border-yellow-500/40 transition-all duration-300">
+              {job.company?.logo ? (
+                <img
+                  src={job.company.logo}
+                  alt={job.company.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Building2 size={48} className="text-yellow-500/70" />
+              )}
             </div>
 
-            <div className="flex flex-col md:flex-row items-start gap-6 relative z-10">
-              <div className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shadow-2xl">
-                {job.company?.logo ? (
-                  <img
-                    src={job.company.logo}
-                    alt={job.company.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Building2 size={40} className="text-yellow-500" />
-                )}
+            {/* Job Info */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="font-mono text-xs text-gray-500 tracking-wider">
+                  POSITION_ID: {job._id?.slice(-8).toUpperCase()}
+                </span>
               </div>
 
-              <div className="flex-1">
-                <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">
-                  {job.title}
-                </h1>
-                <p className="text-xl text-yellow-500 font-medium mb-6">
-                  {job.company?.name}
-                </p>
+              <h1 className="text-3xl lg:text-4xl font-black text-white mb-2 tracking-tight">
+                {job.title}
+              </h1>
 
-                <div className="flex flex-wrap gap-4 text-sm font-medium">
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300">
-                    <MapPin size={16} className="text-yellow-500/70" />
-                    {job.location}
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300">
-                    <Briefcase size={16} className="text-yellow-500/70" />
-                    {job.jobType}
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white">
-                    <DollarSign size={16} className="text-yellow-500" />
+              <p className="text-xl text-yellow-500 font-bold mb-6 flex items-center gap-2">
+                <Building2 size={18} className="opacity-70" />
+                {job.company?.name}
+              </p>
+
+              {/* Tags Grid */}
+              <div className="flex flex-wrap gap-3">
+                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
+                  <MapPin size={16} className="text-yellow-500" />
+                  <span className="text-gray-300">{job.location}</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
+                  <Briefcase size={16} className="text-yellow-500" />
+                  <span className="text-gray-300">{job.jobType}</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded font-mono text-sm">
+                  <DollarSign size={16} className="text-yellow-500" />
+                  <span className="text-yellow-500 font-bold">
                     {typeof job.salary === "number"
                       ? job.salary.toLocaleString()
                       : job.salary}{" "}
                     LPA
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
+                  <Calendar size={16} className="text-yellow-500" />
+                  <span className="text-gray-300">Posted {formatDate(job.createdAt)}</span>
+                </div>
+                {job.position && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
+                    <Users size={16} className="text-yellow-500" />
+                    <span className="text-gray-300">{job.position} Openings</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300">
-                    <Calendar size={16} className="text-yellow-500/70" />
-                    Posted {new Date(job.createdAt).toLocaleDateString()}
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Details */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Job Description */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className="card-industrial p-8"
+            >
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-10 h-10 rounded bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
+                  <Target size={20} className="text-yellow-500" />
+                </div>
+                <h2 className="text-xl font-bold text-white font-mono tracking-wide">
+                  MISSION_BRIEF
+                </h2>
+                <div className="h-px flex-1 bg-gradient-to-r from-yellow-500/30 to-transparent"></div>
+              </div>
+
+              <div className="prose prose-invert max-w-none text-gray-400 leading-relaxed whitespace-pre-line text-[15px]">
+                {job.description}
+              </div>
+            </motion.div>
+
+            {/* Requirements */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="card-industrial p-8"
+            >
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-10 h-10 rounded bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
+                  <Shield size={20} className="text-yellow-500" />
+                </div>
+                <h2 className="text-xl font-bold text-white font-mono tracking-wide">
+                  REQUIREMENTS
+                </h2>
+                <div className="h-px flex-1 bg-gradient-to-r from-yellow-500/30 to-transparent"></div>
+              </div>
+
+              <ul className="space-y-4">
+                {job.requirements?.map((req, index) => (
+                  <li
+                    key={index}
+                    className="flex items-start gap-4 text-gray-400 group"
+                  >
+                    <div className="mt-2 w-2 h-2 rounded-full bg-yellow-500 group-hover:shadow-[0_0_10px_rgba(255,215,0,0.5)] transition-shadow"></div>
+                    <span className="leading-relaxed text-[15px]">{req}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+            {/* Skills */}
+            {job.skills && job.skills.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="card-industrial p-8"
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-10 h-10 rounded bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
+                    <Zap size={20} className="text-yellow-500" />
+                  </div>
+                  <h2 className="text-xl font-bold text-white font-mono tracking-wide">
+                    SKILL_MATRIX
+                  </h2>
+                  <div className="h-px flex-1 bg-gradient-to-r from-yellow-500/30 to-transparent"></div>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {job.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm text-gray-300 hover:border-yellow-500/40 hover:text-yellow-500 transition-all cursor-default"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Right Column - Application */}
+          <div className="lg:col-span-1">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+              className="sticky top-28"
+            >
+              {user && user.role === "student" ? (
+                hasApplied ? (
+                  /* Already Applied State */
+                  <div className="card-industrial p-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-green-500/10 to-transparent"></div>
+
+                    <div className="flex items-center gap-2 mb-6">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="font-mono text-xs text-green-400">APPLICATION_SUBMITTED</span>
+                    </div>
+
+                    <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-lg bg-green-500/10 border border-green-500/30">
+                      <CheckCircle2 size={32} className="text-green-500" />
+                    </div>
+
+                    <h3 className="text-xl font-bold text-white mb-2 text-center">
+                      Already Applied
+                    </h3>
+
+                    <p className="text-sm text-gray-500 mb-6 leading-relaxed text-center">
+                      You have already submitted an application for this position. Track your status in the dashboard.
+                    </p>
+
+                    <Button
+                      onClick={() => navigate("/dashboard")}
+                      className="w-full btn-outline-industrial py-4"
+                    >
+                      VIEW APPLICATION STATUS
+                    </Button>
+                  </div>
+                ) : !showApplication ? (
+                  <div className="card-industrial p-6 relative overflow-hidden">
+                    {/* Corner Accent */}
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-yellow-500/10 to-transparent"></div>
+
+                    {/* Status Indicator */}
+                    <div className="flex items-center gap-2 mb-6">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      <span className="font-mono text-xs text-green-400">SYSTEMS_READY</span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                      <Sparkles size={20} className="text-yellow-500" />
+                      Ready to Apply?
+                    </h3>
+
+                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                      Deploy our AI-powered application system to maximize your chances of success.
+                    </p>
+
+                    {/* Stats Preview */}
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                      <div className="bg-[#111] border border-white/10 rounded p-3 text-center">
+                        <p className="font-mono text-xs text-gray-500 mb-1">MATCH_RATE</p>
+                        <p className="text-lg font-bold text-yellow-500">AI</p>
+                      </div>
+                      <div className="bg-[#111] border border-white/10 rounded p-3 text-center">
+                        <p className="font-mono text-xs text-gray-500 mb-1">OPTIMIZE</p>
+                        <p className="text-lg font-bold text-green-400">CV</p>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={handleApplyClick}
+                      className="w-full btn-primary-industrial py-6 text-base font-bold group"
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        APPLY NOW
+                        <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    </Button>
+
+                    <p className="text-xs text-center text-gray-600 mt-4 font-mono">
+                      // RESUME_ANALYSIS_BEFORE_SUBMIT
+                    </p>
+                  </div>
+                ) : (
+                  <JobApplication
+                    jobId={job._id}
+                    onApplicationSubmit={handleApplicationSubmit}
+                    onCancel={() => setShowApplication(false)}
+                  />
+                )
+              ) : (
+                <div className="card-industrial p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
+                    <Shield size={32} className="text-yellow-500" />
+                  </div>
+                  <p className="text-gray-400 mb-4 text-sm">
+                    Authentication required to access this position.
+                  </p>
+                  <Button
+                    onClick={() => navigate("/login")}
+                    className="w-full btn-outline-industrial"
+                  >
+                    LOGIN TO APPLY
+                  </Button>
+                </div>
+              )}
+
+              {/* Company Quick Info */}
+              <div className="card-industrial p-6 mt-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <TrendingUp size={18} className="text-yellow-500" />
+                  <span className="font-mono text-xs text-gray-500">COMPANY_INTEL</span>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b border-white/5">
+                    <span className="text-sm text-gray-500">Organization</span>
+                    <span className="text-sm text-white font-medium">{job.company?.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-white/5">
+                    <span className="text-sm text-gray-500">Location</span>
+                    <span className="text-sm text-white font-medium">{job.location}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm text-gray-500">Type</span>
+                    <span className="text-sm text-white font-medium">{job.jobType}</span>
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="md:col-span-2 space-y-8">
-              {/* Description */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8"
-              >
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                  Job Description
-                  <div className="h-px flex-1 bg-white/10 ml-4"></div>
-                </h2>
-                <div className="prose prose-invert max-w-none text-gray-400 leading-relaxed whitespace-pre-line">
-                  {job.description}
-                </div>
-              </motion.div>
-
-              {/* Requirements */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8"
-              >
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                  Requirements
-                  <div className="h-px flex-1 bg-white/10 ml-4"></div>
-                </h2>
-                <ul className="space-y-4">
-                  {job.requirements.map((req, index) => (
-                    <li
-                      key={index}
-                      className="flex items-start gap-3 text-gray-400"
-                    >
-                      <div className="mt-1.5 min-w-[6px] h-1.5 rounded-full bg-yellow-500"></div>
-                      <span className="leading-relaxed">{req}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            </div>
-
-            {/* Sidebar / Application */}
-            <div className="md:col-span-1">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="sticky top-24"
-              >
-                {user && user.role === "student" ? (
-                  !showApplication ? (
-                    <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 shadow-2xl">
-                      <h3 className="text-xl font-bold text-white mb-4">
-                        Ready to Apply?
-                      </h3>
-                      <p className="text-sm text-gray-500 mb-6">
-                        Use our AI-powered application process to increase your
-                        chances of getting hired.
-                      </p>
-                      <Button
-                        onClick={handleApplyClick}
-                        className="w-full bg-yellow-500 text-black hover:bg-yellow-400 font-bold py-6 rounded-xl shadow-[0_4px_20px_rgba(234,179,8,0.2)]"
-                      >
-                        Apply Now
-                      </Button>
-                      <p className="text-xs text-center text-gray-600 mt-4 px-4">
-                        You'll be able to review your resume analysis before
-                        submitting.
-                      </p>
-                    </div>
-                  ) : (
-                    <JobApplication
-                      jobId={job._id}
-                      onApplicationSubmit={handleApplicationSubmit}
-                      onCancel={() => setShowApplication(false)}
-                    />
-                  )
-                ) : (
-                  <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 text-center">
-                    <p className="text-gray-400 mb-4">
-                      Login as a student to apply for this position.
-                    </p>
-                    <Button
-                      onClick={() => navigate("/login")}
-                      className="w-full bg-white/10 text-white hover:bg-white/20 border border-white/10"
-                    >
-                      Login to Apply
-                    </Button>
-                  </div>
-                )}
-              </motion.div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

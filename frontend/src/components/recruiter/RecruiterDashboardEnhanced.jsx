@@ -3,7 +3,7 @@
  * Comprehensive recruiter dashboard with real-time analytics
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -54,6 +54,7 @@ import {
   RECRUITER_ANALYTICS_API_END_POINT,
   COMPANY_API_END_POINT,
 } from "@/utils/constant";
+import { supabaseRealtime } from "@/lib/supabase";
 
 // Animated stat card component
 const StatCard = ({
@@ -134,7 +135,7 @@ const PipelineStage = ({ stage, count, conversionRate, color, isLast }) => (
 );
 
 // Activity Item Component
-const ActivityItem = ({ activity }) => {
+const ActivityItem = ({ activity, isNew = false }) => {
   const getActivityIcon = (type) => {
     switch (type) {
       case "new_application":
@@ -151,7 +152,11 @@ const ActivityItem = ({ activity }) => {
   const { icon: Icon, color } = getActivityIcon(activity.type);
 
   return (
-    <div className="flex items-start gap-3 p-3 hover:bg-white/5 rounded-sm transition-colors">
+    <motion.div
+      initial={isNew ? { opacity: 0, x: -20, scale: 0.95 } : false}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      className={`flex items-start gap-3 p-3 hover:bg-white/5 rounded-sm transition-colors ${isNew ? 'bg-[#FFD700]/10 border border-[#FFD700]/30' : ''}`}
+    >
       <div
         className="w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0"
         style={{ backgroundColor: `${color}15` }}
@@ -169,6 +174,9 @@ const ActivityItem = ({ activity }) => {
           <span className="text-sm text-white truncate">
             {activity.applicant?.name}
           </span>
+          {isNew && (
+            <Badge className="bg-[#FFD700] text-black text-[8px] px-1 py-0">NEW</Badge>
+          )}
         </div>
         <p className="text-xs text-gray-500 mt-1">
           {activity.type === "new_application"
@@ -181,19 +189,18 @@ const ActivityItem = ({ activity }) => {
         </p>
       </div>
       <Badge
-        className={`text-[10px] rounded-sm ${
-          activity.status === "hired"
-            ? "bg-[#00FF94]/10 text-[#00FF94]"
-            : activity.status === "rejected"
-              ? "bg-red-500/10 text-red-400"
-              : activity.status === "interview"
-                ? "bg-blue-500/10 text-blue-400"
-                : "bg-[#FFD700]/10 text-[#FFD700]"
-        }`}
+        className={`text-[10px] rounded-sm ${activity.status === "hired"
+          ? "bg-[#00FF94]/10 text-[#00FF94]"
+          : activity.status === "rejected"
+            ? "bg-red-500/10 text-red-400"
+            : activity.status === "interview"
+              ? "bg-blue-500/10 text-blue-400"
+              : "bg-[#FFD700]/10 text-[#FFD700]"
+          }`}
       >
         {activity.status}
       </Badge>
-    </div>
+    </motion.div>
   );
 };
 
@@ -205,10 +212,93 @@ const RecruiterDashboardEnhanced = () => {
   const [funnel, setFunnel] = useState([]);
   const [activities, setActivities] = useState([]);
   const [companyData, setCompanyData] = useState(null);
+  const [newActivityIds, setNewActivityIds] = useState(new Set());
+  const channelRef = useRef(null);
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+
+    // Subscribe to real-time application updates
+    const setupRealtimeSubscription = () => {
+      const companyId = user?.companyId;
+      if (!companyId) return;
+
+      // Channel name based on company ID
+      const channelName = `recruiter-dashboard-${companyId}`;
+
+      channelRef.current = supabaseRealtime.subscribe(channelName, {
+        onBroadcast: {
+          // Listen for new applications
+          new_application: (payload) => {
+            console.log("📬 New application received:", payload);
+
+            // Show toast notification
+            toast.success(`🎉 New Application!`, {
+              description: `${payload.applicantName} applied for ${payload.jobTitle}`,
+              duration: 5000,
+              action: {
+                label: "View",
+                onClick: () => navigate(`/admin/jobs/${payload.jobId}/applicants`),
+              },
+            });
+
+            // Add to activities with "new" flag
+            const newActivity = {
+              type: "new_application",
+              applicant: { name: payload.applicantName },
+              job: payload.jobTitle,
+              status: "pending",
+              timestamp: new Date().toISOString(),
+              _id: payload.applicationId,
+            };
+
+            setActivities(prev => [newActivity, ...prev.slice(0, 9)]);
+            setNewActivityIds(prev => new Set([...prev, payload.applicationId]));
+
+            // Update overview counts
+            setOverview(prev => prev ? {
+              ...prev,
+              totalApplications: (prev.totalApplications || 0) + 1,
+              pendingApplications: (prev.pendingApplications || 0) + 1,
+            } : prev);
+
+            // Update funnel (first stage)
+            setFunnel(prev => {
+              if (prev.length > 0) {
+                const updated = [...prev];
+                updated[0] = { ...updated[0], count: (updated[0].count || 0) + 1 };
+                return updated;
+              }
+              return prev;
+            });
+
+            // Clear "new" flag after 10 seconds
+            setTimeout(() => {
+              setNewActivityIds(prev => {
+                const updated = new Set(prev);
+                updated.delete(payload.applicationId);
+                return updated;
+              });
+            }, 10000);
+          },
+        },
+        onSubscribe: (status) => {
+          if (status === "SUBSCRIBED") {
+            console.log("✅ Subscribed to real-time updates:", channelName);
+          }
+        },
+      });
+    };
+
+    setupRealtimeSubscription();
+
+    // Cleanup on unmount
+    return () => {
+      if (channelRef.current) {
+        supabaseRealtime.removeChannel(channelRef.current);
+      }
+    };
+  }, [user?.companyId]);
 
   const fetchDashboardData = async () => {
     try {
@@ -479,7 +569,11 @@ const RecruiterDashboardEnhanced = () => {
               <div className="space-y-1 max-h-[400px] overflow-y-auto">
                 {activities.length > 0 ? (
                   activities.map((activity, idx) => (
-                    <ActivityItem key={idx} activity={activity} />
+                    <ActivityItem
+                      key={activity._id || idx}
+                      activity={activity}
+                      isNew={newActivityIds.has(activity._id)}
+                    />
                   ))
                 ) : (
                   <div className="text-center py-8">

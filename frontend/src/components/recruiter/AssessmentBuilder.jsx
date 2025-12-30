@@ -261,8 +261,8 @@ const AssessmentBuilder = () => {
                 }}
             />
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#00BFFF]/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#00BFFF]/3 rounded-full blur-[150px]" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#EC4899]/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#EC4899]/3 rounded-full blur-[150px]" />
             </div>
 
             <div className="max-w-7xl mx-auto px-4 py-8 pt-24 relative z-10 min-h-screen pb-20">
@@ -273,7 +273,7 @@ const AssessmentBuilder = () => {
                     className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10"
                 >
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-[#00BFFF] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(0,191,255,0.3)]">
+                        <div className="w-12 h-12 bg-[#EC4899] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(0,191,255,0.3)]">
                             <ClipboardCheck className="w-6 h-6 text-black" />
                         </div>
                         <div>
@@ -293,7 +293,7 @@ const AssessmentBuilder = () => {
                                 <span className="text-[9px] font-mono text-gray-500 uppercase tracking-wider">
                                     Live Assessments
                                 </span>
-                                <span className="text-lg font-bold text-[#00BFFF] leading-none">
+                                <span className="text-lg font-bold text-[#EC4899] leading-none">
                                     {assessments.length}
                                 </span>
                             </div>
@@ -312,7 +312,7 @@ const AssessmentBuilder = () => {
                                 resetForm();
                                 setShowCreateModal(true);
                             }}
-                            className="bg-[#00BFFF] text-black hover:bg-[#00BFFF]/90 rounded-sm font-bold flex items-center gap-2 px-6 h-11"
+                            className="bg-[#EC4899] text-black hover:bg-[#EC4899]/90 rounded-sm font-bold flex items-center gap-2 px-6 h-11"
                         >
                             <Plus className="w-4 h-4" />
                             INITIALIZE NEW
@@ -331,13 +331,13 @@ const AssessmentBuilder = () => {
                             <TabsList className="bg-black/40 border border-white/5 p-1 rounded-sm h-11">
                                 <TabsTrigger
                                     value="company"
-                                    className="rounded-sm data-[state=active]:bg-[#00BFFF] data-[state=active]:text-black text-xs font-bold uppercase py-2 px-6"
+                                    className="rounded-sm data-[state=active]:bg-[#EC4899] data-[state=active]:text-black text-xs font-bold uppercase py-2 px-6"
                                 >
                                     My Assessments
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="library"
-                                    className="rounded-sm data-[state=active]:bg-[#00BFFF] data-[state=active]:text-black text-xs font-bold uppercase py-2 px-6"
+                                    className="rounded-sm data-[state=active]:bg-[#EC4899] data-[state=active]:text-black text-xs font-bold uppercase py-2 px-6"
                                 >
                                     Public Library
                                 </TabsTrigger>
@@ -348,7 +348,7 @@ const AssessmentBuilder = () => {
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                                     <Input
                                         placeholder="SEARCH MODULES..."
-                                        className="pl-10 bg-black/40 border-white/10 text-white font-mono text-xs rounded-sm focus:border-[#00BFFF]/50 h-11"
+                                        className="pl-10 bg-black/40 border-white/10 text-white font-mono text-xs rounded-sm focus:border-[#EC4899]/50 h-11"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -356,7 +356,7 @@ const AssessmentBuilder = () => {
                                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                                     <SelectTrigger className="w-48 bg-black/40 border-white/10 text-xs font-mono rounded-sm h-11">
                                         <div className="flex items-center gap-2">
-                                            <Filter className="w-3 h-3 text-[#00BFFF]" />
+                                            <Filter className="w-3 h-3 text-[#EC4899]" />
                                             <SelectValue placeholder="CATEGORY" />
                                         </div>
                                     </SelectTrigger>
@@ -375,7 +375,7 @@ const AssessmentBuilder = () => {
                             <TabsContent value="company" className="mt-8 border-none p-0 outline-none">
                                 {loading ? (
                                     <div className="flex flex-col items-center justify-center py-24">
-                                        <div className="w-10 h-10 border-2 border-[#00BFFF]/20 border-t-[#00BFFF] rounded-full animate-spin mb-4" />
+                                        <div className="w-10 h-10 border-2 border-[#EC4899]/20 border-t-[#EC4899] rounded-full animate-spin mb-4" />
                                         <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">
                                             Retrieving Secure Modules...
                                         </p>
@@ -397,7 +397,7 @@ const AssessmentBuilder = () => {
                                         </p>
                                         <Button
                                             variant="outline"
-                                            className="border-white/10 text-gray-500 hover:text-[#00BFFF] hover:border-[#00BFFF]/30 rounded-sm font-mono text-xs"
+                                            className="border-white/10 text-gray-500 hover:text-[#EC4899] hover:border-[#EC4899]/30 rounded-sm font-mono text-xs"
                                             onClick={() => {
                                                 resetForm();
                                                 setShowCreateModal(true);
@@ -424,7 +424,7 @@ const AssessmentBuilder = () => {
                             <TabsContent value="library" className="mt-8 border-none p-0 outline-none">
                                 {loading ? (
                                     <div className="flex flex-col items-center justify-center py-24">
-                                        <div className="w-10 h-10 border-2 border-[#00BFFF]/20 border-t-[#00BFFF] rounded-full animate-spin mb-4" />
+                                        <div className="w-10 h-10 border-2 border-[#EC4899]/20 border-t-[#EC4899] rounded-full animate-spin mb-4" />
                                         <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">
                                             Accessing Global Repository...
                                         </p>
@@ -454,11 +454,11 @@ const AssessmentBuilder = () => {
                 {showCreateModal && (
                     <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
                         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-[#111111] border-white/10 text-white font-['Space_Grotesk',sans-serif] custom-scrollbar">
-                            <div className="absolute top-0 right-0 w-12 h-12 border-t border-r border-[#00BFFF]/30" />
+                            <div className="absolute top-0 right-0 w-12 h-12 border-t border-r border-[#EC4899]/30" />
 
                             <DialogHeader>
                                 <DialogTitle className="text-2xl font-bold uppercase tracking-tight flex items-center gap-3">
-                                    <Activity className="w-6 h-6 text-[#00BFFF]" />
+                                    <Activity className="w-6 h-6 text-[#EC4899]" />
                                     {editingAssessment ? "Modify Assessment" : "Module Initialization"}
                                 </DialogTitle>
                                 <DialogDescription className="text-gray-500 font-mono text-xs uppercase">
@@ -473,7 +473,7 @@ const AssessmentBuilder = () => {
                                         <Label className="text-[10px] font-mono text-gray-500 uppercase">Assessment Title *</Label>
                                         <Input
                                             placeholder="e.g., SENIOR SYSTEM ARCHITECT EVALUATION"
-                                            className="bg-black/40 border-white/10 uppercase font-bold text-sm h-11 focus:border-[#00BFFF]/50"
+                                            className="bg-black/40 border-white/10 uppercase font-bold text-sm h-11 focus:border-[#EC4899]/50"
                                             value={formData.title}
                                             onChange={(e) => setFormData({ ...formData, title: e.target.value.toUpperCase() })}
                                         />
@@ -500,7 +500,7 @@ const AssessmentBuilder = () => {
                                         <Label className="text-[10px] font-mono text-gray-500 uppercase">Strategic Description</Label>
                                         <Textarea
                                             placeholder="DEFINE THE ASSESSMENT CORE COMPETENCIES AND GOALS..."
-                                            className="bg-black/40 border-white/10 font-mono text-xs focus:border-[#00BFFF]/50"
+                                            className="bg-black/40 border-white/10 font-mono text-xs focus:border-[#EC4899]/50"
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                             rows={2}
@@ -516,7 +516,7 @@ const AssessmentBuilder = () => {
                                         </Label>
                                         <Input
                                             type="number"
-                                            className="bg-black/40 border-white/10 font-bold h-11 focus:border-[#00BFFF]/50"
+                                            className="bg-black/40 border-white/10 font-bold h-11 focus:border-[#EC4899]/50"
                                             value={formData.duration}
                                             onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 60 })}
                                         />
@@ -538,7 +538,7 @@ const AssessmentBuilder = () => {
                                             <Switch
                                                 checked={formData.isPublic}
                                                 onCheckedChange={(v) => setFormData({ ...formData, isPublic: v })}
-                                                className="data-[state=checked]:bg-[#00BFFF]"
+                                                className="data-[state=checked]:bg-[#EC4899]"
                                             />
                                             <span className="text-[10px] font-mono text-gray-400">
                                                 {formData.isPublic ? "ENABLED" : "DISABLED"}
@@ -551,12 +551,12 @@ const AssessmentBuilder = () => {
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-between border-b border-white/10 pb-2">
                                         <h3 className="font-bold uppercase tracking-widest text-sm flex items-center gap-2">
-                                            <Code className="w-4 h-4 text-[#00BFFF]" />
+                                            <Code className="w-4 h-4 text-[#EC4899]" />
                                             Question Workspace
                                         </h3>
                                         <div className="flex items-center gap-4 text-[10px] font-mono">
                                             <span className="text-gray-500">COUNT: <span className="text-white">{formData.questions.length}</span></span>
-                                            <span className="text-gray-500">TOTAL SCORE: <span className="text-[#00BFFF]">{totalPoints} PTS</span></span>
+                                            <span className="text-gray-500">TOTAL SCORE: <span className="text-[#EC4899]">{totalPoints} PTS</span></span>
                                         </div>
                                     </div>
 
@@ -578,7 +578,7 @@ const AssessmentBuilder = () => {
                                                         <p className="text-sm font-medium text-gray-200 truncate">{q.question}</p>
                                                         <div className="flex items-center gap-2 mt-1">
                                                             <Badge variant="outline" className="text-[8px] h-4 border-white/10 text-gray-500 uppercase">{q.type}</Badge>
-                                                            <Badge variant="outline" className="text-[8px] h-4 border-[#00BFFF]/20 text-[#00BFFF] uppercase">{q.difficulty}</Badge>
+                                                            <Badge variant="outline" className="text-[8px] h-4 border-[#EC4899]/20 text-[#EC4899] uppercase">{q.difficulty}</Badge>
                                                             <span className="text-[9px] font-mono text-gray-600">{q.points} PTS</span>
                                                         </div>
                                                     </div>
@@ -597,7 +597,7 @@ const AssessmentBuilder = () => {
 
                                     {/* Add New Question Form */}
                                     <div className="bg-black/40 border border-white/10 p-6 rounded-sm relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-1 h-full bg-[#00BFFF]/30" />
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-[#EC4899]/30" />
                                         <h4 className="text-[10px] font-mono text-gray-500 uppercase mb-4 tracking-tighter">Initialize Sub-Module (Add Question)</h4>
 
                                         <div className="grid gap-4 md:grid-cols-2 mb-4">
@@ -640,7 +640,7 @@ const AssessmentBuilder = () => {
                                                     <Label className="text-[9px] font-mono text-gray-600 uppercase text-center">Weighting (Points)</Label>
                                                     <Input
                                                         type="number"
-                                                        className="bg-[#111111] border-white/5 h-9 text-xs font-bold focus:border-[#00BFFF]/30"
+                                                        className="bg-[#111111] border-white/5 h-9 text-xs font-bold focus:border-[#EC4899]/30"
                                                         value={currentQuestion.points}
                                                         onChange={(e) => setCurrentQuestion({ ...currentQuestion, points: parseInt(e.target.value) || 10 })}
                                                     />
@@ -652,7 +652,7 @@ const AssessmentBuilder = () => {
                                                     <Label className="text-[9px] font-mono text-gray-600 uppercase">Question Prompt</Label>
                                                     <Textarea
                                                         placeholder="OPERATIONAL PROMPT TEXT..."
-                                                        className="bg-[#111111] border-white/5 font-mono text-xs focus:border-[#00BFFF]/30 h-[100px]"
+                                                        className="bg-[#111111] border-white/5 font-mono text-xs focus:border-[#EC4899]/30 h-[100px]"
                                                         value={currentQuestion.question}
                                                         onChange={(e) => setCurrentQuestion({ ...currentQuestion, question: e.target.value })}
                                                     />
@@ -674,13 +674,13 @@ const AssessmentBuilder = () => {
                                                                     checked={currentQuestion.correctAnswer === i}
                                                                     onChange={() => setCurrentQuestion({ ...currentQuestion, correctAnswer: i })}
                                                                 />
-                                                                <div className="w-5 h-5 rounded-sm border border-white/10 peer-checked:bg-[#00BFFF] peer-checked:border-[#00BFFF] transition-all flex items-center justify-center">
+                                                                <div className="w-5 h-5 rounded-sm border border-white/10 peer-checked:bg-[#EC4899] peer-checked:border-[#EC4899] transition-all flex items-center justify-center">
                                                                     {currentQuestion.correctAnswer === i && <CheckCircle className="w-3 h-3 text-black" />}
                                                                 </div>
                                                             </div>
                                                             <Input
                                                                 placeholder={`OPTION VECTOR ${i + 1}`}
-                                                                className="bg-[#111111] border-white/5 h-9 text-xs font-mono focus:border-[#00BFFF]/30 flex-1"
+                                                                className="bg-[#111111] border-white/5 h-9 text-xs font-mono focus:border-[#EC4899]/30 flex-1"
                                                                 value={opt}
                                                                 onChange={(e) => {
                                                                     const newOpts = [...currentQuestion.options];
@@ -696,7 +696,7 @@ const AssessmentBuilder = () => {
 
                                         <Button
                                             onClick={addQuestion}
-                                            className="w-full mt-8 bg-white/5 hover:bg-[#00BFFF]/10 border border-white/5 hover:border-[#00BFFF]/30 text-gray-400 hover:text-[#00BFFF] rounded-sm font-bold text-xs h-11 transition-all"
+                                            className="w-full mt-8 bg-white/5 hover:bg-[#EC4899]/10 border border-white/5 hover:border-[#EC4899]/30 text-gray-400 hover:text-[#EC4899] rounded-sm font-bold text-xs h-11 transition-all"
                                         >
                                             <Plus className="h-4 w-4 mr-2" /> COMMIT QUESTION TO MODULE
                                         </Button>
@@ -714,7 +714,7 @@ const AssessmentBuilder = () => {
                                 </Button>
                                 <Button
                                     onClick={handleCreate}
-                                    className="bg-[#00BFFF] text-black hover:bg-[#00BFFF]/90 font-bold px-12 h-11 rounded-sm shadow-[0_0_20px_rgba(0,191,255,0.2)]"
+                                    className="bg-[#EC4899] text-black hover:bg-[#EC4899]/90 font-bold px-12 h-11 rounded-sm shadow-[0_0_20px_rgba(0,191,255,0.2)]"
                                 >
                                     {editingAssessment ? "DEPLOY UPDATES" : "FINALIZE & DEPLOY MODULE"}
                                 </Button>
@@ -750,9 +750,9 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
         whileHover={{ y: -5 }}
         className="group relative"
     >
-        <Card className="bg-[#111111]/80 backdrop-blur-xl border border-white/10 group-hover:border-[#00BFFF]/30 transition-all rounded-sm overflow-hidden h-full flex flex-col">
+        <Card className="bg-[#111111]/80 backdrop-blur-xl border border-white/10 group-hover:border-[#EC4899]/30 transition-all rounded-sm overflow-hidden h-full flex flex-col">
             {/* Corner Accent */}
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#00BFFF]/30 transition-all" />
+            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#EC4899]/30 transition-all" />
 
             <CardHeader className="pb-3 px-5">
                 <div className="flex justify-between items-start gap-4">
@@ -761,7 +761,7 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
                             {assessment.title}
                         </h3>
                         <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="bg-[#00BFFF]/5 border-[#00BFFF]/20 text-[#00BFFF] text-[9px] font-mono rounded-sm h-4">
+                            <Badge variant="outline" className="bg-[#EC4899]/5 border-[#EC4899]/20 text-[#EC4899] text-[9px] font-mono rounded-sm h-4">
                                 {assessment.category.toUpperCase()}
                             </Badge>
                             <div className="flex items-center gap-1 text-[10px] text-gray-500 font-mono">
@@ -774,8 +774,8 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
                             </div>
                         </div>
                     </div>
-                    <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center group-hover:bg-[#00BFFF]/10 transition-colors">
-                        <Code className="w-5 h-5 text-gray-400 group-hover:text-[#00BFFF]" />
+                    <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center group-hover:bg-[#EC4899]/10 transition-colors">
+                        <Code className="w-5 h-5 text-gray-400 group-hover:text-[#EC4899]" />
                     </div>
                 </div>
             </CardHeader>
@@ -812,13 +812,13 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
                     </div>
 
                     <div className="flex gap-2">
-                        <Button size="sm" className="flex-1 bg-[#00BFFF] text-black hover:bg-[#00BFFF]/90 rounded-sm font-bold text-xs gap-2">
+                        <Button size="sm" className="flex-1 bg-[#EC4899] text-black hover:bg-[#EC4899]/90 rounded-sm font-bold text-xs gap-2">
                             <Send className="h-3 w-3" /> ASSIGN
                         </Button>
 
                         {showActions && (
                             <div className="flex gap-1">
-                                <Button size="sm" variant="outline" className="border-white/10 hover:border-[#00BFFF]/30 h-8 w-8 p-0" onClick={onEdit}>
+                                <Button size="sm" variant="outline" className="border-white/10 hover:border-[#EC4899]/30 h-8 w-8 p-0" onClick={onEdit}>
                                     <Edit className="h-3.5 w-3.5 text-gray-400" />
                                 </Button>
                                 <Button size="sm" variant="outline" className="border-white/10 hover:border-red-500/30 h-8 w-8 p-0" onClick={onDelete}>

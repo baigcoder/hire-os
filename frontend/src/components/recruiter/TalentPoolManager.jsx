@@ -177,8 +177,8 @@ const TalentPoolManager = () => {
                 }}
             />
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#00BFFF]/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#00BFFF]/3 rounded-full blur-[150px]" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#3B82F6]/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#3B82F6]/3 rounded-full blur-[150px]" />
             </div>
 
             <div className="max-w-7xl mx-auto px-4 py-8 pt-24 relative z-10 h-screen flex flex-col">
@@ -189,7 +189,7 @@ const TalentPoolManager = () => {
                     className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8"
                 >
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-[#00BFFF] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(0,191,255,0.3)]">
+                        <div className="w-12 h-12 bg-[#3B82F6] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(0,191,255,0.3)]">
                             <Users className="w-6 h-6 text-black" />
                         </div>
                         <div>
@@ -208,13 +208,13 @@ const TalentPoolManager = () => {
                             <span className="text-[10px] font-mono text-gray-400 uppercase">
                                 Active Pools
                             </span>
-                            <span className="text-sm font-bold text-[#00BFFF]">
+                            <span className="text-sm font-bold text-[#3B82F6]">
                                 {pools.length}
                             </span>
                         </div>
                         <Button
                             onClick={() => setShowCreateModal(true)}
-                            className="bg-[#00BFFF] text-black hover:bg-[#00BFFF]/90 rounded-sm font-bold flex items-center gap-2"
+                            className="bg-[#3B82F6] text-black hover:bg-[#3B82F6]/90 rounded-sm font-bold flex items-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
                             CREATE POOL
@@ -238,7 +238,7 @@ const TalentPoolManager = () => {
                                 </span>
                                 <Badge
                                     variant="outline"
-                                    className="border-[#00BFFF]/30 text-[#00BFFF] text-[10px]"
+                                    className="border-[#3B82F6]/30 text-[#3B82F6] text-[10px]"
                                 >
                                     {pools.length} TOTAL
                                 </Badge>
@@ -250,7 +250,7 @@ const TalentPoolManager = () => {
                                         key={pool._id}
                                         onClick={() => setActivePool(pool)}
                                         className={`w-full text-left p-3 rounded-sm flex items-center gap-3 transition-all group relative ${activePool?._id === pool._id
-                                            ? "bg-[#00BFFF]/10 border-l-2 border-[#00BFFF]"
+                                            ? "bg-[#3B82F6]/10 border-l-2 border-[#3B82F6]"
                                             : "hover:bg-white/5 border-l-2 border-transparent"
                                             }`}
                                     >
@@ -261,7 +261,7 @@ const TalentPoolManager = () => {
                                         <div className="flex-1 min-w-0">
                                             <p
                                                 className={`text-sm font-bold truncate ${activePool?._id === pool._id
-                                                    ? "text-[#00BFFF]"
+                                                    ? "text-[#3B82F6]"
                                                     : "text-gray-300"
                                                     }`}
                                             >
@@ -272,7 +272,7 @@ const TalentPoolManager = () => {
                                             </p>
                                         </div>
                                         {activePool?._id === pool._id && (
-                                            <ChevronRight className="w-3 h-3 text-[#00BFFF]" />
+                                            <ChevronRight className="w-3 h-3 text-[#3B82F6]" />
                                         )}
                                     </button>
                                 ))}
@@ -287,7 +287,7 @@ const TalentPoolManager = () => {
                                 )}
                                 {loading && (
                                     <div className="flex items-center justify-center py-12">
-                                        <div className="w-6 h-6 border-2 border-[#00BFFF]/20 border-t-[#00BFFF] rounded-full animate-spin" />
+                                        <div className="w-6 h-6 border-2 border-[#3B82F6]/20 border-t-[#3B82F6] rounded-full animate-spin" />
                                     </div>
                                 )}
                             </div>
@@ -303,13 +303,13 @@ const TalentPoolManager = () => {
                     >
                         <div className="bg-[#111111]/80 backdrop-blur-xl border border-white/10 rounded-sm flex-1 flex flex-col relative overflow-hidden">
                             {/* Corner Accents */}
-                            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#00BFFF]/30" />
-                            <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#00BFFF]/30" />
+                            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#3B82F6]/30" />
+                            <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#3B82F6]/30" />
 
                             {!activePool ? (
                                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                                     <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
-                                        <Users className="h-10 w-10 text-[#00BFFF]/40" />
+                                        <Users className="h-10 w-10 text-[#3B82F6]/40" />
                                     </div>
                                     <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-wide">
                                         Pool Not Selected
@@ -321,7 +321,7 @@ const TalentPoolManager = () => {
                                     <Button
                                         onClick={() => setShowCreateModal(true)}
                                         variant="outline"
-                                        className="border-white/10 hover:border-[#00BFFF]/30 text-gray-400 hover:text-[#00BFFF] rounded-sm font-mono text-xs"
+                                        className="border-white/10 hover:border-[#3B82F6]/30 text-gray-400 hover:text-[#3B82F6] rounded-sm font-mono text-xs"
                                     >
                                         + INITIALIZE NEW POOL
                                     </Button>
@@ -348,7 +348,7 @@ const TalentPoolManager = () => {
                                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                                                 <Input
                                                     placeholder="SEARCH CANDIDATES..."
-                                                    className="pl-9 w-64 bg-black/40 border-white/10 text-white font-mono text-xs rounded-sm focus:border-[#00BFFF]/50"
+                                                    className="pl-9 w-64 bg-black/40 border-white/10 text-white font-mono text-xs rounded-sm focus:border-[#3B82F6]/50"
                                                     value={searchQuery}
                                                     onChange={(e) => setSearchQuery(e.target.value)}
                                                 />
@@ -356,7 +356,7 @@ const TalentPoolManager = () => {
                                             <Select value={statusFilter} onValueChange={setStatusFilter}>
                                                 <SelectTrigger className="w-40 bg-black/40 border-white/10 text-xs font-mono rounded-sm">
                                                     <div className="flex items-center gap-2">
-                                                        <Filter className="w-3 h-3 text-[#00BFFF]" />
+                                                        <Filter className="w-3 h-3 text-[#3B82F6]" />
                                                         <SelectValue />
                                                     </div>
                                                 </SelectTrigger>
@@ -394,13 +394,13 @@ const TalentPoolManager = () => {
                                                             initial={{ opacity: 0, y: 10 }}
                                                             animate={{ opacity: 1, y: 0 }}
                                                             transition={{ delay: idx * 0.05 }}
-                                                            className="group relative flex items-center gap-4 p-4 bg-white/[0.02] border border-white/5 hover:border-[#00BFFF]/30 hover:bg-white/[0.04] rounded-sm transition-all"
+                                                            className="group relative flex items-center gap-4 p-4 bg-white/[0.02] border border-white/5 hover:border-[#3B82F6]/30 hover:bg-white/[0.04] rounded-sm transition-all"
                                                         >
-                                                            <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10 group-hover:border-[#00BFFF]/30 opacity-0 group-hover:opacity-100 transition-all" />
+                                                            <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10 group-hover:border-[#3B82F6]/30 opacity-0 group-hover:opacity-100 transition-all" />
 
                                                             <Avatar className="h-12 w-12 border border-white/10 rounded-sm">
                                                                 <AvatarImage src={candidate.user?.profile?.profilePhoto} />
-                                                                <AvatarFallback className="bg-[#111111] text-[#00BFFF] font-bold rounded-sm">
+                                                                <AvatarFallback className="bg-[#111111] text-[#3B82F6] font-bold rounded-sm">
                                                                     {candidate.user?.fullname?.charAt(0)}
                                                                 </AvatarFallback>
                                                             </Avatar>
@@ -410,7 +410,7 @@ const TalentPoolManager = () => {
                                                                     <h4 className="font-bold text-gray-100 truncate group-hover:text-white transition-colors">
                                                                         {candidate.user?.fullname}
                                                                     </h4>
-                                                                    <Badge className="bg-[#00BFFF]/10 text-[#00BFFF] border-[#00BFFF]/20 rounded-sm text-[10px] uppercase h-5 font-mono">
+                                                                    <Badge className="bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20 rounded-sm text-[10px] uppercase h-5 font-mono">
                                                                         {candidate.status.replace("_", " ")}
                                                                     </Badge>
                                                                 </div>
@@ -459,7 +459,7 @@ const TalentPoolManager = () => {
                                                                     <Button
                                                                         size="sm"
                                                                         variant="ghost"
-                                                                        className="h-8 w-8 p-0 hover:bg-white/5 hover:text-[#00BFFF]"
+                                                                        className="h-8 w-8 p-0 hover:bg-white/5 hover:text-[#3B82F6]"
                                                                         onClick={() => { setSelectedCandidate(candidate); setShowNoteModal(true); }}
                                                                         title="ADD NOTE"
                                                                     >
@@ -473,10 +473,10 @@ const TalentPoolManager = () => {
                                                                             </Button>
                                                                         </DropdownMenuTrigger>
                                                                         <DropdownMenuContent align="end" className="bg-[#111111] border-white/10 text-white font-mono">
-                                                                            <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-[#00BFFF]/10 focus:text-[#00BFFF]">
+                                                                            <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-[#3B82F6]/10 focus:text-[#3B82F6]">
                                                                                 <Eye className="h-4 w-4" /> VIEW PROFILE
                                                                             </DropdownMenuItem>
-                                                                            <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-[#00BFFF]/10 focus:text-[#00BFFF]">
+                                                                            <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-[#3B82F6]/10 focus:text-[#3B82F6]">
                                                                                 <Mail className="h-4 w-4" /> SEND EMAIL
                                                                             </DropdownMenuItem>
                                                                             <DropdownMenuItem
@@ -508,10 +508,10 @@ const TalentPoolManager = () => {
                 {showCreateModal && (
                     <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
                         <DialogContent className="bg-[#111111] border-white/10 text-white font-['Space_Grotesk',sans-serif] sm:max-w-[500px]">
-                            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#00BFFF]/30" />
+                            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#3B82F6]/30" />
                             <DialogHeader>
                                 <DialogTitle className="text-xl font-bold uppercase tracking-wide flex items-center gap-2">
-                                    <FolderPlus className="w-5 h-5 text-[#00BFFF]" />
+                                    <FolderPlus className="w-5 h-5 text-[#3B82F6]" />
                                     Initialize Talent Pool
                                 </DialogTitle>
                                 <DialogDescription className="text-gray-500 font-mono text-xs uppercase">
@@ -526,7 +526,7 @@ const TalentPoolManager = () => {
                                         placeholder="e.g., SENIOR BACKEND ENGINEERS"
                                         value={newPool.name}
                                         onChange={(e) => setNewPool({ ...newPool, name: e.target.value.toUpperCase() })}
-                                        className="bg-black/40 border-white/10 uppercase font-bold text-sm h-11 focus:border-[#00BFFF]/50"
+                                        className="bg-black/40 border-white/10 uppercase font-bold text-sm h-11 focus:border-[#3B82F6]/50"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -535,7 +535,7 @@ const TalentPoolManager = () => {
                                         placeholder="DEFINE THE PURPOSE AND CRITERIA FOR THIS POOL..."
                                         value={newPool.description}
                                         onChange={(e) => setNewPool({ ...newPool, description: e.target.value })}
-                                        className="bg-black/40 border-white/10 font-mono text-xs rows-3 focus:border-[#00BFFF]/50 min-h-[100px]"
+                                        className="bg-black/40 border-white/10 font-mono text-xs rows-3 focus:border-[#3B82F6]/50 min-h-[100px]"
                                     />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
@@ -558,7 +558,7 @@ const TalentPoolManager = () => {
                                 <Button variant="outline" onClick={() => setShowCreateModal(false)} className="border-white/10 text-gray-400 font-mono text-xs">
                                     ABORT
                                 </Button>
-                                <Button onClick={createPool} className="bg-[#00BFFF] text-black hover:bg-[#00BFFF]/90 font-bold px-8">
+                                <Button onClick={createPool} className="bg-[#3B82F6] text-black hover:bg-[#3B82F6]/90 font-bold px-8">
                                     DEPICT POOL
                                 </Button>
                             </DialogFooter>
@@ -570,10 +570,10 @@ const TalentPoolManager = () => {
                 {showNoteModal && (
                     <Dialog open={showNoteModal} onOpenChange={setShowNoteModal}>
                         <DialogContent className="bg-[#111111] border-white/10 text-white font-['Space_Grotesk',sans-serif]">
-                            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#00BFFF]/30" />
+                            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#3B82F6]/30" />
                             <DialogHeader>
                                 <DialogTitle className="text-xl font-bold uppercase tracking-wide flex items-center gap-2">
-                                    <MessageSquare className="w-5 h-5 text-[#00BFFF]" />
+                                    <MessageSquare className="w-5 h-5 text-[#3B82F6]" />
                                     Log Candidate Interaction
                                 </DialogTitle>
                                 <DialogDescription className="text-gray-500 font-mono text-xs uppercase">
@@ -603,7 +603,7 @@ const TalentPoolManager = () => {
                                         rows={5}
                                         value={noteContent}
                                         onChange={(e) => setNoteContent(e.target.value)}
-                                        className="bg-black/40 border-white/10 font-mono text-xs focus:border-[#00BFFF]/50"
+                                        className="bg-black/40 border-white/10 font-mono text-xs focus:border-[#3B82F6]/50"
                                     />
                                 </div>
                             </div>
@@ -612,7 +612,7 @@ const TalentPoolManager = () => {
                                 <Button variant="outline" onClick={() => setShowNoteModal(false)} className="border-white/10 text-gray-400 font-mono text-xs">
                                     DISCARD
                                 </Button>
-                                <Button onClick={addNote} className="bg-[#00BFFF] text-black hover:bg-[#00BFFF]/90 font-bold px-8">
+                                <Button onClick={addNote} className="bg-[#3B82F6] text-black hover:bg-[#3B82F6]/90 font-bold px-8">
                                     COMMIT LOG
                                 </Button>
                             </DialogFooter>

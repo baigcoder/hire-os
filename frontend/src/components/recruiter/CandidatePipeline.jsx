@@ -87,7 +87,7 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="relative p-4 bg-[#0A0A0A] border border-white/10 rounded-sm hover:border-[#FFD700]/30 transition-all cursor-pointer group"
+      className="relative p-4 bg-[#0A0A0A] border border-white/10 rounded-sm hover:border-[#8B5CF6]/30 transition-all cursor-pointer group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onSelect(application)}
@@ -97,13 +97,13 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
         <div className="absolute top-0 left-0 w-1 h-full bg-red-500 rounded-l-sm" />
       )}
       {application.priority === "urgent" && (
-        <div className="absolute top-0 left-0 w-1 h-full bg-[#FFD700] rounded-l-sm animate-pulse" />
+        <div className="absolute top-0 left-0 w-1 h-full bg-[#8B5CF6] rounded-l-sm animate-pulse" />
       )}
 
       <div className="flex items-start gap-3">
         <Avatar className="w-10 h-10 rounded-sm">
           <AvatarImage src={application.applicant?.profile?.profilePhoto} />
-          <AvatarFallback className="rounded-sm bg-[#FFD700]/10 text-[#FFD700] font-bold">
+          <AvatarFallback className="rounded-sm bg-[#8B5CF6]/10 text-[#8B5CF6] font-bold">
             {application.applicant?.fullname?.[0] || "U"}
           </AvatarFallback>
         </Avatar>
@@ -198,7 +198,7 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
       {/* Flags */}
       <div className="absolute top-2 right-2 flex gap-1">
         {application.isStarred && (
-          <Star className="w-3 h-3 text-[#FFD700] fill-[#FFD700]" />
+          <Star className="w-3 h-3 text-[#8B5CF6] fill-[#8B5CF6]" />
         )}
         {application.isFlagged && (
           <Flag className="w-3 h-3 text-red-400 fill-red-400" />
@@ -238,7 +238,7 @@ const PipelineColumn = ({
 
   return (
     <div
-      className={`flex-shrink-0 w-80 bg-[#111111] border rounded-sm transition-colors ${isDragOver ? "border-[#FFD700]/50 bg-[#FFD700]/5" : "border-white/10"
+      className={`flex-shrink-0 w-80 bg-[#111111] border rounded-sm transition-colors ${isDragOver ? "border-[#8B5CF6]/50 bg-[#8B5CF6]/5" : "border-white/10"
         }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -408,10 +408,10 @@ const CandidatePipeline = () => {
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-[#FFD700]/30 rounded-sm" />
-            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#FFD700] rounded-sm animate-spin" />
+            <div className="w-16 h-16 border-2 border-[#8B5CF6]/30 rounded-sm" />
+            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#8B5CF6] rounded-sm animate-spin" />
           </div>
-          <p className="text-[#FFD700]/70 font-mono text-sm uppercase tracking-wider">
+          <p className="text-[#8B5CF6]/70 font-mono text-sm uppercase tracking-wider">
             Loading Pipeline...
           </p>
         </div>
@@ -497,7 +497,7 @@ const CandidatePipeline = () => {
             </SelectContent>
           </Select>
 
-          <Badge className="bg-[#FFD700]/10 text-[#FFD700] font-mono">
+          <Badge className="bg-[#8B5CF6]/10 text-[#8B5CF6] font-mono">
             {getFilteredApplications().length} candidates
           </Badge>
         </motion.div>
@@ -560,7 +560,7 @@ const CandidatePipeline = () => {
                     <AvatarImage
                       src={selectedApplication.applicant?.profile?.profilePhoto}
                     />
-                    <AvatarFallback className="rounded-sm bg-[#FFD700]/10 text-[#FFD700] text-xl font-bold">
+                    <AvatarFallback className="rounded-sm bg-[#8B5CF6]/10 text-[#8B5CF6] text-xl font-bold">
                       {selectedApplication.applicant?.fullname?.[0] || "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -604,7 +604,7 @@ const CandidatePipeline = () => {
 
                 {/* Actions */}
                 <div className="grid grid-cols-2 gap-3">
-                  <Button className="bg-[#FFD700] text-black hover:bg-[#FFE44D]">
+                  <Button className="bg-[#8B5CF6] text-black hover:bg-[#FFE44D]">
                     <Mail className="w-4 h-4 mr-2" /> Email
                   </Button>
                   <Button

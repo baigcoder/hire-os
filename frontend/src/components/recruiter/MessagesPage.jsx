@@ -401,7 +401,7 @@ const RecruiterMessagesPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFD700]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22C55E]" />
       </div>
     );
   }
@@ -418,7 +418,7 @@ const RecruiterMessagesPage = () => {
           <div className="p-4 border-b border-white/10">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-lg font-bold uppercase tracking-wider flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-[#FFD700]" />
+                <MessageSquare className="w-5 h-5 text-[#22C55E]" />
                 Messages
                 {isConnected && (
                   <span
@@ -455,23 +455,23 @@ const RecruiterMessagesPage = () => {
             {/* CEO Section (For Recruiters) */}
             {filteredCeoContact && (
               <div>
-                <div className="px-4 py-2 bg-[#FFD700]/5 flex items-center gap-2">
-                  <Crown className="w-3 h-3 text-[#FFD700]" />
-                  <span className="text-[10px] text-[#FFD700] uppercase tracking-wider font-bold">
+                <div className="px-4 py-2 bg-[#22C55E]/5 flex items-center gap-2">
+                  <Crown className="w-3 h-3 text-[#22C55E]" />
+                  <span className="text-[10px] text-[#22C55E] uppercase tracking-wider font-bold">
                     Company Admin
                   </span>
                 </div>
                 <button
                   onClick={() => handleSelectContact(filteredCeoContact)}
                   className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${activeContact?._id === filteredCeoContact._id
-                    ? "bg-[#FFD700]/10 border-[#FFD700]"
+                    ? "bg-[#22C55E]/10 border-[#22C55E]"
                     : "border-transparent hover:bg-white/5"
                     }`}
                 >
                   <div className="relative">
-                    <Avatar className="h-12 w-12 border-2 border-[#FFD700]/30">
+                    <Avatar className="h-12 w-12 border-2 border-[#22C55E]/30">
                       <AvatarImage src={filteredCeoContact.profile?.profilePhoto} />
-                      <AvatarFallback className="bg-[#FFD700]/10 text-[#FFD700] font-bold text-lg">
+                      <AvatarFallback className="bg-[#22C55E]/10 text-[#22C55E] font-bold text-lg">
                         {filteredCeoContact.fullname?.charAt(0) || "C"}
                       </AvatarFallback>
                     </Avatar>
@@ -494,9 +494,9 @@ const RecruiterMessagesPage = () => {
             {/* Team Members Section (For Admin) */}
             {filteredTeamMembers.length > 0 && (
               <div>
-                <div className="px-4 py-2 bg-[#FFD700]/5 flex items-center gap-2 mt-2">
-                  <Terminal className="w-3 h-3 text-[#FFD700]" />
-                  <span className="text-[10px] text-[#FFD700] uppercase tracking-wider font-bold">
+                <div className="px-4 py-2 bg-[#22C55E]/5 flex items-center gap-2 mt-2">
+                  <Terminal className="w-3 h-3 text-[#22C55E]" />
+                  <span className="text-[10px] text-[#22C55E] uppercase tracking-wider font-bold">
                     Team Members ({filteredTeamMembers.length})
                   </span>
                 </div>
@@ -505,14 +505,14 @@ const RecruiterMessagesPage = () => {
                     key={member._id}
                     onClick={() => handleSelectContact(member)}
                     className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${activeContact?._id === member._id
-                      ? "bg-[#FFD700]/10 border-[#FFD700]"
+                      ? "bg-[#22C55E]/10 border-[#22C55E]"
                       : "border-transparent hover:bg-white/5"
                       }`}
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={member.profile?.profilePhoto} />
-                        <AvatarFallback className="bg-[#FFD700]/10 text-[#FFD700]">
+                        <AvatarFallback className="bg-[#22C55E]/10 text-[#22C55E]">
                           {member.fullname?.charAt(0) || "R"}
                         </AvatarFallback>
                       </Avatar>
@@ -598,7 +598,7 @@ const RecruiterMessagesPage = () => {
                     <AvatarFallback
                       className={
                         activeContact.isCEO
-                          ? "bg-[#FFD700]/10 text-[#FFD700]"
+                          ? "bg-[#22C55E]/10 text-[#22C55E]"
                           : "bg-cyan-500/10 text-cyan-400"
                       }
                     >
@@ -609,7 +609,7 @@ const RecruiterMessagesPage = () => {
                     <div className="font-bold text-white flex items-center gap-2">
                       {activeContact.fullname}
                       {activeContact.isCEO && (
-                        <Crown className="w-4 h-4 text-[#FFD700]" />
+                        <Crown className="w-4 h-4 text-[#22C55E]" />
                       )}
                     </div>
                     <div className="text-gray-500 text-xs flex items-center gap-2">
@@ -658,7 +658,7 @@ const RecruiterMessagesPage = () => {
                   <div className="flex-1 overflow-y-auto p-6 space-y-4">
                     {loadingConversation ? (
                       <div className="flex items-center justify-center h-full">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#FFD700]" />
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#22C55E]" />
                       </div>
                     ) : conversation.length > 0 ? (
                       <>
@@ -678,7 +678,7 @@ const RecruiterMessagesPage = () => {
                             >
                               <div
                                 className={`max-w-[60%] ${isMe
-                                  ? "bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-[#000000] rounded-2xl rounded-br-sm shadow-lg shadow-[#FFD700]/20"
+                                  ? "bg-gradient-to-br from-[#22C55E] to-[#FFA500] text-[#000000] rounded-2xl rounded-br-sm shadow-lg shadow-[#22C55E]/20"
                                   : "bg-white/10 text-white rounded-2xl rounded-bl-sm backdrop-blur-sm"
                                   } px-4 py-3`}
                               >
@@ -765,7 +765,7 @@ const RecruiterMessagesPage = () => {
                       <Button
                         onClick={handleSendMessage}
                         disabled={sending || !messageText.trim()}
-                        className="bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold h-12 w-12 p-0 rounded-xl"
+                        className="bg-[#22C55E] hover:bg-[#FFE44D] text-black font-bold h-12 w-12 p-0 rounded-xl"
                       >
                         {sending ? (
                           <RefreshCw className="w-5 h-5 animate-spin" />
@@ -808,7 +808,7 @@ const RecruiterMessagesPage = () => {
                           />
                           <AvatarFallback
                             className={`text-3xl ${activeContact.isCEO
-                              ? "bg-[#FFD700]/10 text-[#FFD700]"
+                              ? "bg-[#22C55E]/10 text-[#22C55E]"
                               : "bg-cyan-500/10 text-cyan-400"
                               }`}
                           >
@@ -821,7 +821,7 @@ const RecruiterMessagesPage = () => {
                         <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
                           {activeContact.isCEO ? (
                             <>
-                              <Crown className="w-4 h-4 text-[#FFD700]" />
+                              <Crown className="w-4 h-4 text-[#22C55E]" />
                               <span>Company Admin</span>
                             </>
                           ) : (

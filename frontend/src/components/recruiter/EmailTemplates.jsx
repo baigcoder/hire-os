@@ -65,7 +65,7 @@ const TYPE_COLORS = {
     text: "text-purple-400",
     label: "Follow Up",
   },
-  custom: { bg: "bg-[#FFD700]/10", text: "text-[#FFD700]", label: "Custom" },
+  custom: { bg: "bg-[#22D3EE]/10", text: "text-[#22D3EE]", label: "Custom" },
   onboarding: {
     bg: "bg-cyan-500/10",
     text: "text-cyan-400",
@@ -87,9 +87,9 @@ const TemplateCard = ({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative p-5 bg-[#111111] border border-white/10 rounded-sm group hover:border-[#FFD700]/30 transition-all"
+      className="relative p-5 bg-[#111111] border border-white/10 rounded-sm group hover:border-[#22D3EE]/30 transition-all"
     >
-      <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
+      <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#22D3EE]/30 transition-colors" />
 
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
@@ -132,7 +132,7 @@ const TemplateCard = ({
             className="h-7 w-7"
             onClick={() => onEdit(template)}
           >
-            <Edit2 className="w-3.5 h-3.5 text-[#FFD700]" />
+            <Edit2 className="w-3.5 h-3.5 text-[#22D3EE]" />
           </Button>
           {!template.isDefault && (
             <Button
@@ -163,7 +163,7 @@ const TemplateCard = ({
           {template.variables.slice(0, 3).map((variable, idx) => (
             <code
               key={idx}
-              className="text-[10px] bg-[#FFD700]/10 text-[#FFD700] px-1.5 py-0.5 rounded"
+              className="text-[10px] bg-[#22D3EE]/10 text-[#22D3EE] px-1.5 py-0.5 rounded"
             >
               {`{{${variable}}}`}
             </code>
@@ -266,7 +266,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
       <DialogContent className="max-w-2xl bg-[#111111] border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-[#FFD700]" />
+            <Mail className="w-5 h-5 text-[#22D3EE]" />
             {template?._id ? "Edit Template" : "Create New Template"}
           </DialogTitle>
           <DialogDescription className="text-gray-500">
@@ -345,7 +345,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
                   variant="outline"
                   size="sm"
                   onClick={() => insertVariable(variable)}
-                  className="h-7 text-xs bg-[#0A0A0A] border-white/10 text-gray-400 hover:text-[#FFD700] hover:border-[#FFD700]/30"
+                  className="h-7 text-xs bg-[#0A0A0A] border-white/10 text-gray-400 hover:text-[#22D3EE] hover:border-[#22D3EE]/30"
                 >
                   {`{{${variable}}}`}
                 </Button>
@@ -365,7 +365,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#FFD700] text-black hover:bg-[#FFE44D]"
+            className="bg-[#22D3EE] text-black hover:bg-[#FFE44D]"
           >
             {saving ? "Saving..." : "Save Template"}
           </Button>
@@ -410,14 +410,14 @@ const PreviewModal = ({ isOpen, template, onClose }) => {
       <DialogContent className="max-w-2xl bg-[#111111] border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Eye className="w-5 h-5 text-[#FFD700]" />
+            <Eye className="w-5 h-5 text-[#22D3EE]" />
             Email Preview
           </DialogTitle>
         </DialogHeader>
 
         {loading ? (
           <div className="py-12 text-center">
-            <div className="w-8 h-8 border-2 border-[#FFD700]/30 border-t-[#FFD700] rounded-full animate-spin mx-auto" />
+            <div className="w-8 h-8 border-2 border-[#22D3EE]/30 border-t-[#22D3EE] rounded-full animate-spin mx-auto" />
             <p className="text-gray-500 mt-4">Loading preview...</p>
           </div>
         ) : previewData ? (
@@ -442,7 +442,7 @@ const PreviewModal = ({ isOpen, template, onClose }) => {
         <DialogFooter>
           <Button
             onClick={onClose}
-            className="bg-[#FFD700] text-black hover:bg-[#FFE44D]"
+            className="bg-[#22D3EE] text-black hover:bg-[#FFE44D]"
           >
             Close
           </Button>
@@ -556,10 +556,10 @@ const EmailTemplates = () => {
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-[#FFD700]/30 rounded-sm" />
-            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#FFD700] rounded-sm animate-spin" />
+            <div className="w-16 h-16 border-2 border-[#22D3EE]/30 rounded-sm" />
+            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#22D3EE] rounded-sm animate-spin" />
           </div>
-          <p className="text-[#FFD700]/70 font-mono text-sm uppercase tracking-wider">
+          <p className="text-[#22D3EE]/70 font-mono text-sm uppercase tracking-wider">
             Loading Templates...
           </p>
         </div>
@@ -580,7 +580,7 @@ const EmailTemplates = () => {
         >
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <Mail className="w-7 h-7 text-[#FFD700]" />
+              <Mail className="w-7 h-7 text-[#22D3EE]" />
               Email Templates
             </h1>
             <p className="text-gray-500 text-sm mt-1">
@@ -590,7 +590,7 @@ const EmailTemplates = () => {
 
           <Button
             onClick={handleCreate}
-            className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm font-bold"
+            className="bg-[#22D3EE] text-black hover:bg-[#FFE44D] rounded-sm font-bold"
           >
             <Plus className="w-4 h-4 mr-2" />
             Create Template
@@ -673,7 +673,7 @@ const EmailTemplates = () => {
             </p>
             <Button
               onClick={handleCreate}
-              className="bg-[#FFD700] text-black hover:bg-[#FFE44D]"
+              className="bg-[#22D3EE] text-black hover:bg-[#FFE44D]"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Template

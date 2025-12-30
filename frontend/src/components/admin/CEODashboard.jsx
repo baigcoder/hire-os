@@ -106,7 +106,7 @@ const CEODashboard = () => {
   useEffect(() => {
     if (!user?.companyId && !user?._id) return;
 
-    const channelName = `ceo-dashboard:${user.companyId || user._id}`;
+    const channelName = `ceo-dashboard:${user?.companyId || user?._id}`;
     const channel = supabase.channel(channelName, {
       config: { broadcast: { self: false } },
     });

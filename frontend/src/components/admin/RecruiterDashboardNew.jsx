@@ -781,7 +781,7 @@ const RecruiterDashboard = () => {
                 {user?.fullname || "Recruiter"}
               </h1>
               <p className="text-gray-500 flex items-center gap-2 mt-1 font-mono text-xs">
-                <Building size={12} className="text-[#FFD700]" />{" "}
+                <Building size={12} className="text-emerald-400" />{" "}
                 {user?.profile?.company?.name || "HIRE.OS Operator"}
               </p>
             </div>
@@ -800,7 +800,7 @@ const RecruiterDashboard = () => {
             </Button>
             <Button
               onClick={() => navigate("/recruiter/applications")}
-              className="flex-1 xl:flex-initial bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold h-10 rounded-sm shadow-[0_0_20px_rgba(255,215,0,0.2)] uppercase tracking-wider text-xs"
+              className="flex-1 xl:flex-initial bg-emerald-500 hover:bg-emerald-400 text-black font-bold h-10 rounded-sm shadow-[0_0_20px_rgba(16,185,129,0.3)] uppercase tracking-wider text-xs"
             >
               <Users className="mr-2 h-4 w-4" /> Manage
             </Button>
@@ -824,8 +824,8 @@ const RecruiterDashboard = () => {
               label: "ACTIVE JOBS",
               value: stats.activeJobs,
               icon: Briefcase,
-              color: "text-[#FFD700]",
-              bgColor: "bg-[#FFD700]/10",
+              color: "text-emerald-400",
+              bgColor: "bg-emerald-400/10",
               trend: stats.trends?.jobs || -2,
             },
             {
@@ -840,8 +840,8 @@ const RecruiterDashboard = () => {
               label: "HIRE RATE",
               value: `${stats.conversionRate}%`,
               icon: Target,
-              color: "text-[#FFD700]",
-              bgColor: "bg-[#FFD700]/10",
+              color: "text-emerald-400",
+              bgColor: "bg-emerald-400/10",
               trend: stats.trends?.hireRate || 3,
             },
           ].map((stat, i) => (
@@ -850,11 +850,11 @@ const RecruiterDashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              className="p-6 rounded-sm border border-white/10 bg-[#111111] hover:border-[#FFD700]/30 transition-all relative overflow-hidden group shadow-lg"
+              className="p-6 rounded-sm border border-white/10 bg-[#111111] hover:border-emerald-400/30 transition-all relative overflow-hidden group shadow-lg"
             >
               {/* Corner accents */}
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/10 group-hover:border-[#FFD700]/40 transition-colors" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-white/10 group-hover:border-[#FFD700]/40 transition-colors" />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/10 group-hover:border-emerald-400/40 transition-colors" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-white/10 group-hover:border-emerald-400/40 transition-colors" />
               <div className="flex justify-between items-start mb-3">
                 <div
                   className={`p-3 rounded-sm ${stat.bgColor} border border-white/10`}

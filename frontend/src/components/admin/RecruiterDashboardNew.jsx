@@ -71,6 +71,7 @@ import {
   LayoutDashboard,
   UserCheck,
   FileText,
+  Zap,
 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -809,7 +810,7 @@ const RecruiterDashboard = () => {
         </motion.div>
 
         {/* Industrial KPI Cards with Trends */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {[
             {
               label: "APPLICANTS",
@@ -849,14 +850,16 @@ const RecruiterDashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              className="p-5 rounded-sm border border-white/10 bg-[#111111] hover:border-[#FFD700]/30 transition-all relative overflow-hidden group"
+              className="p-6 rounded-sm border border-white/10 bg-[#111111] hover:border-[#FFD700]/30 transition-all relative overflow-hidden group shadow-lg"
             >
-              <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
+              {/* Corner accents */}
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/10 group-hover:border-[#FFD700]/40 transition-colors" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-white/10 group-hover:border-[#FFD700]/40 transition-colors" />
               <div className="flex justify-between items-start mb-3">
                 <div
-                  className={`p-2 rounded-sm ${stat.bgColor} border border-white/10`}
+                  className={`p-3 rounded-sm ${stat.bgColor} border border-white/10`}
                 >
-                  <stat.icon size={18} className={stat.color} />
+                  <stat.icon size={22} className={stat.color} />
                 </div>
                 {/* Trend Indicator */}
                 <div
@@ -882,9 +885,12 @@ const RecruiterDashboard = () => {
         </div>
 
         {/* Quick Access Modules */}
-        <div className="mb-8">
-          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Quick Access</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="mb-10">
+          <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-5 flex items-center gap-2">
+            <Zap className="w-4 h-4 text-[#FFD700]" />
+            Quick Access
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {[
               { label: "Pipeline", icon: LayoutDashboard, route: "/recruiter/pipeline", color: "text-purple-400", bgColor: "bg-purple-400/10" },
               { label: "Email Templates", icon: Mail, route: "/recruiter/email-templates", color: "text-cyan-400", bgColor: "bg-cyan-400/10" },
@@ -898,10 +904,11 @@ const RecruiterDashboard = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate(item.route)}
-                className={`${item.bgColor} border border-white/10 rounded-sm p-4 flex flex-col items-center gap-2 hover:border-white/20 transition-all group`}
+                className={`${item.bgColor} border border-white/10 rounded-sm p-5 flex flex-col items-center gap-3 hover:border-[#FFD700]/30 transition-all group relative overflow-hidden`}
               >
-                <item.icon className={`${item.color} w-5 h-5 group-hover:scale-110 transition-transform`} />
-                <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">{item.label}</span>
+                <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10 group-hover:border-[#FFD700]/40 transition-colors" />
+                <item.icon className={`${item.color} w-6 h-6 group-hover:scale-110 transition-transform`} />
+                <span className="text-xs text-gray-300 font-medium uppercase tracking-wider text-center">{item.label}</span>
               </motion.button>
             ))}
           </div>

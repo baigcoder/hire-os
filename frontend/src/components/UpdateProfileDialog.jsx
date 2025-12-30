@@ -258,8 +258,8 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
                 onClick={() => !photoLoading && photoInputRef.current?.click()}
                 disabled={photoLoading}
                 className={`absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all border-2 border-white dark:border-zinc-800 ${photoLoading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-emerald-500 hover:bg-emerald-600"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-emerald-500 hover:bg-emerald-600"
                   }`}
               >
                 <Camera className="w-4 h-4 text-white" />
@@ -383,65 +383,67 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
             <p className="text-xs text-gray-400">Separate skills with commas</p>
           </div>
 
-          {/* Resume Upload */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <FileText size={14} className="text-emerald-500" />
-              Resume
-            </Label>
+          {/* Resume Upload - Only show for students, not recruiters or admins */}
+          {user?.role !== "recruiter" && user?.role !== "company_admin" && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <FileText size={14} className="text-emerald-500" />
+                Resume
+              </Label>
 
-            {resumeFile || resumeUrl ? (
-              // Show selected/existing resume
-              <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-800 flex items-center justify-center">
-                    <FileText
-                      size={24}
-                      className="text-emerald-600 dark:text-emerald-400"
-                    />
+              {resumeFile || resumeUrl ? (
+                // Show selected/existing resume
+                <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-800 flex items-center justify-center">
+                      <FileText
+                        size={24}
+                        className="text-emerald-600 dark:text-emerald-400"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[180px]">
+                        {resumeName || "Resume.pdf"}
+                      </p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <Check size={12} />
+                        {resumeFile
+                          ? "Selected (Click Save to upload)"
+                          : "Current Resume"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[180px]">
-                      {resumeName || "Resume.pdf"}
+                  <button
+                    type="button"
+                    onClick={removeResume}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              ) : (
+                // Upload input
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="resume"
+                    accept="application/pdf"
+                    onChange={handleResumeChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 dark:border-zinc-700 hover:border-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 rounded-xl transition-all">
+                    <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center mb-3">
+                      <Upload size={24} className="text-gray-400" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Click to upload resume
                     </p>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                      <Check size={12} />
-                      {resumeFile
-                        ? "Selected (Click Save to upload)"
-                        : "Current Resume"}
-                    </p>
+                    <p className="text-xs text-gray-400">PDF only, max 5MB</p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={removeResume}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            ) : (
-              // Upload input
-              <div className="relative">
-                <input
-                  type="file"
-                  id="resume"
-                  accept="application/pdf"
-                  onChange={handleResumeChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                />
-                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 dark:border-zinc-700 hover:border-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 rounded-xl transition-all">
-                  <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center mb-3">
-                    <Upload size={24} className="text-gray-400" />
-                  </div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Click to upload resume
-                  </p>
-                  <p className="text-xs text-gray-400">PDF only, max 5MB</p>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-3">

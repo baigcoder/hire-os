@@ -46,6 +46,7 @@ import careerCoachRoute from "./routes/careerCoach.route.js";
 import { rateLimiter } from "./middlewares/isAuthenticated.js";
 import { createServer } from "http";
 import logger from "./utils/logger.js";
+import performanceMonitor, { getPerformanceStats } from "./utils/performanceMonitor.js";
 
 // Load environment variables
 dotenv.config();
@@ -182,6 +183,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Performance monitoring middleware (before rate limiting)
+app.use(performanceMonitor);
+
 // Rate limiting for API routes
 app.use("/api", rateLimiter);
 
@@ -237,6 +241,16 @@ app.get("/health/realtime", (req, res) => {
       dashboardUpdates: "Supabase Broadcast",
     },
     cache: process.env.REDIS_URL ? "Cloud Redis (Upstash)" : "None",
+  });
+});
+
+// Performance monitoring stats endpoint (admin only - add auth in production)
+app.get("/api/v1/admin/performance", (req, res) => {
+  // TODO: Add admin authentication in production
+  const stats = getPerformanceStats();
+  res.status(200).json({
+    success: true,
+    data: stats,
   });
 });
 

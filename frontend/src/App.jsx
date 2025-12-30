@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { PageLoader } from "./components/LazyComponents";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
@@ -843,13 +844,13 @@ const appRouter = createBrowserRouter([
 
 function App() {
   return (
-    <div>
+    <ErrorBoundary>
       <RealtimeProvider>
         <RouterProvider router={appRouter} />
         <CallDialog />
         <Toaster />
       </RealtimeProvider>
-    </div>
+    </ErrorBoundary>
   );
 }
 

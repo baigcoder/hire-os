@@ -108,11 +108,10 @@ const IndustrialFeatureCard = ({
     whileHover={{ y: -5, borderColor: isPro ? "#FFD700" : "#00FF94" }}
     viewport={{ once: true }}
     transition={{ delay: index * 0.08, duration: 0.4 }}
-    className={`relative p-6 rounded-md border transition-all duration-300 group cursor-default overflow-hidden ${
-      isPro
-        ? "bg-[#FFD700]/5 border-[#FFD700]/20"
-        : "bg-[#111111] border-white/10"
-    }`}
+    className={`relative p-6 rounded-md border transition-all duration-300 group cursor-default overflow-hidden ${isPro
+      ? "bg-[#FFD700]/5 border-[#FFD700]/20"
+      : "bg-[#111111] border-white/10"
+      }`}
   >
     {/* Hover Scan Effect */}
     <motion.div
@@ -133,11 +132,10 @@ const IndustrialFeatureCard = ({
       </Badge>
     )}
     <div
-      className={`w-10 h-10 rounded-sm flex items-center justify-center mb-4 transition-all duration-300 ${
-        isPro
-          ? "bg-[#FFD700] text-black"
-          : "bg-white/5 text-[#FFD700] group-hover:bg-[#FFD700]/10 group-hover:scale-110"
-      }`}
+      className={`w-10 h-10 rounded-sm flex items-center justify-center mb-4 transition-all duration-300 ${isPro
+        ? "bg-[#FFD700] text-black"
+        : "bg-white/5 text-[#FFD700] group-hover:bg-[#FFD700]/10 group-hover:scale-110"
+        }`}
     >
       <Icon className="w-5 h-5" strokeWidth={2} />
     </div>
@@ -161,12 +159,42 @@ const LiveIndicator = () => (
   </div>
 );
 
+// Floating HUD Chip Component
+const HUDChip = ({ text, className, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, x: -10 }}
+    animate={{ opacity: [0.3, 0.6, 0.3], x: 0 }}
+    transition={{ duration: 3, repeat: Infinity, delay }}
+    className={`hidden lg:flex items-center gap-2 px-2 py-0.5 border border-white/10 bg-black/40 rounded-sm font-mono text-[8px] text-gray-500 uppercase tracking-widest pointer-events-none select-none ${className}`}
+  >
+    <div className="w-1 h-1 rounded-full bg-[#FFD700] animate-pulse" />
+    {text}
+  </motion.div>
+);
+
+// Industrial Divider
+const HazardDivider = () => (
+  <div className="w-full h-4 flex overflow-hidden opacity-20">
+    {[...Array(40)].map((_, i) => (
+      <div key={i} className="flex-shrink-0 w-8 h-full skew-x-[45deg] bg-gradient-to-r from-transparent via-white/40 to-transparent mx-2" />
+    ))}
+  </div>
+);
+
 // ========== MAIN COMPONENT ==========
 const Home = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // Handle Mouse Move for Hero Glow
+  const handleMouseMove = (e) => {
+    const { clientX, clientY, currentTarget } = e;
+    const { left, top } = currentTarget.getBoundingClientRect();
+    setMousePos({ x: clientX - left, y: clientY - top });
+  };
 
   // Base stats + dynamic increment from MongoDB
   // Base values: 15 jobs, 5 companies, 25 candidates, 80% success rate
@@ -374,7 +402,17 @@ const Home = () => {
       <Navbar />
 
       {/* ========== HERO SECTION ========== */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+      <section
+        onMouseMove={handleMouseMove}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 group/hero"
+      >
+        {/* Dynamic Mouse Glow */}
+        <motion.div
+          className="absolute inset-0 z-0 pointer-events-none opacity-0 group-hover/hero:opacity-100 transition-opacity duration-1000"
+          style={{
+            background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,215,0,0.08), transparent 40%)`
+          }}
+        />
         {/* Industrial Grid Background */}
         <div className="absolute inset-0 bg-grid opacity-40" />
 
@@ -403,12 +441,39 @@ const Home = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="text-6xl md:text-7xl lg:text-[120px] font-black mb-6 leading-[0.9] tracking-tighter"
+              className="text-6xl md:text-7xl lg:text-[130px] font-black mb-6 leading-[0.85] tracking-tighter"
             >
-              <DecryptionText text="HIRE" className="text-white" />
-              <span className="text-[#FFD700]">.</span>
-              <span className="text-[#FFD700]">OS</span>
+              <div className="flex justify-center items-center flex-wrap">
+                {"HIRE".split("").map((char, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="inline-block"
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+                <span className="text-[#FFD700]">.</span>
+                <motion.span
+                  initial={{ opacity: 0, rotateY: 90 }}
+                  animate={{ opacity: 1, rotateY: 0 }}
+                  transition={{ delay: 0.6, duration: 0.8 }}
+                  className="text-[#FFD700]"
+                >
+                  OS
+                </motion.span>
+              </div>
             </motion.h1>
+
+            {/* Floating Decorative Chips */}
+            <div className="absolute top-1/2 left-0 w-full h-0 pointer-events-none">
+              <HUDChip text="LATENCY: 14MS" className="absolute -top-60 left-20" delay={0.5} />
+              <HUDChip text="MATCH_DB: ENCRYPTED" className="absolute -top-40 right-40" delay={1.2} />
+              <HUDChip text="CORE_V2.4" className="absolute top-20 left-40" delay={0.8} />
+              <HUDChip text="UI_READY: TRUE" className="absolute top-40 right-20" delay={1.5} />
+            </div>
 
             <motion.p
               initial={{ opacity: 0, y: 30 }}
@@ -928,6 +993,8 @@ const Home = () => {
         </section>
       )}
 
+      <HazardDivider />
+
       {/* ========== SYSTEM PROTOCOL SECTION ========== */}
       <section className="py-24 bg-gradient-to-b from-[#0A0A0A] to-[#111111] relative overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-20" />
@@ -1161,9 +1228,14 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ========== TESTIMONIALS SECTION ========== */}
-      <section className="py-24 bg-[#0A0A0A] relative">
+      <HazardDivider />
+
+      {/* ========== TESTIMONIALS SECTION (SYSTEM LOGS) ========== */}
+      <section className="py-24 bg-[#0A0A0A] relative overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-20" />
+
+        {/* Decorative scanline */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] via-transparent to-white/[0.02] pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -1173,256 +1245,213 @@ const Home = () => {
             className="text-center max-w-3xl mx-auto mb-16"
           >
             <Badge className="mb-6 px-4 py-1.5 bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20 text-xs font-mono uppercase tracking-widest">
-              <Star className="w-3 h-3 mr-2" />
-              User Reviews
+              <Terminal className="w-3 h-3 mr-2" />
+              User Transmission Logs
             </Badge>
             <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
-              What Users <span className="text-[#FFD700]">Say</span>
+              Feedback <span className="text-[#FFD700]">Protocols</span>
             </h2>
-            <p className="text-gray-500">
-              Real feedback from job seekers and employers using HIRE.OS
+            <p className="text-gray-500 font-mono text-xs uppercase tracking-wider">
+              Decrypting user experiences from the HIRE.OS network
             </p>
           </motion.div>
 
           {reviews.length > 0 ? (
-            <div className="relative w-full overflow-hidden">
-              {/* Gradient Masks for smooth fade edges */}
-              <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-[#0A0A0A] to-transparent z-10 pointer-events-none" />
-              <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-[#0A0A0A] to-transparent z-10 pointer-events-none" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+              {reviews.map((review, idx) => (
+                <motion.div
+                  key={review._id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="bg-[#0D0D0D] border border-white/5 p-6 rounded-sm relative group overflow-hidden"
+                >
+                  <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#FFD700]/30 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
 
-              <motion.div
-                className="flex gap-6 w-max"
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{
-                  repeat: Infinity,
-                  ease: "linear",
-                  duration: Math.max(20, reviews.length * 5), // Adjust speed based on content
-                }}
-              >
-                {/* Double the reviews for seamless loop */}
-                {[...reviews, ...reviews, ...reviews].map((review, idx) => (
-                  <div
-                    key={`${review._id}-${idx}`}
-                    className="w-[350px] md:w-[450px] flex-shrink-0 relative p-6 bg-[#111111] border border-white/10 group hover:border-[#FFD700]/30 transition-colors"
-                  >
-                    {/* Industrial Corners */}
-                    <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 group-hover:border-[#FFD700] transition-colors" />
-                    <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white/20 group-hover:border-[#FFD700] transition-colors" />
-                    <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/20 group-hover:border-[#FFD700] transition-colors" />
-                    <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/20 group-hover:border-[#FFD700] transition-colors" />
-
-                    {/* Header Info */}
-                    <div className="flex justify-between items-start mb-4 pb-4 border-b border-white/5">
-                      <div className="flex gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3.5 h-3.5 ${i < review.rating ? "text-[#FFD700] fill-[#FFD700]" : "text-gray-800"}`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-[10px] font-mono text-gray-600 uppercase tracking-widest">
-                        REV_ID::{review._id.slice(-6)}
-                      </span>
+                  {/* Timestamp/Log Header */}
+                  <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-3">
+                    <div className="font-mono text-[9px] text-[#FFD700] opacity-60">
+                      [{new Date(review.createdAt).toISOString().replace('T', ' ').slice(0, 19)}]
                     </div>
+                    <Badge variant="outline" className="text-[8px] font-mono border-white/10 text-gray-500 px-1 py-0 uppercase">
+                      TRIM_LOG::{review._id.slice(-4)}
+                    </Badge>
+                  </div>
 
-                    {/* Comment Content */}
-                    <div className="mb-6 min-h-[80px]">
-                      {review.title && (
-                        <h3 className="text-white font-bold text-sm mb-2 uppercase tracking-wide font-mono text-[#00FF94]">
-                          {review.title}
-                        </h3>
+                  {/* Review Content */}
+                  <div className="mb-8">
+                    <div className="flex gap-1 mb-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className={`w-2 h-2 rounded-full ${i < review.rating ? "bg-[#FFD700]" : "bg-white/10"}`} />
+                      ))}
+                    </div>
+                    <h4 className="text-white font-bold text-sm mb-2 uppercase tracking-tight group-hover:text-[#FFD700] transition-colors">
+                      {review.title || "SYSTEM_FEEDBACK"}
+                    </h4>
+                    <p className="text-gray-400 text-sm leading-relaxed font-mono opacity-80 min-h-[60px]">
+                      &gt; {review.comment}
+                    </p>
+                  </div>
+
+                  {/* User Badge */}
+                  <div className="flex items-center gap-3 pt-4 border-t border-white/5 bg-black/20 -mx-6 px-6 -mb-6">
+                    <div className="w-8 h-8 rounded-sm overflow-hidden border border-white/10 bg-[#1A1A1A] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all">
+                      {review.user?.photo ? (
+                        <img src={review.user.photo} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-4 h-4 text-gray-600" />
                       )}
-                      <p className="text-gray-400 text-sm leading-relaxed font-mono opacity-80">
-                        "{review.comment}"
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-[10px] font-bold uppercase tracking-widest truncate">
+                        {review.user?.name || "ANON_USER"}
+                      </p>
+                      <p className="text-[8px] text-[#00FF94] font-mono uppercase tracking-tighter">
+                        {review.user?.role?.replace('_', ' ') || "CANDIDATE"}
                       </p>
                     </div>
-
-                    {/* User Footer */}
-                    <div className="flex items-center gap-3 pt-2">
-                      <div className="w-10 h-10 bg-white/5 flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-[#FFD700]/50 transition-colors">
-                        {review.user?.photo ? (
-                          <img
-                            src={review.user.photo}
-                            alt={review.user.name}
-                            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
-                          />
-                        ) : (
-                          <User className="w-5 h-5 text-gray-500" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-white text-xs font-bold uppercase tracking-wider">
-                            {review.user?.name || "ANONYMOUS"}
-                          </p>
-                          {review.user?.role === "recruiter" && (
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#00FF94] animate-pulse" />
-                          )}
-                        </div>
-                        <Badge
-                          className={`mt-1 text-[9px] px-1.5 py-0 rounded-none border-0 ${
-                            review.user?.role === "company_admin" ||
-                            review.user?.role === "super_admin"
-                              ? "bg-[#FFD700] text-black hover:bg-[#FFD700]"
-                              : review.user?.role === "recruiter"
-                                ? "bg-[#00FF94] text-black hover:bg-[#00FF94]"
-                                : "bg-white/10 text-white hover:bg-white/20"
-                          }`}
-                        >
-                          {review.user?.role === "company_admin"
-                            ? "CORPORATE"
-                            : review.user?.role === "super_admin"
-                              ? "SYSTEM OPS"
-                              : review.user?.role === "recruiter"
-                                ? "RECRUITER"
-                                : "CANDIDATE"}
-                        </Badge>
-                      </div>
-                    </div>
+                    <div className="w-2 h-2 rounded-full bg-[#00FF94] animate-pulse shadow-[0_0_8px_rgba(0,255,148,0.4)]" />
                   </div>
-                ))}
-              </motion.div>
+                </motion.div>
+              ))}
             </div>
           ) : (
-            <div className="text-center py-16 max-w-2xl mx-auto border border-dashed border-white/10">
-              <div className="w-16 h-16 bg-white/5 flex items-center justify-center mx-auto mb-4">
-                <Terminal className="w-8 h-8 text-gray-600" />
-              </div>
-              <h3 className="text-lg font-bold text-white font-mono mb-2">
-                LOG_EMPTY
-              </h3>
-              <p className="text-gray-500 font-mono text-xs">
-                Waiting for incoming transmission data...
+            <div className="text-center py-20 border border-white/5 bg-[#0D0D0D]">
+              <Loader2 className="w-8 h-8 text-gray-700 animate-spin mx-auto mb-4" />
+              <p className="text-gray-600 font-mono text-[10px] uppercase tracking-[0.2em]">
+                Synchronizing encryption keys...
               </p>
             </div>
           )}
-
-          {/* Add Comment Button - Removed for logged-in users since they have the button in navbar */}
-
-          {/* Comment Form Modal */}
-          <AnimatePresence>
-            {showCommentForm && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-                onClick={() => setShowCommentForm(false)}
-              >
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.9, opacity: 0 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="bg-[#111111] border border-white/10 rounded-md p-8 max-w-lg w-full mx-4 relative"
-                >
-                  {/* Corner accents */}
-                  <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#FFD700]/30" />
-                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#FFD700]/30" />
-
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <Star className="w-5 h-5 text-[#FFD700]" />
-                    Share Your Experience
-                  </h3>
-
-                  {/* Star Rating */}
-                  <div className="mb-6">
-                    <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block font-mono">
-                      Rating
-                    </label>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setCommentRating(star)}
-                          className="p-1 transition-transform hover:scale-110"
-                        >
-                          <Star
-                            className={`w-8 h-8 ${star <= commentRating ? "text-[#FFD700] fill-[#FFD700]" : "text-gray-600"}`}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Title (optional) */}
-                  <div className="mb-4">
-                    <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block font-mono">
-                      Title (optional)
-                    </label>
-                    <Input
-                      value={commentTitle}
-                      onChange={(e) => setCommentTitle(e.target.value)}
-                      placeholder="Sum up your experience..."
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#FFD700]/50"
-                    />
-                  </div>
-
-                  {/* Comment */}
-                  <div className="mb-6">
-                    <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block font-mono">
-                      Your Feedback *
-                    </label>
-                    <textarea
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="Share your experience with HIRE.OS..."
-                      rows={4}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-[#FFD700]/50 focus:outline-none resize-none"
-                    />
-                  </div>
-
-                  {/* User Info Display */}
-                  <div className="flex items-center gap-3 mb-6 p-3 bg-white/5 rounded-sm border border-white/5">
-                    <div className="w-10 h-10 rounded-full bg-[#FFD700]/10 flex items-center justify-center">
-                      {user?.profile?.profilePhoto ? (
-                        <img
-                          src={user.profile.profilePhoto}
-                          alt={user.fullname}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        <User className="w-5 h-5 text-[#FFD700]" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-white text-sm font-medium">
-                        {user?.fullname}
-                      </p>
-                      <p className="text-gray-500 text-xs">{user?.email}</p>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={() => setShowCommentForm(false)}
-                      variant="outline"
-                      className="flex-1 border-white/10 text-gray-400 hover:bg-white/5"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleSubmitComment}
-                      disabled={submittingComment || !commentText.trim()}
-                      className="flex-1 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold"
-                    >
-                      {submittingComment ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Send className="w-4 h-4 mr-2" />
-                      )}
-                      Submit Review
-                    </Button>
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </section>
+
+      {/* Add Comment Button - Removed for logged-in users since they have the button in navbar */}
+
+      {/* Comment Form Modal */}
+      <AnimatePresence>
+        {showCommentForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowCommentForm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#111111] border border-white/10 rounded-md p-8 max-w-lg w-full mx-4 relative"
+            >
+              {/* Corner accents */}
+              <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#FFD700]/30" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#FFD700]/30" />
+
+              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <Star className="w-5 h-5 text-[#FFD700]" />
+                Share Your Experience
+              </h3>
+
+              {/* Star Rating */}
+              <div className="mb-6">
+                <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block font-mono">
+                  Rating
+                </label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setCommentRating(star)}
+                      className="p-1 transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`w-8 h-8 ${star <= commentRating ? "text-[#FFD700] fill-[#FFD700]" : "text-gray-600"}`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Title (optional) */}
+              <div className="mb-4">
+                <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block font-mono">
+                  Title (optional)
+                </label>
+                <Input
+                  value={commentTitle}
+                  onChange={(e) => setCommentTitle(e.target.value)}
+                  placeholder="Sum up your experience..."
+                  className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#FFD700]/50"
+                />
+              </div>
+
+              {/* Comment */}
+              <div className="mb-6">
+                <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block font-mono">
+                  Your Feedback *
+                </label>
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Share your experience with HIRE.OS..."
+                  rows={4}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-[#FFD700]/50 focus:outline-none resize-none"
+                />
+              </div>
+
+              {/* User Info Display */}
+              <div className="flex items-center gap-3 mb-6 p-3 bg-white/5 rounded-sm border border-white/5">
+                <div className="w-10 h-10 rounded-full bg-[#FFD700]/10 flex items-center justify-center">
+                  {user?.profile?.profilePhoto ? (
+                    <img
+                      src={user.profile.profilePhoto}
+                      alt={user.fullname}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-[#FFD700]" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">
+                    {user?.fullname}
+                  </p>
+                  <p className="text-gray-500 text-xs">{user?.email}</p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowCommentForm(false)}
+                  variant="outline"
+                  className="flex-1 border-white/10 text-gray-400 hover:bg-white/5"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmitComment}
+                  disabled={submittingComment || !commentText.trim()}
+                  className="flex-1 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold"
+                >
+                  {submittingComment ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  Submit Review
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <HazardDivider />
 
       {/* ========== CTA SECTION ========== */}
       <section className="py-24 bg-gradient-to-b from-[#0A0A0A] to-[#111111] relative overflow-hidden">
@@ -1436,18 +1465,17 @@ const Home = () => {
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
+            <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight uppercase">
               Initialize <span className="text-[#FFD700]">Operations</span>
             </h2>
-            <p className="text-gray-500 mb-4 max-w-xl mx-auto">
-              Deploy HIRE.OS for your organization or start your candidate
-              profile today.
+            <p className="text-gray-500 mb-4 max-w-xl mx-auto font-mono text-sm opacity-80 uppercase">
+              Deploy HIRE.OS for your organization or start your candidate profile today.
             </p>
 
             {/* Student Free Trial Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FF94]/10 border border-[#00FF94]/30 rounded-sm mb-8">
               <Gift className="w-4 h-4 text-[#00FF94]" />
-              <span className="text-[#00FF94] text-sm font-bold">
+              <span className="text-[#00FF94] text-xs font-bold uppercase tracking-tight">
                 Students get 30 days FREE access to all features!
               </span>
             </div>
@@ -1475,7 +1503,7 @@ const Home = () => {
       </section>
 
       <Footer />
-    </div>
+    </div >
   );
 };
 

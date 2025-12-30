@@ -887,27 +887,27 @@ const RecruiterDashboard = () => {
         {/* Quick Access Modules */}
         <div className="mb-10">
           <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-5 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-[#FFD700]" />
+            <Zap className="w-4 h-4 text-emerald-400" />
             Quick Access
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {[
-              { label: "Pipeline", icon: LayoutDashboard, route: "/recruiter/pipeline", color: "text-purple-400", bgColor: "bg-purple-400/10" },
-              { label: "Email Templates", icon: Mail, route: "/recruiter/email-templates", color: "text-cyan-400", bgColor: "bg-cyan-400/10" },
-              { label: "Job Templates", icon: FileText, route: "/recruiter/job-templates", color: "text-orange-400", bgColor: "bg-orange-400/10" },
-              { label: "Messages", icon: MessageSquare, route: "/recruiter/messages", color: "text-green-400", bgColor: "bg-green-400/10" },
-              { label: "Talent Pool", icon: UserCheck, route: "/recruiter/talent-pool", color: "text-blue-400", bgColor: "bg-blue-400/10" },
-              { label: "Assessments", icon: Target, route: "/recruiter/assessments", color: "text-pink-400", bgColor: "bg-pink-400/10" },
+              { label: "Pipeline", icon: LayoutDashboard, route: "/recruiter/pipeline" },
+              { label: "Email Templates", icon: Mail, route: "/recruiter/email-templates" },
+              { label: "Job Templates", icon: FileText, route: "/recruiter/job-templates" },
+              { label: "Messages", icon: MessageSquare, route: "/recruiter/messages" },
+              { label: "Talent Pool", icon: UserCheck, route: "/recruiter/talent-pool" },
+              { label: "Assessments", icon: Target, route: "/recruiter/assessments" },
             ].map((item) => (
               <motion.button
                 key={item.label}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate(item.route)}
-                className={`${item.bgColor} border border-white/10 rounded-sm p-5 flex flex-col items-center gap-3 hover:border-[#FFD700]/30 transition-all group relative overflow-hidden`}
+                className="bg-emerald-500/10 border border-emerald-500/20 rounded-sm p-5 flex flex-col items-center gap-3 hover:border-emerald-400/50 hover:bg-emerald-500/15 transition-all group relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10 group-hover:border-[#FFD700]/40 transition-colors" />
-                <item.icon className={`${item.color} w-6 h-6 group-hover:scale-110 transition-transform`} />
+                <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-emerald-500/20 group-hover:border-emerald-400/50 transition-colors" />
+                <item.icon className="text-emerald-400 w-6 h-6 group-hover:scale-110 transition-transform" />
                 <span className="text-xs text-gray-300 font-medium uppercase tracking-wider text-center">{item.label}</span>
               </motion.button>
             ))}

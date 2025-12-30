@@ -92,7 +92,7 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   const nameSlug = user?.fullname
-    ? user.fullname.replace(/\s+/g, "-").toLowerCase()
+    ? user?.fullname.replace(/\s+/g, "-").toLowerCase()
     : "dashboard";
 
   const isCompanyAdmin = user?.role === "company_admin";

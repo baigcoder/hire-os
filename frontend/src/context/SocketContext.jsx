@@ -61,7 +61,7 @@ export const RealtimeProvider = ({ children }) => {
   useEffect(() => {
     if (!user?._id) return;
 
-    const userId = user._id;
+    const userId = user?._id;
 
     // Create presence channel for online status
     const presenceChannel = supabase.channel("presence:online", {
@@ -122,7 +122,7 @@ export const RealtimeProvider = ({ children }) => {
   useEffect(() => {
     if (!user?._id) return;
 
-    const userId = user._id;
+    const userId = user?._id;
 
     // Channel for receiving messages, calls, typing notifications
     const userChannel = supabase.channel(`user:${userId}`);
@@ -263,8 +263,8 @@ export const RealtimeProvider = ({ children }) => {
             event: "typing",
             payload: {
               chatId,
-              senderId: user._id,
-              senderName: user.fullname,
+              senderId: user?._id,
+              senderName: user?.fullname || 'Unknown',
               isTyping: true,
             },
           });
@@ -287,8 +287,8 @@ export const RealtimeProvider = ({ children }) => {
             event: "typing",
             payload: {
               chatId,
-              senderId: user._id,
-              senderName: user.fullname,
+              senderId: user?._id,
+              senderName: user?.fullname || 'Unknown',
               isTyping: false,
             },
           });
@@ -330,8 +330,8 @@ export const RealtimeProvider = ({ children }) => {
           event: "incoming-call",
           payload: {
             callId,
-            callerId: user._id,
-            callerName: user.fullname,
+            callerId: user?._id,
+            callerName: user?.fullname || 'Unknown',
             callType,
             timestamp: new Date().toISOString(),
           },
@@ -370,7 +370,7 @@ export const RealtimeProvider = ({ children }) => {
             type: "broadcast",
             event: "call-signal",
             payload: {
-              senderId: user._id,
+              senderId: user?._id,
               type, // 'offer', 'answer', 'ice-candidate'
               data: payload,
             },

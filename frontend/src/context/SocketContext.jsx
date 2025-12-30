@@ -299,39 +299,61 @@ export const RealtimeProvider = ({ children }) => {
     [user],
   );
 
-  // Initiate a call
+  // Initiate a call with improved reliability
   const initiateCall = useCallback(
-    (recipientId, callType = "video") => {
+    async (recipientId, callType = "video") => {
       if (!user?._id) return null;
 
       const callId = `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      const recipientChannel = supabase.channel(`user:${recipientId}`);
-      recipientChannel.subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          recipientChannel.send({
-            type: "broadcast",
-            event: "incoming-call",
-            payload: {
-              callId,
-              callerId: user._id,
-              callerName: user.fullname,
-              callType,
-              timestamp: new Date().toISOString(),
-            },
+      try {
+        const recipientChannel = supabase.channel(`user:${recipientId}`);
+
+        // Wait for subscription to complete before sending
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Subscription timeout')), 5000);
+
+          recipientChannel.subscribe((status) => {
+            if (status === "SUBSCRIBED") {
+              clearTimeout(timeout);
+              resolve();
+            } else if (status === "CHANNEL_ERROR") {
+              clearTimeout(timeout);
+              reject(new Error('Channel error'));
+            }
           });
-          setTimeout(() => recipientChannel.unsubscribe(), 500);
-        }
-      });
+        });
 
-      setOutgoingCall({
-        callId,
-        recipientId,
-        callType,
-        status: "calling",
-      });
+        // Send the incoming call event
+        await recipientChannel.send({
+          type: "broadcast",
+          event: "incoming-call",
+          payload: {
+            callId,
+            callerId: user._id,
+            callerName: user.fullname,
+            callType,
+            timestamp: new Date().toISOString(),
+          },
+        });
 
-      return callId;
+        console.log("📞 Call initiated to:", recipientId, "callId:", callId);
+
+        // Cleanup channel after a delay
+        setTimeout(() => supabase.removeChannel(recipientChannel), 1000);
+
+        setOutgoingCall({
+          callId,
+          recipientId,
+          callType,
+          status: "calling",
+        });
+
+        return callId;
+      } catch (error) {
+        console.error("Failed to initiate call:", error);
+        return null;
+      }
     },
     [user],
   );

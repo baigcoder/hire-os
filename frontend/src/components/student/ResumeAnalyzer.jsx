@@ -274,7 +274,7 @@ const ResumeAnalyzer = () => {
           </h2>
           <p className="text-gray-500 text-sm mt-1">
             {user?.fullname
-              ? `AI-powered resume scoring and optimization for ${user.fullname}`
+              ? `AI-powered resume scoring and optimization for ${user?.fullname}`
               : "AI-powered resume scoring and optimization"}
           </p>
         </div>
@@ -337,9 +337,8 @@ const ResumeAnalyzer = () => {
               {loadingSteps.map((step, idx) => (
                 <motion.div
                   key={idx}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    idx <= loadingStep ? "bg-[#FFD700]" : "bg-white/20"
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${idx <= loadingStep ? "bg-[#FFD700]" : "bg-white/20"
+                    }`}
                   animate={{
                     scale: idx === loadingStep ? [1, 1.2, 1] : 1,
                   }}
@@ -684,10 +683,10 @@ const ResumeAnalyzer = () => {
                     analysis.skills?.technical ||
                     []
                   ).length === 0 && (
-                    <span className="text-gray-500 text-sm">
-                      No matched skills found
-                    </span>
-                  )}
+                      <span className="text-gray-500 text-sm">
+                        No matched skills found
+                      </span>
+                    )}
                 </div>
               </div>
 
@@ -715,10 +714,10 @@ const ResumeAnalyzer = () => {
                     ))}
                   {(analysis.missingSkills || analysis.skills?.missing || [])
                     .length === 0 && (
-                    <span className="text-gray-500 text-sm">
-                      Great coverage!
-                    </span>
-                  )}
+                      <span className="text-gray-500 text-sm">
+                        Great coverage!
+                      </span>
+                    )}
                 </div>
               </div>
             </div>
@@ -740,8 +739,8 @@ const ResumeAnalyzer = () => {
                       {typeof suggestion === "string"
                         ? suggestion
                         : suggestion?.suggestion ||
-                          suggestion?.title ||
-                          JSON.stringify(suggestion)}
+                        suggestion?.title ||
+                        JSON.stringify(suggestion)}
                     </li>
                   ))}
                 </ul>
@@ -809,13 +808,12 @@ const ResumeAnalyzer = () => {
                               {resource.skill}
                             </span>
                             <Badge
-                              className={`text-xs ${
-                                resource.priority === "Critical"
+                              className={`text-xs ${resource.priority === "Critical"
                                   ? "bg-red-500/20 text-red-400 border-red-500/30"
                                   : resource.priority === "High"
                                     ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
                                     : "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                              }`}
+                                }`}
                             >
                               {resource.priority}
                             </Badge>

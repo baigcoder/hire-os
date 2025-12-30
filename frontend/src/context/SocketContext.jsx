@@ -103,8 +103,8 @@ export const RealtimeProvider = ({ children }) => {
         if (status === "SUBSCRIBED") {
           await presenceChannel.track({
             online_at: new Date().toISOString(),
-            user_name: user.fullname,
-            user_role: user.role,
+            user_name: user?.fullname || 'Unknown',
+            user_role: user?.role || 'unknown',
           });
           setIsConnected(true);
         }
@@ -227,9 +227,9 @@ export const RealtimeProvider = ({ children }) => {
           type: "broadcast",
           event: "new-message",
           payload: {
-            senderId: user._id,
-            senderName: user.fullname,
-            senderRole: user.role,
+            senderId: user?._id,
+            senderName: user?.fullname || 'Unknown',
+            senderRole: user?.role || 'unknown',
             receiverId: recipientId,
             content: message,
             timestamp: new Date().toISOString(),

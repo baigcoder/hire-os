@@ -157,10 +157,21 @@ const CompanyAdminDashboard = () => {
     const checkRegistrationStatus = async () => {
       // Check if user has companyId (indicates completed registration)
       if (user?.role === "company_admin" && !user?.companyId) {
-        // Check for pending registration in sessionStorage
-        const pendingRegistration = sessionStorage.getItem("pendingCompanyRegistration");
+        // Check for pending registration in sessionStorage (from either flow)
+        const pendingCompanyReg = sessionStorage.getItem("pendingCompanyRegistration");
+        const pendingReg = sessionStorage.getItem("pendingRegistration");
 
-        if (!pendingRegistration) {
+        if (pendingCompanyReg || pendingReg) {
+          // Registration is in progress - wait for it to complete
+          console.log("⏳ Registration in progress, waiting for completion...");
+          return;
+        }
+
+        // Wait a brief moment for Redux state to settle (e.g., after payment redirect)
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Re-check after delay - the state might have been updated
+        if (!user?.companyId) {
           // No company and no pending registration - redirect to pricing
           console.log("⚠️ Company admin without company - redirecting to pricing");
           setRegistrationIncomplete(true);
@@ -169,7 +180,6 @@ const CompanyAdminDashboard = () => {
             replace: true,
             state: { fromIncompleteRegistration: true }
           });
-          return;
         }
       }
     };

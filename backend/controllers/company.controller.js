@@ -360,6 +360,7 @@ export const registerCompany = async (req, res) => {
         fullname: adminUser.fullname,
         email: adminUser.email,
         role: adminUser.role,
+        companyId: company._id,
       },
       invitedRecruiters,
       token,

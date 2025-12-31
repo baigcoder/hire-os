@@ -577,7 +577,7 @@ const LiveInterview = () => {
 
               <Button
                 variant="outline"
-                className="bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border-purple-600/30"
+                className="bg-[#FFD700]/10 hover:bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/50 hover:border-[#FFD700] font-bold uppercase tracking-wider animate-pulse"
                 onClick={() => setIsReportModalOpen(true)}
               >
                 <FileText className="mr-2 h-4 w-4" /> Generate Report
@@ -703,8 +703,8 @@ const LiveInterview = () => {
             {isRecruiter && mcqResults && (
               <div className="absolute top-6 right-6 z-20 w-64">
                 <div className={`backdrop-blur-md border rounded-lg p-3 ${mcqResults.passed
-                    ? 'bg-green-500/10 border-green-500/30'
-                    : 'bg-amber-500/10 border-amber-500/30'
+                  ? 'bg-green-500/10 border-green-500/30'
+                  : 'bg-amber-500/10 border-amber-500/30'
                   }`}>
                   <div className={`flex items-center gap-2 font-bold text-xs mb-2 uppercase tracking-wider ${mcqResults.passed ? 'text-green-400' : 'text-amber-400'
                     }`}>
@@ -726,8 +726,8 @@ const LiveInterview = () => {
                     </div>
                   </div>
                   <div className={`text-center py-1 rounded text-xs font-bold ${mcqResults.passed
-                      ? 'bg-green-500/20 text-green-400'
-                      : 'bg-amber-500/20 text-amber-400'
+                    ? 'bg-green-500/20 text-green-400'
+                    : 'bg-amber-500/20 text-amber-400'
                     }`}>
                     {mcqResults.passed ? '✓ PASSED' : '⚠ DID NOT PASS'}
                   </div>

@@ -644,7 +644,52 @@ const ResumeAnalyzer = () => {
               </div>
             </div>
 
-            {/* Skills Section */}
+            {/* Score Breakdown with Progress Bars */}
+            {analysis.scoreBreakdown && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-[#111111] border border-white/10 rounded-md p-6"
+              >
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-[#FFD700]" />
+                  Score Breakdown
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    { key: "skills", label: "Technical Skills", max: 30, color: "bg-cyan-500" },
+                    { key: "experience", label: "Experience", max: 25, color: "bg-purple-500" },
+                    { key: "projects", label: "Projects", max: 20, color: "bg-emerald-500" },
+                    { key: "education", label: "Education", max: 15, color: "bg-blue-500" },
+                    { key: "ats", label: "ATS Compatibility", max: 10, color: "bg-amber-500" },
+                  ].map((item, idx) => {
+                    const score = analysis.scoreBreakdown[item.key] || 0;
+                    const percentage = (score / item.max) * 100;
+                    return (
+                      <div key={item.key} className="group">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-gray-400 group-hover:text-white transition-colors">
+                            {item.label}
+                          </span>
+                          <span className="text-sm font-mono text-white">
+                            {score}<span className="text-gray-600">/{item.max}</span>
+                          </span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percentage}%` }}
+                            transition={{ duration: 1, delay: idx * 0.1 }}
+                            className={`h-full ${item.color} rounded-full`}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}   {/* Skills Section */}
             <div className="grid md:grid-cols-2 gap-4">
               {/* Matched Skills */}
               <div className="bg-[#111111] border border-white/10 rounded-md p-5">
@@ -809,10 +854,10 @@ const ResumeAnalyzer = () => {
                             </span>
                             <Badge
                               className={`text-xs ${resource.priority === "Critical"
-                                  ? "bg-red-500/20 text-red-400 border-red-500/30"
-                                  : resource.priority === "High"
-                                    ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
-                                    : "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                                ? "bg-red-500/20 text-red-400 border-red-500/30"
+                                : resource.priority === "High"
+                                  ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
+                                  : "bg-blue-500/20 text-blue-400 border-blue-500/30"
                                 }`}
                             >
                               {resource.priority}

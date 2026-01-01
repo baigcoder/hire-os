@@ -22,6 +22,11 @@ import {
   ChevronRight,
   Sparkles,
   TrendingUp,
+  Globe,
+  Star,
+  Gift,
+  Award,
+  GraduationCap,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -232,10 +237,10 @@ const JobDescription = () => {
                 <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded font-mono text-sm">
                   <DollarSign size={16} className="text-yellow-500" />
                   <span className="text-yellow-500 font-bold">
-                    {typeof job.salary === "number"
+                    ${typeof job.salary === "number"
                       ? job.salary.toLocaleString()
                       : job.salary}{" "}
-                    LPA
+                    /year
                   </span>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
@@ -246,6 +251,24 @@ const JobDescription = () => {
                   <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
                     <Users size={16} className="text-yellow-500" />
                     <span className="text-gray-300">{job.position} Openings</span>
+                  </div>
+                )}
+                {job.experienceLevel !== undefined && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded font-mono text-sm">
+                    <GraduationCap size={16} className="text-purple-400" />
+                    <span className="text-purple-400">{job.experienceLevel}+ yrs exp</span>
+                  </div>
+                )}
+                {job.isRemote && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded font-mono text-sm">
+                    <Globe size={16} className="text-emerald-400" />
+                    <span className="text-emerald-400">Remote OK</span>
+                  </div>
+                )}
+                {job.urgentHiring && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded font-mono text-sm animate-pulse">
+                    <Zap size={16} className="text-red-400" />
+                    <span className="text-red-400">Urgent Hiring</span>
                   </div>
                 )}
               </div>
@@ -335,6 +358,38 @@ const JobDescription = () => {
                     >
                       {skill}
                     </span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Benefits Section */}
+            {job.benefits && job.benefits.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
+                className="card-industrial p-8"
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-10 h-10 rounded bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                    <Gift size={20} className="text-emerald-500" />
+                  </div>
+                  <h2 className="text-xl font-bold text-white font-mono tracking-wide">
+                    BENEFITS_PACKAGE
+                  </h2>
+                  <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/30 to-transparent"></div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {job.benefits.map((benefit, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 px-4 py-3 bg-[#111] border border-white/10 rounded hover:border-emerald-500/30 transition-all group"
+                    >
+                      <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{benefit}</span>
+                    </div>
                   ))}
                 </div>
               </motion.div>
@@ -462,14 +517,42 @@ const JobDescription = () => {
                     <span className="text-sm text-white font-medium">{job.company?.name}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-white/5">
+                    <span className="text-sm text-gray-500">Industry</span>
+                    <span className="text-sm text-white font-medium">{job.industry || job.company?.industry || "Technology"}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-white/5">
                     <span className="text-sm text-gray-500">Location</span>
                     <span className="text-sm text-white font-medium">{job.location}</span>
                   </div>
-                  <div className="flex justify-between items-center py-2">
+                  <div className="flex justify-between items-center py-2 border-b border-white/5">
                     <span className="text-sm text-gray-500">Type</span>
                     <span className="text-sm text-white font-medium">{job.jobType}</span>
                   </div>
+                  {job.department && (
+                    <div className="flex justify-between items-center py-2 border-b border-white/5">
+                      <span className="text-sm text-gray-500">Department</span>
+                      <span className="text-sm text-white font-medium">{job.department}</span>
+                    </div>
+                  )}
+                  {job.educationRequired && (
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-sm text-gray-500">Education</span>
+                      <span className="text-sm text-white font-medium">{job.educationRequired}</span>
+                    </div>
+                  )}
                 </div>
+
+                {job.company?.website && (
+                  <a
+                    href={job.company.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-white/5 border border-white/10 rounded text-sm text-gray-400 hover:text-yellow-500 hover:border-yellow-500/30 transition-all font-mono"
+                  >
+                    <Globe size={14} />
+                    VISIT WEBSITE
+                  </a>
+                )}
               </div>
             </motion.div>
           </div>

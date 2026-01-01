@@ -275,15 +275,16 @@ export const analyzeResumeWithGPT5 = async (
   resumeText,
   jobDescription = "",
 ) => {
-  const systemPrompt = `You are an expert resume analyst and ATS (Applicant Tracking System) specialist with 20+ years of experience in recruiting and talent acquisition.
+  const systemPrompt = `You are an expert resume analyst, career coach, and ATS (Applicant Tracking System) specialist with 20+ years of experience in recruiting and talent acquisition.
 
 Your analysis must be:
 - Accurate and data-driven
 - Based on industry standards
 - Actionable with specific recommendations
 - Fair and unbiased
+- SPECIFIC to THIS resume - no generic placeholders
 
-Always return valid JSON.`;
+Always return valid JSON with ALL requested fields.`;
 
   const userPrompt = `Analyze this resume thoroughly and provide a comprehensive evaluation.
 
@@ -294,7 +295,7 @@ ${resumeText}
 
 ${jobDescription ? `JOB DESCRIPTION FOR MATCHING:\n"""\n${jobDescription}\n"""` : "No specific job provided - analyze for general software/tech roles."}
 
-Return a detailed JSON analysis:
+Return a detailed JSON analysis with ALL of these fields (be specific to this resume):
 {
     "score": <0-100 overall score>,
     "overallFit": "<Excellent|Strong|Good|Fair|Needs Improvement>",
@@ -326,9 +327,11 @@ Return a detailed JSON analysis:
     
     "experience": {
         "totalYears": <estimated>,
+        "yearsEstimate": <estimated>,
         "hasQuantifiedResults": <true|false>,
         "impactfulActions": ["<action verbs and results found>"],
-        "companies": ["<company names detected>"]
+        "companies": ["<company names detected>"],
+        "level": "<Entry|Mid|Senior>"
     },
     
     "education": {
@@ -352,17 +355,68 @@ Return a detailed JSON analysis:
     },
     
     "suggestions": [
-        "<specific, actionable improvement suggestions>"
+        "<specific actionable improvement 1>",
+        "<specific actionable improvement 2>",
+        "<specific actionable improvement 3>",
+        "<specific actionable improvement 4>"
     ],
     
-    "warnings": [
-        "<potential red flags or missing elements>"
+    "keyStrengths": [
+        "<strength 1 based on this specific resume>",
+        "<strength 2 based on this specific resume>",
+        "<strength 3 based on this specific resume>"
     ],
     
     "interviewQuestions": [
-        "<suggested questions to ask this candidate>"
+        {
+            "question": "<specific interview question based on their experience>",
+            "reason": "<why an interviewer would ask this based on their resume>",
+            "howToPrepare": "<specific advice on how to prepare for this question>"
+        },
+        {
+            "question": "<second relevant question>",
+            "reason": "<the reasoning behind this question>",
+            "howToPrepare": "<preparation tips>"
+        },
+        {
+            "question": "<third relevant question>",
+            "reason": "<why this question matters>",
+            "howToPrepare": "<how to answer effectively>"
+        },
+        {
+            "question": "<fourth question based on their background>",
+            "reason": "<connection to their experience>",
+            "howToPrepare": "<specific preparation advice>"
+        }
+    ],
+    
+    "quickWins": [
+        "<quick fix 1 that can be done in 30 minutes>",
+        "<quick fix 2>"
+    ],
+    
+    "learningResources": [
+        {
+            "skill": "<missing skill from their resume>",
+            "resource": "<specific course or resource name>",
+            "platform": "<Coursera|Udemy|YouTube|LinkedIn Learning|etc>",
+            "priority": "<Critical|High|Medium>",
+            "estimatedTime": "<2-4 hours>"
+        }
+    ],
+    
+    "competitorComparison": {
+        "marketPosition": "<Top 10%|Top 25%|Top 50%|Average|Below Average>",
+        "standoutFactor": "<what makes them unique>",
+        "competitiveAdvantage": "<their main advantage over other candidates>"
+    },
+    
+    "warnings": [
+        "<potential red flags or missing elements>"
     ]
-}`;
+}
+
+IMPORTANT: Make ALL content SPECIFIC to THIS resume. Use actual skills, projects, and experience mentioned. No generic placeholders.`;
 
   try {
     const result = await callGPT5(
@@ -371,9 +425,10 @@ Return a detailed JSON analysis:
         { role: "user", content: userPrompt },
       ],
       {
-        temperature: 0.3,
-        maxTokens: 3000,
+        temperature: 0.4,
+        maxTokens: 4000,
         feature: "RESUME_ANALYSIS", // Uses gpt-5.1-ca for deep analysis
+        preferSpeed: false, // Accuracy over speed
       },
     );
 

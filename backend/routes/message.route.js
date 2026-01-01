@@ -12,6 +12,7 @@ import {
   replyToMessage,
   sendBroadcast,
   getConversation,
+  deleteConversation,
 } from "../controllers/message.controller.js";
 
 const router = express.Router();
@@ -33,6 +34,7 @@ router.post("/reply/:messageId", replyToMessage);
 
 // Conversation thread
 router.get("/conversation/:partnerId", getConversation);
+router.delete("/conversation/:partnerId", deleteConversation);
 
 // Send message
 router.post("/send", sendMessage);

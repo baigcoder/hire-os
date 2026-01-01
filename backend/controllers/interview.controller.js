@@ -143,6 +143,34 @@ export const createInterview = async (req, res) => {
     });
     console.log(`📨 Interview message sent to ${application.applicant.fullname}`);
 
+    // ========== AUTO-ADD MESSAGING CONNECTIONS ==========
+    // 1. Send message from CEO to student (creates CEO ↔ Student connection)
+    if (company.adminUser && company.adminUser.toString() !== recruiterId) {
+      const ceo = await User.findById(company.adminUser);
+      if (ceo) {
+        await Message.create({
+          senderId: company.adminUser,
+          senderRole: "company_admin",
+          receiverId: application.applicant._id,
+          receiverRole: "student",
+          subject: `Welcome from ${company.name} Leadership`,
+          content: `Dear ${application.applicant.fullname},\n\nWelcome to the interview process for ${application.job.title}!\n\nI'm the CEO of ${company.name} and wanted to personally welcome you. Our team is excited to learn more about you.\n\nFeel free to reach out if you have any questions.\n\nBest regards,\n${ceo.fullname || "Company Leadership"}\n${company.name}`,
+          type: "interview",
+          priority: "normal",
+          relatedTo: {
+            applicationId: application._id,
+            jobId: application.job._id,
+            interviewId: interview._id,
+            companyId: company._id,
+          },
+        });
+        console.log(`📨 CEO welcome message sent to ${application.applicant.fullname}`);
+      }
+    }
+
+    // 2. Notify student they can message back (for UI purposes, student now has these contacts)
+    // The student can now reply to both recruiter and CEO in their messages
+
     // Broadcast real-time update to student dashboard via Supabase
     try {
       const { broadcastInterviewScheduled } = await import("../utils/supabaseBroadcast.js");

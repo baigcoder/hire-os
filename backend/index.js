@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
+import compression from "compression";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
 import os from "os";
@@ -107,6 +108,26 @@ app.use((req, res, next) => {
   res.removeHeader("X-Powered-By");
   next();
 });
+
+// ========== COMPRESSION MIDDLEWARE ==========
+// Enable gzip/brotli compression for responses
+app.use(
+  compression({
+    // Compress responses over 1KB
+    threshold: 1024,
+    // Compression level (1-9, higher = better compression but slower)
+    level: 6,
+    // Filter function to determine if response should be compressed
+    filter: (req, res) => {
+      // Don't compress responses that set 'x-no-compression' header
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      // Use default filter (compresses text-based content types)
+      return compression.filter(req, res);
+    },
+  }),
+);
 
 // Body parser middleware
 app.use(express.json({ limit: "10mb" }));

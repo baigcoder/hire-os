@@ -1,118 +1,137 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="HIRE.OS - Industrial Grade Talent Acquisition. The operating system for modern hiring."
-    />
-    <meta
-      name="keywords"
-      content="hiring, recruitment, AI interviews, talent acquisition, job search, HR tech"
-    />
-    <meta name="author" content="HIRE.OS" />
 
-    <!-- Open Graph / Social Media -->
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:title"
-      content="HIRE.OS - Industrial Grade Talent Acquisition"
-    />
-    <meta
-      property="og:description"
-      content="The operating system for modern hiring. AI-powered interviews, real-time analytics, and precision talent matching."
-    />
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="HIRE.OS - Industrial Grade Talent Acquisition. The operating system for modern hiring." />
+  <meta name="keywords" content="hiring, recruitment, AI interviews, talent acquisition, job search, HR tech" />
+  <meta name="author" content="HIRE.OS" />
 
-    <!-- Google Fonts - Industrial Typography: Space Grotesk + Inter + JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="HIRE.OS - Industrial Grade Talent Acquisition" />
+  <meta property="og:description"
+    content="The operating system for modern hiring. AI-powered interviews, real-time analytics, and precision talent matching." />
 
-    <title>HIRE.OS - Industrial Grade Talent Acquisition</title>
+  <!-- Google Fonts - Industrial Typography: Space Grotesk + Inter + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <style>
-      /* Critical CSS for faster loading */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family:
-          "Space Grotesk",
-          "Inter",
-          system-ui,
-          -apple-system,
-          sans-serif;
-        background-color: #0a0a0a;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        color: #e1e1e1;
-      }
-      #root {
-        min-height: 100vh;
-      }
-      /* Industrial Loading animation */
-      .loading-screen {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background: #0a0a0a;
-        gap: 20px;
-      }
-      .loading-brand {
-        font-family: "Space Grotesk", sans-serif;
-        font-size: 24px;
-        font-weight: 700;
-        color: #ffd700;
-        letter-spacing: 0.1em;
-      }
-      .loading-bar-container {
-        width: 200px;
-        height: 4px;
-        background: #222;
-        border-radius: 2px;
-        overflow: hidden;
-      }
-      .loading-bar {
+  <!-- DNS Prefetch for external resources -->
+  <link rel="dns-prefetch" href="https://api.cloudinary.com" />
+  <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+  <link rel="dns-prefetch" href="https://supabase.co" />
+
+  <!-- Preconnect for API resources (early connection establishment) -->
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+
+  <!-- Preload critical fonts for faster text rendering -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+  </noscript>
+
+  <!-- Regular font loading for other weights -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+
+  <title>HIRE.OS - Industrial Grade Talent Acquisition</title>
+
+  <style>
+    /* Critical CSS for faster loading */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family:
+        "Space Grotesk",
+        "Inter",
+        system-ui,
+        -apple-system,
+        sans-serif;
+      background-color: #0a0a0a;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: #e1e1e1;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    /* Industrial Loading animation */
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #0a0a0a;
+      gap: 20px;
+    }
+
+    .loading-brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffd700;
+      letter-spacing: 0.1em;
+    }
+
+    .loading-bar-container {
+      width: 200px;
+      height: 4px;
+      background: #222;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .loading-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #ffd700, #00ff94);
+      animation: load 1.5s ease-out infinite;
+    }
+
+    @keyframes load {
+      0% {
         width: 0%;
-        height: 100%;
-        background: linear-gradient(90deg, #ffd700, #00ff94);
-        animation: load 1.5s ease-out infinite;
+        transform: translateX(0);
       }
-      @keyframes load {
-        0% {
-          width: 0%;
-          transform: translateX(0);
-        }
-        50% {
-          width: 100%;
-          transform: translateX(0);
-        }
-        100% {
-          width: 100%;
-          transform: translateX(200px);
-        }
+
+      50% {
+        width: 100%;
+        transform: translateX(0);
       }
-    </style>
-  </head>
-  <body>
-    <div id="root">
-      <!-- Industrial Loading state while React loads -->
-      <div class="loading-screen">
-        <span class="loading-brand">HIRE.OS</span>
-        <div class="loading-bar-container">
-          <div class="loading-bar"></div>
-        </div>
+
+      100% {
+        width: 100%;
+        transform: translateX(200px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <!-- Industrial Loading state while React loads -->
+    <div class="loading-screen">
+      <span class="loading-brand">HIRE.OS</span>
+      <div class="loading-bar-container">
+        <div class="loading-bar"></div>
       </div>
     </div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  </div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

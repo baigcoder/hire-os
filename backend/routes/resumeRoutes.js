@@ -996,9 +996,9 @@ async function analyzeResumeWithAI(resumeText, jobDescription = "") {
  * Gemini fallback analysis
  */
 async function analyzeWithGemini(resumeText, jobDescription = "") {
-  const prompt = `You are an expert resume analyst and ATS (Applicant Tracking System) specialist.
+  const prompt = `You are an expert resume analyst, career coach, and ATS (Applicant Tracking System) specialist.
 
-Analyze this resume and provide a comprehensive evaluation:
+Analyze this resume comprehensively and provide actionable insights:
 
 RESUME:
 """
@@ -1007,24 +1007,25 @@ ${resumeText.substring(0, 8000)}
 
 ${jobDescription ? `JOB DESCRIPTION FOR MATCHING:\n"""\n${jobDescription.substring(0, 2000)}\n"""` : ""}
 
-Provide a detailed JSON response with the following structure:
+Provide a detailed JSON response with ALL of the following fields (use real, specific data from the resume):
 {
   "score": <overall score 0-100>,
   "overallFit": "<Excellent|Strong|Good|Fair|Needs Improvement>",
   "atsScore": <ATS compatibility 0-100>,
   
   "sections": {
-    "found": ["contact", "summary", "experience", "education", "skills", "projects"],
-    "missing": ["certifications", "achievements"]
+    "found": ["contact", "summary", "experience", "education", "skills"],
+    "missing": ["certifications"]
   },
   
   "skills": {
-    "matched": ["JavaScript", "React", "Python"],
-    "missing": ["Docker", "AWS"],
+    "matched": ["JavaScript", "React", "Node.js"],
+    "missing": ["Docker", "AWS", "Kubernetes"],
     "byCategory": {
       "programming": ["JavaScript", "Python"],
-      "frontend": ["React"],
-      "cloud": []
+      "frontend": ["React", "Vue"],
+      "backend": ["Node.js", "Express"],
+      "cloud": ["AWS"]
     }
   },
   
@@ -1036,7 +1037,7 @@ Provide a detailed JSON response with the following structure:
   },
   
   "education": {
-    "level": "<PhD|Masters|Bachelors|Associate|High School|Not Detected>",
+    "level": "<PhD|Masters|Bachelors|Associate|High School>",
     "score": <0-15>
   },
   
@@ -1055,18 +1056,74 @@ Provide a detailed JSON response with the following structure:
   },
   
   "suggestions": [
-    "Add quantified achievements to experience section",
-    "Include more technical skills keywords"
+    "Specific actionable improvement 1",
+    "Specific actionable improvement 2",
+    "Specific actionable improvement 3",
+    "Specific actionable improvement 4"
   ],
   
+  "keyStrengths": [
+    "Strong proficiency in [specific technologies from resume]",
+    "Proven experience with [specific achievements]",
+    "Demonstrated ability in [specific area]"
+  ],
+  
+  "interviewQuestions": [
+    {
+      "question": "Based on the resume, write a specific behavioral interview question",
+      "reason": "Why this question would likely be asked based on their experience",
+      "howToPrepare": "Specific advice on how to prepare for this question"
+    },
+    {
+      "question": "Another specific technical or behavioral question",
+      "reason": "The reasoning behind this question",
+      "howToPrepare": "Preparation tips"
+    },
+    {
+      "question": "Third relevant interview question",
+      "reason": "Why interviewers might ask this",
+      "howToPrepare": "How to answer effectively"
+    },
+    {
+      "question": "Fourth interview question based on their background",
+      "reason": "Connection to their experience",
+      "howToPrepare": "Specific preparation advice"
+    }
+  ],
+  
+  "quickWins": [
+    "Quick fix that can be done in 30 minutes or less",
+    "Another easy improvement to make immediately"
+  ],
+  
+  "learningResources": [
+    {
+      "skill": "Missing skill from their resume",
+      "resource": "Specific course or resource name",
+      "platform": "Coursera/Udemy/YouTube/etc",
+      "priority": "<Critical|High|Medium>",
+      "estimatedTime": "2-4 hours"
+    }
+  ],
+  
+  "competitorComparison": {
+    "marketPosition": "Top 25% of candidates",
+    "standoutFactor": "What makes them unique",
+    "competitiveAdvantage": "Their main advantage over other candidates"
+  },
+  
   "warnings": [
-    "Missing LinkedIn profile link",
-    "No certifications section"
+    "Any red flags or critical issues with the resume"
   ]
 }
 
-Be accurate and professional. Score fairly based on industry standards.
-Return ONLY the JSON object, no markdown or explanation.`;
+IMPORTANT RULES:
+1. Make ALL content SPECIFIC to THIS resume - no generic placeholders
+2. Interview questions should be REALISTIC and based on their actual experience
+3. Suggestions should be ACTIONABLE and SPECIFIC
+4. Use actual skills, projects, and experience mentioned in the resume
+5. Score fairly based on industry standards
+6. Return ONLY the JSON object, no markdown or explanation`;
 
   try {
     const response = await fetch(
@@ -1077,8 +1134,8 @@ Return ONLY the JSON object, no markdown or explanation.`;
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 2048,
+            temperature: 0.4,
+            maxOutputTokens: 4096,
           },
         }),
       },

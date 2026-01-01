@@ -37,6 +37,7 @@ import {
   Check,
   CheckCheck,
   Terminal,
+  Trash2,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -396,6 +397,38 @@ const RecruiterMessagesPage = () => {
     }
   };
 
+  const handleDeleteConversation = async () => {
+    if (!activeContact?._id) return;
+
+    const confirmed = window.confirm(
+      `Delete all messages with ${activeContact.fullname}? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const res = await axios.delete(
+        `${MESSAGE_API_END_POINT}/conversation/${activeContact._id}`,
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        toast.success(`Conversation deleted (${res.data.data?.deletedCount || 0} messages)`);
+        setConversation([]);
+
+        // Remove contact from list if they're a candidate
+        if (activeContact.role === "student") {
+          setContacts(prev => prev.filter(c => c._id !== activeContact._id));
+        }
+
+        // Clear active contact
+        setActiveContact(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete conversation:", error);
+      toast.error(error.response?.data?.message || "Failed to delete conversation");
+    }
+  };
 
 
   if (loading) {
@@ -645,6 +678,15 @@ const RecruiterMessagesPage = () => {
                     className="text-gray-500 hover:text-white w-10 h-10 p-0"
                   >
                     <Video className="w-5 h-5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleDeleteConversation}
+                    className="text-gray-500 hover:text-red-400 w-10 h-10 p-0"
+                    title="Delete conversation"
+                  >
+                    <Trash2 className="w-5 h-5" />
                   </Button>
                 </div>
               </div>

@@ -116,6 +116,9 @@ const AICareerCoach = React.lazy(
 const SalaryBenchmark = React.lazy(
   () => import("./components/student/SalaryBenchmark"),
 );
+const ResumeAnalyzer = React.lazy(
+  () => import("./components/student/ResumeAnalyzer"),
+);
 const JobTemplateManager = React.lazy(
   () => import("./components/recruiter/JobTemplateManager"),
 );
@@ -410,6 +413,16 @@ const appRouter = createBrowserRouter([
       <ProtectedRoute>
         <LazyWrapper>
           <SalaryBenchmark />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/resume-analyzer",
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <ResumeAnalyzer />
         </LazyWrapper>
       </ProtectedRoute>
     ),

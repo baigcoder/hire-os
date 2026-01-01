@@ -24,6 +24,7 @@ import {
   DollarSign,
   ArrowRight,
   Sparkles,
+  FileSearch,
 } from "lucide-react";
 import axios from "axios";
 import { APPLICATION_API_END_POINT } from "@/utils/constant";
@@ -172,7 +173,7 @@ const Dashboard = () => {
           <Sparkles className="h-5 w-5 text-primary" />
           Career Tools
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link to="/career-coach">
             <Card className="hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group h-full">
               <CardContent className="pt-6">
@@ -185,6 +186,23 @@ const Dashboard = () => {
                 <h3 className="font-semibold text-lg mb-1">AI Career Coach</h3>
                 <p className="text-sm text-muted-foreground">
                   Get personalized career advice, interview tips, and resume feedback from AI
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/resume-analyzer">
+            <Card className="hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group h-full">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center mb-4">
+                    <FileSearch className="h-6 w-6 text-white" />
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <h3 className="font-semibold text-lg mb-1">Resume Analyzer</h3>
+                <p className="text-sm text-muted-foreground">
+                  Upload your PDF resume and get AI-powered scoring with improvement tips
                 </p>
               </CardContent>
             </Card>

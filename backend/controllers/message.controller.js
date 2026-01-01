@@ -594,3 +594,52 @@ export const getConversation = async (req, res) => {
     });
   }
 };
+
+/**
+ * Delete entire conversation with a user (all messages between two users)
+ */
+export const deleteConversation = async (req, res) => {
+  try {
+    const userId = req.id;
+    const { partnerId } = req.params;
+
+    if (!partnerId) {
+      return res.status(400).json({
+        message: "Partner ID is required",
+        success: false,
+      });
+    }
+
+    // Soft delete all messages between these two users (both directions)
+    const result = await Message.updateMany(
+      {
+        $or: [
+          { senderId: userId, receiverId: partnerId },
+          { senderId: partnerId, receiverId: userId },
+        ],
+        isDeleted: false,
+      },
+      {
+        isDeleted: true,
+        deletedAt: new Date(),
+        deletedBy: userId,
+      }
+    );
+
+    logger.info(`🗑️ Conversation deleted: ${result.modifiedCount} messages`);
+
+    return res.status(200).json({
+      message: `Conversation deleted (${result.modifiedCount} messages)`,
+      success: true,
+      data: {
+        deletedCount: result.modifiedCount,
+      },
+    });
+  } catch (error) {
+    logger.error("Delete conversation error:", error);
+    return res.status(500).json({
+      message: "Failed to delete conversation",
+      success: false,
+    });
+  }
+};

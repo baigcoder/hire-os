@@ -362,4 +362,11 @@
     display: none;
     /* Chrome, Safari and Opera */
   }
+
+  /* Shimmer animation for lazy loading placeholders */
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }

@@ -83,6 +83,7 @@ import DailyJobAlerts from "./DailyJobAlerts";
 import PracticeHistory from "./PracticeHistory";
 import AICareerCoach from "./AICareerCoach";
 import ReferralDashboard from "./ReferralDashboard";
+import ResumeAnalyzer from "./ResumeAnalyzer";
 import { useSupabaseDashboard } from "../../hooks/useSupabaseDashboard";
 import DashboardLoader from "../shared/DashboardLoader";
 import RealtimeNotifications from "../shared/RealtimeNotifications";
@@ -1015,6 +1016,16 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  className={`border-white/10 ${searchParams.get("sub") === "resume" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  onClick={() =>
+                    setSearchParams({ tab: "career", sub: "resume" })
+                  }
+                >
+                  <FileSearch className="w-4 h-4 mr-2" /> Resume
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   className={`border-white/10 ${searchParams.get("sub") === "learning" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "learning" })
@@ -1030,6 +1041,7 @@ const StudentDashboard = () => {
               {searchParams.get("sub") === "salary" && <SalaryInsights />}
               {searchParams.get("sub") === "referrals" && <ReferralDashboard />}
               {searchParams.get("sub") === "learning" && <LearningResources />}
+              {searchParams.get("sub") === "resume" && <ResumeAnalyzer />}
             </motion.div>
           )}
 

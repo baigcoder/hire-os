@@ -100,6 +100,7 @@ export const registerCompany = async (req, res) => {
             email: existingAdmin.email,
             role: existingAdmin.role,
             companyId: existingCompany._id,
+            subscriptionStatus: existingAdmin.subscriptionStatus || existingCompany.subscription.status, // Include for dashboard access
           },
           invitedRecruiters: [],
           token,
@@ -208,8 +209,10 @@ export const registerCompany = async (req, res) => {
         : [],
     });
 
-    // Update admin user with company reference
+    // Update admin user with company reference and subscription status
     adminUser.companyId = company._id;
+    // Set subscriptionStatus based on payment - CRITICAL for dashboard access
+    adminUser.subscriptionStatus = paymentToken ? "active" : "pending";
     await adminUser.save();
 
     // Track invited recruiters
@@ -361,6 +364,7 @@ export const registerCompany = async (req, res) => {
         email: adminUser.email,
         role: adminUser.role,
         companyId: company._id,
+        subscriptionStatus: adminUser.subscriptionStatus, // CRITICAL for dashboard access
       },
       invitedRecruiters,
       token,

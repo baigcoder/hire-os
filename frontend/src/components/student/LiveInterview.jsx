@@ -858,7 +858,7 @@ const LiveInterview = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-4xl md:text-5xl font-bold text-center mb-3"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-3"
         >
           <span className="text-white">AI Interview </span>
           <span className="text-[#FFD700]">Coach</span>
@@ -875,7 +875,7 @@ const LiveInterview = () => {
       </div>
 
       {/* Main Configuration Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Left Column - Interview Type */}
         <motion.div
           initial={{ x: -20, opacity: 0 }}
@@ -1098,7 +1098,7 @@ const LiveInterview = () => {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.75 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6"
       >
         {/* Language Selection */}
         <div className="rounded-sm border border-[#2a2a2a] bg-transparent p-4">
@@ -1286,11 +1286,11 @@ const LiveInterview = () => {
 
   // Render interview screen - Hire.OS Style
   const renderInterview = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
       {/* Main Interview Area */}
       <div className="lg:col-span-2 space-y-4">
-        {/* Video feeds */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Video feeds - Stack on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* AI Video (avatar) */}
           <motion.div
             animate={{
@@ -1298,11 +1298,10 @@ const LiveInterview = () => {
             }}
             className="relative aspect-video bg-[#0a0a0a] rounded-xl border-2 border-[#2a2a2a] flex items-center justify-center overflow-hidden"
           >
-            {/* AI Avatar */}
             <div
-              className={`w-20 h-20 rounded-full bg-[#FFD700] flex items-center justify-center ${isAISpeaking ? "animate-pulse" : ""}`}
+              className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#FFD700] flex items-center justify-center ${isAISpeaking ? "animate-pulse" : ""}`}
             >
-              <Bot className="w-10 h-10 text-black" />
+              <Bot className="w-7 h-7 sm:w-10 sm:h-10 text-black" />
             </div>
 
             {/* AI name badge */}
@@ -1343,9 +1342,9 @@ const LiveInterview = () => {
               />
             ) : (
               <div
-                className={`w-20 h-20 rounded-full bg-[#333] flex items-center justify-center ${isRecording ? "ring-4 ring-[#FFD700]/50" : ""}`}
+                className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#333] flex items-center justify-center ${isRecording ? "ring-4 ring-[#FFD700]/50" : ""}`}
               >
-                <User className="w-10 h-10 text-gray-400" />
+                <User className="w-7 h-7 sm:w-10 sm:h-10 text-gray-400" />
               </div>
             )}
 
@@ -1405,11 +1404,11 @@ const LiveInterview = () => {
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center justify-center gap-3 p-4 bg-[#0a0a0a] rounded-xl border border-[#2a2a2a]">
+        {/* Controls - Larger on mobile */}
+        <div className="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[#0a0a0a] rounded-xl border border-[#2a2a2a]">
           <button
             onClick={toggleMic}
-            className={`rounded-full w-12 h-12 flex items-center justify-center transition-all ${isRecording ? "bg-red-500 hover:bg-red-600 text-white" : "bg-[#1a1a1a] border border-[#2a2a2a] text-gray-400 hover:border-[#444]"}`}
+            className={`rounded-full w-14 h-14 sm:w-12 sm:h-12 flex items-center justify-center transition-all ${isRecording ? "bg-red-500 hover:bg-red-600 text-white" : "bg-[#1a1a1a] border border-[#2a2a2a] text-gray-400 hover:border-[#444]"}`}
           >
             {isRecording ? (
               <Mic className="w-5 h-5" />
@@ -1420,7 +1419,7 @@ const LiveInterview = () => {
 
           <button
             onClick={toggleVideo}
-            className={`rounded-full w-12 h-12 flex items-center justify-center transition-all ${videoEnabled ? "bg-[#1a1a1a] border border-[#2a2a2a] text-white" : "bg-[#1a1a1a] border border-[#2a2a2a] text-gray-400"} hover:border-[#444]`}
+            className={`rounded-full w-14 h-14 sm:w-12 sm:h-12 flex items-center justify-center transition-all ${videoEnabled ? "bg-[#1a1a1a] border border-[#2a2a2a] text-white" : "bg-[#1a1a1a] border border-[#2a2a2a] text-gray-400"} hover:border-[#444]`}
           >
             {videoEnabled ? (
               <Video className="w-5 h-5" />

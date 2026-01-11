@@ -4,18 +4,37 @@ import Redis from "ioredis";
  * Redis Cache Utility
  * Provides caching layer for performance optimization
  * Falls back gracefully if Redis is not available
+ * Uses lazy initialization to avoid issues in serverless environments
  */
 
 class CacheManager {
   constructor() {
     this.client = null;
     this.isConnected = false;
+    this.isInitialized = false;
+    this.initPromise = null;
     this.defaultTTL = 300; // 5 minutes default
-
-    this.init();
+    // Don't call init() here - use lazy initialization instead
   }
 
-  init() {
+  /**
+   * Lazy initialization - called on first cache operation
+   */
+  async ensureInitialized() {
+    if (this.isInitialized) return;
+
+    // Use a promise to prevent multiple init calls
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+
+    this.initPromise = this.init();
+    return this.initPromise;
+  }
+
+  async init() {
+    if (this.isInitialized) return;
+
     try {
       const redisUrl = process.env.REDIS_URL;
 
@@ -24,6 +43,7 @@ class CacheManager {
           "ℹ️ Redis disabled (no REDIS_URL provided), using in-memory mode",
         );
         this.isConnected = false;
+        this.isInitialized = true;
         return;
       }
 
@@ -51,13 +71,16 @@ class CacheManager {
       });
 
       // Attempt to connect
-      this.client.connect().catch((err) => {
+      await this.client.connect().catch((err) => {
         console.warn("⚠️ Redis not available, caching disabled:", err.message);
         this.isConnected = false;
       });
+
+      this.isInitialized = true;
     } catch (error) {
       console.warn("⚠️ Redis initialization failed:", error.message);
       this.isConnected = false;
+      this.isInitialized = true; // Mark as initialized even on failure to prevent retries
     }
   }
 
@@ -67,6 +90,7 @@ class CacheManager {
    * @returns {Promise<any|null>} - Cached value or null
    */
   async get(key) {
+    await this.ensureInitialized();
     if (!this.isConnected) return null;
 
     try {
@@ -86,6 +110,7 @@ class CacheManager {
    * @returns {Promise<boolean>} - Success status
    */
   async set(key, value, ttl = this.defaultTTL) {
+    await this.ensureInitialized();
     if (!this.isConnected) return false;
 
     try {
@@ -103,6 +128,7 @@ class CacheManager {
    * @returns {Promise<boolean>}
    */
   async del(key) {
+    await this.ensureInitialized();
     if (!this.isConnected) return false;
 
     try {
@@ -120,6 +146,7 @@ class CacheManager {
    * @returns {Promise<number>} - Number of deleted keys
    */
   async delPattern(pattern) {
+    await this.ensureInitialized();
     if (!this.isConnected) return 0;
 
     try {
@@ -181,6 +208,7 @@ class CacheManager {
    * @returns {Promise<boolean>}
    */
   async flush() {
+    await this.ensureInitialized();
     if (!this.isConnected) return false;
 
     try {

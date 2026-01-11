@@ -44,9 +44,9 @@ const Job = ({ job, viewMode = "grid" }) => {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
 
-        <div className="flex items-start gap-6 relative z-10">
+        <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 relative z-10">
           {/* Company Logo */}
-          <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:border-yellow-500/30 transition-colors">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:border-yellow-500/30 transition-colors">
             {job?.company?.logo ? (
               <img
                 src={job.company.logo}
@@ -63,9 +63,9 @@ const Job = ({ job, viewMode = "grid" }) => {
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-2 sm:gap-4">
               <div>
-                <h3 className="text-xl font-bold text-white group-hover:text-yellow-500 transition-colors tracking-tight">
+                <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-yellow-500 transition-colors tracking-tight line-clamp-2 sm:line-clamp-none">
                   {job?.title}
                 </h3>
                 <div className="flex items-center gap-2 mt-1">
@@ -89,7 +89,7 @@ const Job = ({ job, viewMode = "grid" }) => {
               </button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-gray-400">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-400">
               <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
                 <MapPin size={14} className="text-yellow-500" />
                 {job?.location || "Remote"}
@@ -110,7 +110,7 @@ const Job = ({ job, viewMode = "grid" }) => {
               )}
             </div>
 
-            <div className="flex items-center justify-between mt-5 pt-5 border-t border-white/10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-white/10">
               <div className="flex flex-wrap gap-2">
                 {job?.skills?.slice(0, 4).map((skill, idx) => (
                   <span
@@ -121,7 +121,7 @@ const Job = ({ job, viewMode = "grid" }) => {
                   </span>
                 ))}
               </div>
-              <div className="flex items-center gap-2 text-yellow-500 font-bold text-sm opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+              <div className="hidden sm:flex items-center gap-2 text-yellow-500 font-bold text-sm opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300">
                 View Details <ArrowRight size={16} />
               </div>
             </div>

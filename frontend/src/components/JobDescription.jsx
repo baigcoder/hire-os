@@ -182,8 +182,8 @@ const JobDescription = () => {
           <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-yellow-500/30 rounded-bl-lg"></div>
           <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-yellow-500/30 rounded-br-lg"></div>
 
-          {/* Status Badge */}
-          <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded font-mono text-xs text-green-400">
+          {/* Status Badge - Hidden on mobile to avoid overlap */}
+          <div className="hidden sm:flex absolute top-6 right-6 items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded font-mono text-xs text-green-400">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             STATUS: ACTIVE
           </div>
@@ -224,8 +224,8 @@ const JobDescription = () => {
                 {job.company?.name}
               </p>
 
-              {/* Tags Grid */}
-              <div className="flex flex-wrap gap-3">
+              {/* Tags Grid - Horizontal scroll on mobile */}
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
                   <MapPin size={16} className="text-yellow-500" />
                   <span className="text-gray-300">{job.location}</span>
@@ -381,7 +381,7 @@ const JobDescription = () => {
                   <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/30 to-transparent"></div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {job.benefits.map((benefit, index) => (
                     <div
                       key={index}

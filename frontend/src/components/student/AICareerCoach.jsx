@@ -161,11 +161,11 @@ const AICareerCoach = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-4 h-[calc(100vh-80px)] flex flex-col">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 h-[calc(100vh-80px)] flex flex-col">
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 flex-shrink-0">
                 <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
+                    <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
                             <Bot className="h-4 w-4 text-white" />
                         </div>
@@ -188,8 +188,8 @@ const AICareerCoach = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-1 min-h-0 overflow-hidden">
-                {/* Sidebar */}
-                <div className="lg:col-span-1 flex flex-col gap-3 overflow-hidden">
+                {/* Sidebar - Hidden on mobile when session active */}
+                <div className={`lg:col-span-1 flex flex-col gap-3 overflow-hidden ${activeSession ? 'hidden lg:flex' : 'flex'}`}>
                     {/* Quick Start Topics */}
                     <Card className="flex-shrink-0">
                         <CardHeader className="pb-2 pt-3 px-3">
@@ -279,8 +279,8 @@ const AICareerCoach = () => {
                     </Card>
                 </div>
 
-                {/* Chat Area */}
-                <Card className="lg:col-span-3 flex flex-col min-h-0 overflow-hidden">
+                {/* Chat Area - Full width on mobile when session active */}
+                <Card className={`flex flex-col min-h-0 overflow-hidden ${activeSession ? 'col-span-1 lg:col-span-3' : 'lg:col-span-3'}`}>
                     {!activeSession ? (
                         // Welcome Screen
                         <CardContent className="flex-1 flex flex-col items-center justify-center py-12">
@@ -305,20 +305,20 @@ const AICareerCoach = () => {
                                 </p>
 
                                 {/* Feature Cards */}
-                                <div className="grid grid-cols-3 gap-3 mb-8">
+                                <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8">
                                     {TOPICS.slice(0, 3).map((topic) => {
                                         const Icon = topic.icon;
                                         return (
                                             <Button
                                                 key={topic.id}
                                                 variant="outline"
-                                                className="h-auto py-4 flex flex-col gap-2 hover:border-primary/50 group"
+                                                className="h-auto py-3 sm:py-4 flex flex-col gap-1 sm:gap-2 hover:border-primary/50 group"
                                                 onClick={() => startNewSession(topic.id)}
                                             >
-                                                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${topic.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                                                    <Icon className="w-5 h-5 text-white" />
+                                                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br ${topic.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                                                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                                 </div>
-                                                <span className="text-xs font-medium">{topic.label}</span>
+                                                <span className="text-[10px] sm:text-xs font-medium text-center leading-tight">{topic.label}</span>
                                             </Button>
                                         );
                                     })}
@@ -367,7 +367,7 @@ const AICareerCoach = () => {
                             </CardHeader>
 
                             {/* Messages */}
-                            <ScrollArea className="flex-1 px-6 py-4">
+                            <ScrollArea className="flex-1 px-3 sm:px-6 py-4">
                                 <div className="space-y-4 max-w-3xl mx-auto">
                                     <AnimatePresence>
                                         {messages.map((msg, idx) => (
@@ -384,7 +384,7 @@ const AICareerCoach = () => {
                                                     </div>
                                                 )}
                                                 <div
-                                                    className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-sm ${msg.role === "user"
+                                                    className={`max-w-[85%] sm:max-w-[75%] px-3 sm:px-4 py-2 sm:py-3 rounded-2xl shadow-sm ${msg.role === "user"
                                                         ? "bg-gradient-to-br from-violet-600 to-purple-700 text-white rounded-br-md shadow-violet-500/20"
                                                         : "bg-card border border-border rounded-bl-md"
                                                         }`}

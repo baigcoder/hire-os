@@ -1,7 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import compression from "compression";
 import mongoSanitize from "express-mongo-sanitize";
@@ -49,8 +48,11 @@ import { createServer } from "http";
 import logger from "./utils/logger.js";
 import performanceMonitor, { getPerformanceStats } from "./utils/performanceMonitor.js";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables (skip on Vercel - it manages env vars directly)
+if (!process.env.VERCEL) {
+  const dotenv = await import("dotenv");
+  dotenv.config();
+}
 
 const app = express();
 const httpServer = createServer(app);

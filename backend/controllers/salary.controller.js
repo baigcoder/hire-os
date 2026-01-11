@@ -11,14 +11,29 @@ export const submitSalary = async (req, res) => {
             return res.status(400).json({ success: false, message: "Required fields missing" });
         }
 
+        // Validate salary range (prevent unrealistic values)
+        const baseSalary = Number(salary.base);
+        if (isNaN(baseSalary) || baseSalary < 10000 || baseSalary > 10000000) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid salary. Please enter a realistic annual salary between $10,000 and $10,000,000"
+            });
+        }
+
+        // Sanitize job title (trim, normalize case)
+        const sanitizedJobTitle = jobTitle.trim().substring(0, 100);
+        if (sanitizedJobTitle.length < 2) {
+            return res.status(400).json({ success: false, message: "Job title must be at least 2 characters" });
+        }
+
         const user = await User.findById(userId);
 
         const salaryRecord = await SalaryData.create({
-            jobTitle,
+            jobTitle: sanitizedJobTitle,
             location: location || { country: "Pakistan" },
             experienceLevel,
             yearsOfExperience,
-            salary,
+            salary: { ...salary, base: baseSalary },
             education,
             skills,
             companySize,

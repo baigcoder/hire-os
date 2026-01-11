@@ -288,16 +288,44 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign out
+  // Sign out - clear all auth state completely
   const signOut = async () => {
     setLoading(true);
     try {
+      // Try to call backend logout (don't block on failure)
+      try {
+        await api.get("/user/logout");
+      } catch (backendError) {
+        console.log("Backend logout call failed (non-blocking):", backendError.message);
+      }
+
+      // Sign out from Supabase
       await supabaseAuth.signOut();
+
+      // Clear all auth-related localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("pendingSignupRole");
+      localStorage.removeItem("showTrialWelcome");
+      localStorage.removeItem("trialEndDate");
+
+      // Clear sessionStorage
+      sessionStorage.removeItem("authNewUser");
+      sessionStorage.removeItem("authUserRole");
+      sessionStorage.removeItem("newUserTrialStart");
+
+      // Clear Redux state
       dispatch(reduxLogout());
       setLocalUser(null);
       setSession(null);
     } catch (error) {
       console.error("Sign out error:", error);
+      // Even on error, still clear local state
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      dispatch(reduxLogout());
+      setLocalUser(null);
+      setSession(null);
     } finally {
       setLoading(false);
     }

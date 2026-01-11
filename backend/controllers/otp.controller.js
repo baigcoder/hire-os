@@ -75,9 +75,14 @@ export const sendOTP = async (req, res) => {
     // Send OTP email
     await sendOTPEmail(email, otp, purpose);
 
+    // OTP expires in 5 minutes
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
     return res.status(200).json({
       message: "Verification code sent to your email",
       success: true,
+      expiresAt: otpExpiresAt,
+      expiresInSeconds: 300, // 5 minutes
     });
   } catch (error) {
     console.error("Send OTP error:", error);
@@ -306,9 +311,14 @@ export const resendOTP = async (req, res) => {
     // Send OTP email
     await sendOTPEmail(email, otp, purpose);
 
+    // OTP expires in 5 minutes
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
     return res.status(200).json({
       message: "New verification code sent to your email",
       success: true,
+      expiresAt: otpExpiresAt,
+      expiresInSeconds: 300, // 5 minutes
     });
   } catch (error) {
     console.error("Resend OTP error:", error);

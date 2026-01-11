@@ -106,8 +106,8 @@ const SkillGapAnalysis = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Target className="text-[#FFD700]" /> Skill Gap Analysis
+          <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+            <Target className="text-[#FFD700] w-5 h-5 sm:w-6 sm:h-6" /> Skill Gap Analysis
           </h2>
           <p className="text-gray-400 text-sm mt-1">
             AI-powered insights to boost your career
@@ -115,7 +115,8 @@ const SkillGapAnalysis = () => {
         </div>
         <Button
           variant="outline"
-          className="border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700]/10"
+          size="sm"
+          className="border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700]/10 w-full sm:w-auto"
           onClick={() => fetchSkillGap(true)}
           disabled={refreshing}
         >
@@ -144,8 +145,8 @@ const SkillGapAnalysis = () => {
               </Badge>
             </div>
 
-            <div className="flex items-center gap-6 mb-6">
-              <div className="relative w-32 h-32">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-6">
+              <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
                 <svg className="w-full h-full transform -rotate-90">
                   <circle
                     cx="64"
@@ -168,13 +169,13 @@ const SkillGapAnalysis = () => {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-white">
+                  <span className="text-2xl sm:text-3xl font-bold text-white">
                     {analysis?.overallReadiness || 0}%
                   </span>
                   <span className="text-xs text-gray-500">READY</span>
                 </div>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 text-center sm:text-left">
                 <p className="text-gray-300 text-sm leading-relaxed">
                   {analysis?.careerAdvice ||
                     "Complete your profile to get personalized career advice."}
@@ -287,7 +288,7 @@ const SkillGapAnalysis = () => {
                 {analysis.prioritySkills.map((item, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 bg-white/5 rounded-xl border border-white/5 gap-2"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -299,7 +300,7 @@ const SkillGapAnalysis = () => {
                         {item.skill}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500 max-w-xs text-right">
+                    <p className="text-xs sm:text-sm text-gray-500 max-w-xs text-left sm:text-right mt-2 sm:mt-0">
                       {item.reason}
                     </p>
                   </div>

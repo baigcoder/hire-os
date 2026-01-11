@@ -567,10 +567,10 @@ const MockInterview = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
           >
             {/* Interview Type Selection */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-6">
+            <div className="bg-[#111111] border border-white/10 rounded-md p-4 sm:p-6">
               <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
                 Select Interview Type
               </label>
@@ -596,7 +596,7 @@ const MockInterview = () => {
             </div>
 
             {/* Media Settings */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-6">
+            <div className="bg-[#111111] border border-white/10 rounded-md p-4 sm:p-6">
               <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
                 Recording Settings
               </label>
@@ -669,7 +669,7 @@ const MockInterview = () => {
             <Button
               onClick={generateQuestions}
               disabled={loading}
-              className="w-full py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+              className="w-full py-4 sm:py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -693,11 +693,11 @@ const MockInterview = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
           >
             {/* Progress */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-4">
-              <div className="flex items-center justify-between mb-2">
+            <div className="bg-[#111111] border border-white/10 rounded-md p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <Badge className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30">
                     {interviewTypes.find((t) => t.id === interviewType)?.name}{" "}
@@ -710,7 +710,7 @@ const MockInterview = () => {
                     </Badge>
                   )}
                 </div>
-                <span className="text-gray-500 text-sm">
+                <span className="text-gray-500 text-xs sm:text-sm">
                   Question {currentQIndex + 1} of {questions.length}
                 </span>
               </div>

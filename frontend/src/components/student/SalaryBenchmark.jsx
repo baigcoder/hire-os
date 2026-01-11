@@ -109,7 +109,7 @@ const SalaryBenchmark = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
                         <DollarSign className="h-6 w-6 text-primary" />
                         Salary Benchmarking
                     </h2>
@@ -138,7 +138,7 @@ const SalaryBenchmark = () => {
                             />
                         </div>
                         <Select value={experienceLevel} onValueChange={setExperienceLevel}>
-                            <SelectTrigger className="w-[200px]">
+                            <SelectTrigger className="w-full sm:w-[200px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -158,11 +158,11 @@ const SalaryBenchmark = () => {
 
             {/* Results */}
             {benchmark && (
-                <div className="grid md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     <Card>
                         <CardContent className="pt-6 text-center">
                             <p className="text-xs text-muted-foreground mb-1">Average Base</p>
-                            <p className="text-2xl font-bold text-primary">
+                            <p className="text-lg sm:text-2xl font-bold text-primary">
                                 {formatSalary(benchmark.avgBase)}
                             </p>
                             <p className="text-xs text-muted-foreground">
@@ -173,14 +173,14 @@ const SalaryBenchmark = () => {
                     <Card>
                         <CardContent className="pt-6 text-center">
                             <p className="text-xs text-muted-foreground mb-1">25th Percentile</p>
-                            <p className="text-2xl font-bold">{formatSalary(benchmark.p25?.[0])}</p>
+                            <p className="text-lg sm:text-2xl font-bold">{formatSalary(benchmark.p25?.[0])}</p>
                             <p className="text-xs text-muted-foreground">Low end</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="pt-6 text-center">
                             <p className="text-xs text-muted-foreground mb-1">Median (50th)</p>
-                            <p className="text-2xl font-bold text-green-600">
+                            <p className="text-lg sm:text-2xl font-bold text-green-600">
                                 {formatSalary(benchmark.p50?.[0])}
                             </p>
                             <p className="text-xs text-muted-foreground">Typical</p>
@@ -189,7 +189,7 @@ const SalaryBenchmark = () => {
                     <Card>
                         <CardContent className="pt-6 text-center">
                             <p className="text-xs text-muted-foreground mb-1">75th Percentile</p>
-                            <p className="text-2xl font-bold">{formatSalary(benchmark.p75?.[0])}</p>
+                            <p className="text-lg sm:text-2xl font-bold">{formatSalary(benchmark.p75?.[0])}</p>
                             <p className="text-xs text-muted-foreground">High end</p>
                         </CardContent>
                     </Card>
@@ -206,7 +206,7 @@ const SalaryBenchmark = () => {
                         <div className="space-y-3">
                             {distribution.map((item) => (
                                 <div key={item._id} className="flex items-center gap-4">
-                                    <Badge variant="outline" className="w-24 justify-center capitalize">
+                                    <Badge variant="outline" className="w-20 sm:w-24 justify-center capitalize text-xs">
                                         {item._id}
                                     </Badge>
                                     <div className="flex-1 bg-muted rounded-full h-6 overflow-hidden">
@@ -249,7 +249,7 @@ const SalaryBenchmark = () => {
                             {trending.map((job, idx) => (
                                 <div
                                     key={job._id}
-                                    className="flex items-center justify-between p-3 bg-muted/50 rounded-md"
+                                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-muted/50 rounded-md gap-2"
                                 >
                                     <div className="flex items-center gap-3">
                                         <span className="text-lg font-bold text-muted-foreground">

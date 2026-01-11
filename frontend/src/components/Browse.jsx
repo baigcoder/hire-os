@@ -25,7 +25,7 @@ const Browse = () => {
       <Navbar />
 
       {/* Header Section */}
-      <div className="pt-32 pb-12 border-b border-white/10 relative overflow-hidden">
+      <div className="pt-20 sm:pt-32 pb-8 sm:pb-12 border-b border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -36,7 +36,7 @@ const Browse = () => {
             <span>Browse Jobs</span>
           </motion.div>
 
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 uppercase tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4 uppercase tracking-tight">
             Available <span className="text-[#FFD700]">Positions</span>
           </h1>
 
@@ -47,8 +47,8 @@ const Browse = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 my-12">
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 my-8 sm:my-12">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 sm:mb-8">
           <h2 className="font-bold text-sm text-gray-400 flex items-center gap-3 uppercase tracking-wider">
             <Grid3x3 size={14} />
             Search Results
@@ -58,7 +58,7 @@ const Browse = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
           {allJobs.map((job) => {
             return (
               <motion.div

@@ -4,6 +4,7 @@ import Footer from "./shared/Footer";
 import FilterCard from "./FilterCard";
 import Job from "./Job";
 import { useSelector } from "react-redux";
+import useGetAllJobs from "@/hooks/useGetAllJobs";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -20,6 +21,7 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 
 const Jobs = () => {
+  useGetAllJobs(); // Fetch job data when page loads
   const { allJobs, searchedQuery } = useSelector((store) => store.job);
   const [filterJobs, setFilterJobs] = useState(allJobs);
   const [showFilters, setShowFilters] = useState(false);
@@ -73,11 +75,11 @@ const Jobs = () => {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FFD700]/20 to-amber-500/10 rounded-sm flex items-center justify-center border border-[#FFD700]/30">
-                <Briefcase className="w-5 h-5 text-[#FFD700]" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#FFD700]/20 to-amber-500/10 rounded-sm flex items-center justify-center border border-[#FFD700]/30">
+                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD700]" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                   BROWSE JOBS
                 </h1>
                 <p className="text-xs text-gray-500 font-mono tracking-wider">
@@ -87,7 +89,7 @@ const Jobs = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="flex items-center gap-3 flex-1 max-w-xl">
+            <div className="flex items-center gap-3 w-full md:flex-1 md:max-w-xl">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input
@@ -95,7 +97,7 @@ const Jobs = () => {
                   placeholder="Search jobs by title, skills, location..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  className="w-full pl-11 pr-10 py-3 bg-[#0a0a0a] border border-white/10 rounded-sm text-white font-mono text-sm focus:border-[#FFD700]/50 focus:outline-none transition-all placeholder-gray-600"
+                  className="w-full pl-10 sm:pl-11 pr-10 py-2.5 sm:py-3 bg-[#0a0a0a] border border-white/10 rounded-sm text-white font-mono text-xs sm:text-sm focus:border-[#FFD700]/50 focus:outline-none transition-all placeholder-gray-600"
                 />
                 {searchInput && (
                   <button
@@ -124,16 +126,15 @@ const Jobs = () => {
           {/* Jobs Grid */}
           <main className="flex-1">
             {/* Toolbar */}
-            <div className="flex items-center justify-between mb-6 p-4 bg-[#111111] border border-white/10 rounded-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-6 p-3 sm:p-4 bg-[#111111] border border-white/10 rounded-sm">
               <div className="flex items-center gap-3">
                 {/* Mobile Filter Toggle */}
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`lg:hidden flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-mono transition-all ${
-                    showFilters
-                      ? "bg-[#FFD700] text-black"
-                      : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"
-                  }`}
+                  className={`lg:hidden flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-mono transition-all ${showFilters
+                    ? "bg-[#FFD700] text-black"
+                    : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"
+                    }`}
                 >
                   <SlidersHorizontal size={14} />
                   FILTERS
@@ -145,7 +146,7 @@ const Jobs = () => {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="pl-9 pr-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-sm text-gray-300 text-xs font-mono focus:border-[#FFD700]/50 focus:outline-none appearance-none cursor-pointer"
+                    className="pl-8 sm:pl-9 pr-3 sm:pr-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-sm text-gray-300 text-[10px] sm:text-xs font-mono focus:border-[#FFD700]/50 focus:outline-none appearance-none cursor-pointer"
                   >
                     <option value="newest">NEWEST FIRST</option>
                     <option value="oldest">OLDEST FIRST</option>
@@ -159,21 +160,19 @@ const Jobs = () => {
               <div className="hidden sm:flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-sm">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-sm transition-all ${
-                    viewMode === "grid"
-                      ? "bg-[#FFD700] text-black"
-                      : "text-gray-500 hover:text-white"
-                  }`}
+                  className={`p-2 rounded-sm transition-all ${viewMode === "grid"
+                    ? "bg-[#FFD700] text-black"
+                    : "text-gray-500 hover:text-white"
+                    }`}
                 >
                   <Grid3X3 size={16} />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-sm transition-all ${
-                    viewMode === "list"
-                      ? "bg-[#FFD700] text-black"
-                      : "text-gray-500 hover:text-white"
-                  }`}
+                  className={`p-2 rounded-sm transition-all ${viewMode === "list"
+                    ? "bg-[#FFD700] text-black"
+                    : "text-gray-500 hover:text-white"
+                    }`}
                 >
                   <List size={16} />
                 </button>
@@ -221,11 +220,10 @@ const Jobs = () => {
               </motion.div>
             ) : (
               <div
-                className={`${
-                  viewMode === "grid"
-                    ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
-                    : "flex flex-col gap-3"
-                }`}
+                className={`${viewMode === "grid"
+                  ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4"
+                  : "flex flex-col gap-3"
+                  }`}
               >
                 {filterJobs.map((job, index) => (
                   <motion.div

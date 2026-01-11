@@ -60,6 +60,11 @@ const MockInterview = () => {
   const [feedback, setFeedback] = useState(null);
   const [overallScore, setOverallScore] = useState(null);
 
+  // Mobile and speech recognition support detection
+  const [isMobile, setIsMobile] = useState(false);
+  const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState(true);
+  const [useFallbackInput, setUseFallbackInput] = useState(false);
+
   const videoRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -85,6 +90,23 @@ const MockInterview = () => {
       description: "General questions about career and goals",
     },
   ];
+
+  // Detect mobile browser and speech recognition support on mount
+  useEffect(() => {
+    const checkMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsMobile(checkMobile);
+
+    const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    setSpeechRecognitionSupported(hasSpeechRecognition);
+
+    // On mobile or unsupported browsers, default to typed input
+    if (checkMobile || !hasSpeechRecognition) {
+      setUseFallbackInput(true);
+      if (!hasSpeechRecognition) {
+        console.log('Speech Recognition not supported in this browser');
+      }
+    }
+  }, []);
 
   // Generate interview questions using backend GPT-4o-mini API
   const generateQuestions = async () => {
@@ -309,6 +331,12 @@ const MockInterview = () => {
             toast.info(
               "No speech detected. Try speaking closer to the microphone.",
             );
+          } else if (event.error === "not-allowed") {
+            toast.error("Microphone access denied. Please allow microphone access.");
+            setUseFallbackInput(true);
+          } else if (event.error === "network") {
+            toast.error("Network error with speech recognition. Using typed input instead.");
+            setUseFallbackInput(true);
           }
         };
       }
@@ -319,7 +347,12 @@ const MockInterview = () => {
       }
     } catch (error) {
       console.error("Media initialization error:", error);
-      toast.error("Could not access camera/microphone");
+      if (error.name === 'NotAllowedError') {
+        toast.error("Camera/microphone access denied. You can still type your answers.");
+      } else {
+        toast.error("Could not access camera/microphone. Using typed input.");
+      }
+      setUseFallbackInput(true);
     }
   };
 

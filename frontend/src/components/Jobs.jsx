@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Navbar from "./shared/Navbar";
 import Footer from "./shared/Footer";
 import FilterCard from "./FilterCard";
@@ -23,30 +23,42 @@ import { Badge } from "./ui/badge";
 const Jobs = () => {
   useGetAllJobs(); // Fetch job data when page loads
   const { allJobs, searchedQuery } = useSelector((store) => store.job);
-  const [filterJobs, setFilterJobs] = useState(allJobs);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState("grid");
   const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [isSearching, setIsSearching] = useState(false);
 
+  // Debounce search input to prevent excessive filtering
   useEffect(() => {
+    if (searchInput !== debouncedSearch) {
+      setIsSearching(true);
+    }
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+      setIsSearching(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Memoized filter logic for better performance
+  const filterJobs = useMemo(() => {
     let filtered = allJobs;
 
-    const query = searchInput || searchedQuery;
+    const query = debouncedSearch || searchedQuery;
     if (query) {
-      filtered = allJobs.filter((job) => {
-        const searchLower = query.toLowerCase();
-        return (
-          job.title?.toLowerCase().includes(searchLower) ||
-          job.description?.toLowerCase().includes(searchLower) ||
-          job.location?.toLowerCase().includes(searchLower) ||
-          job.company?.name?.toLowerCase().includes(searchLower) ||
-          job.skills?.some((skill) => skill.toLowerCase().includes(searchLower))
-        );
-      });
+      const searchLower = query.toLowerCase();
+      filtered = allJobs.filter((job) => (
+        job.title?.toLowerCase().includes(searchLower) ||
+        job.description?.toLowerCase().includes(searchLower) ||
+        job.location?.toLowerCase().includes(searchLower) ||
+        job.company?.name?.toLowerCase().includes(searchLower) ||
+        job.skills?.some((skill) => skill.toLowerCase().includes(searchLower))
+      ));
     }
 
-    filtered = [...filtered].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "newest":
           return new Date(b.createdAt) - new Date(a.createdAt);
@@ -60,9 +72,7 @@ const Jobs = () => {
           return 0;
       }
     });
-
-    setFilterJobs(filtered);
-  }, [allJobs, searchedQuery, searchInput, sortBy]);
+  }, [allJobs, searchedQuery, debouncedSearch, sortBy]);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">

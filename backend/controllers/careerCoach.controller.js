@@ -52,7 +52,7 @@ export const sendMessage = async (req, res) => {
         const userId = req.id;
         const { sessionId, message } = req.body;
 
-        if (!message) {
+        if (!message || !message.trim()) {
             return res.status(400).json({ success: false, message: "Message required" });
         }
 
@@ -62,16 +62,38 @@ export const sendMessage = async (req, res) => {
         }
 
         // Add user message
-        session.messages.push({ role: "user", content: message });
+        session.messages.push({ role: "user", content: message.trim() });
 
-        // Prepare messages for AI
-        const aiMessages = session.messages.map(m => ({ role: m.role, content: m.content }));
+        // Prepare messages for AI (trim to last 20 messages to stay within token limits)
+        const recentMessages = session.messages.slice(-20);
+        const aiMessages = recentMessages.map(m => ({ role: m.role, content: m.content }));
 
-        // Call AI - messages first, then options
-        const aiResponse = await callAI(aiMessages, {
-            temperature: 0.7,
-            maxTokens: 1000,
-        });
+        // Call AI with retry logic
+        let aiResponse;
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        while (retryCount < maxRetries) {
+            try {
+                aiResponse = await callAI(aiMessages, {
+                    temperature: 0.7,
+                    maxTokens: 1000,
+                });
+                break; // Success, exit retry loop
+            } catch (aiError) {
+                retryCount++;
+                console.error(`AI call attempt ${retryCount} failed:`, aiError.message);
+                if (retryCount >= maxRetries) {
+                    // Return a fallback message instead of failing completely
+                    aiResponse = {
+                        content: "I'm having trouble processing your request right now. Please try again in a moment, or rephrase your question."
+                    };
+                } else {
+                    // Exponential backoff: 500ms, 1000ms, 2000ms
+                    await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, retryCount - 1)));
+                }
+            }
+        }
 
         const assistantMessage = aiResponse.content || aiResponse;
 
@@ -89,6 +111,7 @@ export const sendMessage = async (req, res) => {
             success: true,
             message: assistantMessage,
             messageCount: session.messages.length,
+            retriesUsed: retryCount,
         });
     } catch (error) {
         console.error("Send message error:", error);

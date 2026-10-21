@@ -131,7 +131,13 @@ const userSchema = new mongoose.Schema(
         },
       ],
       resume: {
-        type: String, // URL to resume file
+        // Link to the resume: our authenticated /api/v1/resumes/:userId
+        // endpoint, which redirects to a short-lived signed URL
+        type: String,
+      },
+      resumePath: {
+        // Object path in the private "resumes" storage bucket
+        type: String,
       },
       resumeOriginalName: {
         type: String,

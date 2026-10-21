@@ -1,6 +1,7 @@
 import os from "os";
 import crypto from "crypto";
 import { BackgroundJob } from "../../models/backgroundJob.model.js";
+import { WorkerHeartbeat } from "../../models/workerHeartbeat.model.js";
 
 const DUPLICATE_KEY = 11000;
 
@@ -14,6 +15,8 @@ const DUPLICATE_KEY = 11000;
  */
 export const createQueue = ({
   model = BackgroundJob,
+  heartbeatModel = WorkerHeartbeat,
+  heartbeatIntervalMs = 30_000,
   workerId = `${os.hostname()}:${process.pid}:${crypto.randomUUID().slice(0, 8)}`,
   logger = null,
   now = () => new Date(),
@@ -25,7 +28,19 @@ export const createQueue = ({
   const handlers = new Map(); // name -> { fn, concurrency, running }
   const inFlight = new Set();
   let timer = null;
+  let heartbeatTimer = null;
   let running = false;
+
+  const beat = () =>
+    heartbeatModel
+      .updateOne(
+        { workerId },
+        { $set: { handlers: [...handlers.keys()], seenAt: now() } },
+        { upsert: true },
+      )
+      .catch((error) =>
+        logger?.warn("Queue heartbeat failed", { error: error.message }),
+      );
 
   /**
    * Register a handler. It receives (data, ctx) where ctx has
@@ -192,6 +207,9 @@ export const createQueue = ({
       workerId,
       handlers: [...handlers.keys()],
     });
+    beat();
+    heartbeatTimer = setInterval(beat, heartbeatIntervalMs);
+    heartbeatTimer.unref?.();
     loop();
   };
 
@@ -199,6 +217,8 @@ export const createQueue = ({
   const stop = async ({ timeoutMs = 10_000 } = {}) => {
     running = false;
     clearTimeout(timer);
+    clearInterval(heartbeatTimer);
+    await heartbeatModel.deleteOne({ workerId }).catch(() => {});
     await Promise.race([
       Promise.allSettled([...inFlight]),
       new Promise((resolve) => setTimeout(resolve, timeoutMs).unref?.()),
@@ -214,5 +234,27 @@ export const createQueue = ({
     }
   };
 
-  return { register, enqueue, get, start, stop, tick, drain, workerId };
+  /**
+   * True if some worker (in any process) handling `name` has heartbeated
+   * recently — i.e. an enqueued job will actually be processed.
+   */
+  const hasActiveWorker = async (name, { withinMs = 90_000 } = {}) => {
+    const recent = await heartbeatModel.exists({
+      handlers: name,
+      seenAt: { $gte: new Date(now().getTime() - withinMs) },
+    });
+    return Boolean(recent);
+  };
+
+  return {
+    register,
+    enqueue,
+    get,
+    start,
+    stop,
+    tick,
+    drain,
+    hasActiveWorker,
+    workerId,
+  };
 };

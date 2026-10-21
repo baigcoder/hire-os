@@ -4,7 +4,8 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import crypto from "crypto";
-import { uploadFileToSupabase } from "../utils/supabase.js";
+import { uploadPrivateFile, RESUME_BUCKET } from "../utils/supabase.js";
+import { resumeLinkFor } from "../utils/resumeFiles.js";
 import { initializeStudentTrial } from "../utils/trialService.js";
 import logger from "../utils/logger.js";
 import { blacklistToken, isTokenBlacklisted } from "../utils/tokenBlacklist.js";
@@ -816,12 +817,9 @@ export const updateProfile = async (req, res) => {
 
       const userId = req.id;
       try {
-        const { publicUrl } = await uploadFileToSupabase(
-          req.file,
-          "resumes",
-          userId,
-        );
-        cloudResponse = { secure_url: publicUrl };
+        // Private bucket: store the path; the link goes through our API
+        const { path } = await uploadPrivateFile(req.file, RESUME_BUCKET, userId);
+        cloudResponse = { path, link: resumeLinkFor(req, userId) };
       } catch (uploadError) {
         logger.error("Supabase upload error:", uploadError);
         return res.status(500).json({
@@ -937,7 +935,8 @@ export const updateProfile = async (req, res) => {
 
     // Update resume if file was uploaded
     if (cloudResponse) {
-      user.profile.resume = cloudResponse.secure_url;
+      user.profile.resume = cloudResponse.link;
+      user.profile.resumePath = cloudResponse.path;
       user.profile.resumeOriginalName = req.file.originalname;
     }
 

@@ -44,6 +44,9 @@ import salaryRoute from "./routes/salary.route.js";
 import talentPoolRoute from "./routes/talentPool.route.js";
 import careerCoachRoute from "./routes/careerCoach.route.js";
 import adminAiRoute from "./routes/adminAi.route.js";
+import resumeIntelRoute from "./routes/resumeIntel.route.js";
+import screeningRoute from "./routes/screening.route.js";
+import resumeFileRoute from "./routes/resumeFile.route.js";
 import isAuthenticated, {
   rateLimiter,
   isSuperAdmin,
@@ -326,6 +329,9 @@ app.use("/api/v1/salaries", salaryRoute);
 app.use("/api/v1/talent-pools", talentPoolRoute);
 app.use("/api/v1/career-coach", careerCoachRoute);
 app.use("/api/v1/admin/ai", adminAiRoute); // AI gateway telemetry (super admin)
+app.use("/api/v1/resume-intel", resumeIntelRoute); // Resume intelligence pipeline
+app.use("/api/v1/screening", screeningRoute); // Blind recruiter screening
+app.use("/api/v1/resumes", resumeFileRoute); // Private resume files (signed URLs)
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {

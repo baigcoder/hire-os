@@ -1,14 +1,29 @@
 /**
- * Background job registry. Each feature module registers its handlers here,
- * e.g. (Phase 2):
- *
- *   queue.register("resume.analyze", analyzeResumeJob, { concurrency: 2 });
+ * Background job registry. Each feature module registers its handlers here.
  *
  * Handlers must be idempotent: the queue is at-least-once, and a job whose
  * worker dies is retried. Long handlers should call ctx.setProgress() at
  * least every few minutes so the job isn't treated as stalled.
  */
+import ai from "../platform/ai-gateway/index.js";
+import {
+  RESUME_ANALYZE_JOB,
+  createResumeAnalyzeHandler,
+} from "./resumeAnalyze.js";
+import {
+  APPLICANT_SCREEN_JOB,
+  createApplicantScreenHandler,
+} from "./applicantScreen.js";
+
 export const registerJobs = (queue) => {
-  // No handlers yet — the resume intelligence pipeline lands in Phase 2.
+  // Two at a time: each analysis makes ~4 LLM calls against Groq's free limits
+  queue.register(RESUME_ANALYZE_JOB, createResumeAnalyzeHandler({ ai }), {
+    concurrency: 2,
+  });
+  // One at a time: bulk screening a job's applicants shouldn't starve
+  // candidates' own analyses of the shared Groq budget
+  queue.register(APPLICANT_SCREEN_JOB, createApplicantScreenHandler({ ai }), {
+    concurrency: 1,
+  });
   return queue;
 };

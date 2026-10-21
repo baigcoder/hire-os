@@ -117,7 +117,7 @@ const SalaryBenchmark = React.lazy(
   () => import("./components/student/SalaryBenchmark"),
 );
 const ResumeAnalyzer = React.lazy(
-  () => import("./components/student/ResumeAnalyzer"),
+  () => import("./components/student/resume-intel/ResumeAnalyzerGate"),
 );
 const JobTemplateManager = React.lazy(
   () => import("./components/recruiter/JobTemplateManager"),

@@ -9,3 +9,6 @@ temp/
 # Test / run output
 coverage/
 *.log
+
+# Eval output
+evals/**/results/

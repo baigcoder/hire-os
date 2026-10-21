@@ -1,6 +1,6 @@
 # HIRE.OS — Architecture Audit & Modernization Plan
 
-_Audit date: 2026-10-21 · Branch `claude/job-portal-modernization-ai-7b0dc4` · Status: **Phases 0–1 done (see §10–11); Phases 2–5 proposed**_
+_Audit date: 2026-10-21 · Branch `claude/job-portal-modernization-ai-7b0dc4` · Status: **Phases 0–2 done, Phase 3 screening done (see §10–13); rest proposed**_
 
 This document covers four things: what the platform does today, what is broken or fragile, the target architecture, and two new AI pipelines built on **Groq's free tier**:
 
@@ -52,6 +52,8 @@ Severity: 🔴 critical · 🟠 high · 🟡 medium.
 | S8 | 🟡 | `/api/v1/admin/performance` is unauthenticated (there is a TODO in the code). | `index.js` |
 | S9 | 🟡 | The Gemini API key is sent in the URL query string (`?key=`), where it can end up in proxy and access logs. | 8 call sites |
 | S10 | 🟠 | **CORS trusts any `*.vercel.app` origin with credentials.** Anyone can deploy a page on vercel.app that makes authenticated API calls as a logged-in visitor. Only this project's own preview domains should be allowed. _(found and fixed in Phase 1, see §11)_ | `index.js` `isVercelPreview` |
+| S11 | 🟠 | **Resumes are in a public Supabase bucket.** Uploads use `getPublicUrl`, so anyone with a resume URL can download it, and the backend uploads with the anon key. Make the bucket private and serve short-lived signed URLs. _(found in Phase 3, fixed in code — rollout steps in §14)_ | `utils/supabase.js`, `user.controller.js` |
+| S12 | 🔴 | **Any recruiter could read any job's applicants, including password hashes and refresh tokens.** `GET /application/:id/applicants` and `POST /application/status/:id/update` populated full User documents with no ownership check. `bulk-update` without a `jobId` matched every application. _(found and fixed in Phase 3, see §13)_ | `application.controller.js` |
 
 ### 2.2 Correctness bugs
 
@@ -319,8 +321,8 @@ sequenceDiagram
 |---|---|---|
 | **0 — Stop the bleeding** ✅ done | S1, S2, S4, S6, S8. Untrack and purge PII, logs and coverage. Fix the `ResumeAnalysis` schema (B1). Remove the Python spawn (B2). Replace retired Gemini and Mixtral model IDs. | Safe to keep running |
 | **1 — Foundations** ✅ done (API host move still open) | `platform/ai-gateway` (Groq SDK, model registry, limiter, strict schemas + Zod, cache, telemetry). Mongo queue. Move the API to a long-running host. Pino logging. | One reliable way to call AI |
-| **2 — Resume Intelligence** | Stages 0–8, `ResumeProfile`/`ResumeReport` models, SSE progress, local embeddings + Atlas Vector Search, new analyzer UI, golden-set evals. | Candidate analyzer v2 |
-| **3 — Recruiter screening** | Blind batch ranking via queue, per-requirement evidence in the applicant views, then the Resume Coach agent. | Recruiter ranking v2 |
+| **2 — Resume Intelligence** ✅ done | Stages 0–8, `ResumeReport` model, SSE progress, new analyzer UI, golden-set evals. Embeddings + vector search moved to Phase 3 (see §12). | Candidate analyzer v2 |
+| **3 — Recruiter screening** ✅ screening done; Coach agent + semantic search next | Blind batch ranking via queue, per-requirement evidence in the applicant views, then the Resume Coach agent and embeddings-based job/candidate search. | Recruiter ranking v2 |
 | **4 — Integrity pipeline** | TURN + private channels. Candidate proctor worker (MediaPipe face + object + audio + environment). Recruiter-side verifier. Integrity module (ingest, risk engine, evidence, TTL). Consent UX. Recruiter meter and timeline. Post-interview report on Groq. | Robust anti-cheating |
 | **5 — Copilot & polish** | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
 
@@ -397,3 +399,86 @@ const { data, model, degraded, cached } = await ai.run({
 **New env vars:** `LOG_LEVEL`, `RUN_WORKER`, `CORS_ORIGINS`, `VERCEL_PREVIEW_PROJECT`, `VERCEL_PREVIEW_SCOPE`, plus the Phase 0 model overrides.
 **New dependencies:** `groq-sdk` 1.6, `zod` 4.6, `pino` 9 (v9 because CI runs Node 18).
 **Tests:** 52 new (gateway, limiter, schema, queue, request IDs, admin stats, CORS). The backend suite passes 102/102.
+
+---
+
+## 12. Phase 2 — what was done
+
+**Pipeline** (`backend/modules/resume-intel/`), run as the `resume.analyze` queue job:
+
+| Stage | Module | LLM? |
+|---|---|---|
+| Extract PDF/DOCX/text, normalize, hash, 15k-char cap with a visible warning | `extract.js` | No |
+| Guard: regex removes lines aimed at AI screeners; keyword-stuffing check; Groq prompt-guard classifier adds a review flag only | `guard.js` | Classifier |
+| Structure → profile with stable IDs (`exp_1.b2`, `proj_1`…) | `profile.js` | gpt-oss-20b, strict schema, cached by resume hash |
+| Signals: years from parsed date ranges, gaps, quantified/action-verb bullets, 10-point ATS checklist, skill taxonomy with evidence | `signals.js`, `dates.js`, `taxonomy.js` | No |
+| JD → must/nice requirements (cached per JD for 30 days) | `requirements.js` | gpt-oss-20b |
+| Requirement matching with cited quotes | `match.js` | gpt-oss-20b |
+| Score (`score-v1`): deterministic weighted formula, job-match or profile-strength mode | `score.js` | No |
+| Critic: strengths, gaps, bullet rewrites, quick wins, interview questions, learning path | `critic.js` | gpt-oss-120b |
+| Verifier: drops claims whose item ID or quote isn't in the resume; downgrades unsupported matches; one critic retry if >30% ungrounded | `verify.js` | No |
+
+**API** (`/api/v1/resume-intel`): `GET /capabilities`, `POST /analyses` (file or text, optional `jobId` or `jobDescription`), `GET /analyses`, `GET /analyses/:id`, `GET /analyses/:id/events` (SSE, reconnecting every 25 s), `DELETE /analyses/:id`.
+- Only the owner can read or delete a report. Resume text is stored `select: false`.
+- An identical resume + job + pipeline version within 7 days reuses the existing report, with no new LLM calls.
+- Each user gets `RESUME_ANALYSES_PER_DAY` analyses (default 10).
+- Completed reports also update the legacy `ResumeAnalysis` practice record, so the existing dashboard score widgets show the new result.
+
+**Worker availability:** queue workers write a heartbeat every 30 s (`worker_heartbeats`). `POST /analyses` returns 503 `PIPELINE_UNAVAILABLE` when no worker is alive. The frontend checks `/capabilities` and **automatically falls back to the classic analyzer**, so the Vercel deployment keeps working until a worker host exists.
+
+**Frontend** (`frontend/src/components/student/resume-intel/`): `ResumeAnalyzerGate` (route `/resume-analyzer` and the dashboard tab) chooses between the new and classic analyzers, with a toggle remembered per browser. `ResumeIntelligence` covers upload/paste, an optional JD (or `?jobId=`), live stage progress over SSE with polling fallback, and history with delete. `ReportView` shows the score breakdown, requirement checklist with quoted evidence, strengths and gaps, before/after rewrites with copy, quick wins, interview questions, ATS checklist, skills (backed vs listed) and learning path.
+
+**Evals:** `npm run eval:resume` runs 6 golden cases (4 synthetic resumes × 2 JDs + profile-strength) against real Groq. It checks requirement matches, score bands, injection flags, grounding drops and, with `--repeat`, score stability. It needs `GROQ_API_KEY`; results go to `evals/resume-intel/results/` (git-ignored). **It hasn't been run yet, because no key was available here.**
+
+**Scope change:** local embeddings + Atlas Vector Search moved to Phase 3. Requirement matching here is done by the LLM with cited, verified quotes, which handles "PostgreSQL satisfies relational databases" without a vector index. Vector search pays off for retrieval across many documents (semantic job search, recruiter candidate search), which is Phase 3 work. This also avoids downloading a ~130 MB model into the API.
+
+**New:** `mammoth` (DOCX). **Env:** `RESUME_ANALYSES_PER_DAY`, `GROQ_PROMPT_GUARD_MODEL`. **Tests:** 47 new; the backend suite passes 149/149, and the frontend builds. The UI was checked in a browser against a local stack with seeded reports and a live (key-less) run.
+
+---
+
+## 13. Phase 3 (part 1) — blind recruiter screening
+
+**Security fix S12 first:** `canManageJob` (`utils/jobAccess.js`) allows only the job's poster or recruiters/admins of the job's company. It now guards the applicants list, single and bulk status updates, and ranked applicants. Applicant data is limited to `APPLICANT_PUBLIC_FIELDS` (no password hash, sessions or tokens). Bulk updates require a valid `jobId`.
+
+**Pipeline** (`backend/modules/screening/`, job `applicant.screen` in `jobs/applicantScreen.js`):
+1. **Load the resume** (`resumeSource.js`): `application.resumeUrl` or the applicant's `profile.resume`, read only from this project's Supabase storage (through the client, by bucket/path) or Cloudinary over HTTPS. No arbitrary URL fetches (SSRF), a 5 MB cap, and the PDF/DOCX type is sniffed from the bytes.
+2. **Blind redaction** (`redact.js`) before any LLM call: account name and resume header name (case-aware, so "Will" ≠ "will"), emails, phones (years kept), profile links, and lines stating DOB, age, gender, marital status, nationality, religion, address and similar. Counts are stored so recruiters see what was removed.
+3. **Reuse the Phase 2 pipeline** (guard → structure → signals → requirements → match → score), with JD requirements cached per job, so screening N applicants costs one requirements call.
+4. **Recruiter summary** (`summary.js`, gpt-oss-20b) replaces the candidate critic: 2-sentence assessment, grounded strengths, concerns and interview probes. Ungrounded strengths are dropped.
+5. **Save** an `ApplicantScreening` per application and set `application.resumeScore`. That fills the existing "AI Match" column, which always showed 0% before.
+
+**When it runs:** automatically when a candidate applies (never blocks applying), or on demand from the recruiter page. Screening jobs run one at a time at priority −1, so candidates' own analyses go first in the shared Groq budget. Unreadable files fail permanently without retrying.
+
+**API** (`/api/v1/screening`, recruiter + job access): `GET /jobs/:jobId` (ranking + counts + worker status), `POST /jobs/:jobId/run` (`{force}` re-screens; 503 without a worker), `GET /:screeningId`.
+
+**UI:** `ScreeningPanel` sits at the top of `/admin/jobs/:id/applicants`. It shows the ranked list with **names hidden by default** (toggle remembered per browser), score, band, must-have coverage, injection/stuffing flags, progress polling, an offline-worker notice, and an expandable detail with requirement evidence, strengths, concerns, interview probes and what was redacted. A footer states that it's a decision aid.
+
+**Cost on Groq's free tier:** about 11K tokens per applicant on `gpt-oss-20b` (structure + match + summary), before resume-hash caching. With ~200K tokens/day that's roughly 15–18 new applicants a day. Paid Groq or a second provider removes the cap.
+
+**Tests:** 25 new (redaction, source restrictions, access rules, S12 regressions, apply → screen → rank, re-run, permanent failures). The frontend builds. The panel was checked in a browser against a seeded local stack.
+
+**Next in Phase 3:** the Resume Coach agent (a tool-calling chat over a candidate's report), and embeddings + vector search for semantic job search and candidate search.
+
+---
+
+## 14. S11 fix — private resume storage
+
+**Code (done):**
+- **Uploads:** resume uploads (`POST /user/profile/update`) go to the private `resumes` bucket using the server-only `SUPABASE_SERVICE_ROLE_KEY` (`uploadPrivateFile` in `utils/supabase.js`).
+- **Stored fields:** `profile.resumePath` holds the object path. `profile.resume` now holds `https://<api>/api/v1/resumes/<userId>?v=…`, so every existing "View resume" link keeps working unchanged.
+- **New endpoint:** `GET /api/v1/resumes/:userId` (`routes/resumeFile.route.js`) lets in the owner, or a recruiter/company admin who manages a job the user applied to. It redirects to a **60-second signed URL** with `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. Anyone else gets 404, so the endpoint doesn't reveal whether a resume exists.
+- **Legacy records:** old public-URL records are still served (path parsed from the URL) until they're migrated.
+- **Screening:** reads resumes by path through the service-role client.
+- **Frontend:** the unused browser-side `uploadResume` helper (public URL, needed anonymous upload access) is removed.
+
+**Rollout (you need to do these, in order):**
+1. Set `SUPABASE_SERVICE_ROLE_KEY` on the API host (server env only, never `VITE_*`). Optionally set `API_PUBLIC_URL` if the API sits behind a proxy whose host header differs from the public URL.
+2. Deploy the API. From then on, new uploads are private.
+3. Migrate existing records. Dry run: `node scripts/migrate-private-resumes.js --api-base https://<your-api-host>`. Then apply by adding `--apply`. It's idempotent, and only records in the `resumes` bucket are touched.
+4. Run `docs/supabase/private-resumes.sql` in the Supabase SQL editor. It makes the bucket private, lists storage policies that mention `resumes` for you to drop, and verifies the result.
+
+Until step 4, old public URLs still work for anyone holding them. After it, they return 400/404 and only signed links work.
+
+**Tests:** 5 new (private upload + stored path/link, signed-URL redirect and every access rule, legacy URLs, wrong bucket, missing service key). The migration script was run against a scratch database: the dry run, the apply, and an idempotent re-run all behaved correctly. The backend suite passes **179/179**.
+
+> Note for local test runs: the suite starts one in-memory MongoDB per test file. On a nearly full C: drive (2.4 GB free here) some instances crash on startup (`fassert`). `--maxWorkers=3` avoids it.

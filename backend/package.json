@@ -10,6 +10,7 @@
     "socket:dev": "nodemon socketServer.js",
     "socket:start": "node socketServer.js",
     "worker": "node worker.js",
+    "eval:resume": "node evals/resume-intel/run.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
@@ -40,6 +41,7 @@
     "ioredis": "^5.4.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.13.0",
     "mongoose": "^8.4.1",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^4.2.1",

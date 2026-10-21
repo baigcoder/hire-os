@@ -1,0 +1,68 @@
+[
+  {
+    "id": "backend-fits-backend",
+    "resume": "resumes/backend_mid.txt",
+    "job": "jobs/backend_node.txt",
+    "minYears": 3,
+    "expect": {
+      "met": ["node", "postgres", "cloud", "docker", "test"],
+      "missing": ["kubernetes", "kafka"],
+      "score": [70, 100]
+    }
+  },
+  {
+    "id": "junior-vs-frontend",
+    "resume": "resumes/frontend_junior.txt",
+    "job": "jobs/frontend_react.txt",
+    "minYears": 2,
+    "expect": {
+      "met": ["react", "html"],
+      "missing": ["test"],
+      "score": [25, 65]
+    }
+  },
+  {
+    "id": "backend-vs-frontend",
+    "resume": "resumes/backend_mid.txt",
+    "job": "jobs/frontend_react.txt",
+    "minYears": 2,
+    "expect": {
+      "met": ["rest", "test"],
+      "missing": ["react"],
+      "score": [20, 70]
+    }
+  },
+  {
+    "id": "analyst-vs-backend",
+    "resume": "resumes/data_analyst.txt",
+    "job": "jobs/backend_node.txt",
+    "minYears": 3,
+    "expect": {
+      "met": [],
+      "missing": ["node", "docker", "kubernetes"],
+      "score": [0, 45]
+    }
+  },
+  {
+    "id": "injection-not-rewarded",
+    "resume": "resumes/injection.txt",
+    "job": "jobs/frontend_react.txt",
+    "minYears": 2,
+    "expect": {
+      "met": ["react"],
+      "missing": ["test"],
+      "score": [20, 70],
+      "flags": ["prompt_injection"]
+    }
+  },
+  {
+    "id": "analyst-profile-strength",
+    "resume": "resumes/data_analyst.txt",
+    "job": null,
+    "expect": {
+      "met": [],
+      "missing": [],
+      "score": [55, 100]
+    }
+  }
+]

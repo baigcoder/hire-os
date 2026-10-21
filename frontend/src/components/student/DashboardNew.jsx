@@ -83,7 +83,7 @@ import DailyJobAlerts from "./DailyJobAlerts";
 import PracticeHistory from "./PracticeHistory";
 import AICareerCoach from "./AICareerCoach";
 import ReferralDashboard from "./ReferralDashboard";
-import ResumeAnalyzer from "./ResumeAnalyzer";
+import ResumeAnalyzer from "./resume-intel/ResumeAnalyzerGate";
 import { useSupabaseDashboard } from "../../hooks/useSupabaseDashboard";
 import DashboardLoader from "../shared/DashboardLoader";
 import RealtimeNotifications from "../shared/RealtimeNotifications";

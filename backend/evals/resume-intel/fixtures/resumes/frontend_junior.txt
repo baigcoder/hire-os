@@ -1,0 +1,27 @@
+Sam Okafor
+Frontend Developer
+sam.okafor@example.com | linkedin.com/in/sam-okafor-example | Lagos, Nigeria
+
+EXPERIENCE
+Frontend Developer Intern — BrightCart
+Jan 2024 – Dec 2024
+• Worked on the product listing pages using React
+• Helped fix bugs in the checkout flow
+• Responsible for updating CSS styles across the site
+• Attended daily standups with the team
+
+PROJECTS
+Recipe Finder
+React, Tailwind CSS, Firebase
+• Built a recipe search app with filters and favourites
+• Deployed on Vercel
+
+Portfolio Website
+HTML, CSS, JavaScript
+• Personal site showing my projects
+
+EDUCATION
+B.Sc. Information Technology, University of Lagos, 2020 – 2024
+
+SKILLS
+JavaScript, React, HTML, CSS, Tailwind CSS, Git, Firebase, Figma

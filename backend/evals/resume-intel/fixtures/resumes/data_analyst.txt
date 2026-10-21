@@ -1,0 +1,26 @@
+Priya Natarajan
+Data Analyst
+priya.n@example.com | +44 7700 900123 | London, UK
+
+PROFILE
+Data analyst turning messy operational data into dashboards and forecasts for retail teams.
+
+WORK EXPERIENCE
+Data Analyst, Northwind Retail Group
+September 2022 - Present
+- Built 14 Tableau dashboards tracking stock levels across 230 stores, used weekly by regional managers
+- Automated weekly sales reporting with Python and Pandas, saving 10 hours of analyst time per week
+- Wrote SQL queries against a 2TB Snowflake warehouse to analyse promotions, informing a pricing change worth £1.2M
+- Partnered with merchandising to define KPIs for new store formats
+
+Junior Analyst, Greenleaf Insurance
+July 2021 - August 2022
+- Cleaned and reconciled claims data in Excel and SQL
+- Produced monthly churn reports for the retention team
+
+EDUCATION
+MSc Business Analytics, University of Warwick, 2020-2021
+BSc Mathematics, University of Leeds, 2017-2020
+
+SKILLS
+SQL, Python, Pandas, NumPy, Tableau, Excel, Power BI, Statistics, A/B testing

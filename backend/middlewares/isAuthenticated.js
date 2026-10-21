@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { isTokenBlacklisted } from "../utils/tokenBlacklist.js";
+import { getLogContext } from "../utils/logger.js";
 
 const isAuthenticated = async (req, res, next) => {
   try {
@@ -45,6 +46,8 @@ const isAuthenticated = async (req, res, next) => {
       }
       req.id = decode.userId;
       req.tokenExp = decode.exp;
+      const logContext = getLogContext();
+      if (logContext) logContext.userId = decode.userId;
       next();
     } catch (jwtError) {
       if (jwtError.name === "TokenExpiredError") {

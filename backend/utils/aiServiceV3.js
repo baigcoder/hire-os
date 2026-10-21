@@ -33,6 +33,7 @@ import {
   geminiThinkingConfig,
   groqModelParams,
 } from "../config/aiModels.js";
+import ai from "../platform/ai-gateway/index.js";
 
 // API Endpoints
 const API_ENDPOINTS = {
@@ -322,6 +323,25 @@ export const callAI = async (messages, options = {}) => {
           temperature,
           maxTokens,
         );
+      } else if (providerKey === "GROQ") {
+        // Groq goes through the AI gateway for rate limiting + telemetry
+        const gatewayResult = await ai.run({
+          task: `legacy.${feature || "callAI"}`,
+          messages: messageArray.map(({ role, content }) => ({
+            role,
+            content,
+          })),
+          models: [{ provider: "groq", model: modelToUse }],
+          maxOutputTokens: maxTokens,
+          temperature,
+          json: responseFormat === "json",
+        });
+        result = {
+          content: gatewayResult.content,
+          tokens:
+            (gatewayResult.usage?.inputTokens ?? 0) +
+            (gatewayResult.usage?.outputTokens ?? 0),
+        };
       } else {
         result = await callOpenAIFormat(
           provider.url,

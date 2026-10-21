@@ -68,7 +68,7 @@ const calculateEducationScore = (
 
 /**
  * Rank multiple applicants for a job
- * Uses all 3 engines for comprehensive scoring
+ * Uses all engines for comprehensive scoring
  */
 export const rankApplicantsUnified = async (applicants, job, options = {}) => {
   const {

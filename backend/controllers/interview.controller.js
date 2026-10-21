@@ -992,11 +992,25 @@ export const reportFraudAlert = async (req, res) => {
       });
     }
 
+    // Alerts describe the candidate's session, so only that candidate's
+    // client may report them for this interview.
+    if (interview.studentId.toString() !== req.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to report alerts for this interview",
+      });
+    }
+
     const alert = {
       type,
-      details,
-      severity: severity || "medium",
-      screenshot,
+      details: typeof details === "string" ? details.slice(0, 500) : undefined,
+      severity: ["low", "medium", "high", "critical"].includes(severity)
+        ? severity
+        : "medium",
+      screenshot:
+        typeof screenshot === "string" && screenshot.startsWith("https://")
+          ? screenshot
+          : undefined,
       timestamp: new Date(),
     };
 
@@ -1010,7 +1024,7 @@ export const reportFraudAlert = async (req, res) => {
     await interview.save();
 
     // Notify recruiter for high/critical alerts
-    if (["high", "critical"].includes(severity)) {
+    if (["high", "critical"].includes(alert.severity)) {
       await Notification.createNotification({
         userId: interview.recruiterId,
         type: "fraud_alert",

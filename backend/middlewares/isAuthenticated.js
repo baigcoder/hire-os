@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { isTokenBlacklisted } from "../utils/tokenBlacklist.js";
 
 const isAuthenticated = async (req, res, next) => {
   try {
@@ -33,6 +34,13 @@ const isAuthenticated = async (req, res, next) => {
           message: "Invalid token. Please login again.",
           success: false,
           code: "INVALID_TOKEN",
+        });
+      }
+      if (await isTokenBlacklisted(token)) {
+        return res.status(401).json({
+          message: "Session has been revoked. Please login again.",
+          success: false,
+          code: "TOKEN_REVOKED",
         });
       }
       req.id = decode.userId;

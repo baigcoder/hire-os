@@ -5,8 +5,17 @@
  *
  * Primary: gpt-4o-mini (979ms fastest)
  * Reasoning: deepseek-r1 (chain-of-thought)
- * Fallback: Groq llama-3.3-70b → Gemini 1.5 Flash
+ * Fallback: Groq gpt-oss → Gemini (model IDs from config/aiModels.js)
  */
+
+import {
+  GROQ_MODELS,
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+  groqModelParams,
+} from "../config/aiModels.js";
 
 // ═══════════════════════════════════════════════════════════════
 // CONFIGURATION - Using getters for runtime env access
@@ -26,7 +35,7 @@ const getGeminiKey = () => process.env.GEMINI_API_KEY;
 // ═══════════════════════════════════════════════════════════════
 // AI MODELS - Verified Dec 2024
 // ChatAnywhere: gpt-4o-mini, deepseek-r1
-// Groq: llama, mixtral (via api.groq.com)
+// Groq: gpt-oss (via api.groq.com)
 // Gemini: flash, pro (via generativelanguage.googleapis.com)
 // ═══════════════════════════════════════════════════════════════
 
@@ -36,12 +45,12 @@ export const AI_MODELS = {
   DEEPSEEK_R1: "deepseek-r1", // 57910ms 🧠 REASONING - For CEO reports
 
   // Groq Models (via api.groq.com - Super Fast!)
-  GROQ_LLAMA: "llama-3.3-70b-versatile", // Fast inference
-  GROQ_MIXTRAL: "mixtral-8x7b-32768", // Good for code
+  GROQ_REASONING: GROQ_MODELS.REASONING, // Best quality on Groq
+  GROQ_FAST: GROQ_MODELS.FAST, // Fast inference
 
   // Gemini Models (via Google API)
-  GEMINI_FLASH: "gemini-1.5-flash", // Fast, free tier
-  GEMINI_PRO: "gemini-1.5-pro", // More capable
+  GEMINI_FLASH: GEMINI_MODELS.FLASH, // Fast, free tier
+  GEMINI_PRO: GEMINI_MODELS.PRO, // More capable
 };
 
 // Feature-to-Model Mapping - All use gpt-4o-mini except CEO reports
@@ -71,7 +80,7 @@ const PROVIDERS = {
     name: "Groq",
     url: GROQ_API_URL, // api.groq.com
     getKey: getGroqKey,
-    models: [AI_MODELS.GROQ_LLAMA, AI_MODELS.GROQ_MIXTRAL],
+    models: [AI_MODELS.GROQ_REASONING, AI_MODELS.GROQ_FAST],
     format: "openai",
   },
   GEMINI: {
@@ -320,6 +329,7 @@ async function callOpenAIFormat(
       messages,
       temperature,
       max_tokens: maxTokens,
+      ...groqModelParams(model),
       ...(responseFormat === "json" && {
         response_format: { type: "json_object" },
       }),
@@ -352,20 +362,18 @@ async function callOpenAIFormat(
 async function callGemini(messages, model, temperature, maxTokens) {
   const prompt = messages.map((m) => `${m.role}: ${m.content}`).join("\n");
 
-  const response = await fetch(
-    `${GEMINI_API_URL}/${model}:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature,
-          maxOutputTokens: maxTokens,
-        },
-      }),
-    },
-  );
+  const response = await fetch(geminiGenerateUrl(model), {
+    method: "POST",
+    headers: geminiHeaders(),
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature,
+        maxOutputTokens: maxTokens,
+        thinkingConfig: geminiThinkingConfig(model),
+      },
+    }),
+  });
 
   const data = await response.json();
 

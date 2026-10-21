@@ -10,6 +10,12 @@ import {
   parseAIJson,
   generateMCQ as generateMCQFromService,
 } from "../utils/aiServiceV3.js";
+import {
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+} from "../config/aiModels.js";
 
 // Initialize AI config - fallback key for Gemini if primary providers fail
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -210,21 +216,19 @@ Return as JSON array with this exact structure:
 Make questions specific to ${jobTitle} role and ${skills.slice(0, 3).join(", ")} skills.`;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 8192,
-            responseMimeType: "application/json",
-          },
-        }),
-      },
-    );
+    const response = await fetch(geminiGenerateUrl(GEMINI_MODELS.FLASH), {
+      method: "POST",
+      headers: geminiHeaders(),
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          thinkingConfig: geminiThinkingConfig(GEMINI_MODELS.FLASH),
+          temperature: 0.7,
+          maxOutputTokens: 8192,
+          responseMimeType: "application/json",
+        },
+      }),
+    });
 
     if (!response.ok) {
       throw new Error(`Gemini API error: ${response.status}`);
@@ -237,7 +241,10 @@ Make questions specific to ${jobTitle} role and ${skills.slice(0, 3).join(", ")}
       throw new Error("No content generated");
     }
 
-    return { questions: JSON.parse(text).questions, model: "gemini-1.5-flash" };
+    return {
+      questions: JSON.parse(text).questions,
+      model: GEMINI_MODELS.FLASH,
+    };
   } catch (error) {
     console.error("Gemini MCQ error:", error);
     throw error;

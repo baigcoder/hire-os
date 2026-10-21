@@ -1,3 +1,11 @@
 .env
 node_modules
 .vercel
+
+# Runtime data - never commit (uploaded resumes contain personal data)
+uploads/
+temp/
+
+# Test / run output
+coverage/
+*.log

@@ -42,7 +42,7 @@ export const applyJob = async (req, res) => {
         userId,
         jobId,
         resumePath,
-        analysisScore: analysisResult.score,
+        analysisScore: Math.max(0, Math.min(100, Number(analysisResult.score) || 0)),
         keySkillsMatch: analysisResult.keySkillsMatch,
         experienceMatch: analysisResult.experienceMatch,
         educationMatch: analysisResult.educationMatch,

@@ -378,12 +378,13 @@ export const logout = async (req, res) => {
         ? req.headers.authorization.substring(7)
         : null);
 
-    // Blacklist the current token
-    if (token) {
+    // Blacklist the current access token and refresh token
+    for (const value of [token, req.cookies.refreshToken]) {
+      if (!value) continue;
       try {
-        const decoded = jwt.decode(token);
+        const decoded = jwt.decode(value);
         if (decoded?.exp) {
-          blacklistToken(token, decoded.exp);
+          await blacklistToken(value, decoded.exp);
           logger.info(`🔒 Token blacklisted for logout`);
         }
       } catch (e) {
@@ -424,7 +425,7 @@ export const refreshToken = async (req, res) => {
     }
 
     // Check if token is blacklisted
-    if (isTokenBlacklisted(refreshTokenValue)) {
+    if (await isTokenBlacklisted(refreshTokenValue)) {
       return res.status(401).json({
         message: "Token has been revoked. Please login again.",
         success: false,
@@ -506,7 +507,7 @@ export const refreshToken = async (req, res) => {
     await user.save();
 
     // Blacklist old refresh token
-    blacklistToken(refreshTokenValue, decoded.exp);
+    await blacklistToken(refreshTokenValue, decoded.exp);
 
     logger.info(`🔄 Token refreshed for user: ${user.email}`);
 
@@ -594,7 +595,7 @@ export const revokeSession = async (req, res) => {
     try {
       const decoded = jwt.decode(session.refreshToken);
       if (decoded?.exp) {
-        blacklistToken(session.refreshToken, decoded.exp);
+        await blacklistToken(session.refreshToken, decoded.exp);
       }
     } catch (e) { }
 
@@ -637,7 +638,7 @@ export const revokeAllSessions = async (req, res) => {
         try {
           const decoded = jwt.decode(session.refreshToken);
           if (decoded?.exp) {
-            blacklistToken(session.refreshToken, decoded.exp);
+            await blacklistToken(session.refreshToken, decoded.exp);
             revokedCount++;
           }
         } catch (e) { }

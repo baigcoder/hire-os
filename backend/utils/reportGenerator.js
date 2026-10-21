@@ -5,10 +5,16 @@
  */
 
 import { generateReportWithGPT5, callGPT5, parseAIJson } from "./aiService.js";
+import {
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+} from "../config/aiModels.js";
 
 const GPT5_API_KEY = process.env.GPT5_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = "gemini-1.5-flash";
+const GEMINI_MODEL = GEMINI_MODELS.FLASH;
 
 /**
  * Generate AI-powered interview report for CEO
@@ -111,21 +117,19 @@ Generate a JSON report with:
 }`;
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.3,
-              maxOutputTokens: 1000,
-              responseMimeType: "application/json",
-            },
-          }),
-        },
-      );
+      const response = await fetch(geminiGenerateUrl(GEMINI_MODEL), {
+        method: "POST",
+        headers: geminiHeaders(),
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            thinkingConfig: geminiThinkingConfig(GEMINI_MODEL),
+            temperature: 0.3,
+            maxOutputTokens: 1000,
+            responseMimeType: "application/json",
+          },
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`Gemini API error: ${response.status}`);

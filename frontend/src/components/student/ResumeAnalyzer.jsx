@@ -588,8 +588,8 @@ const ResumeAnalyzer = () => {
                           ? "🚀 GPT-4o mini"
                           : analysis.source === "gemini-ai"
                             ? "✨ Gemini AI"
-                            : analysis.analysisMethod === "unified-3-engine"
-                              ? "🔥 3-Engine AI"
+                            : analysis.analysisMethod === "unified-multi-engine"
+                              ? "🔥 Multi-Engine AI"
                               : "Quick Scan"}
                       </Badge>
                     )}

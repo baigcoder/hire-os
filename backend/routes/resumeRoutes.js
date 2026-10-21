@@ -6,17 +6,25 @@ import axios from "axios";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import pdfParse from "pdf-parse";
+import mongoose from "mongoose";
 import { ResumeAnalysis } from "../models/ResumeAnalysis.js";
 import { User } from "../models/user.model.js";
+import { Job } from "../models/job.model.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { analyzeResume } from "../utils/resumeAnalyzer.js";
 import { analyzeResumeWithGPT5 } from "../utils/aiService.js";
-// Unified AI Analyzer (Python ML + JS Regex + GPT-4o-mini)
+// Unified AI Analyzer (JS Regex + LLM)
 import {
   analyzeResumeUnified,
   analyzeResumeQuick,
 } from "../utils/unifiedAnalyzer.js";
 import { aiLimiter } from "../middlewares/rateLimiters.js";
+import {
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+} from "../config/aiModels.js";
 
 const router = express.Router();
 
@@ -88,7 +96,7 @@ router.post(
         userId,
         jobId,
         resumePath,
-        analysisScore: analysisResult.score,
+        analysisScore: clampScore(analysisResult.score),
         keySkillsMatch: analysisResult.keySkillsMatch,
         experienceMatch: analysisResult.experienceMatch,
         educationMatch: analysisResult.educationMatch,
@@ -108,33 +116,69 @@ router.post(
   },
 );
 
+// The applicant themselves, or the recruiter who posted the job
+const canViewCandidateResume = async (requesterId, candidateId, jobId) => {
+  if (String(requesterId) === String(candidateId)) return true;
+  if (!jobId || !mongoose.isValidObjectId(jobId)) return false;
+  const job = await Job.findById(jobId).select("created_by").lean();
+  return !!job && String(job.created_by) === String(requesterId);
+};
+
 // Route to get resume analysis for a specific job application
-router.get("/:jobId/:userId", isAuthenticated, async (req, res) => {
-  try {
-    const { jobId, userId } = req.params;
+// IDs are constrained to ObjectIds so this doesn't shadow /download/:fileName
+router.get(
+  "/:jobId([0-9a-fA-F]{24})/:userId([0-9a-fA-F]{24})",
+  isAuthenticated,
+  async (req, res) => {
+    try {
+      const { jobId, userId } = req.params;
 
-    // Check if the requesting user is the job poster or the applicant
-    const analysis = await ResumeAnalysis.findOne({ jobId, userId });
+      if (!(await canViewCandidateResume(req.id, userId, jobId))) {
+        return res.status(403).json({ message: "Access denied" });
+      }
 
-    if (!analysis) {
-      return res.status(404).json({ message: "Resume analysis not found" });
+      const analysis = await ResumeAnalysis.findOne({ jobId, userId });
+
+      if (!analysis) {
+        return res.status(404).json({ message: "Resume analysis not found" });
+      }
+
+      res.json(analysis);
+    } catch (error) {
+      console.error("Error fetching resume analysis:", error);
+      res.status(500).json({ message: "Server error" });
     }
-
-    res.json(analysis);
-  } catch (error) {
-    console.error("Error fetching resume analysis:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+  },
+);
 
 // Route to download resume
-router.get("/download/:resumePath", isAuthenticated, (req, res) => {
+router.get("/download/:fileName", isAuthenticated, async (req, res) => {
   try {
-    const resumePath = path.join(
-      __dirname,
-      "../uploads",
-      req.params.resumePath,
-    );
+    // Only bare file names produced by multer are valid; anything with a path
+    // separator or ".." is rejected before touching the filesystem.
+    const fileName = req.params.fileName;
+    if (!/^[\w-]+\.pdf$/i.test(fileName)) {
+      return res.status(400).json({ message: "Invalid file name" });
+    }
+
+    const uploadDir = path.resolve(__dirname, "../uploads");
+    const resumePath = path.resolve(uploadDir, fileName);
+    if (path.dirname(resumePath) !== uploadDir) {
+      return res.status(400).json({ message: "Invalid file name" });
+    }
+
+    const analysis = await ResumeAnalysis.findOne({
+      resumePath: { $regex: `[\\\\/]${escapeRegex(fileName)}$` },
+    })
+      .select("userId jobId")
+      .lean();
+
+    if (
+      !analysis ||
+      !(await canViewCandidateResume(req.id, analysis.userId, analysis.jobId))
+    ) {
+      return res.status(404).json({ message: "Resume file not found" });
+    }
 
     if (!fs.existsSync(resumePath)) {
       return res.status(404).json({ message: "Resume file not found" });
@@ -146,6 +190,10 @@ router.get("/download/:resumePath", isAuthenticated, (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 // Route to analyze resume text (for student dashboard)
 router.post("/analyze-text", isAuthenticated, async (req, res) => {
@@ -184,13 +232,13 @@ router.post("/analyze-text", isAuthenticated, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// UNIFIED AI ANALYSIS (3 Engines: Python ML + JS Regex + GPT-4o-mini)
+// UNIFIED AI ANALYSIS (2 Engines: JS Regex + LLM)
 // Industrial-standard with consensus scoring and confidence metrics
 // ═══════════════════════════════════════════════════════════════
 
 /**
  * @route POST /api/resume/unified-analyze
- * @desc Analyze resume using all 3 AI engines for best accuracy
+ * @desc Analyze resume using all AI engines for best accuracy
  * @access Private
  */
 router.post(
@@ -199,7 +247,12 @@ router.post(
   aiLimiter,
   async (req, res) => {
     try {
-      const { resumeText, jobDescription, candidateId } = req.body;
+      const { resumeText, jobDescription } = req.body;
+      // Callers may only analyze (and persist) on behalf of themselves
+      const candidateId =
+        req.body.candidateId && String(req.body.candidateId) === String(req.id)
+          ? req.id
+          : null;
       let candidateName = null;
 
       if (!resumeText) {
@@ -230,7 +283,7 @@ router.post(
         );
       }
 
-      // Run unified analysis with all 3 engines
+      // Run unified analysis with all engines
       const result = await analyzeResumeUnified(
         resumeText,
         jobDescription || "",
@@ -249,12 +302,15 @@ router.post(
       if (candidateId && result.consensus) {
         try {
           await ResumeAnalysis.findOneAndUpdate(
-            { userId: candidateId },
+            { userId: candidateId, type: "practice" },
             {
               userId: candidateId,
-              analysisScore: result.consensus.score,
+              type: "practice",
+              analysisScore: clampScore(result.consensus.score),
               keySkillsMatch: result.consensus.keySkillsMatch || [],
-              experienceMatch: result.consensus.experienceYears || null,
+              experienceMatch: clampScore(
+                (result.consensus.experienceYears || 0) * 15,
+              ),
               overallFit: result.consensus.recommendation,
               analysisMethod: "unified-multi-engine",
               engineResults: Object.entries(result.engines).map(
@@ -266,8 +322,9 @@ router.post(
                 }),
               ),
               confidence: result.consensus.confidence,
+              analyzedAt: new Date(),
             },
-            { upsert: true, new: true },
+            { upsert: true, new: true, runValidators: true },
           );
         } catch (saveError) {
           console.warn("Could not save analysis:", saveError.message);
@@ -337,14 +394,14 @@ router.get("/quick-score", isAuthenticated, async (req, res) => {
 
     // Get most recent analysis for this user
     const analysis = await ResumeAnalysis.findOne({ userId }).sort({
-      createdAt: -1,
+      analyzedAt: -1,
     });
 
     if (analysis) {
       return res.status(200).json({
         success: true,
         score: analysis.analysisScore,
-        lastAnalyzed: analysis.createdAt,
+        lastAnalyzed: analysis.analyzedAt,
         fit: analysis.overallFit,
       });
     }
@@ -531,8 +588,8 @@ async function analyzeWithFlaskOrFallback(resumeText, jobDescription = null) {
   return { ...result, source: "js-fallback" };
 }
 
-// Enhanced analyze endpoint - NOW USES UNIFIED 3-ENGINE ANALYZER
-// Industrial-standard: Python ML + JavaScript Regex + GPT-4o-mini
+// Enhanced analyze endpoint - uses the unified multi-engine analyzer
+// Industrial-standard: JavaScript Regex + LLM
 router.post("/enhanced-analyze", isAuthenticated, async (req, res) => {
   try {
     const { resumeText, jobDescription } = req.body;
@@ -546,7 +603,7 @@ router.post("/enhanced-analyze", isAuthenticated, async (req, res) => {
       });
     }
 
-    console.log("🚀 [Resume] Starting unified 3-engine analysis...");
+    console.log("🚀 [Resume] Starting unified multi-engine analysis...");
 
     try {
       if (req.id) {
@@ -565,7 +622,7 @@ router.post("/enhanced-analyze", isAuthenticated, async (req, res) => {
       );
     }
 
-    // Use unified analyzer with all 3 engines
+    // Use unified analyzer with all engines
     const result = await analyzeResumeUnified(
       resumeText,
       jobDescription || "",
@@ -588,11 +645,11 @@ router.post("/enhanced-analyze", isAuthenticated, async (req, res) => {
       { userId, type: "practice" },
       {
         userId,
-        analysisScore: analysis.score,
+        analysisScore: clampScore(analysis.score),
         keySkillsMatch: analysis.keySkillsMatch || [],
         missingSkills: analysis.missingSkills || [],
         experienceMatch: analysis.experienceYears
-          ? analysis.experienceYears * 15
+          ? clampScore(analysis.experienceYears * 15)
           : 50,
         educationMatch:
           analysis.educationLevel === "PhD"
@@ -601,14 +658,14 @@ router.post("/enhanced-analyze", isAuthenticated, async (req, res) => {
               ? 85
               : 70,
         overallFit: analysis.recommendation || "Fair",
-        atsScore: analysis.score,
+        atsScore: clampScore(analysis.score),
         type: "practice",
-        analysisMethod: "unified-3-engine",
+        analysisMethod: "unified-multi-engine",
         enginesUsed: analysis.enginesUsed || [],
         confidence: analysis.confidence,
         analyzedAt: new Date(),
       },
-      { upsert: true, new: true },
+      { upsert: true, new: true, runValidators: true },
     );
 
     res.status(200).json({
@@ -811,19 +868,20 @@ router.post(
       // Save analysis to database
       try {
         await ResumeAnalysis.findOneAndUpdate(
-          { userId: req.id },
+          { userId: req.id, type: "practice" },
           {
             userId: req.id,
+            type: "practice",
             resumeText: onePageText.substring(0, 5000),
-            analysisScore: analysis.score,
+            analysisScore: clampScore(analysis.score),
             overallFit: analysis.overallFit,
             keySkillsMatch: analysis.skills?.matched || [],
             missingSkills: analysis.skills?.missing || [],
-            atsScore: analysis.atsScore,
+            atsScore: clampScore(analysis.atsScore),
             analyzedAt: new Date(),
             source: analysis.source || "pdf-ai",
           },
-          { upsert: true, new: true },
+          { upsert: true, new: true, runValidators: true },
         );
       } catch (dbErr) {
         console.log("DB save error (non-fatal):", dbErr.message);
@@ -843,6 +901,12 @@ router.post(
     }
   },
 );
+
+function clampScore(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
 
 function normalizeResumeText(text) {
   if (!text) return "";
@@ -1126,20 +1190,18 @@ IMPORTANT RULES:
 6. Return ONLY the JSON object, no markdown or explanation`;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 4096,
-          },
-        }),
-      },
-    );
+    const response = await fetch(geminiGenerateUrl(GEMINI_MODELS.FLASH), {
+      method: "POST",
+      headers: geminiHeaders(),
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          thinkingConfig: geminiThinkingConfig(GEMINI_MODELS.FLASH),
+          temperature: 0.4,
+          maxOutputTokens: 4096,
+        },
+      }),
+    });
 
     const data = await response.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";

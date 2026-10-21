@@ -43,7 +43,10 @@ import companyReviewRoute from "./routes/companyReview.route.js";
 import salaryRoute from "./routes/salary.route.js";
 import talentPoolRoute from "./routes/talentPool.route.js";
 import careerCoachRoute from "./routes/careerCoach.route.js";
-import { rateLimiter } from "./middlewares/isAuthenticated.js";
+import isAuthenticated, {
+  rateLimiter,
+  isSuperAdmin,
+} from "./middlewares/isAuthenticated.js";
 import { createServer } from "http";
 import logger from "./utils/logger.js";
 import performanceMonitor, { getPerformanceStats } from "./utils/performanceMonitor.js";
@@ -267,9 +270,8 @@ app.get("/health/realtime", (req, res) => {
   });
 });
 
-// Performance monitoring stats endpoint (admin only - add auth in production)
-app.get("/api/v1/admin/performance", (req, res) => {
-  // TODO: Add admin authentication in production
+// Performance monitoring stats endpoint (super admin only)
+app.get("/api/v1/admin/performance", isAuthenticated, isSuperAdmin, (req, res) => {
   const stats = getPerformanceStats();
   res.status(200).json({
     success: true,

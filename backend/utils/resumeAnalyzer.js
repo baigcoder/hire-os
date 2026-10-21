@@ -7,11 +7,17 @@
 import { Job } from "../models/job.model.js";
 import crypto from "crypto";
 import { analyzeResumeWithGPT5, callGPT5, parseAIJson } from "./aiService.js";
+import {
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+} from "../config/aiModels.js";
 
 // API configuration
 const GPT5_API_KEY = process.env.GPT5_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = "gemini-1.5-flash"; // Fallback model
+const GEMINI_MODEL = GEMINI_MODELS.FLASH; // Fallback model
 
 // In-memory cache with TTL (use Redis in production for multi-instance)
 const analysisCache = new Map();
@@ -442,22 +448,20 @@ Return ONLY valid JSON:
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000); // 12s timeout
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 1000,
-            responseMimeType: "application/json",
-          },
-        }),
-        signal: controller.signal,
-      },
-    );
+    const response = await fetch(geminiGenerateUrl(GEMINI_MODEL), {
+      method: "POST",
+      headers: geminiHeaders(),
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          thinkingConfig: geminiThinkingConfig(GEMINI_MODEL),
+          temperature: 0.1,
+          maxOutputTokens: 1000,
+          responseMimeType: "application/json",
+        },
+      }),
+      signal: controller.signal,
+    });
 
     clearTimeout(timeout);
 

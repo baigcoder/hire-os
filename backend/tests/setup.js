@@ -2,6 +2,11 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import cache from "../utils/cache.js";
 
+// CI runs `npm test` with no env; every suite needs a JWT secret (setup
+// files run before each test file's imports, so this applies to all)
+process.env.SECRET_KEY = process.env.SECRET_KEY || "test-secret-key";
+process.env.NODE_ENV = process.env.NODE_ENV || "test";
+
 let mongoServer;
 
 beforeAll(async () => {

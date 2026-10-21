@@ -23,7 +23,8 @@ export const AuthProvider = ({ children }) => {
 
 
   // Sync Supabase user with backend and Redux
-  const syncUserWithBackend = async (supabaseUser) => {
+  // The backend verifies the Supabase access token; identity comes from it
+  const syncUserWithBackend = async (supabaseUser, accessToken) => {
     if (!supabaseUser) {
       dispatch(reduxLogout());
       setLocalUser(null);
@@ -38,6 +39,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post(
         "/user/supabase-sync",
         {
+          accessToken,
           supabaseId: supabaseUser.id,
           email: supabaseUser.email,
           fullname:
@@ -107,7 +109,10 @@ export const AuthProvider = ({ children }) => {
         setSession(currentSession);
 
         if (currentSession?.user) {
-          await syncUserWithBackend(currentSession.user);
+          await syncUserWithBackend(
+            currentSession.user,
+            currentSession.access_token,
+          );
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
@@ -126,7 +131,10 @@ export const AuthProvider = ({ children }) => {
       setSession(currentSession);
 
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        await syncUserWithBackend(currentSession?.user);
+        await syncUserWithBackend(
+          currentSession?.user,
+          currentSession?.access_token,
+        );
       } else if (event === "SIGNED_OUT") {
         dispatch(reduxLogout());
         setLocalUser(null);

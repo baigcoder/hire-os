@@ -31,6 +31,7 @@ const notificationSchema = new mongoose.Schema(
         "mcq_failed", // Student: MCQ score below threshold
         "video_interview_ready", // Student: Video interview can start
         "fraud_alert", // Recruiter: Fraud detected during interview
+        "integrity_report", // Recruiter: Post-interview integrity report ready
 
         // Offer Related
         "offer_received", // Student: You received an offer

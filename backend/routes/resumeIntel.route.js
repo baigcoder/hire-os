@@ -8,6 +8,7 @@
  *   GET    /analyses/:id          full report (owner only)
  *   GET    /analyses/:id/events   SSE progress stream (owner only)
  *   DELETE /analyses/:id          delete a report and its stored resume text
+ *   GET/POST/DELETE /analyses/:id/coach   Resume Coach chat (see below)
  */
 import crypto from "crypto";
 import express from "express";
@@ -27,6 +28,9 @@ import {
 import { PIPELINE_VERSION, STAGES } from "../modules/resume-intel/pipeline.js";
 import { jobToText } from "../modules/resume-intel/requirements.js";
 import logger from "../utils/logger.js";
+import { CoachConversation } from "../models/coachConversation.model.js";
+import { runCoachTurn } from "../modules/coach/agent.js";
+import ai, { AiGatewayError } from "../platform/ai-gateway/index.js";
 
 const router = express.Router();
 
@@ -131,25 +135,21 @@ router.post(
       const { jobId } = req.body;
       if (jobId) {
         if (!mongoose.isValidObjectId(jobId)) {
-          return res
-            .status(400)
-            .json({
-              success: false,
-              code: "INVALID_JOB",
-              message: "Invalid job ID.",
-            });
+          return res.status(400).json({
+            success: false,
+            code: "INVALID_JOB",
+            message: "Invalid job ID.",
+          });
         }
         const job = await Job.findById(jobId)
           .select("title description requirements skills experienceLevel")
           .lean();
         if (!job) {
-          return res
-            .status(404)
-            .json({
-              success: false,
-              code: "JOB_NOT_FOUND",
-              message: "Job not found.",
-            });
+          return res.status(404).json({
+            success: false,
+            code: "JOB_NOT_FOUND",
+            message: "Job not found.",
+          });
         }
         target = {
           jobId: job._id,
@@ -163,22 +163,18 @@ router.post(
       ) {
         const text = req.body.jobDescription.trim();
         if (text.length < 50) {
-          return res
-            .status(400)
-            .json({
-              success: false,
-              code: "JD_TOO_SHORT",
-              message: "The job description is too short to analyze.",
-            });
+          return res.status(400).json({
+            success: false,
+            code: "JD_TOO_SHORT",
+            message: "The job description is too short to analyze.",
+          });
         }
         if (text.length > MAX_JD_CHARS) {
-          return res
-            .status(400)
-            .json({
-              success: false,
-              code: "JD_TOO_LONG",
-              message: `Job descriptions are limited to ${MAX_JD_CHARS.toLocaleString()} characters.`,
-            });
+          return res.status(400).json({
+            success: false,
+            code: "JD_TOO_LONG",
+            message: `Job descriptions are limited to ${MAX_JD_CHARS.toLocaleString()} characters.`,
+          });
         }
         target = { title: null, minYears: null, text };
       }
@@ -387,10 +383,186 @@ router.delete("/analyses/:id", isAuthenticated, async (req, res, next) => {
         .json({ success: false, message: "Analysis not found" });
     }
     await ResumeReport.deleteOne({ _id: report._id });
+    await CoachConversation.deleteMany({ reportId: report._id });
     res.json({ success: true });
   } catch (error) {
     next(error);
   }
 });
+
+// ═══════════════════════════════════════════════════════════════
+// RESUME COACH (agent chat over a completed report)
+//   GET    /analyses/:id/coach   conversation so far
+//   POST   /analyses/:id/coach   { message } → coach reply + tool trace
+//   DELETE /analyses/:id/coach   start over
+// ═══════════════════════════════════════════════════════════════
+
+const MAX_COACH_MESSAGE_CHARS = 1000;
+const MAX_STORED_MESSAGES = 40;
+const coachDailyLimit = () => Number(process.env.COACH_MESSAGES_PER_DAY) || 30;
+
+const coachMessagesToday = async (userId) => {
+  const since = new Date(Date.now() - 24 * 3600 * 1000);
+  const [row] = await CoachConversation.aggregate([
+    { $match: { userId: new mongoose.Types.ObjectId(String(userId)) } },
+    { $unwind: "$messages" },
+    {
+      $match: {
+        "messages.role": "user",
+        "messages.createdAt": { $gte: since },
+      },
+    },
+    { $count: "n" },
+  ]);
+  return row?.n ?? 0;
+};
+
+router.get("/analyses/:id/coach", isAuthenticated, async (req, res, next) => {
+  try {
+    const report = await findOwned(req.params.id, req.id, "_id")?.lean();
+    if (!report) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Analysis not found" });
+    }
+    const conversation = await CoachConversation.findOne({
+      userId: req.id,
+      reportId: report._id,
+    }).lean();
+    res.json({ success: true, messages: conversation?.messages ?? [] });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post(
+  "/analyses/:id/coach",
+  isAuthenticated,
+  aiLimiter,
+  async (req, res, next) => {
+    try {
+      const message =
+        typeof req.body?.message === "string" ? req.body.message.trim() : "";
+      if (!message) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            code: "EMPTY_MESSAGE",
+            message: "Type a question for the coach.",
+          });
+      }
+      if (message.length > MAX_COACH_MESSAGE_CHARS) {
+        return res.status(400).json({
+          success: false,
+          code: "MESSAGE_TOO_LONG",
+          message: `Messages are limited to ${MAX_COACH_MESSAGE_CHARS} characters.`,
+        });
+      }
+
+      const report = await findOwned(
+        req.params.id,
+        req.id,
+        "+resumeText",
+      )?.lean();
+      if (!report) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Analysis not found" });
+      }
+      if (report.status !== "completed") {
+        return res.status(409).json({
+          success: false,
+          code: "NOT_READY",
+          message: "The coach is available once the analysis has finished.",
+        });
+      }
+      if ((await coachMessagesToday(req.id)) >= coachDailyLimit()) {
+        return res.status(429).json({
+          success: false,
+          code: "DAILY_LIMIT",
+          message: `You've reached today's limit of ${coachDailyLimit()} coach messages.`,
+        });
+      }
+
+      const conversation = await CoachConversation.findOne({
+        userId: req.id,
+        reportId: report._id,
+      }).lean();
+
+      let turn;
+      try {
+        turn = await runCoachTurn({
+          ai,
+          report,
+          resumeText: report.resumeText,
+          history: conversation?.messages ?? [],
+          message,
+          userId: req.id,
+        });
+      } catch (error) {
+        if (error instanceof AiGatewayError) {
+          return res.status(503).json({
+            success: false,
+            code: "AI_UNAVAILABLE",
+            message:
+              "The coach is busy right now. Please try again in a minute.",
+          });
+        }
+        throw error;
+      }
+
+      const now = new Date();
+      const userMessage = { role: "user", content: message, createdAt: now };
+      const reply = {
+        role: "assistant",
+        content:
+          turn.reply ||
+          "Sorry, I couldn't come up with an answer. Try rephrasing?",
+        trace: turn.trace,
+        model: turn.model,
+        createdAt: now,
+      };
+      await CoachConversation.updateOne(
+        { userId: req.id, reportId: report._id },
+        {
+          $push: {
+            messages: {
+              $each: [userMessage, reply],
+              $slice: -MAX_STORED_MESSAGES,
+            },
+          },
+        },
+        { upsert: true },
+      );
+
+      res.json({ success: true, reply });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+router.delete(
+  "/analyses/:id/coach",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const report = await findOwned(req.params.id, req.id, "_id")?.lean();
+      if (!report) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Analysis not found" });
+      }
+      await CoachConversation.deleteOne({
+        userId: req.id,
+        reportId: report._id,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 export default router;

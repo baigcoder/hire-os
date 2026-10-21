@@ -150,3 +150,11 @@ export const useResumeAnalysis = () => {
 
   return { analysisId, status, stages, report, error, start, open, reset };
 };
+
+export const fetchCoachMessages = (id) =>
+  api.get(`/analyses/${id}/coach`).then((r) => r.data.messages);
+
+export const sendCoachMessage = (id, message) =>
+  api.post(`/analyses/${id}/coach`, { message }).then((r) => r.data.reply);
+
+export const resetCoach = (id) => api.delete(`/analyses/${id}/coach`);

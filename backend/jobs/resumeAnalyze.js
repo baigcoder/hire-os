@@ -3,6 +3,10 @@ import { ResumeAnalysis } from "../models/ResumeAnalysis.js";
 import { runResumePipeline } from "../modules/resume-intel/pipeline.js";
 import { AiGatewayError } from "../platform/ai-gateway/gateway.js";
 import logger from "../utils/logger.js";
+import {
+  indexResumeReport,
+  indexSafely,
+} from "../modules/discover/indexing.js";
 
 export const RESUME_ANALYZE_JOB = "resume.analyze";
 
@@ -132,6 +136,14 @@ export const createResumeAnalyzeHandler =
       await syncLegacyAnalysis(report, result).catch((error) =>
         logger.warn("Could not sync legacy resume analysis", {
           error: error.message,
+        }),
+      );
+      // Powers "jobs for you" (semantic search); never fails the analysis
+      await indexSafely("resume", () =>
+        indexResumeReport({
+          userId: report.userId,
+          profile: result.profile,
+          signals: result.signals,
         }),
       );
 

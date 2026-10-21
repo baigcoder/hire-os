@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { Badge } from "../../ui/badge";
 import { Evidence, RequirementList, Section } from "./shared";
 import { BAND_STYLES, buildItemLabels } from "./reportModel";
+import CoachPanel from "./CoachPanel";
+import JobsForYou from "./JobsForYou";
 
 const ScoreHeader = ({ report }) => {
   const { score } = report;
@@ -322,6 +324,10 @@ const ReportView = ({ report }) => {
           </ul>
         </Section>
       )}
+
+      <JobsForYou />
+
+      {report._id && <CoachPanel reportId={report._id} />}
 
       <p className="text-[11px] text-gray-600 text-center">
         The score ({report.score?.version}) is calculated from your

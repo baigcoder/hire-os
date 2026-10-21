@@ -414,6 +414,14 @@ export const replyToMessage = async (req, res) => {
       });
     }
 
+    // SECURITY (S18): only the message's recipient can reply to it
+    if (String(originalMessage.receiverId) !== String(senderId)) {
+      return res.status(404).json({
+        message: "Original message not found",
+        success: false,
+      });
+    }
+
     // Get sender info
     const sender = await User.findById(senderId).select("fullname role");
 

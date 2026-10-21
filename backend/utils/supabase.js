@@ -103,6 +103,12 @@ export const createSignedFileUrl = async (
   return data.signedUrl;
 };
 
+/** Delete a private object. Missing objects are not an error. */
+export const deletePrivateFile = async (bucket, path) => {
+  const { error } = await getStorageAdmin().from(bucket).remove([path]);
+  if (error) throw new Error(`Could not delete file: ${error.message}`);
+};
+
 /** Download a private object as a Buffer. */
 export const downloadPrivateFile = async (bucket, path) => {
   const { data, error } = await getStorageAdmin().from(bucket).download(path);
@@ -132,6 +138,40 @@ export const parseStorageUrl = (url) => {
     return null;
   }
 };
+
+// ═══════════════════════════════════════════════════════════════
+// SUPABASE SESSION VERIFICATION
+// ═══════════════════════════════════════════════════════════════
+
+const verifyWithSupabase = async (accessToken) => {
+  if (!supabase?.auth?.getUser) {
+    throw new Error("Supabase auth is not configured");
+  }
+  const { data, error } = await supabase.auth.getUser(accessToken);
+  if (error || !data?.user) return null;
+  return {
+    id: data.user.id,
+    email: data.user.email?.toLowerCase() ?? null,
+    emailConfirmed: Boolean(data.user.email_confirmed_at),
+    provider: data.user.app_metadata?.provider ?? null,
+  };
+};
+
+let sessionVerifier = verifyWithSupabase;
+
+/** Test seam: replace the verifier (null restores Supabase). */
+export const setSessionVerifierForTests = (fn) => {
+  sessionVerifier = fn ?? verifyWithSupabase;
+};
+
+/**
+ * Verify a Supabase access token with Supabase itself. Returns the
+ * verified { id, email, emailConfirmed, provider } or null if invalid.
+ */
+export const verifySupabaseAccessToken = (accessToken) =>
+  typeof accessToken === "string" && accessToken.length > 20
+    ? sessionVerifier(accessToken)
+    : Promise.resolve(null);
 
 export { supabaseUrl };
 export default supabase;

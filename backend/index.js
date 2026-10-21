@@ -47,6 +47,8 @@ import adminAiRoute from "./routes/adminAi.route.js";
 import resumeIntelRoute from "./routes/resumeIntel.route.js";
 import screeningRoute from "./routes/screening.route.js";
 import resumeFileRoute from "./routes/resumeFile.route.js";
+import discoverRoute from "./routes/discover.route.js";
+import integrityRoute from "./routes/integrity.route.js";
 import isAuthenticated, {
   rateLimiter,
   isSuperAdmin,
@@ -140,6 +142,10 @@ app.use(
       if (req.headers["x-no-compression"]) {
         return false;
       }
+      // Server-sent events must stream, not sit in a gzip buffer
+      if (String(res.getHeader("Content-Type") || "").startsWith("text/event-stream")) {
+        return false;
+      }
       // Use default filter (compresses text-based content types)
       return compression.filter(req, res);
     },
@@ -147,7 +153,15 @@ app.use(
 );
 
 // Body parser middleware
-app.use(express.json({ limit: "10mb" }));
+app.use(
+  express.json({
+    limit: "10mb",
+    // Keep the exact bytes of webhook bodies for signature verification
+    verify: (req, res, buf) => {
+      if (req.originalUrl.includes("/webhook")) req.rawBody = buf;
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
@@ -332,6 +346,8 @@ app.use("/api/v1/admin/ai", adminAiRoute); // AI gateway telemetry (super admin)
 app.use("/api/v1/resume-intel", resumeIntelRoute); // Resume intelligence pipeline
 app.use("/api/v1/screening", screeningRoute); // Blind recruiter screening
 app.use("/api/v1/resumes", resumeFileRoute); // Private resume files (signed URLs)
+app.use("/api/v1/discover", discoverRoute); // Semantic job & talent search
+app.use("/api/v1/integrity", integrityRoute); // Live-interview integrity monitoring
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {

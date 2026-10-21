@@ -24,6 +24,12 @@ export const GEMINI_MODELS = {
   PRO: process.env.GEMINI_MODEL_PRO || "gemini-3.8-flash",
 };
 
+// Groq has no embedding models; semantic search uses Gemini embeddings
+export const EMBEDDING_MODEL = {
+  ID: process.env.GEMINI_EMBEDDING_MODEL || "gemini-embedding-2",
+  DIMENSIONS: Number(process.env.EMBEDDING_DIMENSIONS) || 768,
+};
+
 export const GEMINI_API_BASE =
   "https://generativelanguage.googleapis.com/v1beta/models";
 

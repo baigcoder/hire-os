@@ -1,5 +1,30 @@
 import { Interview, Application, Job, Company, User, Notification, Message } from "../models/index.js";
 import crypto from "crypto";
+import { endSessionSafely as endIntegritySession } from "../modules/integrity/service.js";
+import { canManageJob } from "../utils/jobAccess.js";
+
+/** The interview's recruiter, or a recruiter / admin who manages its job. */
+const recruiterCanManageInterview = async (interview, req) => {
+  const recruiterId = interview.recruiterId?._id ?? interview.recruiterId;
+  if (String(recruiterId) === String(req.id)) return true;
+  const user =
+    req.user ?? (await User.findById(req.id).select("role companyId").lean());
+  const job = await Job.findById(interview.jobId)
+    .select("created_by company")
+    .lean();
+  return canManageJob(user, job);
+};
+
+const isInterviewParticipant = (interview, userId) =>
+  [interview.studentId, interview.recruiterId].some(
+    (id) => String(id?._id ?? id) === String(userId),
+  );
+
+const forbidden = (res) =>
+  res.status(403).json({
+    success: false,
+    message: "You don't have access to this interview",
+  });
 
 // ========== INTERVIEW CRUD ==========
 
@@ -916,6 +941,11 @@ export const joinVideoInterview = async (req, res) => {
       message: "Joined video interview",
       roomId: interview.videoInterview.roomId,
       status: interview.videoInterview.status,
+      // The candidate's client shows the consent screen, then starts the proctor
+      integrity: {
+        consentUrl: `/api/v1/integrity/${interview._id}/consent`,
+        consentRequired: isStudent,
+      },
     });
   } catch (error) {
     console.error("Join video interview error:", error);
@@ -941,6 +971,14 @@ export const endVideoInterview = async (req, res) => {
       });
     }
 
+    // Participants (or the job's company) only (S18)
+    if (
+      !isInterviewParticipant(interview, req.id) &&
+      !(await recruiterCanManageInterview(interview, req))
+    ) {
+      return forbidden(res);
+    }
+
     interview.videoInterview.status = "completed";
     interview.videoInterview.endedAt = new Date();
     interview.status = "video_completed";
@@ -955,6 +993,9 @@ export const endVideoInterview = async (req, res) => {
     }
 
     await interview.save();
+
+    // Close integrity monitoring and queue its report
+    await endIntegritySession(interview._id);
 
     // Update application
     const application = await Application.findById(interview.applicationId);
@@ -1543,6 +1584,11 @@ export const createOfferLetter = async (req, res) => {
       });
     }
 
+    // Only the interview's recruiter or their company may act on it (S18)
+    if (!(await recruiterCanManageInterview(interview, req))) {
+      return forbidden(res);
+    }
+
     interview.offerLetter = {
       status: "drafted",
       createdBy: recruiterId,
@@ -1764,6 +1810,11 @@ export const cancelInterview = async (req, res) => {
       });
     }
 
+    // Only the interview's recruiter or their company may act on it (S18)
+    if (!(await recruiterCanManageInterview(interview, req))) {
+      return forbidden(res);
+    }
+
     interview.status = "cancelled";
     interview.cancellation = {
       cancelledBy: userId,
@@ -1808,6 +1859,11 @@ export const rescheduleInterview = async (req, res) => {
         success: false,
         message: "Interview not found",
       });
+    }
+
+    // Only the interview's recruiter or their company may act on it (S18)
+    if (!(await recruiterCanManageInterview(interview, req))) {
+      return forbidden(res);
     }
 
     const oldDate = interview.scheduledAt;

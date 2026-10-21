@@ -7,6 +7,10 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendRecruiterInvitation, sendPaymentInvoice } from "../utils/email.js";
+import {
+  getPendingTransaction,
+  markPendingTransaction,
+} from "./paddle.controller.js";
 
 // Token generation helper
 const generateToken = (userId, expiresIn = "7d") => {
@@ -24,6 +28,28 @@ const generateSecurePassword = () => {
 };
 
 // Register company with subscription plan
+/**
+ * A payment that a signature-verified webhook marked completed, consumed so
+ * one payment can't activate several companies. Payment intents live in
+ * process memory today (SafePay: global.pendingTransactions, Paddle: the
+ * controller map); see docs §17 for moving them to the database.
+ */
+const consumeVerifiedPayment = (token) => {
+  const safepay = global.pendingTransactions?.[token];
+  if (safepay?.status === "completed") {
+    safepay.status = "consumed";
+    return { provider: "safepay", ...pick(safepay) };
+  }
+  const paddle = getPendingTransaction(token);
+  if (paddle?.status === "completed") {
+    markPendingTransaction(token, { status: "consumed" });
+    return { provider: "paddle", ...pick(paddle) };
+  }
+  return null;
+};
+
+const pick = ({ planId, billingCycle, amount }) => ({ planId, billingCycle, amount });
+
 export const registerCompany = async (req, res) => {
   try {
     const {
@@ -160,10 +186,21 @@ export const registerCompany = async (req, res) => {
       console.log("✅ Created new admin user:", adminUser.email);
     }
 
+    // SECURITY (S17): a subscription is only active when the payment was
+    // confirmed by a signature-verified webhook. Previously any non-empty
+    // paymentToken activated any plan. The plan and cycle come from the
+    // verified payment, not the request body.
+    const verifiedPayment = paymentToken
+      ? consumeVerifiedPayment(paymentToken)
+      : null;
+    const paidPlan = verifiedPayment?.planId || planId || "basic";
+    const paidCycle = verifiedPayment?.billingCycle || billingCycle || "monthly";
+
     // Get plan details
-    const selectedPlan = SUBSCRIPTION_PLANS[planId] || SUBSCRIPTION_PLANS.basic;
+    const selectedPlan =
+      SUBSCRIPTION_PLANS[paidPlan] || SUBSCRIPTION_PLANS.basic;
     const subscriptionEndDate = new Date();
-    if (billingCycle === "yearly") {
+    if (paidCycle === "yearly") {
       subscriptionEndDate.setFullYear(subscriptionEndDate.getFullYear() + 1);
     } else {
       subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
@@ -182,27 +219,27 @@ export const registerCompany = async (req, res) => {
       adminUser: adminUser._id,
       userId: adminUser._id, // Legacy support
       subscription: {
-        plan: planId || "basic",
-        type: billingCycle || "monthly",
-        status: paymentToken ? "active" : "pending",
+        plan: paidPlan,
+        type: paidCycle,
+        status: verifiedPayment ? "active" : "pending",
         startDate: new Date(),
         endDate: subscriptionEndDate,
         nextPaymentDate: subscriptionEndDate,
       },
       features: selectedPlan.features,
-      payments: paymentToken
+      payments: verifiedPayment
         ? [
           {
             transactionId: paymentToken,
             amount:
-              selectedPlan.prices?.[billingCycle] ||
-              selectedPlan.prices?.monthly ||
-              5000,
+              verifiedPayment.amount ||
+              selectedPlan.prices?.[paidCycle] ||
+              selectedPlan.prices?.monthly,
             currency: "PKR",
-            plan: planId || "basic",
-            duration: billingCycle || "monthly",
+            plan: paidPlan,
+            duration: paidCycle,
             paymentDate: new Date(),
-            paymentMethod: "safepay",
+            paymentMethod: verifiedPayment.provider,
             status: "completed",
           },
         ]
@@ -212,7 +249,7 @@ export const registerCompany = async (req, res) => {
     // Update admin user with company reference and subscription status
     adminUser.companyId = company._id;
     // Set subscriptionStatus based on payment - CRITICAL for dashboard access
-    adminUser.subscriptionStatus = paymentToken ? "active" : "pending";
+    adminUser.subscriptionStatus = verifiedPayment ? "active" : "pending";
     await adminUser.save();
 
     // Track invited recruiters
@@ -488,6 +525,15 @@ export const updateCompany = async (req, res) => {
       companySize,
     } = req.body;
     const companyId = req.params.id;
+
+    // SECURITY (S18): only the company's own admin may edit it
+    const owned = await Company.exists({ _id: companyId, adminUser: req.id });
+    if (!owned) {
+      return res.status(403).json({
+        message: "Only the company admin can update this company.",
+        success: false,
+      });
+    }
 
     let logo;
     if (req.file) {

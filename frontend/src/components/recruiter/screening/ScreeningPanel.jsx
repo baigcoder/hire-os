@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
   AlertTriangle,
@@ -290,6 +291,12 @@ const ScreeningPanel = ({ jobId }) => {
             {counts.pending > 0 && ` · ${counts.pending} in progress`}
             {counts.noResume > 0 && ` · ${counts.noResume} without resume`}
           </span>
+          <Link
+            to="/admin/talent-search"
+            className="text-xs text-gray-400 hover:text-[#FFD700] px-2"
+          >
+            Search all candidates →
+          </Link>
           <Button
             variant="ghost"
             size="sm"

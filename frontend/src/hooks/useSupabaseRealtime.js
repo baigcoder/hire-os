@@ -179,20 +179,8 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
       );
     });
 
-    // Fraud alerts (recruiter only)
-    channel.on("broadcast", { event: "fraud-alert" }, ({ payload }) => {
-      if (options.onFraudAlert && userRole === "recruiter") {
-        options.onFraudAlert(payload);
-      }
-    });
-
-    // Fraud monitoring toggle (candidate receives, recruiter sends)
-    channel.on("broadcast", { event: "fraud-monitoring-toggle" }, ({ payload }) => {
-      if (userRole === "candidate" && options.onMonitoringToggle) {
-        console.log("🔒 Monitoring toggled:", payload.enabled);
-        options.onMonitoringToggle(payload.enabled);
-      }
-    });
+      // Integrity signals no longer travel on this (unauthenticated) channel:
+    // they go to /api/v1/integrity, signed, and only recruiters read them.
 
     // Subscribe to channel
     channel.subscribe(async (status) => {
@@ -298,26 +286,6 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
     setRoomState("ended");
   }, []);
 
-  const reportFraudAlert = useCallback((type, details) => {
-    if (!channelRef.current) return;
-    channelRef.current.send({
-      type: "broadcast",
-      event: "fraud-alert",
-      payload: { type, details, timestamp: new Date().toISOString() },
-    });
-  }, []);
-
-  // Toggle fraud monitoring (recruiter only)
-  const toggleMonitoring = useCallback((enabled) => {
-    if (!channelRef.current) return;
-    channelRef.current.send({
-      type: "broadcast",
-      event: "fraud-monitoring-toggle",
-      payload: { enabled, timestamp: new Date().toISOString() },
-    });
-    console.log("🔒 Monitoring toggled to:", enabled);
-  }, []);
-
   // WebRTC signaling methods
   const sendOffer = useCallback(
     (offer, targetId) => {
@@ -371,8 +339,6 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
     updateMediaState,
     // Interview control
     endInterview,
-    reportFraudAlert,
-    toggleMonitoring, // Fraud monitoring toggle
     // WebRTC signaling
     sendOffer,
     sendAnswer,

@@ -96,6 +96,10 @@ export const createAiGateway = ({
    * @param {string} [options.cacheKey]  content identity for caching
    * @param {number} [options.cacheTtlSeconds]
    * @param {string} [options.userId]
+   * @param {Array<object>} [options.tools]  OpenAI-style function tools for
+   *   agent loops; only tool-capable providers are tried, and results are
+   *   never cached. Returns `toolCalls` ({ id, name, arguments }) when the
+   *   model asks for tools.
    * @returns {Promise<{data?: any, content: string, provider: string,
    *   model: string, degraded: boolean, cached: boolean, latencyMs: number,
    *   usage: {inputTokens: number, outputTokens: number}}>}
@@ -112,10 +116,17 @@ export const createAiGateway = ({
     cacheKey = null,
     cacheTtlSeconds = DEFAULT_CACHE_TTL_SECONDS,
     userId = null,
+    tools = null,
+    toolChoice = "auto",
   }) => {
     if (!task) throw new Error("ai.run requires a task name");
     if (!Array.isArray(messages) || messages.length === 0) {
       throw new Error("ai.run requires messages");
+    }
+    if (tools?.length && (schema || json || cacheKey)) {
+      throw new Error(
+        "ai.run tools can't be combined with schema, json or cacheKey",
+      );
     }
 
     const started = Date.now();
@@ -164,7 +175,9 @@ export const createAiGateway = ({
     if (!chain) throw new Error(`Unknown AI tier "${tier}"`);
 
     const attempts = [];
-    const estimated = estimateTokens(messages, maxOutputTokens);
+    const estimated =
+      estimateTokens(messages, maxOutputTokens) +
+      (tools?.length ? Math.ceil(JSON.stringify(tools).length / 4) : 0);
 
     for (const [index, { provider: providerName, model }] of chain.entries()) {
       const provider = providers[providerName];
@@ -174,6 +187,16 @@ export const createAiGateway = ({
           model,
           ok: false,
           error: "not configured",
+          latencyMs: 0,
+        });
+        continue;
+      }
+      if (tools?.length && !provider.supportsTools?.(model)) {
+        attempts.push({
+          provider: providerName,
+          model,
+          ok: false,
+          error: "no tool support",
           latencyMs: 0,
         });
         continue;
@@ -191,12 +214,14 @@ export const createAiGateway = ({
           jsonSchema,
           schemaName,
           json,
+          tools,
+          toolChoice,
           maxOutputTokens,
           temperature,
         });
         if (providerName === "groq") limiter.update(model, response.headers);
 
-        if (!response.content) {
+        if (!response.content && !response.toolCalls?.length) {
           throw new Error(
             `Empty response (finish reason: ${response.finishReason || "unknown"})`,
           );
@@ -224,6 +249,7 @@ export const createAiGateway = ({
         const result = {
           data,
           content: response.content,
+          toolCalls: response.toolCalls || [],
           provider: providerName,
           model,
           degraded: index > 0,

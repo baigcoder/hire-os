@@ -14,6 +14,7 @@ import {
 } from "../modules/screening/resumeSource.js";
 import { AiGatewayError } from "../platform/ai-gateway/gateway.js";
 import { resumeObjectPath } from "../utils/resumeFiles.js";
+import { indexScreening, indexSafely } from "../modules/discover/indexing.js";
 
 export { APPLICANT_SCREEN_JOB } from "../modules/screening/enqueue.js";
 
@@ -53,7 +54,10 @@ export const createApplicantScreenHandler =
   ({ ai, fetchResume = fetchResumeFile }) =>
   async ({ applicationId }, ctx) => {
     const application = await Application.findById(applicationId)
-      .populate("job", "title description requirements skills experienceLevel")
+      .populate(
+        "job",
+        "title description requirements skills experienceLevel company created_by",
+      )
       .populate("applicant", "fullname profile.resume profile.resumePath");
     if (!application?.job || !application.applicant) {
       await ApplicantScreening.deleteOne({ applicationId });
@@ -142,6 +146,18 @@ export const createApplicantScreenHandler =
       await Application.updateOne(
         { _id: applicationId },
         { $set: { resumeScore: result.score.overall } },
+      );
+      // Recruiter talent search (semantic); never fails the screening
+      await indexSafely("applicant", () =>
+        indexScreening(
+          {
+            applicationId: application._id,
+            jobId: job._id,
+            profile: result.profile,
+            signals: result.signals,
+          },
+          { companyId: job.company, createdBy: job.created_by },
+        ),
       );
       return { score: result.score.overall };
     } catch (error) {

@@ -1,6 +1,7 @@
 import { MCQTest } from "../models/mcq.model.js";
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
+import { canManageJob } from "../utils/jobAccess.js";
 import { User } from "../models/user.model.js";
 import { Notification } from "../models/notification.model.js";
 import { sendInterviewReminder } from "../utils/email.js";
@@ -267,6 +268,11 @@ export const generateMCQTest = async (req, res) => {
         message: "Application not found",
         success: false,
       });
+    }
+
+    // SECURITY (S18): only the job's company may test its applicants
+    if (!canManageJob(req.user, application.job)) {
+      return res.status(403).json({ message: "Access denied", success: false });
     }
 
     // Check if test already exists
@@ -698,6 +704,14 @@ export const getMCQTestResults = async (req, res) => {
         message: "Test not found",
         success: false,
       });
+    }
+
+    // SECURITY (S18): only the job's company may see a candidate's results
+    const job = await Job.findById(test.jobId?._id ?? test.jobId)
+      .select("created_by company")
+      .lean();
+    if (!canManageJob(req.user, job)) {
+      return res.status(403).json({ message: "Access denied", success: false });
     }
 
     return res.status(200).json({

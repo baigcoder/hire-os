@@ -4,6 +4,12 @@ import axios from "axios";
 // PADDLE PAYMENT CONFIGURATION
 // =====================================================
 
+const cyclePrices = (priceId) => ({
+  monthly: priceId,
+  quarterly: priceId,
+  yearly: priceId,
+});
+
 // Paddle Sandbox/Live Configuration
 export const PADDLE_CONFIG = {
   // Set to 'sandbox' for testing, 'production' for live
@@ -29,19 +35,12 @@ export const PADDLE_CONFIG = {
 
   // Your Product/Price IDs from Paddle Dashboard
   // Create these in Paddle → Catalog → Products & Prices
+  // The server binds plan -> price (S19); the checkout must use this price.
+  // Defaults are the sandbox prices the signup pages use for every cycle.
   prices: {
-    basic: {
-      monthly: "", // e.g., 'pri_01abcdefg...'
-      yearly: "",
-    },
-    professional: {
-      monthly: "", // e.g., 'pri_01hijklmn...'
-      yearly: "",
-    },
-    enterprise: {
-      monthly: "", // e.g., 'pri_01opqrstu...'
-      yearly: "",
-    },
+    basic: cyclePrices(process.env.PADDLE_PRICE_BASIC || "pri_01kc2k2hnr4re5yn3fevrkj9ty"),
+    professional: cyclePrices(process.env.PADDLE_PRICE_PROFESSIONAL || "pri_01kc2k3tyv04ysgqjqbwk7z46f"),
+    enterprise: cyclePrices(process.env.PADDLE_PRICE_ENTERPRISE || "pri_01kc2k4xnpav2hmzd5h8vncxfm"),
   },
 };
 
@@ -102,28 +101,7 @@ export const createPaddleTransaction = async (
   }
 };
 
-/**
- * Verify a Paddle webhook signature
- */
-export const verifyPaddleWebhook = (signature, rawBody, webhookSecret) => {
-  // Paddle webhook verification logic
-  // Reference: https://developer.paddle.com/webhooks/signature-verification
-  const crypto = require("crypto");
-
-  try {
-    const [ts, h1] = signature.split(";").map((part) => part.split("=")[1]);
-    const signedPayload = `${ts}:${rawBody}`;
-    const expectedSignature = crypto
-      .createHmac("sha256", webhookSecret)
-      .update(signedPayload)
-      .digest("hex");
-
-    return h1 === expectedSignature;
-  } catch (error) {
-    console.error("Webhook verification error:", error);
-    return false;
-  }
-};
+// Webhook signature verification lives in utils/webhookSecurity.js
 
 /**
  * Get subscription plans with Paddle price IDs

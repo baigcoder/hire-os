@@ -14,6 +14,16 @@ import {
   APPLICANT_SCREEN_JOB,
   createApplicantScreenHandler,
 } from "./applicantScreen.js";
+import {
+  INTEGRITY_REPORT_JOB,
+  INTEGRITY_EVIDENCE_PURGE_JOB,
+  createIntegrityReportHandler,
+  createEvidencePurgeHandler,
+} from "./integrity.js";
+import {
+  EMBED_JOB,
+  createEmbedJobHandler,
+} from "../modules/discover/indexing.js";
 
 export const registerJobs = (queue) => {
   // Two at a time: each analysis makes ~4 LLM calls against Groq's free limits
@@ -24,6 +34,16 @@ export const registerJobs = (queue) => {
   // candidates' own analyses of the shared Groq budget
   queue.register(APPLICANT_SCREEN_JOB, createApplicantScreenHandler({ ai }), {
     concurrency: 1,
+  });
+  // Semantic search: (re)embed a job posting after create/update
+  queue.register(EMBED_JOB, createEmbedJobHandler(), { concurrency: 2 });
+  // Live-interview integrity: one report per ended call, and evidence
+  // frames deleted when their 30-day retention ends
+  queue.register(INTEGRITY_REPORT_JOB, createIntegrityReportHandler({ ai }), {
+    concurrency: 1,
+  });
+  queue.register(INTEGRITY_EVIDENCE_PURGE_JOB, createEvidencePurgeHandler(), {
+    concurrency: 2,
   });
   return queue;
 };

@@ -37,6 +37,7 @@ export const createGroqProvider = ({
     name: "groq",
     isConfigured: () => Boolean(client || apiKey),
     supportsStrictSchema: (model) => GROQ_STRICT_MODELS.has(model),
+    supportsTools: () => true,
 
     async complete({
       model,
@@ -44,6 +45,8 @@ export const createGroqProvider = ({
       jsonSchema,
       schemaName,
       json,
+      tools,
+      toolChoice = "auto",
       maxOutputTokens,
       temperature,
     }) {
@@ -54,7 +57,11 @@ export const createGroqProvider = ({
         max_completion_tokens: maxOutputTokens,
         ...groqModelParams(model),
       };
-      if (jsonSchema && GROQ_STRICT_MODELS.has(model)) {
+      // Groq doesn't combine tool use with structured outputs
+      if (tools?.length) {
+        body.tools = tools;
+        body.tool_choice = toolChoice;
+      } else if (jsonSchema && GROQ_STRICT_MODELS.has(model)) {
         body.response_format = {
           type: "json_schema",
           json_schema: { name: schemaName, strict: true, schema: jsonSchema },
@@ -70,6 +77,11 @@ export const createGroqProvider = ({
       const choice = data.choices?.[0];
       return {
         content: choice?.message?.content ?? "",
+        toolCalls: (choice?.message?.tool_calls || []).map((call) => ({
+          id: call.id,
+          name: call.function?.name,
+          arguments: call.function?.arguments ?? "{}",
+        })),
         finishReason: choice?.finish_reason,
         usage: {
           inputTokens: data.usage?.prompt_tokens ?? 0,
@@ -88,6 +100,8 @@ export const createGeminiProvider = ({
   name: "gemini",
   isConfigured: () => Boolean(apiKey),
   supportsStrictSchema: () => false,
+  // Gemini's function-calling format differs; agent chats stay on Groq
+  supportsTools: () => false,
 
   async complete({
     model,

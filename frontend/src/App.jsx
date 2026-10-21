@@ -24,6 +24,7 @@ import CompanySetup from "./components/admin/CompanySetup";
 import AdminJobs from "./components/admin/AdminJobs";
 import PostJob from "./components/admin/PostJob";
 import Applicants from "./components/admin/Applicants";
+import TalentSearch from "./components/recruiter/TalentSearch";
 import AdminApplications from "./components/admin/AdminApplications";
 import AdminInterviews from "./components/admin/AdminInterviews";
 import AdminAnalytics from "./components/admin/AdminAnalytics";
@@ -74,6 +75,9 @@ const CompanyAdminDashboard = React.lazy(
 );
 const LiveInterview = React.lazy(
   () => import("./components/interview/LiveInterview"),
+);
+const IntegrityReportPage = React.lazy(
+  () => import("./components/interview/integrity/IntegrityReportPage"),
 );
 
 // New Recruiter Dashboard Components
@@ -474,6 +478,16 @@ const appRouter = createBrowserRouter([
     ),
   },
   {
+    path: "/interview/:id/integrity", // Live-interview integrity report (recruiter + candidate)
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <IntegrityReportPage />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: "/interview/:id/report", // Interview Report with CEO Approval
     element: (
       <ProtectedRoute>
@@ -653,6 +667,14 @@ const appRouter = createBrowserRouter([
         <PostJob />
       </CompanyAdminRoute>
     ), // Only CEO can post jobs
+  },
+  {
+    path: "/admin/talent-search",
+    element: (
+      <RecruiterRoute>
+        <TalentSearch />
+      </RecruiterRoute>
+    ),
   },
   {
     path: "/admin/jobs/:id/applicants",

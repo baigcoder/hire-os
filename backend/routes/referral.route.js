@@ -1,5 +1,5 @@
 import express from "express";
-import isAuthenticated from "../middlewares/isAuthenticated.js";
+import isAuthenticated, { isSuperAdmin } from "../middlewares/isAuthenticated.js";
 import {
     generateReferralCode,
     sendReferralInvite,
@@ -18,11 +18,13 @@ router.post("/invite", isAuthenticated, sendReferralInvite);
 router.get("/my-referrals", isAuthenticated, getMyReferrals);
 router.get("/stats", isAuthenticated, getReferralStats);
 
+// SECURITY (S18): the referred user is the caller, never a body userId
+router.post("/apply", isAuthenticated, applyReferralCode);
+
 // Public routes
-router.post("/apply", applyReferralCode);
 router.get("/track/:code", trackReferralClick);
 
 // Admin routes
-router.put("/reward/:id", isAuthenticated, markRewarded);
+router.put("/reward/:id", isAuthenticated, isSuperAdmin, markRewarded);
 
 export default router;

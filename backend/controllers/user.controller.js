@@ -4,7 +4,11 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import crypto from "crypto";
-import { uploadPrivateFile, RESUME_BUCKET } from "../utils/supabase.js";
+import {
+  uploadPrivateFile,
+  RESUME_BUCKET,
+  verifySupabaseAccessToken,
+} from "../utils/supabase.js";
 import { resumeLinkFor } from "../utils/resumeFiles.js";
 import { initializeStudentTrial } from "../utils/trialService.js";
 import logger from "../utils/logger.js";
@@ -671,14 +675,12 @@ export const revokeAllSessions = async (req, res) => {
 // Change initial password for recruiters on first login
 export const changeInitialPassword = async (req, res) => {
   try {
-    const { email, newPassword, confirmPassword } = req.body;
-
-    logger.info("🔐 Change initial password request:", { email });
+    const { newPassword, confirmPassword } = req.body;
 
     // Validate input
-    if (!email || !newPassword || !confirmPassword) {
+    if (!newPassword || !confirmPassword) {
       return res.status(400).json({
-        message: "Email, new password, and confirmation are required.",
+        message: "New password and confirmation are required.",
         success: false,
       });
     }
@@ -697,8 +699,10 @@ export const changeInitialPassword = async (req, res) => {
       });
     }
 
-    // Find user by email
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // SECURITY: act only on the signed-in user (they logged in with the
+    // temporary password). Looking users up by a body email let anyone set
+    // a new recruiter's password (S14).
+    const user = await User.findById(req.id);
     if (!user) {
       return res.status(404).json({
         message: "User not found.",
@@ -721,7 +725,7 @@ export const changeInitialPassword = async (req, res) => {
     user.passwordChangedAt = new Date();
     await user.save();
 
-    logger.info("✅ Password changed successfully for:", email);
+    logger.info("✅ Initial password changed", { userId: String(user._id) });
 
     // Generate new token and log user in
     const token = generateToken(user._id);
@@ -755,32 +759,12 @@ export const changeInitialPassword = async (req, res) => {
 // Unlock account (reset failed login attempts)
 export const unlockAccount = async (req, res) => {
   try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        message: "Email is required.",
-        success: false,
-      });
-    }
-
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found.",
-        success: false,
-      });
-    }
-
-    // Reset lockout
-    user.failedLoginAttempts = 0;
-    user.lastFailedLogin = null;
-    await user.save();
-
-    logger.info("🔓 Account unlocked:", email);
-
+    // SECURITY: this used to reset the failed-login counter for any email,
+    // which defeated brute-force lockout and revealed which emails exist
+    // (S15). Lockouts expire on their own; a password reset clears them.
     return res.status(200).json({
-      message: "Account unlocked successfully. You can now try logging in.",
+      message:
+        "Locked accounts unlock automatically after 15 minutes. To unlock now, reset your password.",
       success: true,
     });
   } catch (error) {
@@ -1175,23 +1159,22 @@ export const updateProfilePhoto = async (req, res) => {
 // Sync Supabase user with MongoDB
 export const supabaseSync = async (req, res) => {
   try {
-    const { supabaseId, email, fullname, profilePhoto, provider, pendingRole } =
-      req.body;
+    const { accessToken, fullname, profilePhoto, pendingRole } = req.body;
 
-    // DEBUG: Log incoming data
-    console.log("🔐 supabaseSync called with:", {
-      email,
-      pendingRole,
-      provider,
-      hasSupabaseId: !!supabaseId
-    });
-
-    if (!supabaseId || !email) {
-      return res.status(400).json({
-        message: "Supabase ID and email are required",
+    // SECURITY: identity comes only from a Supabase session verified with
+    // Supabase. Trusting a body email let anyone mint a session for any
+    // account (S13).
+    const verified = await verifySupabaseAccessToken(accessToken);
+    if (!verified?.id || !verified.email) {
+      return res.status(401).json({
+        message: "Your sign-in session is invalid or expired. Please sign in again.",
         success: false,
+        code: "INVALID_SUPABASE_SESSION",
       });
     }
+    const supabaseId = verified.id;
+    const email = verified.email;
+    const provider = verified.provider || "email";
 
     // Check if user exists by supabaseId or email
     let user = await User.findOne({
@@ -1221,6 +1204,17 @@ export const supabaseSync = async (req, res) => {
         });
       }
 
+      // Linking a new Supabase identity to an existing account by email
+      // requires Supabase to have confirmed that email
+      const linkingNewIdentity = user.supabaseId !== supabaseId;
+      if (linkingNewIdentity && !verified.emailConfirmed) {
+        return res.status(403).json({
+          message: "Please confirm your email address before signing in.",
+          success: false,
+          code: "EMAIL_NOT_CONFIRMED",
+        });
+      }
+
       // Update existing user
       user.supabaseId = supabaseId;
       user.lastLogin = new Date();
@@ -1233,7 +1227,7 @@ export const supabaseSync = async (req, res) => {
         user.fullname = fullname;
       }
 
-      user.isEmailVerified = true;
+      if (verified.emailConfirmed) user.isEmailVerified = true;
       user.authProvider = provider || user.authProvider || "email";
 
       // Allow role upgrade from student to company_admin during signup
@@ -1277,7 +1271,7 @@ export const supabaseSync = async (req, res) => {
         profile: {
           profilePhoto: profilePhoto || "",
         },
-        isEmailVerified: true,
+        isEmailVerified: verified.emailConfirmed,
         lastLogin: new Date(),
         lastLoginIp: getClientIp(req),
         lastLoginDevice: getDeviceInfo(req),

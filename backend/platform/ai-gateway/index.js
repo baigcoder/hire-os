@@ -55,4 +55,9 @@ const ai = {
   limiterSnapshot: () => getGateway().limiterSnapshot(),
 };
 
+/** Test seam: replace the gateway (null rebuilds the real one on next use). */
+export const setGatewayForTests = (gateway) => {
+  instance = gateway;
+};
+
 export default ai;

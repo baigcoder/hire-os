@@ -17,6 +17,7 @@ export const COMPANY_API_END_POINT = `${API_BASE_URL}/company`;
 export const RESUME_API_END_POINT = `${API_BASE_URL}/resume`;
 export const RESUME_INTEL_API_END_POINT = `${API_BASE_URL}/resume-intel`;
 export const SCREENING_API_END_POINT = `${API_BASE_URL}/screening`;
+export const DISCOVER_API_END_POINT = `${API_BASE_URL}/discover`;
 export const OTP_API_END_POINT = `${API_BASE_URL}/otp`;
 export const SUBSCRIPTION_API_END_POINT = `${API_BASE_URL}/subscription`;
 export const PAYMENT_API_END_POINT = `${API_BASE_URL}/payment`;

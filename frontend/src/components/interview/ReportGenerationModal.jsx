@@ -27,15 +27,14 @@ import {
   Cpu,
   Terminal,
 } from "lucide-react";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-
-const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+import { Link } from "react-router-dom";
+import api from "@/utils/api";
+import StructuredReport from "./report/StructuredReport";
 
 const ReportGenerationModal = ({
   isOpen,
@@ -48,6 +47,8 @@ const ReportGenerationModal = ({
   const [step, setStep] = useState("initial"); // initial, generating, review, submitting, success
   const [notes, setNotes] = useState("");
   const [interviewData, setInterviewData] = useState(null);
+  // Why sending failed: scorecard gaps, or ratings changed since generation
+  const [blocked, setBlocked] = useState(null);
   const { user } = useSelector((store) => store.auth);
 
   // Fetch interview details when modal opens
@@ -59,9 +60,7 @@ const ReportGenerationModal = ({
 
   const fetchInterviewDetails = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/interview/${interviewId}`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`/interview/${interviewId}`);
       if (res.data.success) {
         setInterviewData(res.data.interview);
       }
@@ -74,15 +73,10 @@ const ReportGenerationModal = ({
     setIsLoading(true);
     setStep("generating");
     try {
-      const res = await axios.post(
-        `${API_BASE}/interview/${interviewId}/report/generate`,
-        {
-          recruiterNotes: notes,
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      setBlocked(null);
+      const res = await api.post(`/interview/${interviewId}/report/generate`, {
+        recruiterNotes: notes,
+      });
       if (res.data.success) {
         setReport(res.data.report);
         setStep("review");
@@ -101,15 +95,9 @@ const ReportGenerationModal = ({
     setIsLoading(true);
     setStep("submitting");
     try {
-      const res = await axios.post(
-        `${API_BASE}/interview/${interviewId}/report/send-to-ceo`,
-        {
-          finalNotes: report.notes,
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await api.post(`/interview/${interviewId}/report/send-to-ceo`, {
+        finalNotes: report.notes,
+      });
       if (res.data.success) {
         setStep("success");
         toast.success("Report submitted to CEO successfully!");
@@ -121,8 +109,12 @@ const ReportGenerationModal = ({
         }, 2000);
       }
     } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Failed to submit report");
+      const data = error.response?.data;
+      if (data?.code === "SCORECARD_INCOMPLETE" || data?.code === "REPORT_STALE") {
+        setBlocked(data);
+      } else {
+        toast.error(data?.message || "Failed to submit report");
+      }
       setStep("review");
     } finally {
       setIsLoading(false);
@@ -338,7 +330,37 @@ const ReportGenerationModal = ({
             </div>
           )}
 
-          {step === "review" && report && (
+          {step === "review" && report?.structured && (
+            <div className="space-y-4 p-6">
+              {blocked && (
+                <div className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-300">
+                  <p>{blocked.message}</p>
+                  <div className="mt-2 flex gap-3 text-xs">
+                    {blocked.code === "SCORECARD_INCOMPLETE" && (
+                      <Link to={`/interview/${interviewId}/scorecard`} className="underline">
+                        Open the scorecard
+                      </Link>
+                    )}
+                    <button type="button" onClick={handleGenerateReport} className="underline">
+                      Regenerate the report
+                    </button>
+                  </div>
+                </div>
+              )}
+              <StructuredReport report={report.structured} variant="dark" interviewId={interviewId} hideGaps={Boolean(blocked)} />
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase text-gray-500">Note for the CEO (optional)</Label>
+                <Textarea
+                  value={report.notes || ""}
+                  onChange={(e) => setReport({ ...report, notes: e.target.value })}
+                  className="min-h-[80px] bg-[#050505] border-white/10 text-white text-sm focus:border-[#FFD700]/50"
+                  placeholder="Anything the CEO should know that isn't in the scorecard"
+                />
+              </div>
+            </div>
+          )}
+
+          {step === "review" && report && !report.structured && (
             <div className="space-y-6 p-6">
               {/* Report Header Grid */}
               <div className="grid grid-cols-4 gap-4">

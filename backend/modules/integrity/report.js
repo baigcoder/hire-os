@@ -15,7 +15,7 @@ import { BEHAVIOR_SIGNALS, TAMPER_SIGNALS, HEARTBEAT_INTERVAL_MS } from "./signa
 
 export const REPORT_VERSION = "integrity-report-1";
 
-const VERDICT_WORDS =
+export const VERDICT_WORDS =
   /\b(cheat\w*|fraud\w*|dishonest\w*|lie|lied|lying|liar|guilty|caught|deceiv\w*|deception|scam\w*)\b/i;
 
 export const IntegrityNarrativeSchema = z.object({

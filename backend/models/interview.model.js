@@ -166,6 +166,11 @@ const interviewSchema = new mongoose.Schema(
         "video_completed", // Video interview done
         "report_pending", // Waiting for report generation
         "completed", // All done, report generated
+        // Hiring decision (set by send-to-ceo and the CEO's decision; they
+        // were missing here, so both requests failed validation)
+        "pending_ceo_approval",
+        "approved",
+        "rejected",
         "cancelled", // Cancelled
         "no_show", // Candidate didn't show up
       ],
@@ -347,6 +352,11 @@ const interviewSchema = new mongoose.Schema(
       // AI Generated Summary
       aiSummary: String,
       aiRecommendation: String,
+
+      // Evidence-based report (modules/report/interviewReport.js): scorecard
+      // facts, rule-computed score/recommendation, grounded narrative
+      structured: mongoose.Schema.Types.Mixed,
+      version: String,
 
       // Company Admin Decision
       adminDecision: {

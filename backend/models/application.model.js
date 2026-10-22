@@ -64,7 +64,8 @@ const applicationSchema = new mongoose.Schema(
     ceoReview: {
       decision: {
         type: String,
-        enum: ["approved", "rejected"],
+        // on_hold: the CEO's third option (it failed validation before)
+        enum: ["approved", "rejected", "on_hold"],
       },
       notes: String,
       reviewedBy: {

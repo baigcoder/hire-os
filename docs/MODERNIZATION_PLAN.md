@@ -332,7 +332,7 @@ sequenceDiagram
 | **2 — Resume Intelligence** ✅ done | Stages 0–8, `ResumeReport` model, SSE progress, new analyzer UI, golden-set evals. Embeddings + vector search moved to Phase 3 (see §12). | Candidate analyzer v2 |
 | **3 — Recruiter screening** ✅ done | Blind batch ranking via queue, per-requirement evidence in the applicant views, then the Resume Coach agent and embeddings-based job/candidate search. | Recruiter ranking v2 |
 | **4 — Integrity pipeline** ✅ done (§17; your Supabase/TURN setup still needed) | TURN + private channels. Candidate proctor worker (MediaPipe face + object + audio + environment). Recruiter-side verifier. Integrity module (ingest, risk engine, evidence, TTL). Consent UX. Recruiter meter and timeline. Post-interview report on Groq. | Robust anti-cheating |
-| **5 — Copilot & polish** (part 1 done: transcripts, copilot, scorecards, §18) | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
+| **5 — Copilot & polish** (parts 1–2 done: transcripts, copilot, scorecards §18; evidence-based report + CEO approval §19) | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
 
 ---
 
@@ -795,3 +795,57 @@ call ends (/video/end) ─▶ copilot.draft: gpt-oss-120b drafts ratings ─▶ 
 **Setup:** `GROQ_API_KEY` (already used by the gateway). Optional: `GROQ_MODEL_TRANSCRIBE` (default `whisper-large-v3-turbo`). A worker must be running for the queue jobs (scorecard, refresh, draft), as for the other pipelines.
 
 **Next in Phase 5:** feed the scorecard and transcript into the existing AI interview report and CEO approval flow; consolidate dashboards; build the design system; migrate the new modules to TypeScript.
+
+---
+
+## 19. Phase 5 (part 2): evidence-based interview report and CEO approval
+
+**Before:**
+- The "AI report" asked GPT-5 or Gemini, outside the gateway, to invent an overall score, "culture fit" and "communication" scores, a hiring risk and a suggested salary. It worked from an MCQ score and a few notes. It never saw what was said, and the scorecard didn't exist.
+- `hiringRisk`, `suggestedSalary` and `nextSteps` weren't even in the schema, so they were silently dropped.
+
+**Now** (`modules/report/interviewReport.js`):
+
+| Part | Where it comes from |
+|---|---|
+| Facts | The structured scorecard (interviewer ratings and notes, AI drafts, coverage, verified candidate quotes), the interviewer's overall call, the transcript (candidate talk share), the MCQ %, the blind resume-screening score, and the integrity review priority with its summary. |
+| Score | A weighted mean of the **interviewer's** ratings only (must-haves count double), mapped 1–4 → 0–100. AI drafts never count. Until something is rated it's null, not a guess. |
+| Recommendation | The interviewer's overall call (strong yes → STRONGLY_RECOMMEND … no / strong no → NOT_RECOMMENDED). Without one it falls back to the score, and the report says which source it used. |
+| Narrative | gpt-oss-120b writes the summary, strengths, concerns and next steps over the facts. Code then enforces that strengths are competencies rated 3–4, concerns are rated 1–2 or not covered (or general facts), and quotes are real candidate quotes. Protected characteristics (now including family status) and misconduct verdicts are dropped. Otherwise the narrative is rule-based. With no scorecard, the model isn't called at all. |
+| Removed | The invented culture-fit, communication, salary and "hiring risk" figures. |
+
+**Approval flow, enforced in the API:**
+- **Report locked once sent:** generating is refused (409) after the report has gone to the CEO.
+- **Complete scorecard required:** sending needs every must-have rated and an overall recommendation (`SCORECARD_INCOMPLETE`, with the list of gaps). It also refuses if ratings changed after the report was generated (`REPORT_STALE`).
+- **Decisions need a submitted report:** the CEO decides only on a submitted report. **On hold** keeps it in the queue, flagged as on hold; it used to vanish. Decisions are final once made.
+- **CEO bypass removed:** `POST /interview/:id/report/submit` set the application to `offer_pending` with no CEO involved, so it's gone.
+- **Company access:** recruiters of the job's company, not just the interviewer, can generate and send.
+
+**Bugs this flow had all along, found while testing it:**
+1. **"Send to CEO" always failed (500).** `pending_ceo_approval` wasn't an allowed interview status, and the CEO's decision set `approved` / `rejected`, which weren't allowed either. All three are added.
+2. **The notifications for this flow failed validation.** `interview_report_submitted`, `candidate_approved`, `candidate_rejected` and `prepare_offer` were missing from the notification types.
+3. **"On hold" crashed:** `on_hold` wasn't an allowed `ceoReview.decision`.
+4. **The CEO could never open their report page.** `GET /interview/:id` allowed only the candidate and the interviewer, so `/ceo/reports/:id` (where the notification links) got 403. The job's company recruiters and owner can now open it.
+5. **The candidate could read the internal hiring report.** The same endpoint returned the recruiter→CEO report, monitoring alerts and interviewer analysis to the student. They're now removed from the candidate's copy.
+6. **The CEO review page crashed on render.** `OfferLetterModal` was used but not imported, and its state was never declared; the 403 used to hide this. It also called `http://localhost:8000` directly, so it couldn't work in production. Fixed: it uses the API client, and approving opens the offer letter.
+
+**UI:**
+- `components/interview/report/StructuredReport.jsx` (dark and light themes) shows:
+  - the recommendation and its source;
+  - the scorecard score and how many competencies are rated;
+  - MCQ, resume screen and integrity;
+  - the summary, strengths with quotes, concerns, the competency table (interviewer vs AI draft vs evidence) and next steps.
+- It's used in the recruiter's report modal, the CEO review page and the CEO dashboard's report list, each with a fallback for older reports.
+- The modal explains a refused send, with links to the scorecard or to regenerate.
+
+**Tests:** 10 unit tests (score weighting, gaps, recommendation source, fact assembly, narrative rules, the protected and verdict filter, fallbacks) and 5 integration tests (report built from the scorecard with no invented scores, the completeness and staleness gates, report lock, CEO decision gating and the on-hold queue, company-owner access and the candidate redaction, the removed bypass). Backend suite: **294/294**.
+
+**Verified in a real browser** (harness with scripted model output):
+- The recruiter generated the report: Recommend (from the interviewer), 83/100, MCQ 80%, a strength with a verified quote, and the planted "family issues" concern dropped. They then sent it.
+- The CEO saw it in the dashboard list and the detail view, put it on hold (it stayed in the queue), then approved. The interview, report and application all moved on correctly, and the offer letter form opened.
+- Sending an incomplete scorecard showed the gap and the fix links.
+- Layout issues found in the browser were fixed: the header overlap, the duplicated notice, and the misleading "AI:" label.
+
+**Not verified:** real gpt-oss-120b output quality on real interviews.
+
+**Next in Phase 5:** consolidate the duplicate dashboards, build the design system, and migrate the new modules to TypeScript.

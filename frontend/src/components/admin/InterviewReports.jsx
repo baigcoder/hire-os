@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import api from "@/utils/api";
+import StructuredReport from "../interview/report/StructuredReport";
 import { toast } from "sonner";
 import {
     FileText,
@@ -35,7 +36,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ScrollArea } from "../ui/scroll-area";
 import { Progress } from "../ui/progress";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 const InterviewReports = () => {
     const [loading, setLoading] = useState(true);
@@ -51,9 +51,7 @@ const InterviewReports = () => {
     const fetchReports = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${API_BASE}/interview/ceo/pending-reports`, {
-                withCredentials: true,
-            });
+            const res = await api.get(`/interview/ceo/pending-reports`);
             if (res.data.success) {
                 setReports(res.data.reports || []);
             }
@@ -69,14 +67,10 @@ const InterviewReports = () => {
         if (!selectedReport) return;
         setProcessing(true);
         try {
-            const res = await axios.post(
-                `${API_BASE}/interview/${selectedReport.interviewId}/ceo/decision`,
-                {
+            const res = await api.post(`/interview/${selectedReport.interviewId}/ceo/decision`, {
                     decision,
                     comments: decisionNote,
-                },
-                { withCredentials: true }
-            );
+                });
 
             if (res.data.success) {
                 toast.success(
@@ -98,13 +92,6 @@ const InterviewReports = () => {
         if (score >= 80) return "text-emerald-400";
         if (score >= 60) return "text-amber-400";
         return "text-red-400";
-    };
-
-    const getRiskColor = (risk) => {
-        if (risk === "HIGH") return "text-red-400 bg-red-500/10 border-red-500/30";
-        if (risk === "MEDIUM")
-            return "text-amber-400 bg-amber-500/10 border-amber-500/30";
-        return "text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
     };
 
     if (loading) {
@@ -156,32 +143,35 @@ const InterviewReports = () => {
                                     </p>
                                 </div>
                             </div>
-                            <Badge
-                                className={`text-[10px] font-mono ${getRiskColor(
-                                    report.report.hiringRisk
-                                )}`}
-                            >
-                                {report.report.hiringRisk} RISK
-                            </Badge>
+                            {report.report.onHold && (
+                                <Badge className="text-[10px] font-mono bg-amber-500/10 text-amber-400 border-amber-500/30">
+                                    ON HOLD
+                                </Badge>
+                            )}
                         </div>
 
                         {/* Scores */}
                         <div className="grid grid-cols-3 gap-2 mb-4">
                             <div className="bg-white/5 p-2 rounded-sm text-center">
                                 <div className={`text-lg font-bold ${getScoreColor(report.report.overallScore)}`}>
-                                    {report.report.overallScore}%
+                                    {report.report.overallScore ?? "—"}
                                 </div>
-                                <div className="text-[10px] text-gray-500 uppercase">Overall</div>
+                                <div className="text-[10px] text-gray-500 uppercase">Scorecard</div>
                             </div>
                             <div className="bg-white/5 p-2 rounded-sm text-center">
                                 <div className="text-lg font-bold text-white">
-                                    {report.scores.technical}%
+                                    {report.report.structured?.facts?.scorecard
+                                        ? `${report.report.structured.facts.scorecard.rated}/${report.report.structured.facts.scorecard.total}`
+                                        : report.scores.technical ?? "—"}
                                 </div>
-                                <div className="text-[10px] text-gray-500 uppercase">Tech</div>
+                                <div className="text-[10px] text-gray-500 uppercase">
+                                    {report.report.structured ? "Rated" : "Tech"}
+                                </div>
                             </div>
                             <div className="bg-white/5 p-2 rounded-sm text-center">
                                 <div className="text-lg font-bold text-white">
-                                    {report.scores.mcq || 0}%
+                                    {report.report.structured?.facts?.mcq?.percentage ?? report.scores.mcq ?? "—"}
+                                    {(report.report.structured?.facts?.mcq?.percentage ?? report.scores.mcq) != null && "%"}
                                 </div>
                                 <div className="text-[10px] text-gray-500 uppercase">MCQ</div>
                             </div>
@@ -245,31 +235,47 @@ const InterviewReports = () => {
                                 <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-2 text-center">
                                     <div className="p-2 border-r border-white/10 last:border-0">
                                         <div className={`text-2xl font-bold ${getScoreColor(selectedReport.report.overallScore)}`}>
-                                            {selectedReport.report.overallScore}
+                                            {selectedReport.report.overallScore ?? "—"}
                                         </div>
                                         <div className="text-[10px] text-gray-500 uppercase tracking-wider">Score</div>
                                     </div>
                                     <div className="p-2 border-r border-white/10 last:border-0">
                                         <div className="text-2xl font-bold text-white">
-                                            {selectedReport.scores.technical}
+                                            {selectedReport.report.structured?.facts?.scorecard
+                                                ? `${selectedReport.report.structured.facts.scorecard.rated}/${selectedReport.report.structured.facts.scorecard.total}`
+                                                : selectedReport.scores.technical ?? "—"}
                                         </div>
-                                        <div className="text-[10px] text-gray-500 uppercase tracking-wider">Tech</div>
+                                        <div className="text-[10px] text-gray-500 uppercase tracking-wider">
+                                            {selectedReport.report.structured ? "Rated" : "Tech"}
+                                        </div>
                                     </div>
                                     <div className="p-2 border-r border-white/10 last:border-0">
                                         <div className="text-2xl font-bold text-white">
-                                            {selectedReport.scores.communication}
+                                            {selectedReport.report.structured ? (
+                                                <span className="text-sm leading-8 capitalize">
+                                                    {(selectedReport.report.structured.recommendation ?? "").replace(/_/g, " ").toLowerCase()}
+                                                </span>
+                                            ) : selectedReport.scores.communication ?? "—"}
                                         </div>
-                                        <div className="text-[10px] text-gray-500 uppercase tracking-wider">Comm</div>
+                                        <div className="text-[10px] text-gray-500 uppercase tracking-wider">
+                                            {selectedReport.report.structured ? "Recommendation" : "Comm"}
+                                        </div>
                                     </div>
                                     <div className="p-2">
                                         <div className="text-2xl font-bold text-white flex items-center justify-center gap-1">
-                                            {selectedReport.scores.mcq || "-"}
+                                            {selectedReport.report.structured?.facts?.mcq
+                                                ? `${selectedReport.report.structured.facts.mcq.percentage}%`
+                                                : selectedReport.scores.mcq || "-"}
                                         </div>
                                         <div className="text-[10px] text-gray-500 uppercase tracking-wider">MCQ</div>
                                     </div>
                                 </div>
                             </div>
 
+                            {selectedReport.report.structured ? (
+                                <StructuredReport report={selectedReport.report.structured} variant="dark" interviewId={selectedReport.interviewId} />
+                            ) : (
+                            <>
                             {/* AI Summary */}
                             <div className="space-y-3">
                                 <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider flex items-center gap-2">
@@ -311,6 +317,9 @@ const InterviewReports = () => {
                                     </div>
                                 </div>
                             </div>
+
+                            </>
+                            )}
 
                             {/* Decision Section */}
                             <div className="pt-6 border-t border-white/10 space-y-4">

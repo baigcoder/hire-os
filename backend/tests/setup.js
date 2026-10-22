@@ -26,7 +26,9 @@ afterAll(async () => {
   // Cleanup
   await mongoose.disconnect();
   if (mongoServer) {
-    await mongoServer.stop();
+    // Remove the temporary database folder even if files are still locked:
+    // leftovers of these filled the system temp drive during development
+    await mongoServer.stop({ doCleanup: true, force: true });
   }
   // Close Redis connection
   await cache.disconnect();

@@ -1180,6 +1180,7 @@ import { TranscriptSegment } from "../models/transcriptSegment.model.js";
 import { IntegritySession } from "../models/integritySession.model.js";
 import { ApplicantScreening } from "../models/applicantScreening.model.js";
 import { generateInterviewReportV2, completenessGaps } from "../modules/report/interviewReport.js";
+import { decide, listPendingDecisions, ownedCompany, DecisionError } from "../modules/hiring/ceoDecision.js";
 
 const loadReportSources = async (interview) => {
   const [scorecard, segments, integrity, screening] = await Promise.all([
@@ -1345,187 +1346,29 @@ export const submitReportToCEO = async (req, res) => {
 // CEO reviews and decides on candidate
 export const ceoDecision = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { decision, comments } = req.body;
-    const ceoId = req.id;
-
-    // Validate decision
-    if (!["approved", "rejected", "on_hold"].includes(decision)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid decision. Must be: approved, rejected, or on_hold",
-      });
-    }
-
-    const interview = await Interview.findById(id)
-      .populate("studentId", "fullname email")
-      .populate("jobId", "title")
-      .populate("companyId", "adminUser name");
-
-    if (!interview) {
-      return res.status(404).json({
-        success: false,
-        message: "Interview not found",
-      });
-    }
-
-    // Verify CEO access (must be company admin)
-    if (interview.companyId?.adminUser?.toString() !== ceoId) {
-      return res.status(403).json({
-        success: false,
-        message: "Only company admin can make final decision",
-      });
-    }
-
-    // Decisions are made on a submitted report (on hold keeps it submitted)
-    if (interview.finalReport?.status !== "submitted") {
-      return res.status(409).json({
-        success: false,
-        code: "NO_SUBMITTED_REPORT",
-        message: "There's no submitted report awaiting a decision for this interview",
-      });
-    }
-
-    // Record decision
-    interview.finalReport.adminDecision = {
-      decision,
-      decidedBy: ceoId,
-      decidedAt: new Date(),
-      comments,
-    };
-
-    interview.finalReport.status =
-      decision === "approved"
-        ? "approved"
-        : decision === "rejected"
-          ? "rejected"
-          : "submitted"; // on hold: stays in the CEO's queue
-
-    // Update application based on decision
-    const application = await Application.findById(interview.applicationId);
-    if (application) {
-      application.ceoReview = {
-        decision,
-        notes: comments,
-        reviewedBy: ceoId,
-        reviewedAt: new Date(),
-      };
-
-      if (decision === "approved") {
-        application.status = "offer_pending";
-        interview.status = "approved";
-      } else if (decision === "rejected") {
-        application.status = "rejected";
-        interview.status = "rejected";
-      } else {
-        application.status = "under_review";
-      }
-
-      await application.save();
-    }
-
-    await interview.save();
-
-    // Notify recruiter about decision
-    await Notification.createNotification({
-      userId: interview.recruiterId,
-      type:
-        decision === "approved" ? "candidate_approved" : "candidate_rejected",
-      title:
-        decision === "approved"
-          ? "✅ Candidate Approved by CEO!"
-          : decision === "rejected"
-            ? "❌ Candidate Rejected"
-            : "⏳ Decision On Hold",
-      message: `CEO decision for ${interview.studentId.fullname}: ${decision.toUpperCase()}. ${comments || ""}`,
-      relatedEntities: { interviewId: interview._id },
-      priority: "high",
-    });
-
-    // If approved, prompt for offer letter
-    if (decision === "approved") {
-      await Notification.createNotification({
-        userId: interview.recruiterId,
-        type: "prepare_offer",
-        title: "📝 Prepare Offer Letter",
-        message: `${interview.studentId.fullname} has been approved! Please prepare the offer letter.`,
-        relatedEntities: { interviewId: interview._id },
-        actionUrl: `/interview/${interview._id}/offer`,
-        priority: "high",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: `Candidate ${decision}`,
-      decision: interview.finalReport.adminDecision,
-    });
+    const { decision, comments } = req.body ?? {};
+    const result = await decide({ interviewId: req.params.id, decision, comments, ownerId: req.id });
+    return res.status(200).json({ success: true, message: `Candidate ${decision.replace("_", " ")}`, ...result });
   } catch (error) {
+    if (error instanceof DecisionError) {
+      return res.status(error.status).json({ success: false, code: error.code, message: error.message });
+    }
     console.error("CEO decision error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error recording decision",
-    });
+    return res.status(500).json({ success: false, message: "Error recording decision" });
   }
 };
 
 // Get pending reports for CEO
 export const getPendingReportsForCEO = async (req, res) => {
   try {
-    const ceoId = req.id;
-
-    // Find companies where this user is admin
-    const companies = await Company.find({ adminUser: ceoId }).select("_id");
-    const companyIds = companies.map((c) => c._id);
-
-    // Get interviews pending CEO approval
-    const interviews = await Interview.find({
-      companyId: { $in: companyIds },
-      "finalReport.status": "submitted",
-    })
-      .populate("studentId", "fullname email profile.profilePhoto")
-      .populate("jobId", "title")
-      .populate("recruiterId", "fullname")
-      .sort({ "finalReport.generatedAt": -1 });
-
-    const reports = interviews.map((interview) => ({
-      interviewId: interview._id,
-      candidate: {
-        name: interview.studentId.fullname,
-        email: interview.studentId.email,
-        photo: interview.studentId.profile?.profilePhoto,
-      },
-      job: interview.jobId.title,
-      recruiter: interview.recruiterId.fullname,
-      report: {
-        overallScore: interview.finalReport.overallScore,
-        recommendation: interview.finalReport.aiRecommendation,
-        summary: interview.finalReport.aiSummary,
-        strengths: interview.finalReport.strengths,
-        concerns: interview.finalReport.weaknesses,
-        generatedAt: interview.finalReport.generatedAt,
-        structured: interview.finalReport.structured,
-        onHold: interview.finalReport.adminDecision?.decision === "on_hold",
-      },
-      scores: {
-        technical: interview.finalReport.technicalScore,
-        communication: interview.finalReport.communicationScore,
-        cultureFit: interview.finalReport.cultureFitScore,
-        mcq: interview.mcqTest?.score,
-      },
-    }));
-
-    return res.status(200).json({
-      success: true,
-      count: reports.length,
-      reports,
-    });
+    const company = await ownedCompany(req.id);
+    if (!company) return res.status(200).json({ success: true, count: 0, reports: [] });
+    // Everything awaiting the owner, report-backed or passed directly
+    const reports = await listPendingDecisions(company._id);
+    return res.status(200).json({ success: true, count: reports.length, reports });
   } catch (error) {
     console.error("Get pending reports error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error fetching pending reports",
-    });
+    return res.status(500).json({ success: false, message: "Error fetching pending reports" });
   }
 };
 

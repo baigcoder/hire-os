@@ -1277,9 +1277,11 @@ const RecruiterDashboard = () => {
                                   </Button>
                                 )}
                               {/* Pass to CEO button */}
+                              {/* ("accepted" isn't an application status, so
+                                  this never showed for shortlisted candidates) */}
                               {(app.status === "interview" ||
                                 app.status === "video_completed" ||
-                                app.status === "accepted") && (
+                                app.status === "shortlisted") && (
                                   <Button
                                     size="sm"
                                     onClick={() => {

@@ -1,4 +1,5 @@
 import { Application } from "../models/application.model.js";
+import { assertCanPassDirectly, DecisionError } from "../modules/hiring/ceoDecision.js";
 import { Job } from "../models/job.model.js";
 import { analyzeResume } from "../utils/resumeAnalyzer.js";
 import { ResumeAnalysis } from "../models/ResumeAnalysis.js";
@@ -428,6 +429,16 @@ export const passToCEO = async (req, res) => {
       });
     }
 
+    // Interviewed candidates go to the owner through their interview report
+    try {
+      await assertCanPassDirectly(application._id);
+    } catch (error) {
+      if (error instanceof DecisionError) {
+        return res.status(error.status).json({ success: false, code: error.code, message: error.message });
+      }
+      throw error;
+    }
+
     // Update application status and add recruiter review
     application.status = "pending_ceo_approval";
     application.recruiterReview = {
@@ -449,14 +460,16 @@ export const passToCEO = async (req, res) => {
 
     // Notify the CEO (company admin)
     if (company.adminUser) {
-      await Notification.create({
+      // ("application" isn't a valid type: this used to fail after saving)
+      await Notification.createNotification({
         userId: company.adminUser,
-        type: "application",
+        type: "interview_report_submitted",
         title: "📋 Candidate Ready for Final Review",
         message: `${recruiter.fullname} has passed ${application.applicant.fullname} for ${application.job.title} to you for final approval.`,
-        relatedJob: application.job._id,
-        relatedApplication: application._id,
-      });
+        relatedEntities: { jobId: application.job._id, applicationId: application._id },
+        actionUrl: "/company/admin/dashboard",
+        priority: "high",
+      }).catch((error) => console.warn("Pass-to-CEO notification failed:", error.message));
     }
 
     // Broadcast real-time update to CEO dashboard

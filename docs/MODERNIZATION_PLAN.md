@@ -332,7 +332,7 @@ sequenceDiagram
 | **2 — Resume Intelligence** ✅ done | Stages 0–8, `ResumeReport` model, SSE progress, new analyzer UI, golden-set evals. Embeddings + vector search moved to Phase 3 (see §12). | Candidate analyzer v2 |
 | **3 — Recruiter screening** ✅ done | Blind batch ranking via queue, per-requirement evidence in the applicant views, then the Resume Coach agent and embeddings-based job/candidate search. | Recruiter ranking v2 |
 | **4 — Integrity pipeline** ✅ done (§17; your Supabase/TURN setup still needed) | TURN + private channels. Candidate proctor worker (MediaPipe face + object + audio + environment). Recruiter-side verifier. Integrity module (ingest, risk engine, evidence, TTL). Consent UX. Recruiter meter and timeline. Post-interview report on Groq. | Robust anti-cheating |
-| **5 — Copilot & polish** (parts 1–2 done: transcripts, copilot, scorecards §18; evidence-based report + CEO approval §19) | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
+| **5 — Copilot & polish** (parts 1–3 done: copilot §18, report + CEO approval §19, one dashboard per role §20; design system and TS still open) | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
 
 ---
 
@@ -849,3 +849,63 @@ call ends (/video/end) ─▶ copilot.draft: gpt-oss-120b drafts ratings ─▶ 
 **Not verified:** real gpt-oss-120b output quality on real interviews.
 
 **Next in Phase 5:** consolidate the duplicate dashboards, build the design system, and migrate the new modules to TypeScript.
+
+---
+
+## 20. Phase 5 (part 3): one dashboard per role, one approval queue
+
+**What there was:**
+
+| Role | Dashboards | Reachable? |
+|---|---|---|
+| Student | `student/DashboardNew` and `student/Dashboard` | Only `DashboardNew`; `Dashboard` was imported nowhere |
+| Recruiter | `admin/RecruiterDashboardNew`, `admin/RecruiterDashboard`, `recruiter/RecruiterDashboardEnhanced` | Only `New`; the old one was imported nowhere, and `Enhanced` sat at `/admin/dashboard-enhanced` with nothing linking to it |
+| Company owner | `company/CompanyAdminDashboard`, `admin/CEODashboard`, `company/CompanyDashboard` | Only `CompanyAdminDashboard`, where login and payment send owners; `/ceo/dashboard` and `/company/dashboard` had no links |
+
+So **the CEO's interview-report approval queue lived on a page nobody could reach.** Owners could only get to a report through a notification link.
+
+**Two approval systems.** Recruiters could reach the owner two ways:
+1. send the interview report (§19);
+2. "Pass to CEO" on an application, with no interview evidence.
+
+The owner screens decided them through different endpoints with different rules. Approving a passed candidate marked them hired while their interview report stayed stuck in the queue. That path's notifications (`application`, `offer`, `status`) weren't valid types, so it failed after updating usage counters.
+
+**Now:**
+- **Backend** (`modules/hiring/ceoDecision.js`): one queue and one decision.
+  - `listPendingDecisions` returns every `pending_ceo_approval` candidate of the owner's company, labelled `interview_report` (with the structured report) or `passed_directly` (with the recruiter's notes).
+  - `decide` serves `POST /interview/:id/ceo/decision` and `POST /company/candidates/:applicationId/approve` alike:
+    - with a report, approval → `offer_pending` plus "prepare offer", and the report is closed;
+    - without one, approval → `hired`, as before;
+    - on hold stays in the queue and the candidate isn't notified;
+    - only the owner of that company can decide, and only on a candidate awaiting a decision.
+  - "Pass to CEO" is refused (409 `USE_INTERVIEW_REPORT`) once the candidate has a structured interview, so the report's completeness checks can't be skipped.
+- **Owner dashboard:** `CompanyAdminDashboard` is the single one. It keeps the registration and payment gate, team invites, the profile editor and quick actions. It gains:
+  - `DecisionQueue`: both kinds of candidate in one list; report items open the structured report inline with a link to the full page, direct items show the recruiter's notes and a "no interview evidence" warning. Approve/Hire, Hold, Reject.
+  - `RecruiterPerformance`: moved from the old CEO dashboard. Its interview count queried a `conductedBy` field that doesn't exist, so it was always 0; it now counts completed video interviews per recruiter.
+- **Routes:** `/ceo/dashboard` and `/company/dashboard` redirect to `/company/admin/dashboard`, and `/admin/dashboard-enhanced` to `/recruiter/dashboard`.
+- **Removed:** about 4,400 lines of dead or duplicate code across six files: `CEODashboard`, `InterviewReports`, `CompanyDashboard`, `RecruiterDashboardEnhanced`, the old student `Dashboard` and the old `admin/RecruiterDashboard`.
+- **Recruiter dashboard fix:** "To CEO" checked for an `accepted` status, which applications don't have, so it never showed for shortlisted candidates.
+
+**Kept on purpose, your call:** "Pass to CEO" without an interview still exists and still hires directly. If every hire should have a structured interview, retiring that path is a small follow-up.
+
+**Not carried over** from the unreachable CEO dashboard:
+- its hiring-trend charts;
+- its AI "insights" panel, which generates predictions and ratings from aggregate counts. That's the same kind of invented figure §19 removed from reports.
+
+The analytics page (`/admin/analytics`) remains the place for charts.
+
+**Tests:** 6 integration tests in `tests/integration/hiringDecision.test.js`:
+- one queue on both endpoints;
+- a report-backed decision from either endpoint closes the report;
+- a direct hire works, including notifications and the usage count;
+- on hold keeps the candidate in the queue and doesn't notify them;
+- the pass-to-CEO guard;
+- owner, company, state and value checks.
+
+Backend suite: **300/300**.
+
+**Verified in a real browser** (harness on the owner's actual dashboard): both kinds of candidate appeared in one queue. Hiring the directly passed candidate removed them. The report-backed candidate showed the full structured report inline, and putting them on hold kept them listed and the report submitted.
+
+**Also:** the shared test setup now removes its temporary MongoDB folder even when files are locked. Leftovers from earlier runs had filled the system drive.
+
+**Still open in Phase 5:** a design system (one token-based theme instead of many CSS files) and TypeScript for the new modules.

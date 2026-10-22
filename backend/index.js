@@ -49,6 +49,7 @@ import screeningRoute from "./routes/screening.route.js";
 import resumeFileRoute from "./routes/resumeFile.route.js";
 import discoverRoute from "./routes/discover.route.js";
 import integrityRoute from "./routes/integrity.route.js";
+import realtimeRoute from "./routes/realtime.route.js";
 import isAuthenticated, {
   rateLimiter,
   isSuperAdmin,
@@ -348,6 +349,7 @@ app.use("/api/v1/screening", screeningRoute); // Blind recruiter screening
 app.use("/api/v1/resumes", resumeFileRoute); // Private resume files (signed URLs)
 app.use("/api/v1/discover", discoverRoute); // Semantic job & talent search
 app.use("/api/v1/integrity", integrityRoute); // Live-interview integrity monitoring
+app.use("/api/v1/realtime", realtimeRoute); // Private realtime channels + TURN call config
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {

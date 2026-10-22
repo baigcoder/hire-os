@@ -1,6 +1,7 @@
 import { Interview, Application, Job, Company, User, Notification, Message } from "../models/index.js";
 import crypto from "crypto";
 import { endSessionSafely as endIntegritySession } from "../modules/integrity/service.js";
+import { broadcastPrivate, userTopic } from "../platform/realtime/index.js";
 import { canManageJob } from "../utils/jobAccess.js";
 
 /** The interview's recruiter, or a recruiter / admin who manages its job. */
@@ -922,6 +923,14 @@ export const joinVideoInterview = async (req, res) => {
 
     if (isStudent) {
       interview.videoInterview.studentJoinedAt = new Date();
+      // Tell only this interview's recruiter, on their private topic
+      // (replaces a public "student-joined-notify" channel anyone could read)
+      const student = await User.findById(userId).select("fullname").lean();
+      broadcastPrivate(userTopic(interview.recruiterId), "student_joined_interview", {
+        interviewId: String(interview._id),
+        studentName: student?.fullname || "Candidate",
+        joinedAt: new Date().toISOString(),
+      });
     }
 
     // If both joined, mark as in progress

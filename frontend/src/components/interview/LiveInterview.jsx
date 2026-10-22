@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSupabaseRealtime } from "@/hooks/useSupabaseRealtime";
 import { useVideoCall } from "@/hooks/useVideoCall";
+import { useCallConfig } from "@/hooks/useCallConfig";
 import ReportGenerationModal from "./ReportGenerationModal";
 import ConsentScreen from "./integrity/ConsentScreen";
 import IntegrityMeter from "./integrity/IntegrityMeter";
@@ -45,6 +46,9 @@ const LiveInterview = () => {
   const { id: interviewId } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
+
+  // ICE (TURN) servers and the private channel token for this interview
+  const callConfig = useCallConfig(interviewId);
 
   // Supabase Realtime hook for room management and chat (replaces Socket.io)
   const {
@@ -65,6 +69,12 @@ const LiveInterview = () => {
     sendAnswer,
     sendIceCandidate,
   } = useSupabaseRealtime(interviewId, {
+    callConfig:
+      callConfig.status === "loading"
+        ? undefined
+        : callConfig.status === "denied"
+          ? null
+          : callConfig.config,
     onOffer: (data) => {
       // Handle incoming WebRTC offer
       if (videoCallRef.current?.handleOffer) {
@@ -108,7 +118,9 @@ const LiveInterview = () => {
     handleOffer,
     handleAnswer,
     handleIceCandidate,
-  } = useVideoCall({ sendOffer, sendAnswer, sendIceCandidate }, interviewId);
+  } = useVideoCall({ sendOffer, sendAnswer, sendIceCandidate }, interviewId, {
+    iceServers: callConfig.config?.ice?.iceServers,
+  });
 
   // Store video call ref for signaling callbacks from Supabase
   useEffect(() => {

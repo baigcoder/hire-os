@@ -7,6 +7,9 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { useSelector } from "react-redux";
 import { supabase } from "../lib/supabase";
+import { createPrivateRealtime } from "../lib/privateRealtime";
+import { fetchCallConfig } from "./useCallConfig";
+import api from "../utils/api";
 
 export const useSupabaseRealtime = (interviewId, options = {}) => {
   const { user } = useSelector((state) => state.auth);
@@ -18,9 +21,15 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
   const [messages, setMessages] = useState([]);
   const [typingUsers, setTypingUsers] = useState([]);
 
+  // options.callConfig: undefined while loading (wait), null when the
+  // caller isn't a participant (don't join), else the API's call config
+  const callConfig = options.callConfig;
+  const usePrivate = Boolean(callConfig?.realtime?.privateChannels);
+  const configReady = callConfig !== undefined;
+
   // Initialize Supabase channel
   useEffect(() => {
-    if (!interviewId) return;
+    if (!interviewId || !configReady || callConfig === null) return;
 
     const userRole =
       user?.role === "recruiter" || user?.role === "company_admin"
@@ -30,9 +39,18 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
     const userId = user?._id || `anon_${Date.now()}`;
     const userName = user?.fullname || "Anonymous";
 
-    // Create channel for this interview room
-    const channel = supabase.channel(`interview:${interviewId}`, {
+    // Private channel (RLS: only this interview's participants) when the
+    // API minted a token; the legacy public channel otherwise
+    const privateRt = usePrivate
+      ? createPrivateRealtime({
+          initial: callConfig.realtime,
+          fetchToken: () => fetchCallConfig(interviewId).then((c) => c.realtime),
+        })
+      : null;
+    const rtClient = privateRt?.client ?? supabase;
+    const channel = rtClient.channel(`interview:${interviewId}`, {
       config: {
+        ...(usePrivate && { private: true }),
         broadcast: { self: true },
         presence: { key: userId },
       },
@@ -64,39 +82,8 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
       const presence = newPresences[0];
       console.log(`👤 ${presence.fullname} joined`);
 
-      // Broadcast to recruiter dashboard if candidate joins
-      if (presence.role === "candidate") {
-        console.log("📢 Broadcasting student_joined_interview to recruiters");
-
-        // Use the broadcast utility which handles channel management
-        const notifyPayload = {
-          interviewId,
-          studentName: presence.fullname,
-          joinedAt: presence.joinedAt,
-        };
-
-        // Create a persistent channel for the notification
-        const recruiterChannel = supabase.channel("student-joined-notify");
-        recruiterChannel.subscribe((status) => {
-          if (status === "SUBSCRIBED") {
-            // Send a broadcast message
-            recruiterChannel.send({
-              type: "broadcast",
-              event: "student_joined_interview",
-              payload: notifyPayload,
-            }).then(() => {
-              console.log("✅ Broadcast sent successfully");
-            }).catch((err) => {
-              console.error("❌ Broadcast failed:", err);
-            });
-
-            // Keep channel open for a bit then cleanup
-            setTimeout(() => {
-              supabase.removeChannel(recruiterChannel);
-            }, 3000);
-          }
-        });
-      }
+      // (The recruiter's dashboard is notified by the API, on their
+      // private topic, when the candidate calls /video/join below.)
 
       // Check if interview should start (both parties present)
       setTimeout(() => {
@@ -189,6 +176,11 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
         setConnectionError(null);
         console.log("✅ Supabase Realtime connected:", interviewId);
 
+        // The API tells the recruiter (privately) that we're here
+        if (userRole === "candidate") {
+          api.post(`/interview/${interviewId}/video/join`).catch(() => {});
+        }
+
         // Track presence
         await channel.track({
           fullname: userName,
@@ -207,9 +199,11 @@ export const useSupabaseRealtime = (interviewId, options = {}) => {
     // Cleanup
     return () => {
       channel.unsubscribe();
-      supabase.removeChannel(channel);
+      if (privateRt) privateRt.stop();
+      else supabase.removeChannel(channel);
     };
-  }, [interviewId, user?._id, user?.fullname, user?.role]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- callConfig is read once per connection
+  }, [interviewId, user?._id, user?.fullname, user?.role, configReady, callConfig === null, usePrivate]);
 
   // ========== ACTIONS ==========
 

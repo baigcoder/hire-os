@@ -331,7 +331,7 @@ sequenceDiagram
 | **1 — Foundations** ✅ done (API host move still open) | `platform/ai-gateway` (Groq SDK, model registry, limiter, strict schemas + Zod, cache, telemetry). Mongo queue. Move the API to a long-running host. Pino logging. | One reliable way to call AI |
 | **2 — Resume Intelligence** ✅ done | Stages 0–8, `ResumeReport` model, SSE progress, new analyzer UI, golden-set evals. Embeddings + vector search moved to Phase 3 (see §12). | Candidate analyzer v2 |
 | **3 — Recruiter screening** ✅ done | Blind batch ranking via queue, per-requirement evidence in the applicant views, then the Resume Coach agent and embeddings-based job/candidate search. | Recruiter ranking v2 |
-| **4 — Integrity pipeline** | TURN + private channels. Candidate proctor worker (MediaPipe face + object + audio + environment). Recruiter-side verifier. Integrity module (ingest, risk engine, evidence, TTL). Consent UX. Recruiter meter and timeline. Post-interview report on Groq. | Robust anti-cheating |
+| **4 — Integrity pipeline** ✅ done (§17; your Supabase/TURN setup still needed) | TURN + private channels. Candidate proctor worker (MediaPipe face + object + audio + environment). Recruiter-side verifier. Integrity module (ingest, risk engine, evidence, TTL). Consent UX. Recruiter meter and timeline. Post-interview report on Groq. | Robust anti-cheating |
 | **5 — Copilot & polish** | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
 
 ---
@@ -701,3 +701,43 @@ The browser check caught one real bug: the first frame hash averaged pixels into
 - `@mediapipe/tasks-vision` is now a direct dependency, pinned to `0.10.17` (it was already installed transitively).
 - WASM loads from jsDelivr and models from Google's MediaPipe bucket. To self-host, set `VITE_MEDIAPIPE_WASM_BASE` and `VITE_MEDIAPIPE_MODEL_BASE`. If you add a Content-Security-Policy, allow those hosts plus `worker-src 'self'`.
 - The screen-share surface isn't reported yet: `useVideoCall` doesn't expose its screen track.
+
+### 17.4 Call reliability and private channels (completes Phase 4)
+
+**Problems fixed:**
+- **S5:** the interview's Supabase channel was public. Anyone who guessed or saw an interview ID could join it, read the chat and the WebRTC signaling, or inject offers.
+- The recruiter dashboard's "candidate is waiting" alert went out on a **global** public channel (`student-joined-notify`), so every subscriber saw every interview ID and candidate name.
+- Calls used public STUN only, so about one call in five failed to connect behind symmetric NAT, corporate firewalls or some mobile carriers.
+
+**How it works now:**
+
+| Piece | File | What it does |
+|---|---|---|
+| Realtime tokens | `backend/platform/realtime/index.js` | Mints a 15-minute Supabase-compatible HS256 token. Its `hireos_topics` claim lists exactly the topics the caller may use. `sub` is a UUID derived from the user ID, because `auth.uid()` casts it to uuid. |
+| Private broadcast | same | The API pushes to a user's private topic over Supabase's REST broadcast API with the service-role key. It never throws, so a missed alert can't fail a request. |
+| TURN | `backend/platform/turn/index.js` | Short-lived credentials from **Cloudflare**, **Metered**, or **coturn** (shared-secret REST scheme), chosen by `TURN_PROVIDER`. Unset, or when the provider fails, it falls back to STUN so the call still works, and logs the gap. |
+| API | `routes/realtime.route.js` | `GET /api/v1/realtime/interviews/:id/call-config` serves only the interview's participants (the candidate, its recruiter, or the job's company); it returns 404 to everyone else and 409 if the interview was cancelled. It returns the ICE servers plus a token for `interview:<id>` and `user:<me>`. `GET /api/v1/realtime/token` returns a token for `user:<me>` only. |
+| Policies | `docs/supabase/realtime-private-channels.sql` | RLS on `realtime.messages`: a connection can receive Broadcast and Presence only on topics in its own token, and send only on `interview:*` topics in its token. Clients can't send on `user:*` topics, so one user can't fake another's alerts. |
+| Client | `frontend/src/lib/privateRealtime.js`, `hooks/useCallConfig.js`, `hooks/useUserTopic.js` | A Realtime-only Supabase client, separate from the auth client (which would overwrite the token on its own refreshes). It refreshes the token a minute before expiry and pushes it to joined channels. The call joins `interview:<id>` with `private: true` and uses the API's ICE servers. The dashboard listens on the recruiter's own `user:<id>` topic. |
+| Join alert | `interview.controller.js` `joinVideoInterview` | The candidate's page now calls `/video/join`, and the API notifies only that interview's recruiter, privately. |
+
+**Fallback:** if `SUPABASE_JWT_SECRET` isn't set, the API says `privateChannels: false` and the client uses the old public interview channel, so nothing breaks before you finish setup. The join alert still moves off the global channel, onto the recruiter's own `user:<id>` topic.
+
+**Your setup (not done here; it needs your Supabase project and a TURN account):**
+1. Run `docs/supabase/realtime-private-channels.sql` in the Supabase SQL editor.
+2. In Realtime → Settings, turn off **Allow public access**. Do this only after step 3 is deployed, or calls will fail to connect.
+3. On the API, set:
+   - `SUPABASE_JWT_SECRET`: the project's legacy JWT secret, or an HS256 secret imported as a signing key, plus `SUPABASE_JWT_KID`;
+   - `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_URL`.
+   Supabase notes that self-minted tokens can fail verification after a signing-key migration, so check one call after enabling.
+4. Pick a TURN provider and set its variables:
+   - **Cloudflare Realtime TURN:** `CLOUDFLARE_TURN_KEY_ID`, `CLOUDFLARE_TURN_API_TOKEN`
+   - **Metered:** `METERED_DOMAIN`, `METERED_API_KEY`
+   - **Self-hosted coturn** with `use-auth-secret`: `TURN_URLS`, `TURN_SHARED_SECRET`
+   Then set `TURN_PROVIDER`.
+
+**Tests:** 9 unit tests (token claims, signature and expiry, UUID shape, the broadcast request, STUN fallback, coturn HMAC credentials, the Cloudflare and Metered requests, provider failure) and 6 integration tests (participant tokens list only the right topics, outsider 404, unauthenticated 401, cancelled 409, the public fallback, the private join alert to the recruiter only). Backend suite: **260/260**.
+
+**Not verified:** the policies and a real private-channel call against a live Supabase project, and TURN relaying with a real provider. Neither is available here. Check both in staging after setup, for example with one participant on a mobile hotspot.
+
+**Also fixed in this round:** CI's `build-and-test` failed because `npm test` ran without `SECRET_KEY`. The shared test setup now sets a default. CI's frontend lint step will still fail on pre-existing debt (892 `react/prop-types` and 833 unused-variable findings across 194 files). That is separate cleanup.

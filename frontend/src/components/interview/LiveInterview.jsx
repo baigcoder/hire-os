@@ -25,8 +25,6 @@ import {
   Copy,
   FileText,
   Star,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,6 +39,9 @@ import { useCandidateProctor } from "@/integrity/useCandidateProctor";
 import { useRecruiterVerifier } from "@/integrity/useRecruiterVerifier";
 import { useIntegrityLive } from "@/integrity/useIntegrityLive";
 import { integrityApi } from "@/integrity/api";
+import CopilotPanel from "./copilot/CopilotPanel";
+import { useCopilot } from "@/copilot/useCopilot";
+import { useTranscriber } from "@/copilot/useTranscriber";
 
 const LiveInterview = () => {
   const { id: interviewId } = useParams();
@@ -142,18 +143,6 @@ const LiveInterview = () => {
   const [interviewNotes, setInterviewNotes] = useState("");
   const [candidateRating, setCandidateRating] = useState(0);
   const [showNotes, setShowNotes] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [suggestedQuestions] = useState([
-    "Tell me about your most challenging project and how you handled it.",
-    "Describe a situation where you had to work with a difficult team member.",
-    "What's your approach to learning new technologies?",
-    "How do you prioritize tasks when facing multiple deadlines?",
-    "Tell me about a time you failed and what you learned from it.",
-    "What motivates you in your professional career?",
-    "How do you handle constructive criticism?",
-    "Where do you see yourself in 5 years?",
-  ]);
-
   // MCQ Results for recruiter
   const [mcqResults, setMcqResults] = useState(null);
 
@@ -246,6 +235,20 @@ const LiveInterview = () => {
       Boolean(remoteStream),
     remoteVideoRef,
   });
+
+  // Each side transcribes its own mic, only once the candidate has agreed
+  // and while the call is live; the recruiter also gets the copilot
+  const transcriber = useTranscriber({
+    interviewId,
+    enabled:
+      roomState === "active" &&
+      (isRecruiter
+        ? integrityLive.snapshot?.status === "active"
+        : proctor.phase === "active"),
+    stream: localStream,
+  });
+  const copilot = useCopilot({ interviewId, enabled: Boolean(interviewId) && isRecruiter });
+  const [sideTab, setSideTab] = useState("copilot");
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -622,36 +625,6 @@ const LiveInterview = () => {
                   </div>
                 </div>
 
-                {/* Question Prompts */}
-                <div className="bg-[#111111]/95 backdrop-blur-md border border-white/10 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Suggested Question</span>
-                    <span className="text-[10px] text-[#FFD700]">{currentQuestionIndex + 1}/{suggestedQuestions.length}</span>
-                  </div>
-                  <p className="text-xs text-gray-300 mb-3 leading-relaxed">
-                    "{suggestedQuestions[currentQuestionIndex]}"
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
-                      disabled={currentQuestionIndex === 0}
-                      className="flex-1 h-7 text-xs border-white/10 text-gray-400"
-                    >
-                      <ChevronLeft size={12} className="mr-1" /> Prev
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => setCurrentQuestionIndex(prev => Math.min(suggestedQuestions.length - 1, prev + 1))}
-                      disabled={currentQuestionIndex === suggestedQuestions.length - 1}
-                      className="flex-1 h-7 text-xs bg-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/30 border border-[#FFD700]/30"
-                    >
-                      Next <ChevronRight size={12} className="ml-1" />
-                    </Button>
-                  </div>
-                </div>
-
                 {/* Notes Toggle */}
                 <Button
                   size="sm"
@@ -750,16 +723,43 @@ const LiveInterview = () => {
           {showChat && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 320, opacity: 1 }}
+              animate={{ width: isRecruiter ? 380 : 320, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               className="bg-[#0a0a0a] border-l border-white/10 flex flex-col overflow-hidden"
             >
-              <div className="p-4 border-b border-white/5 font-bold text-sm flex justify-between items-center">
-                INTERVIEW CHAT
-                <Badge variant="secondary" className="text-xs">
-                  {messages.length}
-                </Badge>
-              </div>
+              {isRecruiter ? (
+                <div className="flex border-b border-white/5" role="tablist">
+                  {[
+                    ["copilot", "Copilot"],
+                    ["chat", `Chat (${messages.length})`],
+                  ].map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      role="tab"
+                      aria-selected={sideTab === key}
+                      onClick={() => setSideTab(key)}
+                      className={`flex-1 p-3 text-xs font-bold uppercase tracking-wider border-b-2 ${
+                        sideTab === key ? "border-[#FFD700] text-white" : "border-transparent text-gray-500 hover:text-gray-300"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 border-b border-white/5 font-bold text-sm flex justify-between items-center">
+                  INTERVIEW CHAT
+                  <Badge variant="secondary" className="text-xs">
+                    {messages.length}
+                  </Badge>
+                </div>
+              )}
+
+              {isRecruiter && sideTab === "copilot" ? (
+                <CopilotPanel interviewId={interviewId} copilot={copilot} transcriber={transcriber} />
+              ) : (
+              <>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -822,6 +822,8 @@ const LiveInterview = () => {
                   </Button>
                 </form>
               </div>
+              </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

@@ -2,6 +2,7 @@ import { Interview, Application, Job, Company, User, Notification, Message } fro
 import crypto from "crypto";
 import { endSessionSafely as endIntegritySession } from "../modules/integrity/service.js";
 import { broadcastPrivate, userTopic } from "../platform/realtime/index.js";
+import { ensureScorecardSafely, requestDraftSafely } from "../modules/copilot/service.js";
 import { canManageJob } from "../utils/jobAccess.js";
 
 /** The interview's recruiter, or a recruiter / admin who manages its job. */
@@ -871,6 +872,9 @@ export const startVideoInterview = async (req, res) => {
 
     await interview.save();
 
+    // Prepare the structured scorecard the copilot works from
+    await ensureScorecardSafely(interview);
+
     // Notify student
     await Notification.createNotification({
       userId: interview.studentId,
@@ -1005,6 +1009,8 @@ export const endVideoInterview = async (req, res) => {
 
     // Close integrity monitoring and queue its report
     await endIntegritySession(interview._id);
+    // Draft scorecard ratings from the transcript, for the recruiter to review
+    await requestDraftSafely(interview._id);
 
     // Update application
     const application = await Application.findById(interview.applicationId);

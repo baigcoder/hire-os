@@ -332,7 +332,7 @@ sequenceDiagram
 | **2 — Resume Intelligence** ✅ done | Stages 0–8, `ResumeReport` model, SSE progress, new analyzer UI, golden-set evals. Embeddings + vector search moved to Phase 3 (see §12). | Candidate analyzer v2 |
 | **3 — Recruiter screening** ✅ done | Blind batch ranking via queue, per-requirement evidence in the applicant views, then the Resume Coach agent and embeddings-based job/candidate search. | Recruiter ranking v2 |
 | **4 — Integrity pipeline** ✅ done (§17; your Supabase/TURN setup still needed) | TURN + private channels. Candidate proctor worker (MediaPipe face + object + audio + environment). Recruiter-side verifier. Integrity module (ingest, risk engine, evidence, TTL). Consent UX. Recruiter meter and timeline. Post-interview report on Groq. | Robust anti-cheating |
-| **5 — Copilot & polish** | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
+| **5 — Copilot & polish** (part 1 done: transcripts, copilot, scorecards, §18) | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
 
 ---
 
@@ -741,3 +741,57 @@ The browser check caught one real bug: the first frame hash averaged pixels into
 **Not verified:** the policies and a real private-channel call against a live Supabase project, and TURN relaying with a real provider. Neither is available here. Check both in staging after setup, for example with one participant on a mobile hotspot.
 
 **Also fixed in this round:** CI's `build-and-test` failed because `npm test` ran without `SECRET_KEY`. The shared test setup now sets a default. CI's frontend lint step will still fail on pre-existing debt (892 `react/prop-types` and 833 unused-variable findings across 194 files). That is separate cleanup.
+
+---
+
+## 18. Phase 5 (part 1): live transcripts, interviewer copilot, structured scorecards
+
+**Why:** structured interviews predict job performance better and are fairer than unstructured ones. That means the same job-related competencies, probe questions and rating anchors for every candidate. The old live page offered eight hardcoded generic questions and a free-text notes box.
+
+**Flow:**
+
+```
+each side's own mic ─ 15 s WebM chunks (speech only) ─▶ POST /copilot/:id/audio
+        ─▶ Groq whisper-large-v3-turbo ─▶ TranscriptSegment (text only, 90-day TTL; audio discarded)
+        ─▶ candidate spoke? queue copilot.refresh (debounced 45 s, one job per interview)
+                ─▶ gpt-oss-20b: coverage per competency + ≤3 follow-ups ─▶ guard rails ─▶ scorecard
+recruiter opens copilot (or /video/start) ─▶ copilot.scorecard: job requirements ─▶ competencies, probes, 1–4 rubric
+call ends (/video/end) ─▶ copilot.draft: gpt-oss-120b drafts ratings ─▶ guard rails ─▶ recruiter reviews
+```
+
+| Piece | File | What it guarantees |
+|---|---|---|
+| Transcription | `modules/copilot/transcribe.js` | Each side records only its own mic, so speakers are known without diarization. It drops segments Whisper rates as probably not speech, plus its stock silence hallucinations ("Thank you.", "Thanks for watching!") at low confidence. Each call is logged to `AiRun`. |
+| Scorecard | `modules/copilot/scorecard.js` | Up to 6 competencies from the job's requirements (must-haves first), using the cached resume-intel extractor. Each has a title, two behavioural probes and 1–4 anchors. Gaps the model skips are filled by rules; if the AI is down, a rule-based scorecard is built from the posting itself. |
+| Live copilot | `modules/copilot/copilot.js` | Coverage counts only with a **verified quote of the candidate** (not the interviewer), checked against the cited segment, and coverage never goes down. Follow-ups must belong to a scorecard competency, must not repeat, and must not touch protected characteristics. The filter is phrased narrowly, so "race condition", "disable the cache" and "system health" pass. If the model fails, it falls back to the prepared probes of uncovered must-haves. |
+| Draft ratings | same | A draft rating survives only with verified candidate quotes; otherwise "not enough evidence". Drafts are never applied; the recruiter's rating is the record. |
+| Concurrency | `modules/copilot/service.js` | Coverage and drafts are written per competency with array filters, so a rating the recruiter makes while a job runs is never overwritten. Retried audio chunks don't duplicate text (unique chunk/segment key). |
+| Consent | `modules/integrity/signals.js` (policy 2026-10b) | The same consent screen now lists transcription, says audio is discarded, and says accent and fluency are never judged. Without the candidate's consent, or after the call ends, uploads are refused for **both** sides (409). |
+| API | `routes/copilot.route.js` | `POST /:id/audio` takes the caller's own chunk; the candidate gets no text back. Everything else is recruiter-only for this interview: view, regenerate, refresh, draft, rate, overall recommendation. Everyone else gets 404. Audio uploads are rate-limited per user. |
+| Frontend | `src/copilot/*`, `components/interview/copilot/*` | `useTranscriber` uses MediaRecorder and restarts per chunk, so each file is standalone. It skips chunks without voice activity, to save Whisper quota. On the live page, the recruiter's sidebar has **Copilot \| Chat** tabs. The Copilot tab shows "Ask next", the scorecard with coverage dots, 1–4 ratings with rubric labels and quotes heard so far, and the transcript. It replaces the hardcoded question carousel. `/interview/:id/scorecard` holds the full review: rubric cards, the AI draft with its quotes and "Use N", notes, the overall recommendation and the transcript. |
+
+**Verified in a real browser** (harness: the real API on in-memory MongoDB, scripted Whisper and AI outputs run through the real guard rails, a synthetic camera plus tone-burst "voice"):
+- Consent now lists transcription.
+- Both sides' chunks upload and transcribe, labelled and interleaved.
+- The scorecard was built from the job.
+- The copilot covered Node.js and PostgreSQL with real candidate quotes. It refused AWS coverage backed by an invented quote and dropped a "planning to have children?" follow-up.
+- A live rating survived the copilot run.
+- Ending the call produced drafts of 4 and 3, and "no rating" for AWS (the model guessed without evidence).
+- The overall recommendation saved.
+
+**Bugs the browser check caught:**
+1. **CORS** didn't allow the `x-chunk-seq` / `x-chunk-started-at` headers, so every upload failed in a real browser (supertest doesn't preflight). Fixed, with a preflight regression test (`tests/integration/corsHeaders.test.js`).
+2. **Near-duplicate suggestions.** When the model's ideas were all repeats, the code padded with the prepared probe for the same competency. It now pads only when the model fails, and the panel shows the newest suggestion per competency.
+3. **Accessibility.** Rating buttons were announced by rubric text without their number, and the competency toggles had no name. Both fixed.
+
+**Tests:** 11 unit tests (transcript cleaning, quote verification, coverage ratchet, the follow-up filter with true and false positives, rule fallback, the draft evidence requirement, scorecard building and its two fallbacks) and 8 integration tests (role access, consent gating, upload validation and dedupe, speaker labels, debounced refresh without clobbering ratings, rating and recommendation validation, the end-of-call draft, CORS preflight). Backend suite: **279/279**.
+
+**Not verified:**
+- Real Whisper on real speech. No Groq key or microphone here; the API path is the documented `audio.transcriptions` call with `verbose_json`.
+- Real model quality for coverage, follow-ups and drafts. Prompts and guard rails are tested; judgement quality needs a few real (consented) interviews.
+
+**Budget:** each side uploads about 4 chunks a minute while talking, under Groq's free audio limits for one interview at a time (check your org's limits). The copilot runs at most once every 45 s per interview, and only when the candidate has said something new.
+
+**Setup:** `GROQ_API_KEY` (already used by the gateway). Optional: `GROQ_MODEL_TRANSCRIBE` (default `whisper-large-v3-turbo`). A worker must be running for the queue jobs (scorecard, refresh, draft), as for the other pipelines.
+
+**Next in Phase 5:** feed the scorecard and transcript into the existing AI interview report and CEO approval flow; consolidate dashboards; build the design system; migrate the new modules to TypeScript.

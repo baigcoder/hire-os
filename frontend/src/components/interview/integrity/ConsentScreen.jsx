@@ -59,8 +59,8 @@ const ConsentScreen = ({ phase, policy, error, onAccept, onDecline, onContinue }
             <div className="flex gap-2 rounded-sm border border-white/10 bg-black/30 p-3 text-xs text-gray-400 mb-4">
               <Info className="w-4 h-4 shrink-0 text-gray-500" />
               <span>
-                {policy.humanReview} Events are kept {policy.retention.eventsDays} days and still
-                frames {policy.retention.snapshotsDays} days.
+                {policy.humanReview} Events and transcripts are kept {policy.retention.eventsDays} days
+                and still frames {policy.retention.snapshotsDays} days.
               </span>
             </div>
           </>

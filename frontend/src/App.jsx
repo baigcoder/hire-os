@@ -79,6 +79,9 @@ const LiveInterview = React.lazy(
 const IntegrityReportPage = React.lazy(
   () => import("./components/interview/integrity/IntegrityReportPage"),
 );
+const ScorecardPage = React.lazy(
+  () => import("./components/interview/copilot/ScorecardPage"),
+);
 
 // New Recruiter Dashboard Components
 const RecruiterDashboardEnhanced = React.lazy(
@@ -473,6 +476,16 @@ const appRouter = createBrowserRouter([
       <ProtectedRoute>
         <LazyWrapper>
           <LiveInterview />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/interview/:id/scorecard", // Structured interview scorecard (recruiter)
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <ScorecardPage />
         </LazyWrapper>
       </ProtectedRoute>
     ),

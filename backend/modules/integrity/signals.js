@@ -72,7 +72,7 @@ export const HEARTBEAT_GAP_MS = 3 * HEARTBEAT_INTERVAL_MS;
 
 /** Shown to the candidate on the consent screen, and stored with consent. */
 export const MONITORING_POLICY = {
-  version: "2026-10",
+  version: "2026-10b",
   analyzed: [
     "Whether your face is visible, and whether more than one face or person is in view",
     "Where you are looking (head and eye direction), measured in your browser",
@@ -80,12 +80,14 @@ export const MONITORING_POLICY = {
     "Whether someone else's voice is heard, or speech occurs while your lips are still",
     "Tab switches, window focus, copy/paste, fullscreen and display setup",
     "Whether the monitoring itself keeps running (camera software, frozen video)",
+    "What you and the interviewer say is transcribed to text, so the interviewer can take structured notes against the job's requirements",
   ],
   notAnalyzed: [
     "No face recognition or identity matching",
-    "No video or audio recording is stored; only event times and, for serious events, a small still frame",
+    "No video or audio recording is stored: audio is turned into text and discarded; only event times, the transcript text and, for serious events, a small still frame are kept",
+    "The transcript is never used to judge accent, fluency or anything other than job-related answers",
   ],
-  retention: { eventsDays: 90, snapshotsDays: 30 },
+  retention: { eventsDays: 90, snapshotsDays: 30, transcriptDays: 90 },
   humanReview:
     "Signals are observations for the interviewer to review, never an automatic decision. You can see your own report and dispute it.",
 };

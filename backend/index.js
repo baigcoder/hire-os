@@ -50,6 +50,7 @@ import resumeFileRoute from "./routes/resumeFile.route.js";
 import discoverRoute from "./routes/discover.route.js";
 import integrityRoute from "./routes/integrity.route.js";
 import realtimeRoute from "./routes/realtime.route.js";
+import copilotRoute from "./routes/copilot.route.js";
 import isAuthenticated, {
   rateLimiter,
   isSuperAdmin,
@@ -183,7 +184,18 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin", "x-auth-token", "X-Request-Id"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+    "x-auth-token",
+    "X-Request-Id",
+    // Interview copilot audio chunks (routes/copilot.route.js)
+    "x-chunk-seq",
+    "x-chunk-started-at",
+  ],
   exposedHeaders: ["set-cookie", "X-Request-Id"],
 };
 
@@ -350,6 +362,7 @@ app.use("/api/v1/resumes", resumeFileRoute); // Private resume files (signed URL
 app.use("/api/v1/discover", discoverRoute); // Semantic job & talent search
 app.use("/api/v1/integrity", integrityRoute); // Live-interview integrity monitoring
 app.use("/api/v1/realtime", realtimeRoute); // Private realtime channels + TURN call config
+app.use("/api/v1/copilot", copilotRoute); // Interview transcripts, scorecards, live copilot
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {

@@ -24,6 +24,9 @@ export const GEMINI_MODELS = {
   PRO: process.env.GEMINI_MODEL_PRO || "gemini-3.8-flash",
 };
 
+// Speech-to-text for live interview transcripts (Groq Whisper)
+export const TRANSCRIPTION_MODEL = process.env.GROQ_MODEL_TRANSCRIBE || "whisper-large-v3-turbo";
+
 // Groq has no embedding models; semantic search uses Gemini embeddings
 export const EMBEDDING_MODEL = {
   ID: process.env.GEMINI_EMBEDDING_MODEL || "gemini-embedding-2",

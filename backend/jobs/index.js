@@ -15,6 +15,12 @@ import {
   createApplicantScreenHandler,
 } from "./applicantScreen.js";
 import {
+  COPILOT_SCORECARD_JOB,
+  COPILOT_REFRESH_JOB,
+  COPILOT_DRAFT_JOB,
+  createCopilotHandlers,
+} from "./copilot.js";
+import {
   INTEGRITY_REPORT_JOB,
   INTEGRITY_EVIDENCE_PURGE_JOB,
   createIntegrityReportHandler,
@@ -45,5 +51,11 @@ export const registerJobs = (queue) => {
   queue.register(INTEGRITY_EVIDENCE_PURGE_JOB, createEvidencePurgeHandler(), {
     concurrency: 2,
   });
+  // Interview copilot: scorecard per interview, live coverage/follow-ups
+  // (debounced, latest-only) and post-call draft ratings
+  const copilot = createCopilotHandlers({ ai });
+  queue.register(COPILOT_SCORECARD_JOB, copilot.scorecard, { concurrency: 1 });
+  queue.register(COPILOT_REFRESH_JOB, copilot.refresh, { concurrency: 2 });
+  queue.register(COPILOT_DRAFT_JOB, copilot.draft, { concurrency: 1 });
   return queue;
 };

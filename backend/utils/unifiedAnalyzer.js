@@ -1,9 +1,8 @@
 /**
  * Unified AI Analysis Engine - Industrial Standard
- * Combines 3 engines for best accuracy with fast, live responses:
- * 1. Python ML (TF-IDF, skill matching) - Fast, local
- * 2. JavaScript Regex (fallback) - Instant
- * 3. GPT-4o-mini AI (semantic understanding) - Most accurate
+ * Combines 2 engines for best accuracy with fast, live responses:
+ * 1. JavaScript Regex (skill matching) - Instant, always available
+ * 2. LLM analysis via aiServiceV3 (semantic understanding) - Most accurate
  *
  * Features:
  * - Parallel execution for speed
@@ -13,128 +12,10 @@
  * - Real-time WebSocket updates
  */
 
-import { spawn } from "child_process";
-import path from "path";
-import fs from "fs/promises";
-import { fileURLToPath } from "url";
 import { callAI, parseAIJson } from "./aiServiceV3.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const TEMP_DIR = path.join(__dirname, "../temp");
-let tempDirReady = false;
-
 // ═══════════════════════════════════════════════════════════════
-// ENGINE 1: PYTHON ML (TF-IDF + Cosine Similarity)
-// ═══════════════════════════════════════════════════════════════
-
-const runPythonML = async (resumeText, jobDescription) => {
-  return new Promise(async (resolve) => {
-    const startTime = Date.now();
-
-    try {
-      // Create temp files
-      if (!tempDirReady) {
-        await fs.mkdir(TEMP_DIR, { recursive: true });
-        tempDirReady = true;
-      }
-
-      const uniqueId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-      const resumePath = path.join(TEMP_DIR, `resume_${uniqueId}.txt`);
-      const jobPath = path.join(TEMP_DIR, `job_${uniqueId}.txt`);
-
-      await Promise.all([
-        fs.writeFile(resumePath, resumeText),
-        fs.writeFile(jobPath, jobDescription),
-      ]);
-
-      const pythonScript = path.resolve(
-        __dirname,
-        "../../Models/AI-powered-Resume-Screening-and-Ranking-System/app.py",
-      );
-
-      const pythonProcess = spawn("python", [
-        pythonScript,
-        "--mode",
-        "api",
-        "--resume",
-        resumePath,
-        "--job",
-        jobPath,
-      ]);
-
-      let output = "";
-      let errorOutput = "";
-
-      pythonProcess.stdout.on("data", (data) => {
-        output += data.toString();
-      });
-
-      pythonProcess.stderr.on("data", (data) => {
-        errorOutput += data.toString();
-      });
-
-      // Timeout after 10 seconds
-      const timeout = setTimeout(() => {
-        pythonProcess.kill();
-        resolve({
-          engine: "python-ml",
-          success: false,
-          error: "Timeout",
-          latency: Date.now() - startTime,
-        });
-      }, 10000);
-
-      pythonProcess.on("close", async (code) => {
-        clearTimeout(timeout);
-
-        // Cleanup temp files
-        try {
-          await fs.unlink(resumePath);
-          await fs.unlink(jobPath);
-        } catch (e) {}
-
-        if (code === 0 && output) {
-          try {
-            const result = JSON.parse(output.trim());
-            resolve({
-              engine: "python-ml",
-              success: true,
-              score: result.score,
-              data: result,
-              latency: Date.now() - startTime,
-            });
-          } catch (e) {
-            resolve({
-              engine: "python-ml",
-              success: false,
-              error: "Parse error",
-              latency: Date.now() - startTime,
-            });
-          }
-        } else {
-          resolve({
-            engine: "python-ml",
-            success: false,
-            error: errorOutput || "Unknown error",
-            latency: Date.now() - startTime,
-          });
-        }
-      });
-    } catch (error) {
-      resolve({
-        engine: "python-ml",
-        success: false,
-        error: error.message,
-        latency: Date.now() - startTime,
-      });
-    }
-  });
-};
-
-// ═══════════════════════════════════════════════════════════════
-// ENGINE 2: JAVASCRIPT REGEX (Instant, Local)
+// ENGINE 1: JAVASCRIPT REGEX (Instant, Local)
 // Industrial-Standard Skills Database (150+ skills from Streamlit)
 // ═══════════════════════════════════════════════════════════════
 
@@ -443,7 +324,7 @@ const runJavaScriptAnalysis = async (resumeText, jobDescription) => {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// ENGINE 3: GPT-4o-mini AI (Industrial-Standard Comprehensive Analysis)
+// ENGINE 2: LLM ANALYSIS (Industrial-Standard Comprehensive Analysis)
 // ═══════════════════════════════════════════════════════════════
 
 const runAIAnalysis = async (
@@ -658,14 +539,14 @@ export const analyzeResumeUnified = async (
   options = {},
 ) => {
   console.log(
-    "🚀 [Resume UNIFIED] Starting industrial-standard 3-engine analysis...",
+    "🚀 [Resume UNIFIED] Starting industrial-standard multi-engine analysis...",
   );
   console.log(
     `📄 [Resume UNIFIED] Resume: ${resumeText.length} chars | Job: ${jobDescription.length} chars`,
   );
 
   const {
-    includeEngines = ["python-ml", "javascript-regex", "gpt-4o-mini"],
+    includeEngines = ["javascript-regex", "gpt-4o-mini"],
     onProgress = null,
     timeout = 15000,
     candidateName = null,
@@ -698,16 +579,6 @@ export const analyzeResumeUnified = async (
     enginePromises.push(
       runJavaScriptAnalysis(resumeText, jobDescription).then((r) => {
         notifyProgress("javascript-regex", "completed", r);
-        return r;
-      }),
-    );
-  }
-
-  if (includeEngines.includes("python-ml")) {
-    notifyProgress("python-ml", "started");
-    enginePromises.push(
-      runPythonML(resumeText, jobDescription).then((r) => {
-        notifyProgress("python-ml", "completed", r);
         return r;
       }),
     );
@@ -751,7 +622,6 @@ export const analyzeResumeUnified = async (
     // Updated weights for 2-engine industrial-standard analysis
     const weights = {
       "gpt-4o-mini": 0.6, // AI is most accurate (primary)
-      "python-ml": 0.4, // ML provides additional validation
     };
 
     let weightedSum = 0;
@@ -767,7 +637,7 @@ export const analyzeResumeUnified = async (
 
     const mergedData = {};
 
-    const priority = ["gpt-4o-mini", "python-ml", "javascript-regex"];
+    const priority = ["gpt-4o-mini", "javascript-regex"];
     for (const engineName of priority) {
       const engine = results.engines[engineName];
       if (engine?.success && engine.data) {
@@ -1079,7 +949,6 @@ export default {
   analyzeResumeUnified,
   analyzeResumeStreaming,
   analyzeResumeQuick,
-  runPythonML,
   runJavaScriptAnalysis,
   runAIAnalysis,
 };

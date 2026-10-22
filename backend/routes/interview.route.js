@@ -22,7 +22,6 @@ import {
 
   // Report & Offer
   generateReport,
-  submitReport,
   submitReportToCEO,
   ceoDecision,
   getPendingReportsForCEO,
@@ -75,7 +74,8 @@ router.post("/:id/video/chat", sendChatMessage);
 
 // ========== Report Routes ==========
 router.post("/:id/report/generate", isRecruiter, generateReport);
-router.post("/:id/report/submit", isRecruiter, submitReport);
+// (POST /:id/report/submit was removed: it set the application to
+// offer_pending without the CEO's approval)
 router.post("/:id/report/send-to-ceo", isRecruiter, submitReportToCEO);
 
 // ========== CEO Review Routes ==========

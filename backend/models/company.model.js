@@ -69,10 +69,12 @@ export const SUBSCRIPTION_PLANS = {
 
 const paymentSchema = new mongoose.Schema(
   {
+    // Uniqueness is enforced by a partial index on companySchema below:
+    // `unique: true` here indexed companies without payments as null, so
+    // only one such company could ever exist.
     transactionId: {
       type: String,
       required: true,
-      unique: true,
     },
     amount: {
       type: Number,
@@ -425,6 +427,14 @@ const companySchema = new mongoose.Schema(
 // Indexes for better performance
 companySchema.index({ name: "text", description: "text" });
 companySchema.index({ adminUser: 1 });
+companySchema.index(
+  { "payments.transactionId": 1 },
+  {
+    unique: true,
+    name: "payments_transactionId_unique",
+    partialFilterExpression: { "payments.transactionId": { $type: "string" } },
+  },
+);
 companySchema.index({ "subscription.status": 1 });
 companySchema.index({ "subscription.endDate": 1 });
 companySchema.index({ industry: 1 });

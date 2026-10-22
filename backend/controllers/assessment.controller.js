@@ -2,6 +2,8 @@ import { Assessment } from "../models/assessment.model.js";
 import { AssessmentSubmission } from "../models/assessmentSubmission.model.js";
 import { Application } from "../models/application.model.js";
 import { User } from "../models/user.model.js";
+import mongoose from "mongoose";
+import { canManageJob } from "../utils/jobAccess.js";
 
 // Create a new assessment
 export const createAssessment = async (req, res) => {
@@ -247,6 +249,30 @@ export const assignAssessment = async (req, res) => {
 
         if (!assessment) {
             return res.status(404).json({ success: false, message: "Assessment not found" });
+        }
+
+        // SECURITY (S18): only the owning company's recruiters can assign it,
+        // and an application must be the candidate's, to one of its jobs
+        if (
+            !["recruiter", "company_admin"].includes(user?.role) ||
+            assessment.company.toString() !== user?.companyId?.toString()
+        ) {
+            return res.status(403).json({ success: false, message: "Not authorized" });
+        }
+        if (!mongoose.isValidObjectId(candidateId)) {
+            return res.status(400).json({ success: false, message: "Valid candidateId is required" });
+        }
+        if (applicationId) {
+            const application = await Application.findById(applicationId)
+                .populate({ path: "job", select: "company created_by" })
+                .lean();
+            if (
+                !application ||
+                String(application.applicant) !== String(candidateId) ||
+                !canManageJob(user, application.job)
+            ) {
+                return res.status(403).json({ success: false, message: "Application does not belong to your company" });
+            }
         }
 
         // Check if already assigned

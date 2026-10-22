@@ -1,4 +1,5 @@
 import { Application } from "../models/application.model.js";
+import { assertCanPassDirectly, DecisionError } from "../modules/hiring/ceoDecision.js";
 import { Job } from "../models/job.model.js";
 import { analyzeResume } from "../utils/resumeAnalyzer.js";
 import { ResumeAnalysis } from "../models/ResumeAnalysis.js";
@@ -6,6 +7,8 @@ import {
   rankApplicantsForJob,
   getBulkRecommendations,
 } from "../utils/applicantRanker.js";
+import { canManageJob, APPLICANT_PUBLIC_FIELDS } from "../utils/jobAccess.js";
+import { enqueueScreeningSafely } from "../modules/screening/enqueue.js";
 
 export const applyJob = async (req, res) => {
   try {
@@ -42,7 +45,7 @@ export const applyJob = async (req, res) => {
         userId,
         jobId,
         resumePath,
-        analysisScore: analysisResult.score,
+        analysisScore: Math.max(0, Math.min(100, Number(analysisResult.score) || 0)),
         keySkillsMatch: analysisResult.keySkillsMatch,
         experienceMatch: analysisResult.experienceMatch,
         educationMatch: analysisResult.educationMatch,
@@ -68,6 +71,9 @@ export const applyJob = async (req, res) => {
     }
     job.applications.push(newApplication._id);
     await job.save();
+
+    // Blind AI screening runs in the background; never blocks applying
+    await enqueueScreeningSafely(newApplication);
 
     // Broadcast real-time update to company dashboard
     try {
@@ -152,11 +158,18 @@ export const getApplicants = async (req, res) => {
       options: { sort: { createdAt: -1 } },
       populate: {
         path: "applicant",
+        select: APPLICANT_PUBLIC_FIELDS,
       },
     });
     if (!job) {
       return res.status(404).json({
         message: "Job not found.",
+        success: false,
+      });
+    }
+    if (!canManageJob(req.user, job)) {
+      return res.status(403).json({
+        message: "You can only view applicants for your company's jobs.",
         success: false,
       });
     }
@@ -189,13 +202,23 @@ export const updateStatus = async (req, res) => {
         path: "job",
         populate: {
           path: "company",
+          select: "name",
+          // Plain object: company virtuals need fields we don't select
+          options: { lean: true },
         },
       })
-      .populate("applicant");
+      .populate("applicant", APPLICANT_PUBLIC_FIELDS);
 
     if (!application) {
       return res.status(404).json({
         message: "Application not found",
+        success: false,
+      });
+    }
+
+    if (!canManageJob(req.user, application.job)) {
+      return res.status(403).json({
+        message: "You can only update applications for your company's jobs.",
         success: false,
       });
     }
@@ -406,6 +429,16 @@ export const passToCEO = async (req, res) => {
       });
     }
 
+    // Interviewed candidates go to the owner through their interview report
+    try {
+      await assertCanPassDirectly(application._id);
+    } catch (error) {
+      if (error instanceof DecisionError) {
+        return res.status(error.status).json({ success: false, code: error.code, message: error.message });
+      }
+      throw error;
+    }
+
     // Update application status and add recruiter review
     application.status = "pending_ceo_approval";
     application.recruiterReview = {
@@ -427,14 +460,16 @@ export const passToCEO = async (req, res) => {
 
     // Notify the CEO (company admin)
     if (company.adminUser) {
-      await Notification.create({
+      // ("application" isn't a valid type: this used to fail after saving)
+      await Notification.createNotification({
         userId: company.adminUser,
-        type: "application",
+        type: "interview_report_submitted",
         title: "📋 Candidate Ready for Final Review",
         message: `${recruiter.fullname} has passed ${application.applicant.fullname} for ${application.job.title} to you for final approval.`,
-        relatedJob: application.job._id,
-        relatedApplication: application._id,
-      });
+        relatedEntities: { jobId: application.job._id, applicationId: application._id },
+        actionUrl: "/company/admin/dashboard",
+        priority: "high",
+      }).catch((error) => console.warn("Pass-to-CEO notification failed:", error.message));
     }
 
     // Broadcast real-time update to CEO dashboard
@@ -544,7 +579,11 @@ export const getRankedApplicants = async (req, res) => {
     const { User } = await import("../models/user.model.js");
     const recruiter = await User.findById(recruiterId);
 
-    if (recruiter.role !== "recruiter" && recruiter.role !== "company_admin") {
+    const job = await Job.findById(jobId).select("created_by company");
+    if (!job) {
+      return res.status(404).json({ message: "Job not found.", success: false });
+    }
+    if (!canManageJob(recruiter, job)) {
       return res.status(403).json({
         message: "Access denied",
         success: false,
@@ -592,7 +631,22 @@ export const bulkUpdateStatus = async (req, res) => {
       });
     }
 
-    let query = { job: jobId };
+    // Without a job, `{ job: undefined }` would match every application
+    const job = jobId ? await Job.findById(jobId).select("created_by company") : null;
+    if (!job) {
+      return res.status(400).json({
+        message: "A valid jobId is required",
+        success: false,
+      });
+    }
+    if (!canManageJob(recruiter, job)) {
+      return res.status(403).json({
+        message: "You can only update applications for your company's jobs.",
+        success: false,
+      });
+    }
+
+    let query = { job: job._id };
 
     // If specific IDs provided, use those
     if (applicationIds && applicationIds.length > 0) {

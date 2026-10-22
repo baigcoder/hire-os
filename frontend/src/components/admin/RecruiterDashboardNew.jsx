@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useUserTopic } from "@/hooks/useUserTopic";
 import {
   Card,
   CardContent,
@@ -307,39 +308,20 @@ const RecruiterDashboard = () => {
     };
   }, [user?.profile?.company?._id, user?.companyId]);
 
-  // Separate useEffect for student join notifications - always runs for recruiters
-  const joinChannelRef = useRef(null);
-  useEffect(() => {
-    // Subscribe to student-joined-notify channel for interview join alerts
-    console.log("🔔 Setting up student join notification listener");
-
-    joinChannelRef.current = supabaseRealtime.subscribe("student-joined-notify", {
-      onBroadcast: {
-        student_joined_interview: (payload) => {
-          console.log("🎯 Student joined interview:", payload);
-          toast.info(`🎥 ${payload.studentName} is waiting for you!`, {
-            description: "Click to join the interview now",
-            duration: 15000,
-            action: {
-              label: "Join Now",
-              onClick: () => navigate(`/interview/${payload.interviewId}/video`),
-            },
-          });
+  // "Candidate is waiting" alerts, pushed by the API to this recruiter's own
+  // private topic (replaces a public channel every visitor could read)
+  useUserTopic(user?._id, {
+    student_joined_interview: (payload) => {
+      toast.info(`🎥 ${payload.studentName} is waiting for you!`, {
+        description: "Click to join the interview now",
+        duration: 15000,
+        action: {
+          label: "Join Now",
+          onClick: () => navigate(`/interview/${payload.interviewId}/video`),
         },
-      },
-      onSubscribe: (status) => {
-        if (status === "SUBSCRIBED") {
-          console.log("✅ Subscribed to student-joined-notify channel");
-        }
-      },
-    });
-
-    return () => {
-      if (joinChannelRef.current) {
-        supabaseRealtime.removeChannel(joinChannelRef.current);
-      }
-    };
-  }, [navigate]);
+      });
+    },
+  });
 
   // Toggle select all candidates
   const handleSelectAll = () => {
@@ -1295,9 +1277,11 @@ const RecruiterDashboard = () => {
                                   </Button>
                                 )}
                               {/* Pass to CEO button */}
+                              {/* ("accepted" isn't an application status, so
+                                  this never showed for shortlisted candidates) */}
                               {(app.status === "interview" ||
                                 app.status === "video_completed" ||
-                                app.status === "accepted") && (
+                                app.status === "shortlisted") && (
                                   <Button
                                     size="sm"
                                     onClick={() => {

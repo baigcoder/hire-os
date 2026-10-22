@@ -50,7 +50,8 @@ export const CardSkeleton = () => (
 // ═══════════════════════════════════════════════════════════════
 
 // Dashboard pages (heavy components)
-export const LazyCEODashboard = lazy(() => import("./admin/CEODashboard.jsx"));
+// The company owner's one dashboard (the separate CEO dashboard was merged in)
+export const LazyCEODashboard = lazy(() => import("./company/CompanyAdminDashboard.jsx"));
 
 export const LazyRecruiterDashboard = lazy(
   () => import("./admin/RecruiterDashboardNew.jsx"),
@@ -72,10 +73,6 @@ export const LazyResumeBuilder = lazy(
 );
 
 // Admin pages
-export const LazyCompanySettings = lazy(
-  () => import("./company/CompanyDashboard.jsx"),
-);
-
 export const LazyAnalytics = lazy(
   () => import("./admin/RecruiterAnalytics.jsx"),
 );
@@ -141,7 +138,8 @@ export const preloadComponent = (importFn) => {
 export const preloadForRole = (role) => {
   switch (role) {
     case "ceo":
-      preloadComponent(() => import("./admin/CEODashboard.jsx"));
+    case "company_admin":
+      preloadComponent(() => import("./company/CompanyAdminDashboard.jsx"));
       break;
     case "recruiter":
       preloadComponent(() => import("./admin/RecruiterDashboardNew.jsx"));
@@ -171,7 +169,6 @@ export default {
   LazyVideoInterview,
   LazyMCQTest,
   LazyResumeBuilder,
-  LazyCompanySettings,
   LazyAnalytics,
   LazyProfile,
 

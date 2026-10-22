@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { PageLoader } from "./components/LazyComponents";
 import Login from "./components/auth/Login";
@@ -24,6 +24,7 @@ import CompanySetup from "./components/admin/CompanySetup";
 import AdminJobs from "./components/admin/AdminJobs";
 import PostJob from "./components/admin/PostJob";
 import Applicants from "./components/admin/Applicants";
+import TalentSearch from "./components/recruiter/TalentSearch";
 import AdminApplications from "./components/admin/AdminApplications";
 import AdminInterviews from "./components/admin/AdminInterviews";
 import AdminAnalytics from "./components/admin/AdminAnalytics";
@@ -41,10 +42,7 @@ import PaymentSuccess from "./components/company/PaymentSuccess";
 import PaymentSimulator from "./components/company/PaymentSimulator";
 import PaddleCheckout from "./components/company/PaddleCheckout";
 import AdminSignupFlow from "./components/company/AdminSignupFlow";
-// import CompanyDashboard from './components/company/CompanyDashboard' // Lazy loaded
 // import CompanyAdminDashboard from './components/company/CompanyAdminDashboard' // Lazy loaded
-// import Dashboard from './components/student/DashboardNew' // Lazy loaded
-// import RecruiterDashboard from './components/admin/RecruiterDashboardNew' // Lazy loaded
 import RecruiterJobs from "./components/recruiter/RecruiterJobs";
 // import LiveInterview from './components/interview/LiveInterview' // Lazy loaded
 import MCQTestPage from "./components/interview/MCQTestPage";
@@ -53,7 +51,6 @@ import NotificationCenter from "./components/notifications/NotificationCenter";
 import AnalysisResult from "./components/student/AnalysisResult";
 import CompanyReport from "./components/admin/CompanyReport";
 import CEOReportReview from "./components/admin/CEOReportReview";
-// import CEODashboard from './components/admin/CEODashboard' // Lazy loaded
 import MockInterview from "./components/student/MockInterview";
 import CallDialog from "./components/shared/CallDialog";
 import { AlertCircle, ArrowLeft } from "lucide-react";
@@ -63,23 +60,20 @@ const Dashboard = React.lazy(() => import("./components/student/DashboardNew"));
 const RecruiterDashboard = React.lazy(
   () => import("./components/admin/RecruiterDashboardNew"),
 );
-const CEODashboard = React.lazy(
-  () => import("./components/admin/CEODashboard"),
-);
-const CompanyDashboard = React.lazy(
-  () => import("./components/company/CompanyDashboard"),
-);
 const CompanyAdminDashboard = React.lazy(
   () => import("./components/company/CompanyAdminDashboard"),
 );
 const LiveInterview = React.lazy(
   () => import("./components/interview/LiveInterview"),
 );
-
-// New Recruiter Dashboard Components
-const RecruiterDashboardEnhanced = React.lazy(
-  () => import("./components/recruiter/RecruiterDashboardEnhanced"),
+const IntegrityReportPage = React.lazy(
+  () => import("./components/interview/integrity/IntegrityReportPage"),
 );
+const ScorecardPage = React.lazy(
+  () => import("./components/interview/copilot/ScorecardPage"),
+);
+
+// Recruiter tools
 const CandidatePipeline = React.lazy(
   () => import("./components/recruiter/CandidatePipeline"),
 );
@@ -117,7 +111,7 @@ const SalaryBenchmark = React.lazy(
   () => import("./components/student/SalaryBenchmark"),
 );
 const ResumeAnalyzer = React.lazy(
-  () => import("./components/student/ResumeAnalyzer"),
+  () => import("./components/student/resume-intel/ResumeAnalyzerGate"),
 );
 const JobTemplateManager = React.lazy(
   () => import("./components/recruiter/JobTemplateManager"),
@@ -474,6 +468,26 @@ const appRouter = createBrowserRouter([
     ),
   },
   {
+    path: "/interview/:id/scorecard", // Structured interview scorecard (recruiter)
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <ScorecardPage />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/interview/:id/integrity", // Live-interview integrity report (recruiter + candidate)
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <IntegrityReportPage />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: "/interview/:id/report", // Interview Report with CEO Approval
     element: (
       <ProtectedRoute>
@@ -655,6 +669,14 @@ const appRouter = createBrowserRouter([
     ), // Only CEO can post jobs
   },
   {
+    path: "/admin/talent-search",
+    element: (
+      <RecruiterRoute>
+        <TalentSearch />
+      </RecruiterRoute>
+    ),
+  },
+  {
     path: "/admin/jobs/:id/applicants",
     element: (
       <RecruiterRoute>
@@ -728,14 +750,8 @@ const appRouter = createBrowserRouter([
     ),
   },
   {
-    path: "/admin/dashboard-enhanced",
-    element: (
-      <RecruiterRoute>
-        <LazyWrapper>
-          <RecruiterDashboardEnhanced />
-        </LazyWrapper>
-      </RecruiterRoute>
-    ),
+    path: "/admin/dashboard-enhanced", // merged into the recruiter dashboard
+    element: <Navigate to="/recruiter/dashboard" replace />,
   },
   {
     path: "/admin/interview-feedback/:id",
@@ -768,14 +784,8 @@ const appRouter = createBrowserRouter([
     ),
   },
   {
-    path: "/ceo/dashboard",
-    element: (
-      <CompanyAdminRoute>
-        <LazyWrapper>
-          <CEODashboard />
-        </LazyWrapper>
-      </CompanyAdminRoute>
-    ),
+    path: "/ceo/dashboard", // merged into the company owner's dashboard
+    element: <Navigate to="/company/admin/dashboard" replace />,
   },
   {
     path: "/ceo/messages",
@@ -842,12 +852,8 @@ const appRouter = createBrowserRouter([
     element: <PaddleCheckout />,
   },
   {
-    path: "/company/dashboard",
-    element: (
-      <LazyWrapper>
-        <CompanyDashboard />
-      </LazyWrapper>
-    ),
+    path: "/company/dashboard", // merged into the company owner's dashboard
+    element: <Navigate to="/company/admin/dashboard" replace />,
   },
   {
     path: "*",

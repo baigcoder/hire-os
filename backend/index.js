@@ -43,9 +43,24 @@ import companyReviewRoute from "./routes/companyReview.route.js";
 import salaryRoute from "./routes/salary.route.js";
 import talentPoolRoute from "./routes/talentPool.route.js";
 import careerCoachRoute from "./routes/careerCoach.route.js";
-import { rateLimiter } from "./middlewares/isAuthenticated.js";
+import adminAiRoute from "./routes/adminAi.route.js";
+import resumeIntelRoute from "./routes/resumeIntel.route.js";
+import screeningRoute from "./routes/screening.route.js";
+import resumeFileRoute from "./routes/resumeFile.route.js";
+import discoverRoute from "./routes/discover.route.js";
+import integrityRoute from "./routes/integrity.route.js";
+import realtimeRoute from "./routes/realtime.route.js";
+import copilotRoute from "./routes/copilot.route.js";
+import isAuthenticated, {
+  rateLimiter,
+  isSuperAdmin,
+} from "./middlewares/isAuthenticated.js";
 import { createServer } from "http";
 import logger from "./utils/logger.js";
+import requestContext from "./middlewares/requestContext.js";
+import { buildOriginChecker } from "./utils/corsOrigins.js";
+import queue, { shouldRunWorkerInApi } from "./platform/queue/index.js";
+import { registerJobs } from "./jobs/index.js";
 import performanceMonitor, { getPerformanceStats } from "./utils/performanceMonitor.js";
 
 // Load environment variables (skip on Vercel - it manages env vars directly)
@@ -59,6 +74,10 @@ const httpServer = createServer(app);
 
 // Trust proxy for rate limiting behind reverse proxy
 app.set("trust proxy", 1);
+
+// Request ID + request-scoped structured logging (first, so every log line
+// for the request carries the ID)
+app.use(requestContext);
 
 // ========== SECURITY MIDDLEWARE ==========
 // TODO: Uncomment after running npm install
@@ -125,6 +144,10 @@ app.use(
       if (req.headers["x-no-compression"]) {
         return false;
       }
+      // Server-sent events must stream, not sit in a gzip buffer
+      if (String(res.getHeader("Content-Type") || "").startsWith("text/event-stream")) {
+        return false;
+      }
       // Use default filter (compresses text-based content types)
       return compression.filter(req, res);
     },
@@ -132,51 +155,48 @@ app.use(
 );
 
 // Body parser middleware
-app.use(express.json({ limit: "10mb" }));
+app.use(
+  express.json({
+    limit: "10mb",
+    // Keep the exact bytes of webhook bodies for signature verification
+    verify: (req, res, buf) => {
+      if (req.originalUrl.includes("/webhook")) req.rawBody = buf;
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// CORS configuration
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  process.env.FRONTEND_URL,
-  // Add common Vercel patterns
-  "https://hire-os.vercel.app",
-  "https://hireos.vercel.app",
-].filter(Boolean);
-
-// Also allow any Vercel preview deployments
-const isVercelPreview = (origin) => {
-  if (!origin) return false;
-  return origin.includes('.vercel.app') || origin.includes('vercel.app');
-};
+// CORS configuration: only this project's own frontends (see utils/corsOrigins.js)
+const isAllowedOrigin = buildOriginChecker();
 
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, Postman, curl, etc.)
     if (!origin) return callback(null, true);
 
-    // Check exact match first
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (isAllowedOrigin(origin)) {
       return callback(null, true);
     }
 
-    // Allow any Vercel deployment (preview URLs)
-    if (isVercelPreview(origin)) {
-      console.log(`✅ CORS: Allowing Vercel origin: ${origin}`);
-      return callback(null, true);
-    }
-
-    // Log rejected origins for debugging
-    console.log(`❌ CORS: Rejected origin: ${origin}`);
-    console.log(`   Allowed: ${allowedOrigins.join(', ')}`);
+    logger.warn("CORS: rejected origin", { origin });
     callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin", "x-auth-token"],
-  exposedHeaders: ["set-cookie"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+    "x-auth-token",
+    "X-Request-Id",
+    // Interview copilot audio chunks (routes/copilot.route.js)
+    "x-chunk-seq",
+    "x-chunk-started-at",
+  ],
+  exposedHeaders: ["set-cookie", "X-Request-Id"],
 };
 
 app.use(cors(corsOptions));
@@ -267,9 +287,8 @@ app.get("/health/realtime", (req, res) => {
   });
 });
 
-// Performance monitoring stats endpoint (admin only - add auth in production)
-app.get("/api/v1/admin/performance", (req, res) => {
-  // TODO: Add admin authentication in production
+// Performance monitoring stats endpoint (super admin only)
+app.get("/api/v1/admin/performance", isAuthenticated, isSuperAdmin, (req, res) => {
   const stats = getPerformanceStats();
   res.status(200).json({
     success: true,
@@ -336,6 +355,14 @@ app.use("/api/v1/reviews", companyReviewRoute);
 app.use("/api/v1/salaries", salaryRoute);
 app.use("/api/v1/talent-pools", talentPoolRoute);
 app.use("/api/v1/career-coach", careerCoachRoute);
+app.use("/api/v1/admin/ai", adminAiRoute); // AI gateway telemetry (super admin)
+app.use("/api/v1/resume-intel", resumeIntelRoute); // Resume intelligence pipeline
+app.use("/api/v1/screening", screeningRoute); // Blind recruiter screening
+app.use("/api/v1/resumes", resumeFileRoute); // Private resume files (signed URLs)
+app.use("/api/v1/discover", discoverRoute); // Semantic job & talent search
+app.use("/api/v1/integrity", integrityRoute); // Live-interview integrity monitoring
+app.use("/api/v1/realtime", realtimeRoute); // Private realtime channels + TURN call config
+app.use("/api/v1/copilot", copilotRoute); // Interview transcripts, scorecards, live copilot
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {
@@ -411,8 +438,9 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 8000;
 
 // Graceful shutdown handler
-const gracefulShutdown = () => {
+const gracefulShutdown = async () => {
   logger.info("Gracefully shutting down...");
+  await queue.stop();
   httpServer.close(() => {
     logger.info("HTTP server closed.");
     process.exit(0);
@@ -432,6 +460,12 @@ if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
   httpServer.listen(PORT, async () => {
     try {
       await connectDB();
+
+      // Background job worker (see platform/queue/index.js)
+      if (shouldRunWorkerInApi()) {
+        registerJobs(queue);
+        queue.start();
+      }
 
       // Start subscription monitor if available
       if (subscriptionMonitor) {

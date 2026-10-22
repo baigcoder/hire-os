@@ -1,4 +1,5 @@
 import { Company, SUBSCRIPTION_PLANS } from "../models/company.model.js";
+import { decide, listPendingDecisions, ownedCompany, DecisionError } from "../modules/hiring/ceoDecision.js";
 import { User } from "../models/user.model.js";
 import { Notification } from "../models/notification.model.js";
 import getDataUri from "../utils/datauri.js";
@@ -7,6 +8,10 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendRecruiterInvitation, sendPaymentInvoice } from "../utils/email.js";
+import {
+  getPendingTransaction,
+  markPendingTransaction,
+} from "./paddle.controller.js";
 
 // Token generation helper
 const generateToken = (userId, expiresIn = "7d") => {
@@ -24,6 +29,28 @@ const generateSecurePassword = () => {
 };
 
 // Register company with subscription plan
+/**
+ * A payment that a signature-verified webhook marked completed, consumed so
+ * one payment can't activate several companies. Payment intents live in
+ * process memory today (SafePay: global.pendingTransactions, Paddle: the
+ * controller map); see docs §17 for moving them to the database.
+ */
+const consumeVerifiedPayment = (token) => {
+  const safepay = global.pendingTransactions?.[token];
+  if (safepay?.status === "completed") {
+    safepay.status = "consumed";
+    return { provider: "safepay", ...pick(safepay) };
+  }
+  const paddle = getPendingTransaction(token);
+  if (paddle?.status === "completed") {
+    markPendingTransaction(token, { status: "consumed" });
+    return { provider: "paddle", ...pick(paddle) };
+  }
+  return null;
+};
+
+const pick = ({ planId, billingCycle, amount }) => ({ planId, billingCycle, amount });
+
 export const registerCompany = async (req, res) => {
   try {
     const {
@@ -160,10 +187,21 @@ export const registerCompany = async (req, res) => {
       console.log("✅ Created new admin user:", adminUser.email);
     }
 
+    // SECURITY (S17): a subscription is only active when the payment was
+    // confirmed by a signature-verified webhook. Previously any non-empty
+    // paymentToken activated any plan. The plan and cycle come from the
+    // verified payment, not the request body.
+    const verifiedPayment = paymentToken
+      ? consumeVerifiedPayment(paymentToken)
+      : null;
+    const paidPlan = verifiedPayment?.planId || planId || "basic";
+    const paidCycle = verifiedPayment?.billingCycle || billingCycle || "monthly";
+
     // Get plan details
-    const selectedPlan = SUBSCRIPTION_PLANS[planId] || SUBSCRIPTION_PLANS.basic;
+    const selectedPlan =
+      SUBSCRIPTION_PLANS[paidPlan] || SUBSCRIPTION_PLANS.basic;
     const subscriptionEndDate = new Date();
-    if (billingCycle === "yearly") {
+    if (paidCycle === "yearly") {
       subscriptionEndDate.setFullYear(subscriptionEndDate.getFullYear() + 1);
     } else {
       subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
@@ -182,27 +220,27 @@ export const registerCompany = async (req, res) => {
       adminUser: adminUser._id,
       userId: adminUser._id, // Legacy support
       subscription: {
-        plan: planId || "basic",
-        type: billingCycle || "monthly",
-        status: paymentToken ? "active" : "pending",
+        plan: paidPlan,
+        type: paidCycle,
+        status: verifiedPayment ? "active" : "pending",
         startDate: new Date(),
         endDate: subscriptionEndDate,
         nextPaymentDate: subscriptionEndDate,
       },
       features: selectedPlan.features,
-      payments: paymentToken
+      payments: verifiedPayment
         ? [
           {
             transactionId: paymentToken,
             amount:
-              selectedPlan.prices?.[billingCycle] ||
-              selectedPlan.prices?.monthly ||
-              5000,
+              verifiedPayment.amount ||
+              selectedPlan.prices?.[paidCycle] ||
+              selectedPlan.prices?.monthly,
             currency: "PKR",
-            plan: planId || "basic",
-            duration: billingCycle || "monthly",
+            plan: paidPlan,
+            duration: paidCycle,
             paymentDate: new Date(),
-            paymentMethod: "safepay",
+            paymentMethod: verifiedPayment.provider,
             status: "completed",
           },
         ]
@@ -212,7 +250,7 @@ export const registerCompany = async (req, res) => {
     // Update admin user with company reference and subscription status
     adminUser.companyId = company._id;
     // Set subscriptionStatus based on payment - CRITICAL for dashboard access
-    adminUser.subscriptionStatus = paymentToken ? "active" : "pending";
+    adminUser.subscriptionStatus = verifiedPayment ? "active" : "pending";
     await adminUser.save();
 
     // Track invited recruiters
@@ -488,6 +526,15 @@ export const updateCompany = async (req, res) => {
       companySize,
     } = req.body;
     const companyId = req.params.id;
+
+    // SECURITY (S18): only the company's own admin may edit it
+    const owned = await Company.exists({ _id: companyId, adminUser: req.id });
+    if (!owned) {
+      return res.status(403).json({
+        message: "Only the company admin can update this company.",
+        success: false,
+      });
+    }
 
     let logo;
     if (req.file) {
@@ -1098,167 +1145,40 @@ export const resendInvitation = async (req, res) => {
 // Get pending candidate approvals (candidates passed by recruiters for CEO's final decision)
 export const getPendingApprovals = async (req, res) => {
   try {
-    const userId = req.id;
-    const user = await User.findById(userId);
-
-    // Only company_admin (CEO) can access this
-    if (user.role !== "company_admin") {
-      return res.status(403).json({
-        message: "Only company admin can view pending approvals",
-        success: false,
-      });
-    }
-
-    const company = await Company.findOne({ adminUser: userId });
+    const company = await ownedCompany(req.id);
     if (!company) {
-      return res.status(404).json({
-        message: "Company not found",
-        success: false,
-      });
+      return res.status(404).json({ message: "Company not found", success: false });
     }
-
-    // Import Application model dynamically to avoid circular dependency
-    const { Application } = await import("../models/application.model.js");
-    const { Job } = await import("../models/job.model.js");
-
-    // Find applications that are passed by recruiter for CEO review
-    const pendingApprovals = await Application.find({
-      status: "pending_ceo_approval",
-    })
-      .populate({
-        path: "job",
-        match: { company: company._id },
-        select: "title salary jobType location",
-      })
-      .populate(
-        "applicant",
-        "fullname email profile.profilePhoto profile.skills",
-      )
-      .populate("recruiterReview.reviewedBy", "fullname")
-      .sort({ "recruiterReview.reviewedAt": -1 });
-
-    // Filter out applications where job doesn't match company
-    const validApprovals = pendingApprovals.filter((app) => app.job !== null);
-
-    return res.status(200).json({
-      success: true,
-      pendingApprovals: validApprovals,
-      count: validApprovals.length,
-    });
+    // One queue for both paths (see modules/hiring/ceoDecision.js)
+    const pendingApprovals = await listPendingDecisions(company._id);
+    return res.status(200).json({ success: true, pendingApprovals, count: pendingApprovals.length });
   } catch (error) {
     console.error("Get pending approvals error:", error);
-    return res.status(500).json({
-      message: "Error fetching pending approvals",
-      success: false,
-    });
+    return res.status(500).json({ message: "Error fetching pending approvals", success: false });
   }
 };
 
 // CEO approves or rejects candidate for final hire
 export const approveCandidateHire = async (req, res) => {
   try {
-    const { applicationId } = req.params;
-    const { decision, notes } = req.body; // decision: 'approved' or 'rejected'
-    const userId = req.id;
-    const user = await User.findById(userId);
-
-    // Only company_admin (CEO) can approve hires
-    if (user.role !== "company_admin") {
-      return res.status(403).json({
-        message: "Only company admin can approve candidate hires",
-        success: false,
-      });
-    }
-
-    const { Application } = await import("../models/application.model.js");
-
-    const application = await Application.findById(applicationId)
-      .populate("job")
-      .populate("applicant", "fullname email");
-
-    if (!application) {
-      return res.status(404).json({
-        message: "Application not found",
-        success: false,
-      });
-    }
-
-    // Verify the application is for CEO's company
-    const company = await Company.findOne({ adminUser: userId });
-    if (
-      !company ||
-      application.job.company.toString() !== company._id.toString()
-    ) {
-      return res.status(403).json({
-        message: "Unauthorized to approve this application",
-        success: false,
-      });
-    }
-
-    // Update application status based on CEO decision
-    if (decision === "approved") {
-      application.status = "hired";
-      application.ceoReview = {
-        decision: "approved",
-        notes: notes || "",
-        reviewedAt: new Date(),
-        reviewedBy: userId,
-      };
-
-      // Update company usage stats
-      company.usage.hiresThisMonth = (company.usage.hiresThisMonth || 0) + 1;
-      await company.save();
-
-      // Create notification for the applicant
-      await Notification.create({
-        userId: application.applicant._id,
-        type: "offer",
-        title: "🎉 Congratulations! You're Hired!",
-        message: `${company.name} has approved your application for ${application.job.title}. You will receive further details soon.`,
-        relatedJob: application.job._id,
-        relatedApplication: application._id,
-      });
-    } else if (decision === "rejected") {
-      application.status = "rejected";
-      application.ceoReview = {
-        decision: "rejected",
-        notes: notes || "",
-        reviewedAt: new Date(),
-        reviewedBy: userId,
-      };
-
-      // Notify applicant
-      await Notification.create({
-        userId: application.applicant._id,
-        type: "status",
-        title: "Application Update",
-        message: `Your application for ${application.job.title} at ${company.name} has been reviewed.`,
-        relatedJob: application.job._id,
-        relatedApplication: application._id,
-      });
-    }
-
-    await application.save();
-
+    const { decision, notes, comments } = req.body ?? {};
+    const result = await decide({
+      applicationId: req.params.applicationId,
+      decision,
+      comments: comments ?? notes,
+      ownerId: req.id,
+    });
     return res.status(200).json({
       success: true,
-      message:
-        decision === "approved"
-          ? "Candidate approved for hire!"
-          : "Candidate rejected",
-      application: {
-        _id: application._id,
-        status: application.status,
-        applicant: application.applicant.fullname,
-        job: application.job.title,
-      },
+      message: decision === "approved" ? "Candidate approved" : decision === "rejected" ? "Candidate rejected" : "Decision on hold",
+      ...result,
     });
   } catch (error) {
+    if (error instanceof DecisionError) {
+      return res.status(error.status).json({ success: false, code: error.code, message: error.message });
+    }
     console.error("Approve candidate error:", error);
-    return res.status(500).json({
-      message: "Error processing approval",
-      success: false,
-    });
+    return res.status(500).json({ message: "Error processing approval", success: false });
   }
 };
 
@@ -1376,10 +1296,11 @@ export const getRecruiterPerformance = async (req, res) => {
         .map(async (recruiter) => {
           const recruiterId = recruiter.userId._id;
 
-          // Count interviews conducted by this recruiter
+          // Video interviews this recruiter held (there's no
+          // "conductedBy" field: this always counted 0)
           const interviewCount = await Interview.countDocuments({
-            conductedBy: recruiterId,
-            status: "completed",
+            recruiterId,
+            "videoInterview.status": "completed",
           });
 
           // Count candidates passed to CEO
@@ -1391,7 +1312,7 @@ export const getRecruiterPerformance = async (req, res) => {
           // Count candidates hired
           const hired = await Application.countDocuments({
             "recruiterReview.reviewedBy": recruiterId,
-            status: "hired",
+            status: { $in: ["hired", "offer_accepted"] },
           });
 
           return {

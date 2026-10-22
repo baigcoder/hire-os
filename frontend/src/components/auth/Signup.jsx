@@ -230,7 +230,11 @@ const Signup = () => {
             try {
               await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/referral/apply`, {
                 code: referralCode,
-                userId: response.data.user._id,
+              }, {
+                withCredentials: true,
+                headers: response.data.token
+                  ? { Authorization: `Bearer ${response.data.token}` }
+                  : undefined,
               });
               toast.success('Referral code applied!');
             } catch (refErr) {

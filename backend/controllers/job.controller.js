@@ -1,4 +1,5 @@
 import { Job } from "../models/job.model.js";
+import { canManageJob } from "../utils/jobAccess.js";
 import { User } from "../models/user.model.js";
 import { Application } from "../models/application.model.js";
 import { Company } from "../models/company.model.js";
@@ -6,6 +7,10 @@ import {
   getMatchedJobsForStudent,
   getApplicationMatchScore,
 } from "../utils/jobMatcher.js";
+import {
+  enqueueJobIndexing,
+  removeJobFromIndex,
+} from "../modules/discover/indexing.js";
 
 // Create new job posting (Company Admin/CEO only)
 export const postJob = async (req, res) => {
@@ -113,6 +118,8 @@ export const postJob = async (req, res) => {
     });
 
     await job.populate("company");
+    // Semantic search index (background; no-op without embeddings configured)
+    await enqueueJobIndexing(job._id);
 
     return res.status(201).json({
       message: "Job posted successfully!",
@@ -467,6 +474,7 @@ export const updateJob = async (req, res) => {
       { $set: updates },
       { new: true, runValidators: true },
     ).populate("company");
+    await enqueueJobIndexing(jobId);
 
     return res.status(200).json({
       message: "Job updated successfully",
@@ -510,6 +518,7 @@ export const deleteJob = async (req, res) => {
 
     // Delete the job
     await Job.findByIdAndDelete(jobId);
+    await removeJobFromIndex(job._id).catch(() => {});
 
     return res.status(200).json({
       message: "Job deleted successfully",
@@ -785,6 +794,12 @@ export const getJobReportStats = async (req, res) => {
         message: "Job not found",
         success: false,
       });
+    }
+
+    // SECURITY (S18): applicant statistics are for the job's company only
+    const viewer = await User.findById(req.id).select("role companyId").lean();
+    if (!canManageJob(viewer, job)) {
+      return res.status(403).json({ message: "Access denied", success: false });
     }
 
     const stats = {

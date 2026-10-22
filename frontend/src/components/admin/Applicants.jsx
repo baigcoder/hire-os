@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
+import ScreeningPanel from "@/components/recruiter/screening/ScreeningPanel";
 
 const FraudDetectionPanel = ({ application }) => {
   const isHighRisk = application?.isFlagged;
@@ -169,6 +170,8 @@ const Applicants = () => {
           </div>
         </div>
 
+        {id && <ScreeningPanel jobId={id} />}
+
         <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
           <Table>
             <TableHeader className="bg-white/5">
@@ -237,7 +240,7 @@ const Applicants = () => {
                       {app?.createdAt?.split("T")[0]}
                     </TableCell>
                     <TableCell>
-                      {/* Mock AI Score */}
+                      {/* Blind AI screening score (filled in by the screening job) */}
                       <div className="flex items-center gap-2">
                         <div className="w-16 h-2 bg-gray-800 rounded-full overflow-hidden">
                           <div

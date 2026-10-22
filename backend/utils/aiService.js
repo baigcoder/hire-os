@@ -3,6 +3,12 @@
  * Uses ChatAnywhere API with optimal model selection per feature
  * Models ranked by capability: gpt-5.1 > gpt-5 > gpt-5-mini > gpt-5-nano
  */
+import {
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+} from "../config/aiModels.js";
 
 const GPT5_API_KEY = process.env.GPT5_API_KEY;
 const GPT5_API_URL = "https://api.chatanywhere.tech/v1/chat/completions";
@@ -80,7 +86,6 @@ export const callGPT5 = async (messages, options = {}) => {
     AI_MODELS.INSTANT, // gpt-4o-mini (979ms)
     AI_MODELS.FAST, // gpt-5-mini-ca (1344ms)
     AI_MODELS.BALANCED, // gpt-5-ca (1945ms)
-    "gemini-1.5-flash", // Gemini fallback
   ];
 
   // Remove duplicates while preserving order
@@ -177,20 +182,18 @@ export const callGPT5 = async (messages, options = {}) => {
         : messages;
 
       const startTime = Date.now();
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature,
-              maxOutputTokens: maxTokens,
-            },
-          }),
-        },
-      );
+      const response = await fetch(geminiGenerateUrl(GEMINI_MODELS.FLASH), {
+        method: "POST",
+        headers: geminiHeaders(),
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            thinkingConfig: geminiThinkingConfig(GEMINI_MODELS.FLASH),
+            temperature,
+            maxOutputTokens: maxTokens,
+          },
+        }),
+      });
 
       const data = await response.json();
       const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -204,7 +207,7 @@ export const callGPT5 = async (messages, options = {}) => {
 
       return {
         content,
-        model: "gemini-1.5-flash",
+        model: GEMINI_MODELS.FLASH,
         latency,
         success: true,
       };

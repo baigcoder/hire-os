@@ -25,6 +25,9 @@ const ICE_SERVERS = {
  */
 export const useVideoCall = (signaling = {}, interviewId, options = {}) => {
   const { sendOffer, sendAnswer, sendIceCandidate } = signaling || {};
+  // ICE servers from the API (short-lived TURN credentials) when given
+  const iceServersRef = useRef(null);
+  iceServersRef.current = options.iceServers ?? null;
 
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
@@ -98,7 +101,11 @@ export const useVideoCall = (signaling = {}, interviewId, options = {}) => {
 
   // Create peer connection
   const createPeerConnection = useCallback((targetId) => {
-    const pc = new RTCPeerConnection(ICE_SERVERS);
+    const pc = new RTCPeerConnection(
+      iceServersRef.current
+        ? { ...ICE_SERVERS, iceServers: iceServersRef.current }
+        : ICE_SERVERS,
+    );
 
     pc.onicecandidate = (event) => {
       if (event.candidate && sendIceCandidate) {

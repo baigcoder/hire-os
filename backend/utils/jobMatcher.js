@@ -8,6 +8,12 @@ import { User } from "../models/user.model.js";
 import { Job } from "../models/job.model.js";
 import { getResumeAnalysisContext } from "./vectorStore.js";
 import { callAI, parseAIJson } from "./aiServiceV3.js";
+import {
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+} from "../config/aiModels.js";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -369,17 +375,18 @@ Provide JSON only:
   "interviewTip": "One interview preparation tip"
 }`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 400 },
-        }),
-      },
-    );
+    const response = await fetch(geminiGenerateUrl(GEMINI_MODELS.FLASH), {
+      method: "POST",
+      headers: geminiHeaders(),
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 400,
+          thinkingConfig: geminiThinkingConfig(GEMINI_MODELS.FLASH),
+        },
+      }),
+    });
 
     const data = await response.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";

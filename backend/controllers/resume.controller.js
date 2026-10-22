@@ -1,8 +1,3 @@
-import { spawn } from "child_process";
-import path from "path";
-import fs from "fs";
-import os from "os";
-import { fileURLToPath } from "url";
 // Import unified AI analyzer for dynamic analysis
 import {
   analyzeResumeUnified,
@@ -11,11 +6,8 @@ import {
 import { callAI, parseAIJson } from "../utils/aiServiceV3.js";
 import { User } from "../models/user.model.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 /**
- * Analyze resume using Python ML model
+ * Analyze resume using the unified analyzer (JS regex + LLM)
  * POST /api/v1/resume/analyze
  */
 export const analyzeResume = async (req, res) => {
@@ -53,7 +45,7 @@ export const analyzeResume = async (req, res) => {
     );
     const startTime = Date.now();
 
-    // Use unified AI analyzer (Python ML + JS + GPT-4o-mini)
+    // Use unified AI analyzer (JS regex + LLM)
     const result = await analyzeResumeUnified(
       resumeText,
       jobDescription || "",

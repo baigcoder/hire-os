@@ -1,5 +1,32 @@
 import { Interview, Application, Job, Company, User, Notification, Message } from "../models/index.js";
 import crypto from "crypto";
+import { endSessionSafely as endIntegritySession } from "../modules/integrity/service.js";
+import { broadcastPrivate, userTopic } from "../platform/realtime/index.js";
+import { ensureScorecardSafely, requestDraftSafely } from "../modules/copilot/service.js";
+import { canManageJob } from "../utils/jobAccess.js";
+
+/** The interview's recruiter, or a recruiter / admin who manages its job. */
+const recruiterCanManageInterview = async (interview, req) => {
+  const recruiterId = interview.recruiterId?._id ?? interview.recruiterId;
+  if (String(recruiterId) === String(req.id)) return true;
+  const user =
+    req.user ?? (await User.findById(req.id).select("role companyId").lean());
+  const job = await Job.findById(interview.jobId)
+    .select("created_by company")
+    .lean();
+  return canManageJob(user, job);
+};
+
+const isInterviewParticipant = (interview, userId) =>
+  [interview.studentId, interview.recruiterId].some(
+    (id) => String(id?._id ?? id) === String(userId),
+  );
+
+const forbidden = (res) =>
+  res.status(403).json({
+    success: false,
+    message: "You don't have access to this interview",
+  });
 
 // ========== INTERVIEW CRUD ==========
 
@@ -249,7 +276,15 @@ export const getInterview = async (req, res) => {
     const recruiterId = interview.recruiterId?._id?.toString();
 
     const isStudent = studentId === userId;
-    const isRecruiter = recruiterId === userId;
+    // The interviewer, or the job's company — including its owner, who
+    // reviews the report at /ceo/reports/:id (they were refused before)
+    const isRecruiter =
+      recruiterId === userId ||
+      (!isStudent &&
+        (await recruiterCanManageInterview(
+          { recruiterId, jobId: interview.jobId?._id ?? interview.jobId },
+          req,
+        )));
 
     if (!isStudent && !isRecruiter) {
       return res.status(403).json({
@@ -258,12 +293,23 @@ export const getInterview = async (req, res) => {
       });
     }
 
-    // Hide correct answers from student
-    if (isStudent && interview.mcqTest?.questions) {
-      interview.mcqTest.questions = interview.mcqTest.questions.map((q) => {
-        const { correctAnswer, ...rest } = q;
-        return rest;
-      });
+    if (isStudent) {
+      // Hide correct answers from student
+      if (interview.mcqTest?.questions) {
+        interview.mcqTest.questions = interview.mcqTest.questions.map((q) => {
+          const { correctAnswer, ...rest } = q;
+          return rest;
+        });
+      }
+      // Internal hiring material isn't the candidate's to read: the
+      // recruiter→CEO report, monitoring alerts and interviewer analysis
+      // (the candidate sees their own integrity report and offer elsewhere)
+      delete interview.finalReport;
+      if (interview.mcqTest) delete interview.mcqTest.fraudAlerts;
+      if (interview.videoInterview) {
+        delete interview.videoInterview.fraudAlerts;
+        delete interview.videoInterview.aiAnalysis;
+      }
     }
 
     return res.status(200).json({
@@ -845,6 +891,9 @@ export const startVideoInterview = async (req, res) => {
 
     await interview.save();
 
+    // Prepare the structured scorecard the copilot works from
+    await ensureScorecardSafely(interview);
+
     // Notify student
     await Notification.createNotification({
       userId: interview.studentId,
@@ -897,6 +946,14 @@ export const joinVideoInterview = async (req, res) => {
 
     if (isStudent) {
       interview.videoInterview.studentJoinedAt = new Date();
+      // Tell only this interview's recruiter, on their private topic
+      // (replaces a public "student-joined-notify" channel anyone could read)
+      const student = await User.findById(userId).select("fullname").lean();
+      broadcastPrivate(userTopic(interview.recruiterId), "student_joined_interview", {
+        interviewId: String(interview._id),
+        studentName: student?.fullname || "Candidate",
+        joinedAt: new Date().toISOString(),
+      });
     }
 
     // If both joined, mark as in progress
@@ -916,6 +973,11 @@ export const joinVideoInterview = async (req, res) => {
       message: "Joined video interview",
       roomId: interview.videoInterview.roomId,
       status: interview.videoInterview.status,
+      // The candidate's client shows the consent screen, then starts the proctor
+      integrity: {
+        consentUrl: `/api/v1/integrity/${interview._id}/consent`,
+        consentRequired: isStudent,
+      },
     });
   } catch (error) {
     console.error("Join video interview error:", error);
@@ -941,6 +1003,14 @@ export const endVideoInterview = async (req, res) => {
       });
     }
 
+    // Participants (or the job's company) only (S18)
+    if (
+      !isInterviewParticipant(interview, req.id) &&
+      !(await recruiterCanManageInterview(interview, req))
+    ) {
+      return forbidden(res);
+    }
+
     interview.videoInterview.status = "completed";
     interview.videoInterview.endedAt = new Date();
     interview.status = "video_completed";
@@ -955,6 +1025,11 @@ export const endVideoInterview = async (req, res) => {
     }
 
     await interview.save();
+
+    // Close integrity monitoring and queue its report
+    await endIntegritySession(interview._id);
+    // Draft scorecard ratings from the transcript, for the recruiter to review
+    await requestDraftSafely(interview._id);
 
     // Update application
     const application = await Application.findById(interview.applicationId);
@@ -992,11 +1067,25 @@ export const reportFraudAlert = async (req, res) => {
       });
     }
 
+    // Alerts describe the candidate's session, so only that candidate's
+    // client may report them for this interview.
+    if (interview.studentId.toString() !== req.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to report alerts for this interview",
+      });
+    }
+
     const alert = {
       type,
-      details,
-      severity: severity || "medium",
-      screenshot,
+      details: typeof details === "string" ? details.slice(0, 500) : undefined,
+      severity: ["low", "medium", "high", "critical"].includes(severity)
+        ? severity
+        : "medium",
+      screenshot:
+        typeof screenshot === "string" && screenshot.startsWith("https://")
+          ? screenshot
+          : undefined,
       timestamp: new Date(),
     };
 
@@ -1010,7 +1099,7 @@ export const reportFraudAlert = async (req, res) => {
     await interview.save();
 
     // Notify recruiter for high/critical alerts
-    if (["high", "critical"].includes(severity)) {
+    if (["high", "critical"].includes(alert.severity)) {
       await Notification.createNotification({
         userId: interview.recruiterId,
         type: "fraud_alert",
@@ -1084,98 +1173,77 @@ export const sendChatMessage = async (req, res) => {
 
 // ========== REPORT & OFFER ==========
 
-import {
-  generateInterviewReport,
-  generateQuickSummary,
-} from "../utils/reportGenerator.js";
+import { generateQuickSummary } from "../utils/reportGenerator.js";
+import ai from "../platform/ai-gateway/index.js";
+import { InterviewScorecard } from "../models/interviewScorecard.model.js";
+import { TranscriptSegment } from "../models/transcriptSegment.model.js";
+import { IntegritySession } from "../models/integritySession.model.js";
+import { ApplicantScreening } from "../models/applicantScreening.model.js";
+import { generateInterviewReportV2, completenessGaps } from "../modules/report/interviewReport.js";
+import { decide, listPendingDecisions, ownedCompany, DecisionError } from "../modules/hiring/ceoDecision.js";
 
-// Generate AI report (recruiter generates during/after interview)
+const loadReportSources = async (interview) => {
+  const [scorecard, segments, integrity, screening] = await Promise.all([
+    InterviewScorecard.findOne({ interviewId: interview._id }).lean(),
+    TranscriptSegment.find({ interviewId: interview._id }).sort({ startedAt: 1 }).lean(),
+    IntegritySession.findOne({ interviewId: interview._id }).select("status report").lean(),
+    ApplicantScreening.findOne({ applicationId: interview.applicationId }).select("status score").lean(),
+  ]);
+  return { interview, scorecard, segments, integrity, screening };
+};
+
+const reportGapMessage = (gaps) =>
+  `Complete the scorecard first: ${gaps.map((g) => (g.type === "no_overall" ? "overall recommendation" : `rate "${g.title}"`)).join(", ")}.`;
+
+// Generate the evidence-based report (recruiter, during/after the interview)
 export const generateReport = async (req, res) => {
   try {
     const { id } = req.params;
-    const { recruiterNotes } = req.body;
-    const recruiterId = req.id;
+    const { recruiterNotes } = req.body ?? {};
 
     const interview = await Interview.findById(id)
       .populate("studentId", "fullname email")
-      .populate("jobId", "title skills requirements")
-      .populate("companyId", "name")
-      .populate("recruiterId", "fullname");
+      .populate("jobId", "title")
+      .populate("companyId", "name");
 
-    if (!interview || interview.recruiterId._id.toString() !== recruiterId) {
-      return res.status(404).json({
+    // The interviewer, or a recruiter of the job's company (S18)
+    if (!interview || !(await recruiterCanManageInterview(interview, req))) {
+      return res.status(404).json({ success: false, message: "Interview not found" });
+    }
+    if (["submitted", "approved", "rejected"].includes(interview.finalReport?.status)) {
+      return res.status(409).json({
         success: false,
-        message: "Interview not found",
+        code: "REPORT_LOCKED",
+        message: "This report was already sent to the CEO and can't be regenerated",
       });
     }
 
-    // Prepare data for AI report generation
-    const reportData = {
-      candidateName: interview.studentId.fullname,
-      candidateEmail: interview.studentId.email,
-      jobTitle: interview.jobId.title,
-      jobId: interview.jobId._id,
-      companyName: interview.companyId?.name || "Company",
-      recruiterName: interview.recruiterId.fullname,
-      interviewDate: interview.scheduledAt,
-      interviewDuration: interview.videoInterview?.duration
-        ? Math.round(interview.videoInterview.duration / 60)
-        : 0,
-      mcqScore: interview.mcqTest?.correctAnswers || 0,
-      mcqTotal: interview.mcqTest?.totalQuestions || 0,
-      videoScores: interview.videoInterview?.aiAnalysis || null,
-      resumeScore: interview.resumeScore || null,
-      fraudRiskScore:
-        interview.totalFraudAlerts > 5
-          ? "high"
-          : interview.totalFraudAlerts > 2
-            ? "medium"
-            : "low",
-      behaviorNotes: JSON.stringify(interview.mcqTest?.fraudAlerts || []),
-      recruiterNotes: recruiterNotes || "",
-      aiAnalysis: interview.videoInterview?.aiAnalysis?.notes?.join(". ") || "",
-    };
+    const report = await generateInterviewReportV2(ai, await loadReportSources(interview), { recruiterNotes });
 
-    // Generate AI-powered report
-    const aiReport = await generateInterviewReport(reportData);
-
-    // Save to interview
     interview.finalReport = {
       status: "draft",
-      generatedBy: recruiterId,
+      generatedBy: req.id,
       generatedAt: new Date(),
-      overallScore: aiReport.overallScore,
-      technicalScore: aiReport.technicalScore,
-      communicationScore: aiReport.communicationScore,
-      cultureFitScore: aiReport.cultureFitScore,
-      problemSolvingScore: aiReport.technicalScore, // Use technical as fallback
-      aiSummary: aiReport.summary,
-      aiRecommendation: aiReport.recommendation,
-      strengths: aiReport.strengths,
-      weaknesses: aiReport.concerns,
-      notes: recruiterNotes,
-      hiringRisk: aiReport.hiringRisk,
-      suggestedSalary: aiReport.suggestedSalary,
-      nextSteps: aiReport.nextSteps,
+      version: report.version,
+      structured: report,
+      // Legacy fields for older views; no invented sub-scores
+      overallScore: report.overallScore ?? undefined,
+      aiSummary: report.summary,
+      aiRecommendation: report.recommendation,
+      strengths: report.strengths.map((x) => x.text),
+      weaknesses: report.concerns.map((x) => x.text),
+      notes: recruiterNotes || interview.finalReport?.notes,
     };
-
     await interview.save();
 
     return res.status(200).json({
       success: true,
-      message: "AI Report generated successfully",
-      report: {
-        ...interview.finalReport,
-        rawScores: aiReport.rawScores,
-        generatedBy: aiReport.generatedBy,
-      },
+      message: "Report generated",
+      report: { ...interview.finalReport.toObject?.() ?? interview.finalReport },
     });
   } catch (error) {
     console.error("Generate report error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error generating report",
-    });
+    return res.status(500).json({ success: false, message: "Error generating report" });
   }
 };
 
@@ -1191,7 +1259,7 @@ export const submitReportToCEO = async (req, res) => {
       .populate("jobId", "title")
       .populate("companyId", "adminUser name");
 
-    if (!interview || interview.recruiterId.toString() !== recruiterId) {
+    if (!interview || !(await recruiterCanManageInterview(interview, req))) {
       return res.status(404).json({
         success: false,
         message: "Interview not found",
@@ -1202,6 +1270,23 @@ export const submitReportToCEO = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Please generate a report first",
+      });
+    }
+
+    // A structured interview is only complete with every must-have rated
+    // and an overall recommendation
+    const scorecard = await InterviewScorecard.findOne({ interviewId: interview._id }).lean();
+    const gaps = completenessGaps(scorecard);
+    if (gaps.length) {
+      return res.status(409).json({ success: false, code: "SCORECARD_INCOMPLETE", gaps, message: reportGapMessage(gaps) });
+    }
+    // Ratings changed since the report was generated: regenerate first
+    const ratedAt = Math.max(0, ...(scorecard?.competencies ?? []).map((c) => new Date(c.rating?.ratedAt ?? 0).getTime()), new Date(scorecard?.overall?.at ?? 0).getTime());
+    if (ratedAt > new Date(interview.finalReport.generatedAt ?? 0).getTime()) {
+      return res.status(409).json({
+        success: false,
+        code: "REPORT_STALE",
+        message: "The scorecard changed after this report was generated. Regenerate it before sending.",
       });
     }
 
@@ -1234,7 +1319,7 @@ export const submitReportToCEO = async (req, res) => {
         userId: ceoId,
         type: "interview_report_submitted",
         title: "📋 New Interview Report for Review",
-        message: `Recruiter submitted report for ${interview.studentId.fullname} - ${interview.jobId.title}. Score: ${interview.finalReport.overallScore}%. Recommendation: ${interview.finalReport.aiRecommendation}`,
+        message: `Recruiter submitted report for ${interview.studentId.fullname} - ${interview.jobId.title}. Scorecard: ${interview.finalReport.overallScore ?? "n/a"}/100. Recommendation: ${interview.finalReport.aiRecommendation}`,
         relatedEntities: {
           interviewId: interview._id,
           applicationId: interview.applicationId,
@@ -1261,248 +1346,29 @@ export const submitReportToCEO = async (req, res) => {
 // CEO reviews and decides on candidate
 export const ceoDecision = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { decision, comments } = req.body;
-    const ceoId = req.id;
-
-    // Validate decision
-    if (!["approved", "rejected", "on_hold"].includes(decision)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid decision. Must be: approved, rejected, or on_hold",
-      });
-    }
-
-    const interview = await Interview.findById(id)
-      .populate("studentId", "fullname email")
-      .populate("jobId", "title")
-      .populate("companyId", "adminUser name");
-
-    if (!interview) {
-      return res.status(404).json({
-        success: false,
-        message: "Interview not found",
-      });
-    }
-
-    // Verify CEO access (must be company admin)
-    if (interview.companyId?.adminUser?.toString() !== ceoId) {
-      return res.status(403).json({
-        success: false,
-        message: "Only company admin can make final decision",
-      });
-    }
-
-    // Record decision
-    interview.finalReport.adminDecision = {
-      decision,
-      decidedBy: ceoId,
-      decidedAt: new Date(),
-      comments,
-    };
-
-    interview.finalReport.status =
-      decision === "approved"
-        ? "approved"
-        : decision === "rejected"
-          ? "rejected"
-          : "pending";
-
-    // Update application based on decision
-    const application = await Application.findById(interview.applicationId);
-    if (application) {
-      application.ceoReview = {
-        decision,
-        notes: comments,
-        reviewedBy: ceoId,
-        reviewedAt: new Date(),
-      };
-
-      if (decision === "approved") {
-        application.status = "offer_pending";
-        interview.status = "approved";
-      } else if (decision === "rejected") {
-        application.status = "rejected";
-        interview.status = "rejected";
-      } else {
-        application.status = "under_review";
-      }
-
-      await application.save();
-    }
-
-    await interview.save();
-
-    // Notify recruiter about decision
-    await Notification.createNotification({
-      userId: interview.recruiterId,
-      type:
-        decision === "approved" ? "candidate_approved" : "candidate_rejected",
-      title:
-        decision === "approved"
-          ? "✅ Candidate Approved by CEO!"
-          : decision === "rejected"
-            ? "❌ Candidate Rejected"
-            : "⏳ Decision On Hold",
-      message: `CEO decision for ${interview.studentId.fullname}: ${decision.toUpperCase()}. ${comments || ""}`,
-      relatedEntities: { interviewId: interview._id },
-      priority: "high",
-    });
-
-    // If approved, prompt for offer letter
-    if (decision === "approved") {
-      await Notification.createNotification({
-        userId: interview.recruiterId,
-        type: "prepare_offer",
-        title: "📝 Prepare Offer Letter",
-        message: `${interview.studentId.fullname} has been approved! Please prepare the offer letter.`,
-        relatedEntities: { interviewId: interview._id },
-        actionUrl: `/interview/${interview._id}/offer`,
-        priority: "high",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: `Candidate ${decision}`,
-      decision: interview.finalReport.adminDecision,
-    });
+    const { decision, comments } = req.body ?? {};
+    const result = await decide({ interviewId: req.params.id, decision, comments, ownerId: req.id });
+    return res.status(200).json({ success: true, message: `Candidate ${decision.replace("_", " ")}`, ...result });
   } catch (error) {
+    if (error instanceof DecisionError) {
+      return res.status(error.status).json({ success: false, code: error.code, message: error.message });
+    }
     console.error("CEO decision error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error recording decision",
-    });
+    return res.status(500).json({ success: false, message: "Error recording decision" });
   }
 };
 
 // Get pending reports for CEO
 export const getPendingReportsForCEO = async (req, res) => {
   try {
-    const ceoId = req.id;
-
-    // Find companies where this user is admin
-    const companies = await Company.find({ adminUser: ceoId }).select("_id");
-    const companyIds = companies.map((c) => c._id);
-
-    // Get interviews pending CEO approval
-    const interviews = await Interview.find({
-      companyId: { $in: companyIds },
-      "finalReport.status": "submitted",
-    })
-      .populate("studentId", "fullname email profile.profilePhoto")
-      .populate("jobId", "title")
-      .populate("recruiterId", "fullname")
-      .sort({ "finalReport.generatedAt": -1 });
-
-    const reports = interviews.map((interview) => ({
-      interviewId: interview._id,
-      candidate: {
-        name: interview.studentId.fullname,
-        email: interview.studentId.email,
-        photo: interview.studentId.profile?.profilePhoto,
-      },
-      job: interview.jobId.title,
-      recruiter: interview.recruiterId.fullname,
-      report: {
-        overallScore: interview.finalReport.overallScore,
-        recommendation: interview.finalReport.aiRecommendation,
-        summary: interview.finalReport.aiSummary,
-        strengths: interview.finalReport.strengths,
-        concerns: interview.finalReport.weaknesses,
-        hiringRisk: interview.finalReport.hiringRisk,
-        generatedAt: interview.finalReport.generatedAt,
-      },
-      scores: {
-        technical: interview.finalReport.technicalScore,
-        communication: interview.finalReport.communicationScore,
-        cultureFit: interview.finalReport.cultureFitScore,
-        mcq: interview.mcqTest?.score,
-      },
-    }));
-
-    return res.status(200).json({
-      success: true,
-      count: reports.length,
-      reports,
-    });
+    const company = await ownedCompany(req.id);
+    if (!company) return res.status(200).json({ success: true, count: 0, reports: [] });
+    // Everything awaiting the owner, report-backed or passed directly
+    const reports = await listPendingDecisions(company._id);
+    return res.status(200).json({ success: true, count: reports.length, reports });
   } catch (error) {
     console.error("Get pending reports error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error fetching pending reports",
-    });
-  }
-};
-
-// Submit final report
-export const submitReport = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      technicalScore,
-      communicationScore,
-      problemSolvingScore,
-      cultureFitScore,
-      recommendation,
-      strengths,
-      weaknesses,
-      notes,
-    } = req.body;
-    const recruiterId = req.id;
-
-    const interview = await Interview.findById(id);
-
-    if (!interview || interview.recruiterId.toString() !== recruiterId) {
-      return res.status(404).json({
-        success: false,
-        message: "Interview not found",
-      });
-    }
-
-    interview.finalReport = {
-      ...interview.finalReport,
-      status: "submitted",
-      generatedBy: recruiterId,
-      generatedAt: new Date(),
-      technicalScore,
-      communicationScore,
-      problemSolvingScore,
-      cultureFitScore,
-      overallScore: Math.round(
-        (technicalScore +
-          communicationScore +
-          problemSolvingScore +
-          cultureFitScore) /
-        4,
-      ),
-      recommendation,
-      strengths,
-      weaknesses,
-      notes,
-    };
-
-    interview.status = "completed";
-    await interview.save();
-
-    // Update application
-    const application = await Application.findById(interview.applicationId);
-    if (application) {
-      application.status = "offer_pending";
-      await application.save();
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Report submitted",
-      report: interview.finalReport,
-    });
-  } catch (error) {
-    console.error("Submit report error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error submitting report",
-    });
+    return res.status(500).json({ success: false, message: "Error fetching pending reports" });
   }
 };
 
@@ -1527,6 +1393,11 @@ export const createOfferLetter = async (req, res) => {
         success: false,
         message: "Interview not found",
       });
+    }
+
+    // Only the interview's recruiter or their company may act on it (S18)
+    if (!(await recruiterCanManageInterview(interview, req))) {
+      return forbidden(res);
     }
 
     interview.offerLetter = {
@@ -1750,6 +1621,11 @@ export const cancelInterview = async (req, res) => {
       });
     }
 
+    // Only the interview's recruiter or their company may act on it (S18)
+    if (!(await recruiterCanManageInterview(interview, req))) {
+      return forbidden(res);
+    }
+
     interview.status = "cancelled";
     interview.cancellation = {
       cancelledBy: userId,
@@ -1794,6 +1670,11 @@ export const rescheduleInterview = async (req, res) => {
         success: false,
         message: "Interview not found",
       });
+    }
+
+    // Only the interview's recruiter or their company may act on it (S18)
+    if (!(await recruiterCanManageInterview(interview, req))) {
+      return forbidden(res);
     }
 
     const oldDate = interview.scheduledAt;

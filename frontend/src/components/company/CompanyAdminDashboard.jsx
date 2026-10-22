@@ -29,10 +29,7 @@ import {
   Trash2,
   Edit2,
   Upload,
-  UserCheck,
   FileText,
-  ThumbsUp,
-  ThumbsDown,
   Terminal,
   Activity,
 } from "lucide-react";
@@ -71,6 +68,8 @@ import axios from "axios";
 import { COMPANY_API_END_POINT } from "@/utils/constant";
 import Navbar from "../shared/Navbar";
 import { WriteReviewButton } from "../shared/AddReviewModal";
+import DecisionQueue from "./DecisionQueue";
+import RecruiterPerformance from "./RecruiterPerformance";
 
 // Industrial Live Status Indicator
 const LiveIndicator = () => (
@@ -139,7 +138,6 @@ const CompanyAdminDashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const [dashboardData, setDashboardData] = useState(null);
   const [recruiters, setRecruiters] = useState([]);
-  const [pendingApprovals, setPendingApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -148,8 +146,6 @@ const CompanyAdminDashboard = () => {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [companyProfile, setCompanyProfile] = useState({});
   const [updatingProfile, setUpdatingProfile] = useState(false);
-  const [approvalNotes, setApprovalNotes] = useState("");
-  const [processingApproval, setProcessingApproval] = useState(null);
   const [registrationIncomplete, setRegistrationIncomplete] = useState(false);
 
   // Security guard: Check if company_admin has completed registration
@@ -194,14 +190,12 @@ const CompanyAdminDashboard = () => {
     if (!registrationIncomplete && user?.companyId) {
       fetchDashboardData();
       fetchRecruiters();
-      fetchPendingApprovals();
     } else if (!user?.companyId && user?.role === "company_admin") {
       // Don't fetch, will redirect
       setLoading(false);
     } else {
       fetchDashboardData();
       fetchRecruiters();
-      fetchPendingApprovals();
     }
   }, [registrationIncomplete, user]);
 
@@ -231,45 +225,6 @@ const CompanyAdminDashboard = () => {
       }
     } catch (error) {
       console.error("Recruiters fetch error:", error);
-    }
-  };
-
-  const fetchPendingApprovals = async () => {
-    try {
-      const response = await axios.get(
-        `${COMPANY_API_END_POINT}/pending-approvals`,
-        {
-          withCredentials: true,
-        },
-      );
-      if (response.data.success) {
-        setPendingApprovals(response.data.pendingApprovals);
-      }
-    } catch (error) {
-      console.error("Pending approvals fetch error:", error);
-    }
-  };
-
-  const handleApproval = async (applicationId, decision) => {
-    setProcessingApproval(applicationId);
-    try {
-      const response = await axios.post(
-        `${COMPANY_API_END_POINT}/candidates/${applicationId}/approve`,
-        { decision, notes: approvalNotes },
-        { withCredentials: true },
-      );
-      if (response.data.success) {
-        toast.success(response.data.message);
-        setApprovalNotes("");
-        fetchPendingApprovals();
-        fetchDashboardData();
-      }
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to process approval",
-      );
-    } finally {
-      setProcessingApproval(null);
     }
   };
 
@@ -807,129 +762,12 @@ const CompanyAdminDashboard = () => {
           </motion.div>
         </div>
 
-        {/* Pending Approvals - CEO Exclusive */}
-        {pendingApprovals.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-8 relative p-6 bg-[#111111] border border-orange-500/30 rounded-sm"
-          >
-            {/* Corner accents */}
-            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-orange-500/30" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-orange-500/30" />
-
-            <div className="flex items-center gap-3 mb-6">
-              <UserCheck className="w-5 h-5 text-orange-500" />
-              <h3 className="text-lg font-bold text-white">
-                Pending Approvals
-              </h3>
-              <Badge className="bg-orange-500 text-black text-xs font-bold rounded-sm px-2">
-                {pendingApprovals.length}
-              </Badge>
-            </div>
-            <p className="text-gray-500 text-sm mb-6">
-              Candidates passed by recruiters for your final decision
-            </p>
-
-            <div className="space-y-4">
-              {pendingApprovals.map((application) => (
-                <div
-                  key={application._id}
-                  className="p-4 bg-white/5 rounded-sm border border-white/5"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="w-12 h-12 rounded-sm">
-                        <AvatarImage
-                          src={application.applicant?.profile?.profilePhoto}
-                        />
-                        <AvatarFallback className="bg-orange-500/10 text-orange-400 rounded-sm font-bold">
-                          {application.applicant?.fullname?.[0]?.toUpperCase() ||
-                            "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-white font-semibold">
-                          {application.applicant?.fullname}
-                        </p>
-                        <p className="text-sm text-gray-500 font-mono">
-                          {application.applicant?.email}
-                        </p>
-                        <Badge className="mt-1 rounded-sm text-[10px] border-cyan-500/30 text-cyan-400 bg-cyan-500/10">
-                          {application.job?.title}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-600 font-mono">
-                        Passed by
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {application.recruiterReview?.reviewedBy?.fullname ||
-                          "Recruiter"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {application.recruiterReview?.notes && (
-                    <div className="mt-3 p-3 bg-white/5 rounded-sm border border-white/5">
-                      <p className="text-xs text-gray-600 mb-1 font-mono uppercase tracking-wider">
-                        Recruiter Notes:
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {application.recruiterReview.notes}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="mt-4 flex items-center gap-3">
-                    <Input
-                      placeholder="Add notes (optional)"
-                      value={approvalNotes}
-                      onChange={(e) => setApprovalNotes(e.target.value)}
-                      className="flex-1 bg-white/5 border-white/10 text-white rounded-sm font-mono text-sm"
-                    />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        navigate(`/ceo/reports/${application.interviewId}`)
-                      }
-                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 rounded-sm text-xs uppercase tracking-wider"
-                    >
-                      <FileText className="w-4 h-4 mr-1" />
-                      View Report
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() =>
-                        handleApproval(application._id, "approved")
-                      }
-                      disabled={processingApproval === application._id}
-                      className="bg-[#00FF94] hover:bg-[#00FF94]/80 text-black rounded-sm font-bold text-xs uppercase tracking-wider"
-                    >
-                      <ThumbsUp className="w-4 h-4 mr-1" />
-                      Hire
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        handleApproval(application._id, "rejected")
-                      }
-                      disabled={processingApproval === application._id}
-                      className="border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-sm text-xs uppercase tracking-wider"
-                    >
-                      <ThumbsDown className="w-4 h-4 mr-1" />
-                      Reject
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        {/* Final hiring decisions: interview reports and directly passed
+            candidates in one queue (replaces the separate CEO dashboard) */}
+        <div className="mt-8 space-y-8">
+          <DecisionQueue onDecided={fetchDashboardData} />
+          <RecruiterPerformance />
+        </div>
 
         {/* Quick Actions */}
         <motion.div

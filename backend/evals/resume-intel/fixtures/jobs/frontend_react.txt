@@ -1,0 +1,15 @@
+Title: Frontend Engineer (React)
+
+Join our product team building a customer-facing web app.
+
+Requirements:
+- 2+ years building production web apps
+- React and modern JavaScript; TypeScript preferred
+- Solid HTML, CSS and responsive design
+- Experience consuming REST APIs
+- Unit or end-to-end testing (Jest, Cypress or Playwright)
+
+Nice to have:
+- Next.js
+- Tailwind CSS
+- Web performance optimisation

@@ -26,7 +26,9 @@ import {
   ChevronLeft,
   Loader2,
 } from "lucide-react";
-import axios from "axios";
+import api from "@/utils/api";
+import StructuredReport from "../interview/report/StructuredReport";
+import OfferLetterModal from "./OfferLetterModal";
 import { useSelector } from "react-redux";
 
 const CEOReportReview = () => {
@@ -37,6 +39,13 @@ const CEOReportReview = () => {
   const [decisionLoading, setDecisionLoading] = useState(false);
   const [ceoNotes, setCeoNotes] = useState("");
   const [decision, setDecision] = useState(null); // 'approved', 'rejected', 'on_hold'
+  // The offer letter modal was rendered but never declared, so this page
+  // crashed on load; it now opens after approval
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const handleOfferSent = () => {
+    setShowOfferModal(false);
+    toast.success("Offer letter sent");
+  };
 
   useEffect(() => {
     fetchReport();
@@ -45,12 +54,7 @@ const CEOReportReview = () => {
   const fetchReport = async () => {
     try {
       // Re-using getInterview endpoint as it populates everything
-      const res = await axios.get(
-        `http://localhost:8000/api/v1/interview/${id}`,
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await api.get(`/interview/${id}`);
       if (res.data.success) {
         setReport(res.data.interview);
       }
@@ -66,29 +70,20 @@ const CEOReportReview = () => {
   const handleDecision = async (status) => {
     setDecisionLoading(true);
     try {
-      const res = await axios.post(
-        `http://localhost:8000/api/v1/interview/${id}/ceo/decision`,
-        {
-          decision: status,
-          comments: ceoNotes,
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await api.post(`/interview/${id}/ceo/decision`, {
+        decision: status,
+        comments: ceoNotes,
+      });
 
       if (res.data.success) {
         toast.success(
           `Candidate ${status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : "put on Hold"}`,
         );
         setDecision(status);
-        setTimeout(() => {
-          navigate("/company/admin/dashboard");
-        }, 2000);
+        if (status === "approved") setShowOfferModal(true);
       }
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to submit decision");
+      toast.error(error.response?.data?.message || "Failed to submit decision");
     } finally {
       setDecisionLoading(false);
     }
@@ -184,7 +179,8 @@ const CEOReportReview = () => {
                           : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
-                    AI: {finalReport.aiRecommendation?.replace(/_/g, " ")}
+                    {finalReport.structured ? "" : "AI: "}
+                    {finalReport.aiRecommendation?.replace(/_/g, " ")}
                   </Badge>
                 </div>
               </CardContent>
@@ -194,9 +190,22 @@ const CEOReportReview = () => {
             <Card className="border-t-4 border-t-primary">
               <CardHeader>
                 <CardTitle>Final Decision</CardTitle>
-                <CardDescription>Review and take action</CardDescription>
+                <CardDescription>
+                  {finalReport.status === "submitted"
+                    ? finalReport.adminDecision?.decision === "on_hold"
+                      ? "On hold. Decide when you're ready."
+                      : "Review and take action"
+                    : finalReport.status === "approved" || finalReport.status === "rejected"
+                      ? `Decided: ${finalReport.status}`
+                      : "The recruiter hasn't sent this report yet"}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {(decision === "approved" || finalReport.status === "approved") && (
+                  <Button className="w-full" onClick={() => setShowOfferModal(true)}>
+                    Prepare offer letter
+                  </Button>
+                )}
                 <Textarea
                   placeholder="Add notes for the recruiter (optional)..."
                   value={ceoNotes}
@@ -207,7 +216,7 @@ const CEOReportReview = () => {
                   <Button
                     className="w-full bg-green-600 hover:bg-green-700 h-10"
                     onClick={() => handleDecision("approved")}
-                    disabled={decisionLoading || decision}
+                    disabled={decisionLoading || decision || finalReport.status !== "submitted"}
                   >
                     <CheckCircle className="mr-2 h-4 w-4" /> Approve Candidate
                   </Button>
@@ -216,14 +225,14 @@ const CEOReportReview = () => {
                       variant="outline"
                       className="border-yellow-500 text-yellow-600 hover:bg-yellow-50"
                       onClick={() => handleDecision("on_hold")}
-                      disabled={decisionLoading || decision}
+                      disabled={decisionLoading || decision || finalReport.status !== "submitted"}
                     >
                       <Clock className="mr-2 h-4 w-4" /> Hold
                     </Button>
                     <Button
                       variant="destructive"
                       onClick={() => handleDecision("rejected")}
-                      disabled={decisionLoading || decision}
+                      disabled={decisionLoading || decision || finalReport.status !== "submitted"}
                     >
                       <XCircle className="mr-2 h-4 w-4" /> Reject
                     </Button>
@@ -235,6 +244,10 @@ const CEOReportReview = () => {
 
           {/* Right Panel: Detailed Report */}
           <div className="lg:col-span-2 space-y-6">
+            {finalReport.structured ? (
+              <StructuredReport report={finalReport.structured} variant="light" interviewId={id} />
+            ) : (
+            <>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -370,6 +383,8 @@ const CEOReportReview = () => {
                 )}
               </CardContent>
             </Card>
+            </>
+            )}
           </div>
         </div>
       </div>

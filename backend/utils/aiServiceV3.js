@@ -4,8 +4,10 @@
  *
  * PROVIDERS (in priority order):
  * 1. OpenAI GPT (via ChatAnywhere) - gpt-4o-mini (fastest), deepseek-r1 (reasoning)
- * 2. Groq - llama-3.3-70b (ultra-fast inference), mixtral-8x7b (code)
- * 3. Google Gemini - gemini-1.5-flash (reliable fallback)
+ * 2. Groq - gpt-oss-120b (reasoning), gpt-oss-20b (fast)
+ * 3. Google Gemini - gemini-3.5-flash-lite (reliable fallback)
+ *
+ * Groq/Gemini model IDs come from config/aiModels.js
  *
  * FEATURES:
  * - Auto-failover between providers
@@ -22,6 +24,16 @@
 // ═══════════════════════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════
+
+import {
+  GROQ_MODELS,
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+  groqModelParams,
+} from "../config/aiModels.js";
+import ai from "../platform/ai-gateway/index.js";
 
 // API Endpoints
 const API_ENDPOINTS = {
@@ -54,13 +66,12 @@ export const AI_MODELS = {
   DEEPSEEK_R1: "deepseek-r1", // 🧠 Chain-of-thought reasoning for complex analysis
 
   // ── Groq Models (Ultra-fast inference) ──
-  GROQ_LLAMA_70B: "llama-3.3-70b-versatile", // 🚀 Super fast, great quality
-  GROQ_MIXTRAL: "mixtral-8x7b-32768", // 💻 Excellent for code generation
-  GROQ_LLAMA_8B: "llama-3.1-8b-instant", // ⚡ Instant responses
+  GROQ_REASONING: GROQ_MODELS.REASONING, // 🚀 Best quality on Groq
+  GROQ_FAST: GROQ_MODELS.FAST, // ⚡ Fast responses
 
   // ── Gemini Models (Google) ──
-  GEMINI_FLASH: "gemini-1.5-flash", // 🌟 Fast, reliable fallback
-  GEMINI_PRO: "gemini-1.5-pro", // 📊 More capable for complex tasks
+  GEMINI_FLASH: GEMINI_MODELS.FLASH, // 🌟 Fast, reliable fallback
+  GEMINI_PRO: GEMINI_MODELS.PRO, // 📊 More capable for complex tasks
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -72,11 +83,11 @@ export const FEATURE_MODELS = {
   // Real-time features (need speed)
   LIVE_INTERVIEW: {
     primary: AI_MODELS.GPT4O_MINI,
-    fallback: AI_MODELS.GROQ_LLAMA_8B,
+    fallback: AI_MODELS.GROQ_FAST,
     final: AI_MODELS.GEMINI_FLASH,
   },
   FRAUD_DETECTION: {
-    primary: AI_MODELS.GROQ_LLAMA_8B, // Instant risk assessment
+    primary: AI_MODELS.GROQ_FAST, // Instant risk assessment
     fallback: AI_MODELS.GPT4O_MINI,
     final: AI_MODELS.GEMINI_FLASH,
   },
@@ -84,21 +95,21 @@ export const FEATURE_MODELS = {
   // Generation features (need accuracy)
   MCQ_GENERATION: {
     primary: AI_MODELS.GPT4O_MINI,
-    fallback: AI_MODELS.GROQ_LLAMA_70B,
+    fallback: AI_MODELS.GROQ_REASONING,
     final: AI_MODELS.GEMINI_FLASH,
   },
   RESUME_ANALYSIS: {
     primary: AI_MODELS.GPT4O_MINI,
-    fallback: AI_MODELS.GROQ_LLAMA_70B,
+    fallback: AI_MODELS.GROQ_REASONING,
     final: AI_MODELS.GEMINI_PRO,
   },
   JOB_MATCHING: {
     primary: AI_MODELS.GPT4O_MINI,
-    fallback: AI_MODELS.GROQ_MIXTRAL,
+    fallback: AI_MODELS.GROQ_FAST,
     final: AI_MODELS.GEMINI_FLASH,
   },
   APPLICANT_RANKING: {
-    primary: AI_MODELS.GROQ_LLAMA_70B,
+    primary: AI_MODELS.GROQ_REASONING,
     fallback: AI_MODELS.GPT4O_MINI,
     final: AI_MODELS.GEMINI_FLASH,
   },
@@ -107,11 +118,11 @@ export const FEATURE_MODELS = {
   CEO_REPORTS: {
     primary: AI_MODELS.DEEPSEEK_R1, // Chain-of-thought reasoning
     fallback: AI_MODELS.GEMINI_PRO,
-    final: AI_MODELS.GROQ_LLAMA_70B,
+    final: AI_MODELS.GROQ_REASONING,
   },
   RECOMMENDATION: {
     primary: AI_MODELS.GPT4O_MINI,
-    fallback: AI_MODELS.GROQ_LLAMA_70B,
+    fallback: AI_MODELS.GROQ_REASONING,
     final: AI_MODELS.GEMINI_FLASH,
   },
 };
@@ -133,11 +144,7 @@ const PROVIDERS = {
     name: "Groq",
     url: API_ENDPOINTS.GROQ,
     getKey: () => getAPIKey("GROQ"),
-    models: [
-      AI_MODELS.GROQ_LLAMA_70B,
-      AI_MODELS.GROQ_MIXTRAL,
-      AI_MODELS.GROQ_LLAMA_8B,
-    ],
+    models: [AI_MODELS.GROQ_REASONING, AI_MODELS.GROQ_FAST],
     format: "openai",
     supportsJSON: true,
   },
@@ -316,6 +323,25 @@ export const callAI = async (messages, options = {}) => {
           temperature,
           maxTokens,
         );
+      } else if (providerKey === "GROQ") {
+        // Groq goes through the AI gateway for rate limiting + telemetry
+        const gatewayResult = await ai.run({
+          task: `legacy.${feature || "callAI"}`,
+          messages: messageArray.map(({ role, content }) => ({
+            role,
+            content,
+          })),
+          models: [{ provider: "groq", model: modelToUse }],
+          maxOutputTokens: maxTokens,
+          temperature,
+          json: responseFormat === "json",
+        });
+        result = {
+          content: gatewayResult.content,
+          tokens:
+            (gatewayResult.usage?.inputTokens ?? 0) +
+            (gatewayResult.usage?.outputTokens ?? 0),
+        };
       } else {
         result = await callOpenAIFormat(
           provider.url,
@@ -374,13 +400,7 @@ export const callAI = async (messages, options = {}) => {
 function getProviderForModel(model) {
   if ([AI_MODELS.GPT4O_MINI, AI_MODELS.DEEPSEEK_R1].includes(model))
     return "GPT";
-  if (
-    [
-      AI_MODELS.GROQ_LLAMA_70B,
-      AI_MODELS.GROQ_MIXTRAL,
-      AI_MODELS.GROQ_LLAMA_8B,
-    ].includes(model)
-  )
+  if ([AI_MODELS.GROQ_REASONING, AI_MODELS.GROQ_FAST].includes(model))
     return "GROQ";
   if ([AI_MODELS.GEMINI_FLASH, AI_MODELS.GEMINI_PRO].includes(model))
     return "GEMINI";
@@ -424,6 +444,7 @@ async function callOpenAIFormat(
     messages,
     temperature,
     max_tokens: maxTokens,
+    ...groqModelParams(model),
   };
 
   // Only add response_format if supported and requested
@@ -447,7 +468,10 @@ async function callOpenAIFormat(
   }
 
   const content = data.choices?.[0]?.message?.content;
-  const reasoning = data.choices?.[0]?.message?.reasoning_content;
+  // ChatAnywhere returns reasoning_content; Groq gpt-oss returns reasoning
+  const reasoning =
+    data.choices?.[0]?.message?.reasoning_content ||
+    data.choices?.[0]?.message?.reasoning;
 
   if (!content) {
     throw new Error("No content in response");
@@ -464,23 +488,20 @@ async function callOpenAIFormat(
  * Call Gemini API
  */
 async function callGemini(messages, model, temperature, maxTokens) {
-  const apiKey = getAPIKey("GEMINI");
   const prompt = messages.map((m) => `${m.role}: ${m.content}`).join("\n");
 
-  const response = await fetch(
-    `${API_ENDPOINTS.GEMINI}/${model}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature,
-          maxOutputTokens: maxTokens,
-        },
-      }),
-    },
-  );
+  const response = await fetch(geminiGenerateUrl(model), {
+    method: "POST",
+    headers: geminiHeaders(),
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature,
+        maxOutputTokens: maxTokens,
+        thinkingConfig: geminiThinkingConfig(model),
+      },
+    }),
+  });
 
   const data = await response.json();
 

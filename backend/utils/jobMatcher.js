@@ -36,7 +36,7 @@ export async function calculateJobMatch(student, job, options = {}) {
       experience: student.profile?.experience || [],
       education: student.profile?.education || [],
       bio: student.profile?.bio || "",
-      location: student.profile?.location || "",
+      location: locationText(student.profile?.location),
       resumeText: buildCandidateText(student),
       preferences: {
         locations: student.jobPreferences?.locations || [],
@@ -220,7 +220,7 @@ function calculateQuickMatch(student, job) {
   score += breakdown.education;
 
   const jobLocation = (job.location || "").toLowerCase();
-  const studentLocation = (student.location || "").toLowerCase();
+  const studentLocation = locationText(student.location).toLowerCase();
   const jobRemote =
     job.isRemote ||
     jobLocation.includes("remote") ||
@@ -419,6 +419,10 @@ function getRating(score) {
  * @param {Object} options - Filter options
  * @returns {Array} Matched jobs with scores
  */
+/** Profile location is stored as { city, country } now, and as plain text on older profiles. */
+export const locationText = (loc) =>
+  typeof loc === "string" ? loc : loc && typeof loc === "object" ? [loc.city, loc.country].filter(Boolean).join(", ") : "";
+
 export async function getMatchedJobsForStudent(studentId, options = {}) {
   try {
     const student = await User.findById(studentId).lean();
@@ -428,7 +432,10 @@ export async function getMatchedJobsForStudent(studentId, options = {}) {
 
     const desiredLimit = options.limit || 50;
 
-    const baseQuery = { isActive: true };
+    // Jobs the candidate already applied to aren't suggestions
+    const { Application } = await import("../models/application.model.js");
+    const appliedJobIds = await Application.distinct("job", { applicant: studentId });
+    const baseQuery = { isActive: true, _id: { $nin: appliedJobIds } };
     const preferredQuery = { ...baseQuery };
 
     if (!options.location) {
@@ -480,7 +487,7 @@ export async function getMatchedJobsForStudent(studentId, options = {}) {
     if (jobs.length < desiredLimit) {
       const additionalJobs = await Job.find({
         ...baseQuery,
-        _id: { $nin: jobs.map((j) => j._id) },
+        _id: { $nin: [...appliedJobIds, ...jobs.map((j) => j._id)] },
       })
         .populate("company", "name logo")
         .sort({ createdAt: -1 })

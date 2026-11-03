@@ -390,6 +390,27 @@ export const getInterviewsByStudent = async (req, res) => {
 };
 
 // Get interviews for recruiter
+/** Every interview of the user's company (owners see the whole company; recruiters too). */
+export const getCompanyInterviews = async (req, res) => {
+  try {
+    const user = await User.findById(req.id).select("role companyId").lean();
+    const company = user.role === "company_admin" ? await Company.findOne({ adminUser: req.id }).select("_id").lean() : null;
+    const companyId = company?._id ?? user.companyId;
+    if (!companyId) return res.status(200).json({ success: true, interviews: [], total: 0 });
+    const interviews = await Interview.find({ companyId })
+      .select("jobId studentId recruiterId scheduledAt status videoInterview.status finalReport.status")
+      .populate("jobId", "title")
+      .populate("studentId", "fullname email")
+      .populate("recruiterId", "fullname")
+      .sort({ scheduledAt: -1 })
+      .lean();
+    return res.status(200).json({ success: true, interviews, total: interviews.length });
+  } catch (error) {
+    console.error("Get company interviews error:", error);
+    return res.status(500).json({ success: false, message: "Error fetching interviews" });
+  }
+};
+
 export const getInterviewsByRecruiter = async (req, res) => {
   try {
     const recruiterId = req.id;
@@ -1626,6 +1647,10 @@ export const cancelInterview = async (req, res) => {
       return forbidden(res);
     }
 
+    if (FINISHED_INTERVIEW(interview)) {
+      return res.status(409).json({ success: false, message: "This interview has already taken place or been cancelled" });
+    }
+
     interview.status = "cancelled";
     interview.cancellation = {
       cancelledBy: userId,
@@ -1658,6 +1683,11 @@ export const cancelInterview = async (req, res) => {
 };
 
 // Reschedule interview
+const FINISHED_INTERVIEW = (i) =>
+  ["cancelled", "no_show", "completed", "pending_ceo_approval", "approved", "rejected"].includes(i.status) ||
+  i.videoInterview?.status === "completed" ||
+  ["submitted", "approved", "rejected"].includes(i.finalReport?.status);
+
 export const rescheduleInterview = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1677,12 +1707,21 @@ export const rescheduleInterview = async (req, res) => {
       return forbidden(res);
     }
 
+    // A real, future time, on an interview that hasn't happened or been called off
+    const when = new Date(newDateTime);
+    if (!newDateTime || Number.isNaN(when.getTime()) || when <= new Date()) {
+      return res.status(400).json({ success: false, message: "Pick a new time in the future" });
+    }
+    if (FINISHED_INTERVIEW(interview)) {
+      return res.status(409).json({ success: false, message: "This interview has already taken place or been cancelled" });
+    }
+
     const oldDate = interview.scheduledAt;
     interview.scheduledAt = new Date(newDateTime);
     interview.videoInterview.scheduledAt = new Date(newDateTime);
 
     interview.notes.push({
-      content: `Rescheduled from ${oldDate.toLocaleString()} to ${new Date(newDateTime).toLocaleString()}. Reason: ${reason}`,
+      content: `Rescheduled from ${oldDate.toLocaleString()} to ${new Date(newDateTime).toLocaleString()}. Reason: ${reason || "none given"}`,
       createdBy: req.id,
       createdAt: new Date(),
     });

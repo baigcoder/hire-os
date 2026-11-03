@@ -51,6 +51,7 @@ import discoverRoute from "./routes/discover.route.js";
 import integrityRoute from "./routes/integrity.route.js";
 import realtimeRoute from "./routes/realtime.route.js";
 import copilotRoute from "./routes/copilot.route.js";
+import overviewRoute from "./routes/overview.route.js";
 import isAuthenticated, {
   rateLimiter,
   isSuperAdmin,
@@ -363,6 +364,7 @@ app.use("/api/v1/discover", discoverRoute); // Semantic job & talent search
 app.use("/api/v1/integrity", integrityRoute); // Live-interview integrity monitoring
 app.use("/api/v1/realtime", realtimeRoute); // Private realtime channels + TURN call config
 app.use("/api/v1/copilot", copilotRoute); // Interview transcripts, scorecards, live copilot
+app.use("/api/v1/overview", overviewRoute); // Role-aware dashboard overview
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {

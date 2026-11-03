@@ -314,8 +314,6 @@ export const registerCompany = async (req, res) => {
         console.log("✅ Recruiter user created:", {
           id: recruiterUser._id,
           email: recruiterUser.email,
-          hasPassword: !!recruiterUser.password,
-          passwordLength: recruiterUser.password?.length,
         });
 
         // Add to company recruiters list

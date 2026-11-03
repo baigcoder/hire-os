@@ -5,6 +5,7 @@ import {
   getInterviewsByJob,
   getInterviewsByStudent,
   getInterviewsByRecruiter,
+  getCompanyInterviews,
   updateInterviewStatus,
 
   // MCQ Test
@@ -55,6 +56,7 @@ router.get("/:id", getInterview);
 router.get("/job/:jobId", isRecruiter, getInterviewsByJob);
 router.get("/student/my-interviews", getInterviewsByStudent);
 router.get("/recruiter/my-interviews", isRecruiter, getInterviewsByRecruiter);
+router.get("/company/all", isRecruiter, getCompanyInterviews);
 router.put("/:id/status", isRecruiter, updateInterviewStatus);
 router.put("/:id/reschedule", isRecruiter, rescheduleInterview);
 router.put("/:id/cancel", isRecruiter, cancelInterview);

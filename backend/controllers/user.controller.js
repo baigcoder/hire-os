@@ -223,9 +223,6 @@ export const login = async (req, res) => {
           id: user._id,
           email: user.email,
           role: user.role,
-          hasPassword: !!user.password,
-          passwordLength: user.password?.length,
-          passwordHash: user.password?.substring(0, 20) + "...",
         }
         : "NOT FOUND",
     );

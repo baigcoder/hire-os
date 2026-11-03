@@ -9,6 +9,9 @@ import {
 } from "../utils/applicantRanker.js";
 import { canManageJob, APPLICANT_PUBLIC_FIELDS } from "../utils/jobAccess.js";
 import { enqueueScreeningSafely } from "../modules/screening/enqueue.js";
+import { Interview } from "../models/interview.model.js";
+import { ApplicantScreening } from "../models/applicantScreening.model.js";
+import { stageOf } from "../modules/overview/overview.js";
 
 export const applyJob = async (req, res) => {
   try {
@@ -153,14 +156,7 @@ export const getAppliedJobs = async (req, res) => {
 export const getApplicants = async (req, res) => {
   try {
     const jobId = req.params.id;
-    const job = await Job.findById(jobId).populate({
-      path: "applications",
-      options: { sort: { createdAt: -1 } },
-      populate: {
-        path: "applicant",
-        select: APPLICANT_PUBLIC_FIELDS,
-      },
-    });
+    const job = await Job.findById(jobId).lean();
     if (!job) {
       return res.status(404).json({
         message: "Job not found.",
@@ -173,8 +169,28 @@ export const getApplicants = async (req, res) => {
         success: false,
       });
     }
+    // The applications themselves, not the job's own list of ids, which can drift
+    const applications = await Application.find({ job: job._id })
+      .populate("applicant", APPLICANT_PUBLIC_FIELDS)
+      .sort({ createdAt: -1 })
+      .lean();
+    const ids = applications.map((a) => a._id);
+    const [interviews, screenings] = await Promise.all([
+      Interview.find({ applicationId: { $in: ids } }).select("applicationId").lean(),
+      ApplicantScreening.find({ applicationId: { $in: ids }, status: "completed" }).select("applicationId score.overall score.band").lean(),
+    ]);
+    const interviewOf = new Map(interviews.map((i) => [String(i.applicationId), String(i._id)]));
+    const screeningOf = new Map(screenings.map((x) => [String(x.applicationId), x.score]));
     return res.status(200).json({
-      job,
+      job: {
+        ...job,
+        applications: applications.map((a) => ({
+          ...a,
+          stage: stageOf(a.status),
+          interviewId: interviewOf.get(String(a._id)) ?? (a.interviewId ? String(a.interviewId) : null),
+          screening: screeningOf.get(String(a._id)) ?? null,
+        })),
+      },
       success: true,
     });
   } catch (error) {
@@ -185,14 +201,22 @@ export const getApplicants = async (req, res) => {
     });
   }
 };
+const MANUAL_STATUSES = ["pending", "under_review", "shortlisted", "interview", "rejected"];
+const LOCKED_STATUSES = ["pending_ceo_approval", "offer_pending", "offer_sent", "offer_accepted", "offer_rejected", "hired", "withdrawn"];
+
 export const updateStatus = async (req, res) => {
   try {
-    const { status, interviewDate, interviewDetails } = req.body;
+    const { interviewDate, interviewDetails } = req.body;
     const applicationId = req.params.id;
 
-    if (!status) {
+    // The statuses a recruiter sets by hand. Later stages (owner, offer,
+    // hired) only move through the interview report and the owner's decision.
+    // "accepted" is what older screens sent; it means shortlisted.
+    const requested = String(req.body.status ?? "").trim().toLowerCase();
+    const status = requested === "accepted" ? "shortlisted" : requested;
+    if (!MANUAL_STATUSES.includes(status)) {
       return res.status(400).json({
-        message: "Status is required",
+        message: `Status must be one of: ${MANUAL_STATUSES.join(", ")}`,
         success: false,
       });
     }
@@ -223,7 +247,15 @@ export const updateStatus = async (req, res) => {
       });
     }
 
+    if (LOCKED_STATUSES.includes(application.status)) {
+      return res.status(409).json({
+        message: "This candidate is with the owner or further along; their status changes through the owner's decision",
+        success: false,
+      });
+    }
+
     application.status = status;
+    application.statusHistory.push({ status, changedBy: req.id, changedAt: new Date(), notes: "Updated by the recruiter" });
 
     // If status is "interview", add interview details
     if (status === "interview" && interviewDate) {
@@ -243,7 +275,7 @@ export const updateStatus = async (req, res) => {
     await application.save();
 
     return res.status(200).json({
-      message: `Application ${status === "accepted" ? "accepted" : status === "rejected" ? "rejected" : "updated for interview"}`,
+      message: { shortlisted: "Shortlisted", rejected: "Rejected", interview: "Moved to interview", under_review: "Marked reviewed", pending: "Moved back to new" }[status],
       success: true,
       application,
     });
@@ -631,42 +663,62 @@ export const bulkUpdateStatus = async (req, res) => {
       });
     }
 
-    // Without a job, `{ job: undefined }` would match every application
-    const job = jobId ? await Job.findById(jobId).select("created_by company") : null;
-    if (!job) {
-      return res.status(400).json({
-        message: "A valid jobId is required",
-        success: false,
-      });
-    }
-    if (!canManageJob(recruiter, job)) {
-      return res.status(403).json({
-        message: "You can only update applications for your company's jobs.",
-        success: false,
-      });
-    }
-
-    let query = { job: job._id };
-
-    // If specific IDs provided, use those
-    if (applicationIds && applicationIds.length > 0) {
-      query._id = { $in: applicationIds };
-    }
-
-    const applications = await Application.find(query);
-
-    // Map action to status
+    // Map action to status; an unknown action is an error, not "pending"
     const statusMap = {
+      review: "under_review",
       reject: "rejected",
       interview: "interview",
       shortlist: "shortlisted",
       hold: "pending",
     };
+    const newStatus = statusMap[action];
+    if (!newStatus) {
+      return res.status(400).json({
+        message: `Unknown action. Use one of: ${Object.keys(statusMap).join(", ")}`,
+        success: false,
+      });
+    }
 
-    const newStatus = statusMap[action] || "pending";
+    let applications;
+    if (jobId) {
+      // Without a job, `{ job: undefined }` would match every application
+      const job = await Job.findById(jobId).select("created_by company");
+      if (!job) {
+        return res.status(400).json({ message: "A valid jobId is required", success: false });
+      }
+      if (!canManageJob(recruiter, job)) {
+        return res.status(403).json({
+          message: "You can only update applications for your company's jobs.",
+          success: false,
+        });
+      }
+      const query = { job: job._id };
+      if (applicationIds && applicationIds.length > 0) query._id = { $in: applicationIds };
+      applications = await Application.find(query);
+    } else if (Array.isArray(applicationIds) && applicationIds.length > 0) {
+      // Selected applications across several jobs: every job must be manageable
+      applications = await Application.find({ _id: { $in: applicationIds.slice(0, 500) } }).populate("job", "created_by company");
+      if (applications.some((a) => !a.job || !canManageJob(recruiter, a.job))) {
+        return res.status(403).json({
+          message: "You can only update applications for your company's jobs.",
+          success: false,
+        });
+      }
+    } else {
+      return res.status(400).json({ message: "Pass a jobId or the applicationIds to update", success: false });
+    }
+
+    // Candidates with the owner, at offer or hired move on only through the
+    // owner's decision; a bulk action must not pull them back
+    const LOCKED = ["pending_ceo_approval", "offer_pending", "offer_sent", "offer_accepted", "offer_rejected", "hired", "withdrawn"];
     let updated = 0;
+    let skipped = 0;
 
     for (const app of applications) {
+      if (LOCKED.includes(app.status)) {
+        skipped++;
+        continue;
+      }
       app.status = newStatus;
       app.statusHistory.push({
         status: newStatus,
@@ -680,8 +732,9 @@ export const bulkUpdateStatus = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: `${updated} applications updated to ${newStatus}`,
+      message: `${updated} applications updated to ${newStatus}${skipped ? `; ${skipped} left as they are (with the owner, at offer or hired)` : ""}`,
       updated,
+      skipped,
     });
   } catch (error) {
     console.error("Bulk update error:", error);
@@ -719,14 +772,30 @@ export const getCompanyApplications = async (req, res) => {
     const jobs = await Job.find({ company: user.companyId });
     const jobIds = jobs.map((j) => j._id);
 
-    // Get applications
+    // Only the fields the applicant screens show, never whole user records
     const applications = await Application.find({ job: { $in: jobIds } })
-      .populate("applicant")
-      .populate("job")
-      .sort({ createdAt: -1 });
+      .select("job applicant status resumeUrl resumeScore interviewId recruiterReview.decision createdAt updatedAt")
+      .populate("applicant", "fullname email profile.profilePhoto profile.skills profile.resume")
+      .populate("job", "title location")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Stage from the shared map, the interview if one exists, and the blind screening score
+    const ids = applications.map((a) => a._id);
+    const [interviews, screenings] = await Promise.all([
+      Interview.find({ applicationId: { $in: ids } }).select("applicationId").lean(),
+      ApplicantScreening.find({ applicationId: { $in: ids }, status: "completed" }).select("applicationId score.overall score.band").lean(),
+    ]);
+    const interviewOf = new Map(interviews.map((i) => [String(i.applicationId), String(i._id)]));
+    const screeningOf = new Map(screenings.map((x) => [String(x.applicationId), x.score]));
 
     return res.status(200).json({
-      applications,
+      applications: applications.map((a) => ({
+        ...a,
+        stage: stageOf(a.status),
+        interviewId: interviewOf.get(String(a._id)) ?? (a.interviewId ? String(a.interviewId) : null),
+        screening: screeningOf.get(String(a._id)) ?? null,
+      })),
       success: true,
     });
   } catch (error) {

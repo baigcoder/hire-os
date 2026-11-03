@@ -1,11 +1,15 @@
 import express from "express";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
+import {
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+} from "../config/aiModels.js";
 
 const router = express.Router();
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models";
 
 /**
  * Generate AI content using Gemini
@@ -32,20 +36,18 @@ router.post("/generate", isAuthenticated, async (req, res) => {
       });
     }
 
-    const response = await fetch(
-      `${GEMINI_API_URL}/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: maxTokens,
-          },
-        }),
-      },
-    );
+    const response = await fetch(geminiGenerateUrl(GEMINI_MODELS.FLASH), {
+      method: "POST",
+      headers: geminiHeaders(),
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          thinkingConfig: geminiThinkingConfig(GEMINI_MODELS.FLASH),
+          temperature: 0.7,
+          maxOutputTokens: maxTokens,
+        },
+      }),
+    });
 
     if (!response.ok) {
       console.error("Gemini API error:", response.status);
@@ -72,7 +74,7 @@ router.post("/generate", isAuthenticated, async (req, res) => {
     return res.status(200).json({
       success: true,
       content: content.trim(),
-      model: "gemini-1.5-flash",
+      model: GEMINI_MODELS.FLASH,
     });
   } catch (error) {
     console.error("AI generation error:", error);
@@ -130,21 +132,19 @@ Return ONLY valid JSON, no markdown or explanation.`;
       });
     }
 
-    const response = await fetch(
-      `${GEMINI_API_URL}/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1000,
-            responseMimeType: "application/json",
-          },
-        }),
-      },
-    );
+    const response = await fetch(geminiGenerateUrl(GEMINI_MODELS.FLASH), {
+      method: "POST",
+      headers: geminiHeaders(),
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          thinkingConfig: geminiThinkingConfig(GEMINI_MODELS.FLASH),
+          temperature: 0.7,
+          maxOutputTokens: 1000,
+          responseMimeType: "application/json",
+        },
+      }),
+    });
 
     const data = await response.json();
     const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -154,7 +154,7 @@ Return ONLY valid JSON, no markdown or explanation.`;
       return res.status(200).json({
         success: true,
         suggestions,
-        model: "gemini-1.5-flash",
+        model: GEMINI_MODELS.FLASH,
       });
     }
 

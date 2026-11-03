@@ -5,6 +5,7 @@ import {
   getInterviewsByJob,
   getInterviewsByStudent,
   getInterviewsByRecruiter,
+  getCompanyInterviews,
   updateInterviewStatus,
 
   // MCQ Test
@@ -22,7 +23,6 @@ import {
 
   // Report & Offer
   generateReport,
-  submitReport,
   submitReportToCEO,
   ceoDecision,
   getPendingReportsForCEO,
@@ -56,6 +56,7 @@ router.get("/:id", getInterview);
 router.get("/job/:jobId", isRecruiter, getInterviewsByJob);
 router.get("/student/my-interviews", getInterviewsByStudent);
 router.get("/recruiter/my-interviews", isRecruiter, getInterviewsByRecruiter);
+router.get("/company/all", isRecruiter, getCompanyInterviews);
 router.put("/:id/status", isRecruiter, updateInterviewStatus);
 router.put("/:id/reschedule", isRecruiter, rescheduleInterview);
 router.put("/:id/cancel", isRecruiter, cancelInterview);
@@ -75,7 +76,8 @@ router.post("/:id/video/chat", sendChatMessage);
 
 // ========== Report Routes ==========
 router.post("/:id/report/generate", isRecruiter, generateReport);
-router.post("/:id/report/submit", isRecruiter, submitReport);
+// (POST /:id/report/submit was removed: it set the application to
+// offer_pending without the CEO's approval)
 router.post("/:id/report/send-to-ceo", isRecruiter, submitReportToCEO);
 
 // ========== CEO Review Routes ==========

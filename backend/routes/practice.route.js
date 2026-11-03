@@ -2,6 +2,12 @@ import express from "express";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { User } from "../models/user.model.js";
 import { callAI, parseAIJson } from "../utils/aiServiceV3.js";
+import {
+  GEMINI_MODELS,
+  geminiGenerateUrl,
+  geminiHeaders,
+  geminiThinkingConfig,
+} from "../config/aiModels.js";
 
 const router = express.Router();
 
@@ -54,17 +60,18 @@ async function generateMCQWithAI(prompt, topic) {
   if (GEMINI_API_KEY) {
     try {
       console.log("🔄 [MCQ AI] Trying Gemini fallback...");
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-          }),
-        },
-      );
+      const response = await fetch(geminiGenerateUrl(GEMINI_MODELS.FLASH), {
+        method: "POST",
+        headers: geminiHeaders(),
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
+            thinkingConfig: geminiThinkingConfig(GEMINI_MODELS.FLASH),
+          },
+        }),
+      });
 
       const data = await response.json();
       if (data.candidates?.[0]?.content?.parts?.[0]?.text) {

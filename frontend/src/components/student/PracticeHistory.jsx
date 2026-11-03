@@ -85,9 +85,9 @@ const PracticeHistory = () => {
 
   const getGradeColor = (grade) => {
     if (grade === "A+" || grade === "A")
-      return "text-[#00FF94] bg-[#00FF94]/10 border-[#00FF94]/30";
+      return "text-accent bg-accent/10 border-accent/30";
     if (grade === "B+" || grade === "B")
-      return "text-[#FFD700] bg-[#FFD700]/10 border-[#FFD700]/30";
+      return "text-primary bg-primary/10 border-primary/30";
     if (grade === "C+" || grade === "C")
       return "text-orange-400 bg-orange-400/10 border-orange-400/30";
     return "text-red-400 bg-red-400/10 border-red-400/30";
@@ -120,8 +120,8 @@ const PracticeHistory = () => {
       >
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-sm bg-[#FFD700]/10 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-[#FFD700]" />
+            <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-white">
@@ -148,8 +148,8 @@ const PracticeHistory = () => {
                 setPage(1);
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-medium transition-all ${filter === f.id
-                  ? "bg-[#FFD700] text-black"
-                  : "bg-[#111111] border border-[#2a2a2a] text-gray-400 hover:border-[#FFD700]/30"
+                  ? "bg-primary text-black"
+                  : "bg-card border border-[#2a2a2a] text-gray-400 hover:border-primary/30"
                 }`}
             >
               <f.icon className="w-4 h-4" />
@@ -158,7 +158,7 @@ const PracticeHistory = () => {
           ))}
           <button
             onClick={fetchHistory}
-            className="p-2 rounded-sm bg-[#111111] border border-[#2a2a2a] text-gray-400 hover:border-[#FFD700]/30"
+            className="p-2 rounded-sm bg-card border border-[#2a2a2a] text-gray-400 hover:border-primary/30"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -173,25 +173,25 @@ const PracticeHistory = () => {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4"
         >
-          <div className="bg-[#111111] border border-[#2a2a2a] rounded-sm p-4">
+          <div className="bg-card border border-[#2a2a2a] rounded-sm p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Trophy className="w-4 h-4 text-[#FFD700]" />
+              <Trophy className="w-4 h-4 text-primary" />
               <span className="text-xs text-gray-500 uppercase">
                 Total Sessions
               </span>
             </div>
-            <p className="text-2xl font-bold text-white font-mono">
+            <p className="text-2xl font-bold text-white">
               {(stats.stats?.mock_test?.totalSessions || 0) +
                 (stats.stats?.mock_interview?.totalSessions || 0)}
             </p>
           </div>
 
-          <div className="bg-[#111111] border border-[#2a2a2a] rounded-sm p-4">
+          <div className="bg-card border border-[#2a2a2a] rounded-sm p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-[#00FF94]" />
+              <TrendingUp className="w-4 h-4 text-accent" />
               <span className="text-xs text-gray-500 uppercase">Avg Score</span>
             </div>
-            <p className="text-2xl font-bold text-[#00FF94] font-mono">
+            <p className="text-2xl font-bold text-accent">
               {Math.round(
                 ((stats.stats?.mock_test?.avgScore || 0) +
                   (stats.stats?.mock_interview?.avgScore || 0)) /
@@ -201,14 +201,14 @@ const PracticeHistory = () => {
             </p>
           </div>
 
-          <div className="bg-[#111111] border border-[#2a2a2a] rounded-sm p-4">
+          <div className="bg-card border border-[#2a2a2a] rounded-sm p-4">
             <div className="flex items-center gap-2 mb-2">
               <Target className="w-4 h-4 text-cyan-400" />
               <span className="text-xs text-gray-500 uppercase">
                 Best Score
               </span>
             </div>
-            <p className="text-2xl font-bold text-cyan-400 font-mono">
+            <p className="text-2xl font-bold text-cyan-400">
               {Math.max(
                 stats.stats?.mock_test?.bestScore || 0,
                 stats.stats?.mock_interview?.bestScore || 0,
@@ -217,12 +217,12 @@ const PracticeHistory = () => {
             </p>
           </div>
 
-          <div className="bg-[#111111] border border-[#2a2a2a] rounded-sm p-4">
+          <div className="bg-card border border-[#2a2a2a] rounded-sm p-4">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-purple-400" />
               <span className="text-xs text-gray-500 uppercase">This Week</span>
             </div>
-            <p className="text-2xl font-bold text-purple-400 font-mono">
+            <p className="text-2xl font-bold text-purple-400">
               {stats.recentActivity || 0}
             </p>
           </div>
@@ -234,7 +234,7 @@ const PracticeHistory = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-[#111111] border border-[#2a2a2a] rounded-sm overflow-hidden"
+        className="bg-card border border-[#2a2a2a] rounded-sm overflow-hidden"
       >
         {loading ? (
           <ComponentLoader message="Loading history" iconColor="#FFD700" />
@@ -248,7 +248,7 @@ const PracticeHistory = () => {
               Start practicing to build your history!
             </p>
             <div className="flex gap-3 justify-center">
-              <Badge className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30">
+              <Badge className="bg-primary/10 text-primary border-primary/30">
                 <Brain className="w-3 h-3 mr-1" /> Try Mock Tests
               </Badge>
               <Badge className="bg-cyan-400/10 text-cyan-400 border-cyan-400/30">
@@ -276,13 +276,13 @@ const PracticeHistory = () => {
                   <div
                     className={`w-12 h-12 rounded-sm flex items-center justify-center ${session.type === "mock_interview"
                         ? "bg-cyan-400/10"
-                        : "bg-[#FFD700]/10"
+                        : "bg-primary/10"
                       }`}
                   >
                     {session.type === "mock_interview" ? (
                       <Video className="w-6 h-6 text-cyan-400" />
                     ) : (
-                      <Brain className="w-6 h-6 text-[#FFD700]" />
+                      <Brain className="w-6 h-6 text-primary" />
                     )}
                   </div>
 
@@ -312,7 +312,7 @@ const PracticeHistory = () => {
 
                   {/* Score */}
                   <div className="text-right">
-                    <p className="text-2xl font-black text-[#00FF94] font-mono">
+                    <p className="text-2xl font-black text-accent">
                       {session.score}%
                     </p>
                     <p className="text-xs text-gray-500">Score</p>
@@ -377,7 +377,7 @@ const PracticeHistory = () => {
                                 <p className="text-xs text-gray-500 mb-1">
                                   Questions
                                 </p>
-                                <p className="text-xl font-bold text-[#FFD700]">
+                                <p className="text-xl font-bold text-primary">
                                   {session.interviewData.questionsAnswered}
                                 </p>
                               </div>
@@ -394,7 +394,7 @@ const PracticeHistory = () => {
                                       (s, i) => (
                                         <Badge
                                           key={i}
-                                          className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30"
+                                          className="bg-accent/10 text-accent border-accent/30"
                                         >
                                           <CheckCircle className="w-3 h-3 mr-1" />{" "}
                                           {s}
@@ -435,7 +435,7 @@ const PracticeHistory = () => {
                             <p className="text-xs text-gray-500 mb-1">
                               Correct
                             </p>
-                            <p className="text-xl font-bold text-[#00FF94]">
+                            <p className="text-xl font-bold text-accent">
                               {session.testData.correctAnswers}
                             </p>
                           </div>
@@ -447,7 +447,7 @@ const PracticeHistory = () => {
                           </div>
                           <div className="bg-white/5 rounded-sm p-3 text-center">
                             <p className="text-xs text-gray-500 mb-1">Total</p>
-                            <p className="text-xl font-bold text-[#FFD700]">
+                            <p className="text-xl font-bold text-primary">
                               {session.testData.totalQuestions}
                             </p>
                           </div>

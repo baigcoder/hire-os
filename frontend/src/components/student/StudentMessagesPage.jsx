@@ -262,14 +262,14 @@ const StudentMessagesPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFD700]" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
 
       <div className="flex-1 pt-20 pb-4 px-4">
@@ -279,7 +279,7 @@ const StudentMessagesPage = () => {
             {/* Header */}
             <div className="p-4 border-b border-white/10">
               <h1 className="text-white font-bold text-lg flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-[#FFD700]" />
+                <MessageSquare className="w-5 h-5 text-primary" />
                 Messages
                 {isConnected && (
                   <span
@@ -313,7 +313,7 @@ const StudentMessagesPage = () => {
                     onClick={() => handleSelectContact(contact)}
                     className={`w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5 ${
                       activeContact?._id === contact._id
-                        ? "bg-[#FFD700]/10 border-l-2 border-l-[#FFD700]"
+                        ? "bg-primary/10 border-l-2 border-l-primary"
                         : ""
                     }`}
                   >
@@ -411,7 +411,7 @@ const StudentMessagesPage = () => {
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {loadingConversation ? (
                     <div className="flex items-center justify-center h-full">
-                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#FFD700]" />
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
                     </div>
                   ) : conversation.length > 0 ? (
                     <>
@@ -430,7 +430,7 @@ const StudentMessagesPage = () => {
                             <div
                               className={`max-w-[70%] ${
                                 isMe
-                                  ? "bg-gradient-to-br from-[#FFD700] to-[#FFA500] text-black rounded-2xl rounded-br-sm"
+                                  ? "bg-gradient-to-br from-primary to-[#FFA500] text-black rounded-2xl rounded-br-sm"
                                   : "bg-white/10 text-white rounded-2xl rounded-bl-sm"
                               } px-4 py-3`}
                             >
@@ -444,7 +444,7 @@ const StudentMessagesPage = () => {
                                   isMe ? "text-[#000000]/50" : "text-gray-500"
                                 }`}
                               >
-                                <span className="text-[10px]">
+                                <span className="text-xs">
                                   {format(new Date(msg.createdAt), "HH:mm")}
                                 </span>
                                 {isMe &&
@@ -510,7 +510,7 @@ const StudentMessagesPage = () => {
                     <Button
                       onClick={handleSendMessage}
                       disabled={!messageText.trim() || sending}
-                      className="bg-[#FFD700] hover:bg-[#FFE44D] text-black px-6"
+                      className="bg-primary hover:bg-[#FFE44D] text-black px-6"
                     >
                       {sending ? (
                         <RefreshCw className="w-5 h-5 animate-spin" />

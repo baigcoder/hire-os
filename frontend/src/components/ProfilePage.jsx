@@ -266,9 +266,7 @@ const ProfilePage = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif] selection:bg-[#FFD700]/30">
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white selection:bg-primary/30">
       <div className="fixed inset-0 pointer-events-none">
         <div
           className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[200px]"
@@ -283,7 +281,7 @@ const ProfilePage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#111111] border border-white/10 rounded-md overflow-hidden mb-6 relative"
+          className="bg-card border border-white/10 rounded-md overflow-hidden mb-6 relative"
         >
           {/* Corner Accents */}
           <div
@@ -302,7 +300,7 @@ const ProfilePage = () => {
               background: `linear-gradient(135deg, ${currentRole.color}20, transparent)`,
             }}
           >
-            <div className="absolute inset-0 bg-grid opacity-50" />
+            <div className="absolute inset-0 opacity-50" />
           </div>
 
           {/* Profile Info */}
@@ -342,7 +340,7 @@ const ProfilePage = () => {
                     className="hidden"
                   />
                 </label>
-                <div className="absolute bottom-2 right-2 w-5 h-5 bg-[#00FF94] rounded-full border-2 border-[#111111]" />
+                <div className="absolute bottom-2 right-2 w-5 h-5 bg-accent rounded-full border-2 border-card" />
               </div>
 
               {/* Name & Role */}
@@ -352,7 +350,7 @@ const ProfilePage = () => {
                     <h1 className="text-2xl font-bold text-white flex items-center gap-3 uppercase tracking-tight">
                       {user?.fullname || "User"}
                       <Badge
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5"
+                        className="text-xs font-bold px-2 py-0.5"
                         style={{
                           backgroundColor: `${currentRole.color}20`,
                           color: currentRole.color,
@@ -362,7 +360,7 @@ const ProfilePage = () => {
                         {currentRole.title}
                       </Badge>
                     </h1>
-                    <p className="text-gray-500 mt-1 text-sm font-mono">
+                    <p className="text-gray-500 mt-1 text-sm">
                       {user?.profile?.bio || `HIRE.OS ${currentRole.title}`}
                     </p>
                   </div>
@@ -371,14 +369,14 @@ const ProfilePage = () => {
                     <Button
                       onClick={() => navigate("/settings")}
                       variant="outline"
-                      className="border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs uppercase tracking-wider"
+                      className="border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
                     >
                       <Settings size={14} className="mr-2" />
                       Settings
                     </Button>
                     <Button
                       onClick={() => setIsEditing(!isEditing)}
-                      className="rounded-sm text-xs uppercase tracking-wider font-bold"
+                      className="rounded-sm text-xs font-bold"
                       style={{
                         backgroundColor: currentRole.color,
                         color: "#000",
@@ -396,14 +394,14 @@ const ProfilePage = () => {
                 <Button
                   onClick={() => navigate("/settings")}
                   variant="outline"
-                  className="flex-1 border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs uppercase tracking-wider"
+                  className="flex-1 border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
                 >
                   <Settings size={14} className="mr-2" />
                   Settings
                 </Button>
                 <Button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="flex-1 rounded-sm text-xs uppercase tracking-wider font-bold"
+                  className="flex-1 rounded-sm text-xs font-bold"
                   style={{
                     backgroundColor: currentRole.color,
                     color: "#000",
@@ -458,10 +456,10 @@ const ProfilePage = () => {
                     <item.icon size={14} style={{ color: item.color }} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+                    <p className="text-xs text-gray-500">
                       {item.label}
                     </p>
-                    <p className="text-xs font-mono text-gray-300 truncate">
+                    <p className="text-xs text-gray-300 truncate">
                       {item.value}
                     </p>
                   </div>
@@ -472,11 +470,11 @@ const ProfilePage = () => {
             {/* Profile Completion */}
             <div className="mt-6 p-4 bg-white/5 rounded-sm border border-white/5">
               <div className="flex justify-between mb-2 text-xs">
-                <span className="text-gray-500 uppercase tracking-wider">
+                <span className="text-gray-500">
                   Profile Completion
                 </span>
                 <span
-                  className="font-mono"
+                  className=""
                   style={{ color: currentRole.color }}
                 >
                   {calculateCompletion()}%
@@ -499,14 +497,14 @@ const ProfilePage = () => {
               exit={{ opacity: 0, height: 0 }}
               className="mb-6"
             >
-              <div className="bg-[#111111] border border-white/10 rounded-md p-6 relative overflow-hidden">
+              <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden">
                 <div
                   className="absolute top-0 right-0 w-6 h-6 border-t border-r"
                   style={{ borderColor: `${currentRole.color}30` }}
                 />
 
                 <h3
-                  className="text-sm font-bold uppercase tracking-wider mb-6 flex items-center gap-2"
+                  className="text-sm font-bold mb-6 flex items-center gap-2"
                   style={{ color: currentRole.color }}
                 >
                   <Pen size={14} />
@@ -517,36 +515,36 @@ const ProfilePage = () => {
                   {/* Basic Info */}
                   <div className="space-y-4">
                     <div>
-                      <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs text-gray-500 mb-2 block">
                         Full Name
                       </label>
                       <input
                         name="fullname"
                         value={formData.fullname}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 font-mono text-sm"
+                        className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 text-sm"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs text-gray-500 mb-2 block">
                         Phone
                       </label>
                       <input
                         name="phoneNumber"
                         value={formData.phoneNumber}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 font-mono text-sm"
+                        className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 text-sm"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs text-gray-500 mb-2 block">
                         Location
                       </label>
                       <input
                         name="location"
                         value={formData.location}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 font-mono text-sm"
+                        className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 text-sm"
                       />
                     </div>
                   </div>
@@ -554,7 +552,7 @@ const ProfilePage = () => {
                   {/* Bio & Skills */}
                   <div className="space-y-4">
                     <div>
-                      <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs text-gray-500 mb-2 block">
                         Bio
                       </label>
                       <textarea
@@ -562,11 +560,11 @@ const ProfilePage = () => {
                         value={formData.bio}
                         onChange={handleInputChange}
                         rows={3}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 font-mono text-sm resize-none"
+                        className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 text-sm resize-none"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs text-gray-500 mb-2 block">
                         Skills (comma separated)
                       </label>
                       <input
@@ -574,7 +572,7 @@ const ProfilePage = () => {
                         value={formData.skills}
                         onChange={handleInputChange}
                         placeholder="React, Node.js, Python..."
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 font-mono text-sm"
+                        className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30 text-sm"
                       />
                     </div>
                   </div>
@@ -582,7 +580,7 @@ const ProfilePage = () => {
 
                 {/* Social Links */}
                 <div className="mt-6 pt-6 border-t border-white/5">
-                  <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block">
+                  <label className="text-xs text-gray-500 mb-4 block">
                     Social Links
                   </label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -615,7 +613,7 @@ const ProfilePage = () => {
                           value={formData[social.name]}
                           onChange={handleInputChange}
                           placeholder={social.placeholder}
-                          className="w-full pl-10 pr-4 py-2.5 bg-[#0A0A0A] border border-white/10 rounded-sm text-white text-xs focus:outline-none focus:border-white/30"
+                          className="w-full pl-10 pr-4 py-2.5 bg-background border border-white/10 rounded-sm text-white text-xs focus:outline-none focus:border-white/30"
                         />
                       </div>
                     ))}
@@ -624,21 +622,21 @@ const ProfilePage = () => {
 
                 {/* Resume Upload */}
                 <div className="mt-6 pt-6 border-t border-white/5">
-                  <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block">
+                  <label className="text-xs text-gray-500 mb-4 block">
                     Resume (PDF)
                   </label>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-sm bg-[#00FF94]/10 flex items-center justify-center border border-[#00FF94]/30">
-                        <FileText size={16} className="text-[#00FF94]" />
+                      <div className="w-10 h-10 rounded-sm bg-accent/10 flex items-center justify-center border border-accent/30">
+                        <FileText size={16} className="text-accent" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-gray-300 font-mono truncate max-w-[180px]">
+                        <p className="text-xs text-gray-300 truncate max-w-[180px]">
                           {resumeName ||
                             user?.profile?.resumeOriginalName ||
                             "No resume selected"}
                         </p>
-                        <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+                        <p className="text-xs text-gray-500">
                           PDF only, max 5MB
                         </p>
                       </div>
@@ -651,7 +649,7 @@ const ProfilePage = () => {
                           onChange={handleResumeChange}
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
-                        <span className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-[#00FF94] text-black rounded-sm cursor-pointer">
+                        <span className="px-4 py-2 text-xs font-bold bg-accent text-black rounded-sm cursor-pointer">
                           {resumeFile ? "Change" : "Upload"}
                         </span>
                       </label>
@@ -732,7 +730,7 @@ const ProfilePage = () => {
             ].map((stat, idx) => (
               <div
                 key={idx}
-                className="bg-[#111111] border border-white/10 rounded-sm p-4 hover:border-white/20 transition-all"
+                className="bg-card border border-white/10 rounded-sm p-4 hover:border-white/20 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -742,10 +740,10 @@ const ProfilePage = () => {
                     <stat.icon size={16} style={{ color: stat.color }} />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white font-mono">
+                    <p className="text-2xl font-bold text-white">
                       {stat.value}
                     </p>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+                    <p className="text-xs text-gray-500">
                       {stat.label}
                     </p>
                   </div>
@@ -762,26 +760,25 @@ const ProfilePage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="mb-6 bg-gradient-to-r from-[#00FF94]/10 to-emerald-500/5 rounded-sm p-5 border border-[#00FF94]/30 relative overflow-hidden"
+              className="mb-6 rounded-sm p-5 border border-accent/30 relative overflow-hidden bg-card"
             >
-              <div className="absolute top-0 right-0 w-20 h-20 rounded-full bg-[#00FF94]/10 blur-2xl opacity-60" />
               <div className="flex items-center justify-between mb-3 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-sm bg-[#00FF94]/15 flex items-center justify-center border border-[#00FF94]/40">
-                    <Sparkles className="w-4 h-4 text-[#00FF94]" />
+                  <div className="w-9 h-9 rounded-sm bg-accent/15 flex items-center justify-center border border-accent/40">
+                    <Sparkles className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <p className="text-xs text-[#00FF94] font-bold uppercase tracking-wider">
+                    <p className="text-xs text-accent font-bold">
                       Free Trial
                     </p>
-                    <p className="text-[11px] text-gray-400 font-mono">
+                    <p className="text-xs text-gray-400">
                       {trialEnd
                         ? `Ends on ${trialEnd.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`
                         : "Trial active"}
                     </p>
                   </div>
                 </div>
-                <Badge className="bg-[#00FF94]/20 text-[#00FF94] border-[#00FF94]/40 text-[10px] font-mono uppercase tracking-wider">
+                <Badge className="bg-accent/20 text-accent border-accent/40 text-xs">
                   {user.subscriptionStatus === "trial"
                     ? "ACTIVE"
                     : user.trialExpired
@@ -791,18 +788,18 @@ const ProfilePage = () => {
               </div>
               <div className="flex items-center justify-between relative z-10">
                 <div>
-                  <p className="text-3xl font-black text-white font-mono">
+                  <p className="text-3xl font-black text-white">
                     {trialDaysRemaining !== null ? trialDaysRemaining : "-"}
                   </p>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+                  <p className="text-xs text-gray-500">
                     days remaining
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[11px] text-gray-400 font-mono mb-1">
+                  <p className="text-xs text-gray-400 mb-1">
                     Plan
                   </p>
-                  <p className="text-sm text-white font-semibold font-mono">
+                  <p className="text-sm text-white font-semibold">
                     HIRE.OS Trial Access
                   </p>
                 </div>
@@ -817,10 +814,9 @@ const ProfilePage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-[#111111] border border-white/10 rounded-sm p-6 relative overflow-hidden"
+            className="bg-card border border-white/10 rounded-sm p-6 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-            <h3 className="text-sm font-bold text-[#FFD700] uppercase tracking-wider mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-primary mb-4 flex items-center gap-2">
               <Code size={14} />
               Skills
             </h3>
@@ -829,7 +825,7 @@ const ProfilePage = () => {
                 user.profile.skills.map((skill, idx) => (
                   <Badge
                     key={idx}
-                    className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30 text-xs"
+                    className="bg-primary/10 text-primary border-primary/30 text-xs"
                   >
                     {skill}
                   </Badge>
@@ -845,21 +841,20 @@ const ProfilePage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-[#111111] border border-white/10 rounded-sm p-6 relative overflow-hidden"
+            className="bg-card border border-white/10 rounded-sm p-6 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#00FF94]/30" />
-            <h3 className="text-sm font-bold text-[#00FF94] uppercase tracking-wider mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-accent mb-4 flex items-center gap-2">
               <FileText size={14} />
               Resume
             </h3>
             {user?.profile?.resume ? (
               <div className="space-y-3">
-                <p className="text-gray-400 text-xs font-mono truncate">
+                <p className="text-gray-400 text-xs truncate">
                   {user.profile.resumeOriginalName || "resume.pdf"}
                 </p>
                 <Button
                   onClick={() => window.open(user.profile.resume, "_blank")}
-                  className="w-full bg-[#00FF94]/10 text-[#00FF94] hover:bg-[#00FF94]/20 border border-[#00FF94]/30 rounded-sm text-xs uppercase tracking-wider"
+                  className="w-full bg-accent/10 text-accent hover:bg-accent/20 border border-accent/30 rounded-sm text-xs"
                 >
                   <ExternalLink size={14} className="mr-2" />
                   View Resume
@@ -875,10 +870,9 @@ const ProfilePage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-[#111111] border border-white/10 rounded-sm p-6 relative overflow-hidden"
+            className="bg-card border border-white/10 rounded-sm p-6 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#00BFFF]/30" />
-            <h3 className="text-sm font-bold text-[#00BFFF] uppercase tracking-wider mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[#00BFFF] mb-4 flex items-center gap-2">
               <Link2 size={14} />
               Social Links
             </h3>

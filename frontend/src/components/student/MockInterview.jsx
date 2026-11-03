@@ -570,8 +570,8 @@ const MockInterview = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-sm bg-[#FFD700]/10 flex items-center justify-center border border-[#FFD700]/30">
-              <Video className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD700]" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-sm bg-primary/10 flex items-center justify-center border border-primary/30">
+              <Video className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             Mock Interview
           </h2>
@@ -603,8 +603,8 @@ const MockInterview = () => {
             className="space-y-4 sm:space-y-6"
           >
             {/* Interview Type Selection */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-4 sm:p-6">
-              <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
+            <div className="bg-card border border-white/10 rounded-md p-4 sm:p-6">
+              <label className="text-xs text-gray-500 mb-4 block">
                 Select Interview Type
               </label>
               <div className="grid grid-cols-1 gap-3">
@@ -613,7 +613,7 @@ const MockInterview = () => {
                     key={type.id}
                     onClick={() => setInterviewType(type.id)}
                     className={`p-4 rounded-sm border transition-all text-left ${interviewType === type.id
-                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
+                      ? "bg-primary/10 border-primary/50 text-white"
                       : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
                       }`}
                   >
@@ -629,15 +629,15 @@ const MockInterview = () => {
             </div>
 
             {/* Media Settings */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-4 sm:p-6">
-              <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
+            <div className="bg-card border border-white/10 rounded-md p-4 sm:p-6">
+              <label className="text-xs text-gray-500 mb-4 block">
                 Recording Settings
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 <button
                   onClick={() => setVideoEnabled(!videoEnabled)}
                   className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${videoEnabled
-                    ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                    ? "bg-primary/10 border-primary/50 text-primary"
                     : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
                     }`}
                 >
@@ -651,7 +651,7 @@ const MockInterview = () => {
                 <button
                   onClick={() => setAudioEnabled(!audioEnabled)}
                   className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${audioEnabled
-                    ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                    ? "bg-primary/10 border-primary/50 text-primary"
                     : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
                     }`}
                 >
@@ -683,7 +683,7 @@ const MockInterview = () => {
                     )
                   }
                   className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${conversationMode === "live"
-                    ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                    ? "bg-primary/10 border-primary/50 text-primary"
                     : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
                     }`}
                 >
@@ -691,7 +691,7 @@ const MockInterview = () => {
                   {conversationMode === "live" ? "Live" : "Manual"}
                 </button>
               </div>
-              <p className="text-[10px] sm:text-xs text-gray-500 mt-3">
+              <p className="text-xs sm:text-xs text-gray-500 mt-3">
                 {conversationMode === "live"
                   ? "🔴 LIVE: AI speaks, listens, and auto-advances"
                   : "💡 MANUAL: You control the pace"}
@@ -702,7 +702,7 @@ const MockInterview = () => {
             <Button
               onClick={generateQuestions}
               disabled={loading}
-              className="w-full py-4 sm:py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -729,10 +729,10 @@ const MockInterview = () => {
             className="space-y-4 sm:space-y-6"
           >
             {/* Progress */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-3 sm:p-4">
+            <div className="bg-card border border-white/10 rounded-md p-3 sm:p-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30">
+                  <Badge className="bg-primary/10 text-primary border-primary/30">
                     {interviewTypes.find((t) => t.id === interviewType)?.name}{" "}
                     Interview
                   </Badge>
@@ -756,7 +756,7 @@ const MockInterview = () => {
             {/* Video Preview & Question */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {/* Video */}
-              <div className="bg-[#111111] border border-white/10 rounded-md p-3 sm:p-4 relative overflow-hidden order-2 md:order-1">
+              <div className="bg-card border border-white/10 rounded-md p-3 sm:p-4 relative overflow-hidden order-2 md:order-1">
                 <div className="absolute top-2 right-2 z-10 flex gap-2">
                   {isRecording && (
                     <Badge className="bg-red-500 text-white animate-pulse text-xs">
@@ -775,7 +775,7 @@ const MockInterview = () => {
                     className="w-full aspect-video rounded-sm bg-black object-cover"
                   />
                 ) : (
-                  <div className="w-full aspect-video rounded-sm bg-[#0A0A0A] flex items-center justify-center">
+                  <div className="w-full aspect-video rounded-sm bg-background flex items-center justify-center">
                     <User className="w-12 h-12 sm:w-20 sm:h-20 text-gray-600" />
                   </div>
                 )}
@@ -804,15 +804,15 @@ const MockInterview = () => {
 
               {/* Question & Response */}
               <div className="space-y-3 sm:space-y-4 order-1 md:order-2">
-                <div className="bg-[#111111] border border-[#FFD700]/30 rounded-md p-4 sm:p-6">
+                <div className="bg-card border border-primary/30 rounded-md p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-2 sm:mb-3 flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD700]" />
-                      <span className="text-[10px] sm:text-xs text-[#FFD700] uppercase tracking-wider font-mono">
+                      <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                      <span className="text-xs sm:text-xs text-primary">
                         Interviewer
                       </span>
                       {isSpeaking && (
-                        <Badge className="bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30 animate-pulse text-[10px] sm:text-xs">
+                        <Badge className="bg-primary/15 text-primary border-primary/30 animate-pulse text-xs sm:text-xs">
                           <Volume2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
                           Speaking
                         </Badge>
@@ -825,7 +825,7 @@ const MockInterview = () => {
                       variant="ghost"
                       size="sm"
                       disabled={isSpeaking}
-                      className="text-[#FFD700] hover:bg-[#FFD700]/10 text-xs h-7 px-2"
+                      className="text-primary hover:bg-primary/10 text-xs h-7 px-2"
                     >
                       <Volume2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       <span className="hidden sm:inline">Replay</span>
@@ -835,16 +835,16 @@ const MockInterview = () => {
                     {questions[currentQIndex]?.question}
                   </p>
                   {questions[currentQIndex]?.tips && (
-                    <p className="text-gray-500 text-[10px] sm:text-xs mt-2 sm:mt-3 italic">
+                    <p className="text-gray-500 text-xs sm:text-xs mt-2 sm:mt-3 italic">
                       💡 {questions[currentQIndex].tips}
                     </p>
                   )}
                 </div>
 
                 {/* Transcript / Type Response */}
-                <div className="bg-[#111111] border border-white/10 rounded-md p-4">
+                <div className="bg-card border border-white/10 rounded-md p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs text-gray-500 uppercase tracking-wider font-mono">
+                    <label className="text-xs text-gray-500">
                       Your Response{" "}
                       {audioEnabled ? "(Live Speech-to-Text)" : "(Type)"}
                     </label>
@@ -858,8 +858,8 @@ const MockInterview = () => {
                     )}
                     {isAnalyzing && (
                       <div className="flex items-center gap-2">
-                        <Loader2 className="w-3 h-3 text-[#FFD700] animate-spin" />
-                        <span className="text-xs text-[#FFD700]">
+                        <Loader2 className="w-3 h-3 text-primary animate-spin" />
+                        <span className="text-xs text-primary">
                           Analyzing...
                         </span>
                       </div>
@@ -867,7 +867,7 @@ const MockInterview = () => {
                   </div>
 
                   {/* Live transcript display */}
-                  <div className="w-full min-h-[100px] px-3 py-2 bg-[#0A0A0A] border border-white/10 rounded-sm text-sm">
+                  <div className="w-full min-h-[100px] px-3 py-2 bg-background border border-white/10 rounded-sm text-sm">
                     <span className="text-white">
                       {transcript || typedResponse}
                     </span>
@@ -892,21 +892,21 @@ const MockInterview = () => {
                       onChange={(e) => setTypedResponse(e.target.value)}
                       placeholder="Type your response..."
                       rows={3}
-                      className="w-full mt-2 px-3 py-2 bg-[#0A0A0A] border border-white/10 rounded-sm text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-[#FFD700]/50 resize-none"
+                      className="w-full mt-2 px-3 py-2 bg-background border border-white/10 rounded-sm text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-primary/50 resize-none"
                     />
                   )}
 
                   {/* Last response feedback */}
                   {responses.length > 0 &&
                     responses[responses.length - 1]?.feedback && (
-                      <div className="mt-3 p-3 bg-[#FFD700]/5 border border-[#FFD700]/25 rounded">
+                      <div className="mt-3 p-3 bg-primary/5 border border-primary/25 rounded">
                         <div className="flex items-center gap-2 mb-1">
-                          <Star className="w-4 h-4 text-[#FFD700]" />
-                          <span className="text-sm font-medium text-[#FFD700]">
+                          <Star className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium text-primary">
                             Score:{" "}
                             {responses[responses.length - 1].feedback.score}/10
                           </span>
-                          <Badge className="bg-[#FFD700]/15 text-[#FFD700] text-xs">
+                          <Badge className="bg-primary/15 text-primary text-xs">
                             {responses[responses.length - 1].feedback.verdict ||
                               "Analyzed"}
                           </Badge>
@@ -928,7 +928,7 @@ const MockInterview = () => {
                     isRecording ||
                     isAnalyzing
                   }
-                  className="w-full py-2.5 sm:py-3 bg-[#FFD700] text-black hover:bg-[#FFE44D] text-[10px] sm:text-xs font-semibold rounded-full tracking-wider uppercase flex items-center justify-center gap-1.5 sm:gap-2"
+                  className="w-full py-2.5 sm:py-3 bg-primary text-black hover:bg-[#FFE44D] text-xs sm:text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 sm:gap-2"
                 >
                   {currentQIndex < questions.length - 1 ? (
                     <>
@@ -955,13 +955,13 @@ const MockInterview = () => {
             className="space-y-4 sm:space-y-6"
           >
             {/* Overall Score */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-5 sm:p-8 text-center relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-10 h-10 sm:w-16 sm:h-16 border-t border-r border-[#FFD700]/30" />
-              <div className="absolute bottom-0 left-0 w-10 h-10 sm:w-16 sm:h-16 border-b border-l border-[#FFD700]/30" />
+            <div className="bg-card border border-white/10 rounded-md p-5 sm:p-8 text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-10 h-10 sm:w-16 sm:h-16 border-t border-r border-primary/30" />
+              <div className="absolute bottom-0 left-0 w-10 h-10 sm:w-16 sm:h-16 border-b border-l border-primary/30" />
 
-              <Award className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-[#FFD700]" />
+              <Award className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-primary" />
 
-              <div className="text-4xl sm:text-5xl font-bold font-mono text-white mb-2">
+              <div className="text-4xl sm:text-5xl font-bold text-white mb-2">
                 {overallScore}%
               </div>
 
@@ -969,7 +969,7 @@ const MockInterview = () => {
                 className={`text-sm sm:text-lg px-3 sm:px-4 py-0.5 sm:py-1 ${overallScore >= 80
                   ? "bg-green-500/20 text-green-400 border-green-500/30"
                   : overallScore >= 60
-                    ? "bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30"
+                    ? "bg-primary/20 text-primary border-primary/30"
                     : "bg-red-500/20 text-red-400 border-red-500/30"
                   }`}
               >
@@ -986,8 +986,8 @@ const MockInterview = () => {
             </div>
 
             {/* Response Reviews */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-4 sm:p-6">
-              <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider mb-3 sm:mb-4">
+            <div className="bg-card border border-white/10 rounded-md p-4 sm:p-6">
+              <h3 className="text-xs sm:text-sm font-bold text-white mb-3 sm:mb-4">
                 Response Review
               </h3>
               <div className="space-y-3 sm:space-y-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
@@ -998,7 +998,7 @@ const MockInterview = () => {
                   >
                     <div className="flex items-start justify-between gap-2 sm:gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm text-[#FFD700] font-medium mb-1 line-clamp-2">
+                        <p className="text-xs sm:text-sm text-primary font-medium mb-1 line-clamp-2">
                           Q{idx + 1}: {r.question.question}
                         </p>
                         <p className="text-gray-300 text-xs sm:text-sm line-clamp-3">{r.answer}</p>
@@ -1008,7 +1008,7 @@ const MockInterview = () => {
                           className={`flex-shrink-0 text-xs ${r.feedback.score >= 7
                             ? "bg-green-500/20 text-green-400"
                             : r.feedback.score >= 5
-                              ? "bg-[#FFD700]/20 text-[#FFD700]"
+                              ? "bg-primary/20 text-primary"
                               : "bg-red-500/20 text-red-400"
                             }`}
                         >
@@ -1017,7 +1017,7 @@ const MockInterview = () => {
                       )}
                     </div>
                     {r.feedback?.tip && (
-                      <p className="text-[10px] sm:text-xs text-gray-500 mt-2 italic line-clamp-2">
+                      <p className="text-xs sm:text-xs text-gray-500 mt-2 italic line-clamp-2">
                         💡 {r.feedback.tip}
                       </p>
                     )}
@@ -1029,7 +1029,7 @@ const MockInterview = () => {
             {/* Try Again */}
             <Button
               onClick={resetInterview}
-              className="w-full py-4 sm:py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
             >
               <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
               Practice Again

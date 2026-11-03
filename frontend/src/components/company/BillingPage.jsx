@@ -92,7 +92,7 @@ const BillingPage = () => {
     if (isExpired()) return "bg-red-500/20 text-red-400 border-red-500/30";
     if (isExpiringSoon())
       return "bg-amber-500/20 text-amber-400 border-amber-500/30";
-    return "bg-[#00FF94]/20 text-[#00FF94] border-[#00FF94]/30";
+    return "bg-accent/20 text-accent border-accent/30";
   };
 
   const daysRemaining = getDaysRemaining();
@@ -110,13 +110,13 @@ const BillingPage = () => {
 
   if (subLoading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-[#FFD700]/30 rounded-sm" />
-            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#FFD700] rounded-sm animate-spin" />
+            <div className="w-16 h-16 border-2 border-primary/30 rounded-sm" />
+            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-primary rounded-sm animate-spin" />
           </div>
-          <p className="text-[#FFD700]/70 font-mono text-sm uppercase tracking-wider">
+          <p className="text-primary/70 text-sm">
             Loading...
           </p>
         </div>
@@ -125,13 +125,10 @@ const BillingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
       </div>
 
       <div className="container mx-auto px-4 py-8 pt-24 relative z-10">
@@ -145,7 +142,7 @@ const BillingPage = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight uppercase">
               Billing & Subscription
             </h1>
-            <p className="text-gray-500 text-sm font-mono mt-1">
+            <p className="text-gray-500 text-sm mt-1">
               Manage your subscription and payment history
             </p>
           </div>
@@ -163,7 +160,7 @@ const BillingPage = () => {
             </Button>
             <Button
               onClick={() => navigate("/company/pricing")}
-              className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs uppercase tracking-wider"
+              className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs"
             >
               <ArrowUpRight className="w-4 h-4 mr-2" />
               Upgrade Plan
@@ -177,17 +174,14 @@ const BillingPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="lg:col-span-2 relative bg-[#111111] border border-white/10 rounded-sm overflow-hidden"
+            className="lg:col-span-2 relative bg-card border border-white/10 rounded-sm overflow-hidden"
           >
-            {/* Corner accents */}
-            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#FFD700]/30" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#FFD700]/30" />
 
             {/* Expiry Warning Banner */}
             {isExpiringSoon() && !isExpired() && (
               <div className="p-3 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-3">
                 <AlertTriangle className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-400 text-xs font-mono">
+                <span className="text-amber-400 text-xs">
                   Subscription expires in {daysRemaining} day
                   {daysRemaining !== 1 ? "s" : ""} - Renew now to avoid
                   interruption
@@ -198,7 +192,7 @@ const BillingPage = () => {
             {isExpired() && (
               <div className="p-3 bg-red-500/10 border-b border-red-500/20 flex items-center gap-3">
                 <XCircle className="w-4 h-4 text-red-400" />
-                <span className="text-red-400 text-xs font-mono">
+                <span className="text-red-400 text-xs">
                   Your subscription has expired - Renew to restore access
                 </span>
               </div>
@@ -208,20 +202,20 @@ const BillingPage = () => {
               {/* Plan Header */}
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-[#FFD700] rounded-sm flex items-center justify-center">
+                  <div className="w-14 h-14 bg-primary rounded-sm flex items-center justify-center">
                     <Crown className="w-7 h-7 text-black" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white uppercase tracking-tight">
                       {subscription?.plan || "Basic"} Plan
                     </h2>
-                    <p className="text-gray-500 text-xs font-mono uppercase">
+                    <p className="text-gray-500 text-xs uppercase">
                       {subscription?.type || "Monthly"} Billing
                     </p>
                   </div>
                 </div>
                 <Badge
-                  className={`${getStatusColor()} text-xs px-3 py-1 rounded-sm uppercase tracking-wider font-mono`}
+                  className={`${getStatusColor()} text-xs px-3 py-1 rounded-sm`}
                 >
                   {isExpired() ? "Expired" : subscription?.status || "Active"}
                 </Badge>
@@ -231,12 +225,12 @@ const BillingPage = () => {
               <div className="grid md:grid-cols-3 gap-4 mb-6">
                 <div className="p-4 bg-white/5 rounded-sm border border-white/5">
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-4 h-4 text-[#FFD700]" />
-                    <span className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">
+                    <Calendar className="w-4 h-4 text-primary" />
+                    <span className="text-xs text-gray-500">
                       Start Date
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-white font-mono">
+                  <p className="text-lg font-bold text-white">
                     {subscription?.startDate
                       ? formatDate(subscription.startDate)
                       : "-"}
@@ -246,13 +240,13 @@ const BillingPage = () => {
                   className={`p-4 rounded-sm border ${daysRemaining <= 7 ? "bg-amber-500/10 border-amber-500/30" : "bg-white/5 border-white/5"}`}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-[#FFD700]" />
-                    <span className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">
+                    <Clock className="w-4 h-4 text-primary" />
+                    <span className="text-xs text-gray-500">
                       Expiry Date
                     </span>
                   </div>
                   <p
-                    className={`text-lg font-bold font-mono ${daysRemaining <= 7 ? "text-amber-400" : "text-white"}`}
+                    className={`text-lg font-bold ${daysRemaining <= 7 ? "text-amber-400" : "text-white"}`}
                   >
                     {subscription?.endDate
                       ? formatDate(subscription.endDate)
@@ -261,13 +255,13 @@ const BillingPage = () => {
                 </div>
                 <div className="p-4 bg-white/5 rounded-sm border border-white/5">
                   <div className="flex items-center gap-2 mb-2">
-                    <Zap className="w-4 h-4 text-[#FFD700]" />
-                    <span className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">
+                    <Zap className="w-4 h-4 text-primary" />
+                    <span className="text-xs text-gray-500">
                       Days Left
                     </span>
                   </div>
                   <p
-                    className={`text-lg font-bold font-mono ${daysRemaining <= 7 ? "text-amber-400" : daysRemaining <= 0 ? "text-red-400" : "text-[#00FF94]"}`}
+                    className={`text-lg font-bold ${daysRemaining <= 7 ? "text-amber-400" : daysRemaining <= 0 ? "text-red-400" : "text-accent"}`}
                   >
                     {daysRemaining !== null
                       ? daysRemaining <= 0
@@ -281,10 +275,10 @@ const BillingPage = () => {
               {/* Subscription Progress */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-gray-500 font-mono uppercase tracking-wider">
+                  <span className="text-xs text-gray-500">
                     Subscription Period
                   </span>
-                  <span className="text-xs text-gray-400 font-mono">
+                  <span className="text-xs text-gray-400">
                     {Math.round(calculateProgress())}% elapsed
                   </span>
                 </div>
@@ -299,7 +293,7 @@ const BillingPage = () => {
                 {isExpired() ? (
                   <Button
                     onClick={() => navigate("/company/pricing")}
-                    className="bg-red-500 hover:bg-red-600 text-white rounded-sm font-bold text-xs uppercase tracking-wider"
+                    className="bg-red-500 hover:bg-red-600 text-white rounded-sm font-bold text-xs"
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Renew Subscription
@@ -308,14 +302,14 @@ const BillingPage = () => {
                   <>
                     <Button
                       onClick={() => navigate("/company/pricing")}
-                      className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs uppercase tracking-wider"
+                      className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs"
                     >
                       <ArrowUpRight className="w-4 h-4 mr-2" />
                       Upgrade Plan
                     </Button>
                     <Button
                       variant="outline"
-                      className="border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs uppercase tracking-wider"
+                      className="border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
                     >
                       <CreditCard className="w-4 h-4 mr-2" />
                       Update Payment
@@ -334,49 +328,48 @@ const BillingPage = () => {
             className="space-y-4"
           >
             {/* Plan Features */}
-            <div className="relative bg-[#111111] border border-white/10 rounded-sm p-5">
-              <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10" />
-              <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#FFD700]" />
+            <div className="relative bg-card border border-white/10 rounded-sm p-5">
+              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-primary" />
                 Plan Features
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500 font-mono">
+                  <span className="text-xs text-gray-500">
                     Job Postings
                   </span>
-                  <span className="text-sm text-white font-mono">
+                  <span className="text-sm text-white">
                     {subscription?.features?.maxJobPostings === -1
                       ? "∞"
                       : subscription?.features?.maxJobPostings || 5}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500 font-mono">
+                  <span className="text-xs text-gray-500">
                     Team Members
                   </span>
-                  <span className="text-sm text-white font-mono">
+                  <span className="text-sm text-white">
                     {subscription?.features?.maxRecruiters === -1
                       ? "∞"
                       : subscription?.features?.maxRecruiters || 1}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500 font-mono">
+                  <span className="text-xs text-gray-500">
                     AI Interviews
                   </span>
                   {subscription?.features?.aiInterviews ? (
-                    <CheckCircle className="w-4 h-4 text-[#00FF94]" />
+                    <CheckCircle className="w-4 h-4 text-accent" />
                   ) : (
                     <XCircle className="w-4 h-4 text-gray-600" />
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500 font-mono">
+                  <span className="text-xs text-gray-500">
                     Analytics
                   </span>
                   {subscription?.features?.advancedAnalytics ? (
-                    <CheckCircle className="w-4 h-4 text-[#00FF94]" />
+                    <CheckCircle className="w-4 h-4 text-accent" />
                   ) : (
                     <XCircle className="w-4 h-4 text-gray-600" />
                   )}
@@ -385,17 +378,16 @@ const BillingPage = () => {
             </div>
 
             {/* Support */}
-            <div className="relative bg-[#111111] border border-white/10 rounded-sm p-5">
-              <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10" />
-              <h3 className="text-sm font-bold text-white mb-3 uppercase tracking-wider">
+            <div className="relative bg-card border border-white/10 rounded-sm p-5">
+              <h3 className="text-sm font-bold text-white mb-3">
                 Need Help?
               </h3>
-              <p className="text-xs text-gray-500 mb-4 font-mono">
+              <p className="text-xs text-gray-500 mb-4">
                 Contact our support team for billing inquiries
               </p>
               <Button
                 variant="outline"
-                className="w-full border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs uppercase tracking-wider"
+                className="w-full border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Contact Support
@@ -409,14 +401,12 @@ const BillingPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mt-8 relative bg-[#111111] border border-white/10 rounded-sm overflow-hidden"
+          className="mt-8 relative bg-card border border-white/10 rounded-sm overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-white/10" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-white/10" />
 
           <div className="p-5 border-b border-white/5 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <History className="w-4 h-4 text-[#FFD700]" />
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <History className="w-4 h-4 text-primary" />
               Payment History
             </h3>
           </div>
@@ -424,12 +414,12 @@ const BillingPage = () => {
           <div className="overflow-x-auto">
             {loadingHistory ? (
               <div className="p-8 text-center">
-                <div className="w-8 h-8 border-2 border-transparent border-t-[#FFD700] rounded-full animate-spin mx-auto" />
+                <div className="w-8 h-8 border-2 border-transparent border-t-primary rounded-full animate-spin mx-auto" />
               </div>
             ) : paymentHistory.length === 0 ? (
               <div className="p-12 text-center">
                 <Receipt className="w-12 h-12 mx-auto mb-4 text-gray-700" />
-                <p className="text-gray-500 font-mono">No payment history</p>
+                <p className="text-gray-500">No payment history</p>
                 <p className="text-gray-600 text-sm mt-1">
                   Transactions will appear here
                 </p>
@@ -438,22 +428,22 @@ const BillingPage = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/5">
-                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500">
                       Transaction
                     </th>
-                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500">
                       Date
                     </th>
-                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500">
                       Plan
                     </th>
-                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500">
                       Amount
                     </th>
-                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <th className="text-left py-4 px-5 text-xs font-bold text-gray-500">
                       Status
                     </th>
-                    <th className="text-right py-4 px-5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <th className="text-right py-4 px-5 text-xs font-bold text-gray-500">
                       Invoice
                     </th>
                   </tr>
@@ -465,30 +455,30 @@ const BillingPage = () => {
                       className="hover:bg-white/5 transition-colors"
                     >
                       <td className="py-4 px-5">
-                        <span className="text-sm text-gray-300 font-mono">
+                        <span className="text-sm text-gray-300">
                           {payment.transactionId?.substring(0, 12)}...
                         </span>
                       </td>
                       <td className="py-4 px-5">
-                        <span className="text-sm text-gray-400 font-mono">
+                        <span className="text-sm text-gray-400">
                           {formatDate(payment.paymentDate)}
                         </span>
                       </td>
                       <td className="py-4 px-5">
-                        <Badge className="bg-white/5 text-gray-300 border-white/10 rounded-sm text-[10px] uppercase">
+                        <Badge className="bg-white/5 text-gray-300 border-white/10 rounded-sm text-xs uppercase">
                           {payment.plan} / {payment.duration}
                         </Badge>
                       </td>
                       <td className="py-4 px-5">
-                        <span className="text-sm text-white font-mono font-bold">
+                        <span className="text-sm text-white font-bold">
                           {formatPrice(payment.amount)}
                         </span>
                       </td>
                       <td className="py-4 px-5">
                         <Badge
-                          className={`rounded-sm text-[10px] uppercase ${
+                          className={`rounded-sm text-xs uppercase ${
                             payment.status === "completed"
-                              ? "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30"
+                              ? "bg-accent/10 text-accent border-accent/30"
                               : payment.status === "pending"
                                 ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
                                 : "bg-red-500/10 text-red-400 border-red-500/30"
@@ -502,7 +492,7 @@ const BillingPage = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-[#FFD700] hover:bg-[#FFD700]/10"
+                            className="text-primary hover:bg-primary/10"
                             onClick={() =>
                               window.open(payment.invoiceUrl, "_blank")
                             }

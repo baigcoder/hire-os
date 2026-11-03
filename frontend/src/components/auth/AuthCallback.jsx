@@ -44,6 +44,8 @@ const AuthCallback = () => {
             const response = await axios.post(
               `${USER_API_END_POINT}/supabase-sync`,
               {
+                // Verified server-side; identity comes from this token
+                accessToken: session.access_token,
                 supabaseId: supabaseUser.id,
                 email: supabaseUser.email,
                 fullname:

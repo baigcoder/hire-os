@@ -83,7 +83,7 @@ const AppliedJobs = () => {
       return { bg: "bg-emerald-500/10", text: "text-emerald-400", label: "ACCEPTED" };
     if (s === "rejected")
       return { bg: "bg-red-500/10", text: "text-red-400", label: "REJECTED" };
-    return { bg: "bg-[#FFD700]/10", text: "text-[#FFD700]", label: status.toUpperCase().replace("_", " ") };
+    return { bg: "bg-primary/10", text: "text-primary", label: status.toUpperCase().replace("_", " ") };
   };
 
   return (
@@ -93,43 +93,43 @@ const AppliedJobs = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-              <span className="text-[#FFD700]">📋</span> MY APPLICATIONS
+              <span className="text-primary">📋</span> MY APPLICATIONS
             </h1>
-            <p className="text-gray-500 font-mono text-xs tracking-widest uppercase">
+            <p className="text-gray-500 text-xs">
               System: Active • Applications: {applications.length}
             </p>
           </div>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="mb-8 bg-[#111111] border border-white/10 p-1 rounded-sm flex-wrap h-auto">
+          <TabsList className="mb-8 bg-card border border-white/10 p-1 rounded-sm flex-wrap h-auto">
             <TabsTrigger
               value="all"
-              className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black rounded-sm text-gray-500 font-mono text-[10px] tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
             >
               ALL ({applications.length})
             </TabsTrigger>
             <TabsTrigger
               value="pending"
-              className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black rounded-sm text-gray-500 font-mono text-[10px] tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
             >
               PENDING ({pendingApplications.length})
             </TabsTrigger>
             <TabsTrigger
               value="accepted"
-              className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black rounded-sm text-gray-500 font-mono text-[10px] tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
             >
               ACCEPTED ({acceptedApplications.length})
             </TabsTrigger>
             <TabsTrigger
               value="rejected"
-              className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black rounded-sm text-gray-500 font-mono text-[10px] tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
             >
               REJECTED ({rejectedApplications.length})
             </TabsTrigger>
             <TabsTrigger
               value="interview"
-              className="data-[state=active]:bg-[#FFD700] data-[state=active]:text-black rounded-sm text-gray-500 font-mono text-[10px] tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
             >
               INTERVIEWS ({interviewApplications.length})
             </TabsTrigger>
@@ -137,12 +137,12 @@ const AppliedJobs = () => {
 
           <TabsContent value="all" className="mt-0">
             {loading ? (
-              <div className="text-center py-20 font-mono text-xs text-gray-500 loader-dots">
+              <div className="text-center py-20 text-xs text-gray-500 loader-dots">
                 INITIALIZING DATA STREAM...
               </div>
             ) : applications.length === 0 ? (
-              <div className="bg-[#111111] border border-white/10 rounded-sm p-12 text-center">
-                <p className="text-gray-500 font-mono text-xs tracking-wider">
+              <div className="bg-card border border-white/10 rounded-sm p-12 text-center">
+                <p className="text-gray-500 text-xs tracking-wider">
                   NO ACTIVE APPLICATIONS FOUND IN DATABASE
                 </p>
               </div>
@@ -175,29 +175,29 @@ const AppliedJobs = () => {
                   return (
                     <div
                       key={application._id}
-                      className="bg-[#0A0A0A] border border-white/10 rounded-sm p-5 hover:border-[#FFD700]/30 transition-all group"
+                      className="bg-background border border-white/10 rounded-sm p-5 hover:border-primary/30 transition-all group"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h3 className="font-bold text-lg text-white group-hover:text-[#FFD700] transition-colors uppercase tracking-tight">
+                          <h3 className="font-bold text-lg text-white group-hover:text-primary transition-colors uppercase tracking-tight">
                             {application.job?.title}
                           </h3>
-                          <p className="text-[#FFD700] text-xs font-mono tracking-wider opacity-80 uppercase">
+                          <p className="text-primary text-xs opacity-80">
                             {application.job?.company?.name}
                           </p>
                         </div>
                         <span
-                          className={`px-3 py-1 text-[10px] font-mono border ${config.bg} ${config.text} border-current/20 rounded-sm`}
+                          className={`px-3 py-1 text-xs border ${config.bg} ${config.text} border-current/20 rounded-sm`}
                         >
                           {config.label}
                         </span>
                       </div>
 
                       <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
-                        <span className="text-[10px] text-gray-600 font-mono uppercase">
+                        <span className="text-xs text-gray-600 uppercase">
                           APPLICATION ID: {application._id.slice(-8).toUpperCase()}
                         </span>
-                        <span className="text-[10px] text-gray-600 font-mono uppercase">
+                        <span className="text-xs text-gray-600 uppercase">
                           {new Date(application.createdAt).toLocaleDateString()}
                         </span>
                       </div>
@@ -210,8 +210,8 @@ const AppliedJobs = () => {
 
           <TabsContent value="interview" className="mt-0">
             {interviewApplications.length === 0 ? (
-              <div className="bg-[#111111] border border-white/10 rounded-sm p-12 text-center">
-                <p className="text-gray-500 font-mono text-xs tracking-wider">
+              <div className="bg-card border border-white/10 rounded-sm p-12 text-center">
+                <p className="text-gray-500 text-xs tracking-wider">
                   NO SCHEDULED INTERVIEWS DETECTED
                 </p>
               </div>
@@ -234,18 +234,18 @@ const AppliedJobs = () => {
                 return (
                   <div
                     key={application._id}
-                    className="bg-[#0A0A0A] border border-white/10 rounded-sm p-5"
+                    className="bg-background border border-white/10 rounded-sm p-5"
                   >
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold text-white uppercase tracking-tight">
                           {application.job?.title}
                         </h3>
-                        <p className="text-[#FFD700] text-xs font-mono uppercase">
+                        <p className="text-primary text-xs uppercase">
                           {application.job?.company?.name}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 text-[10px] font-mono border ${config.bg} ${config.text} border-current/20 rounded-sm`}>
+                      <span className={`px-3 py-1 text-xs border ${config.bg} ${config.text} border-current/20 rounded-sm`}>
                         {config.label}
                       </span>
                     </div>
@@ -262,18 +262,18 @@ const AppliedJobs = () => {
                 return (
                   <div
                     key={application._id}
-                    className="bg-[#0A0A0A] border border-white/10 rounded-sm p-5 shadow-[0_4px_20px_-10px_rgba(16,185,129,0.3)]"
+                    className="bg-background border border-white/10 rounded-sm p-5 shadow-[0_4px_20px_-10px_rgba(16,185,129,0.3)]"
                   >
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold text-white uppercase tracking-tight">
                           {application.job?.title}
                         </h3>
-                        <p className="text-[#FFD700] text-xs font-mono uppercase">
+                        <p className="text-primary text-xs uppercase">
                           {application.job?.company?.name}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 text-[10px] font-mono border ${config.bg} ${config.text} border-current/20 rounded-sm`}>
+                      <span className={`px-3 py-1 text-xs border ${config.bg} ${config.text} border-current/20 rounded-sm`}>
                         {config.label}
                       </span>
                     </div>
@@ -290,18 +290,18 @@ const AppliedJobs = () => {
                 return (
                   <div
                     key={application._id}
-                    className="bg-[#0A0A0A] border border-white/10 rounded-sm p-5 opacity-60"
+                    className="bg-background border border-white/10 rounded-sm p-5 opacity-60"
                   >
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold text-white uppercase tracking-tight">
                           {application.job?.title}
                         </h3>
-                        <p className="text-[#FFD700] text-xs font-mono uppercase">
+                        <p className="text-primary text-xs uppercase">
                           {application.job?.company?.name}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 text-[10px] font-mono border ${config.bg} ${config.text} border-current/20 rounded-sm`}>
+                      <span className={`px-3 py-1 text-xs border ${config.bg} ${config.text} border-current/20 rounded-sm`}>
                         {config.label}
                       </span>
                     </div>

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { GEMINI_MODELS } from "../config/aiModels.js";
 
 const questionSchema = new mongoose.Schema({
   question: {
@@ -140,7 +141,7 @@ const mcqTestSchema = new mongoose.Schema(
     // AI-generated metadata
     generatedBy: {
       type: String,
-      default: "gemini-1.5-flash",
+      default: GEMINI_MODELS.FLASH,
     },
     generationPrompt: {
       type: String, // Store the prompt used for reproducibility

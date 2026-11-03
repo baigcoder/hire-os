@@ -110,12 +110,12 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="w-full max-w-lg bg-[#111111] border border-white/10 rounded-lg overflow-hidden max-h-[calc(100vh-2rem)] flex flex-col"
+          className="w-full max-w-lg bg-card border border-white/10 rounded-lg overflow-hidden max-h-[calc(100vh-2rem)] flex flex-col"
         >
           {/* Header */}
           <div className="p-4 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Quote className="w-5 h-5 text-[#FFD700]" />
+              <Quote className="w-5 h-5 text-primary" />
               <h3 className="text-lg font-bold text-white">
                 {existingReview
                   ? "Update Your Review"
@@ -134,7 +134,7 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
           <div className="p-6 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 text-[#FFD700] animate-spin" />
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
               </div>
             ) : (
               <div className="space-y-6">
@@ -156,7 +156,7 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
                         <Star
                           className={`w-8 h-8 ${
                             (hoverRating || rating) >= star
-                              ? "text-[#FFD700] fill-[#FFD700]"
+                              ? "text-primary fill-primary"
                               : "text-gray-600"
                           }`}
                         />
@@ -178,7 +178,7 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Sum up your experience..."
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-[#FFD700]/50 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none"
                     maxLength={100}
                   />
                 </div>
@@ -192,7 +192,7 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Share your experience with HIRE.OS..."
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-[#FFD700]/50 focus:outline-none resize-none"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none resize-none"
                     rows={4}
                     maxLength={500}
                   />
@@ -202,8 +202,8 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
 
                 {/* Info badge */}
-                <div className="flex items-center gap-2 p-3 bg-[#00FF94]/5 border border-[#00FF94]/20 rounded-sm">
-                  <CheckCircle2 className="w-4 h-4 text-[#00FF94] flex-shrink-0" />
+                <div className="flex items-center gap-2 p-3 bg-accent/5 border border-accent/20 rounded-sm">
+                  <CheckCircle2 className="w-4 h-4 text-accent flex-shrink-0" />
                   <p className="text-xs text-gray-400">
                     Your review will be displayed on our landing page with your
                     name
@@ -225,7 +225,7 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
             <Button
               onClick={handleSubmit}
               disabled={submitting || loading}
-              className="px-6 py-2 text-sm bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold"
+              className="px-6 py-2 text-sm bg-primary text-black hover:bg-[#FFE44D] font-bold"
             >
               {submitting ? (
                 <>
@@ -256,11 +256,11 @@ export const WriteReviewButton = ({ variant = "default", className = "" }) => {
         <motion.div
           whileHover={{ scale: 1.02 }}
           onClick={() => setShowModal(true)}
-          className={`p-4 bg-gradient-to-br from-[#FFD700]/10 to-transparent border border-[#FFD700]/20 rounded-lg cursor-pointer hover:border-[#FFD700]/40 transition-all ${className}`}
+          className={`p-4 border border-primary/20 rounded-lg cursor-pointer hover:border-primary/40 transition-all bg-primary ${className}`}
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#FFD700]/10 rounded-sm">
-              <MessageSquare className="w-5 h-5 text-[#FFD700]" />
+            <div className="p-2 bg-primary/10 rounded-sm">
+              <MessageSquare className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h4 className="text-sm font-bold text-white">
@@ -284,7 +284,7 @@ export const WriteReviewButton = ({ variant = "default", className = "" }) => {
     <>
       <Button
         onClick={() => setShowModal(true)}
-        className={`bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/20 ${className}`}
+        className={`bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 ${className}`}
       >
         <PenLine className="w-4 h-4 mr-2" />
         Write a Review

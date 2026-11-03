@@ -208,9 +208,9 @@ const ResumeAnalyzer = () => {
 
   const getFitBadge = (fit) => {
     const styles = {
-      Excellent: "bg-[#00FF94]/20 text-[#00FF94] border-[#00FF94]/30",
+      Excellent: "bg-accent/20 text-accent border-accent/30",
       Strong: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-      Good: "bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30",
+      Good: "bg-primary/20 text-primary border-primary/30",
       Fair: "bg-amber-500/20 text-amber-400 border-amber-500/30",
       "Needs Improvement": "bg-red-500/20 text-red-400 border-red-500/30",
     };
@@ -267,8 +267,8 @@ const ResumeAnalyzer = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-10 h-10 rounded-sm bg-[#FFD700]/10 flex items-center justify-center border border-[#FFD700]/30">
-              <FileSearch className="w-5 h-5 text-[#FFD700]" />
+            <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center border border-primary/30">
+              <FileSearch className="w-5 h-5 text-primary" />
             </div>
             Resume Analyzer
           </h2>
@@ -300,16 +300,16 @@ const ResumeAnalyzer = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-[#111111] border border-white/10 rounded-md p-12 flex flex-col items-center justify-center min-h-[400px]"
+            className="bg-card border border-white/10 rounded-md p-12 flex flex-col items-center justify-center min-h-[400px]"
           >
             {/* Animated Loader */}
             <div className="relative mb-8">
-              <div className="w-24 h-24 rounded-full border-4 border-[#FFD700]/20 animate-pulse" />
+              <div className="w-24 h-24 rounded-full border-4 border-primary/20 animate-pulse" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="w-16 h-16 rounded-full border-t-4 border-[#FFD700]"
+                  className="w-16 h-16 rounded-full border-t-4 border-primary"
                 />
               </div>
               <motion.span
@@ -337,7 +337,7 @@ const ResumeAnalyzer = () => {
               {loadingSteps.map((step, idx) => (
                 <motion.div
                   key={idx}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${idx <= loadingStep ? "bg-[#FFD700]" : "bg-white/20"
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${idx <= loadingStep ? "bg-primary" : "bg-white/20"
                     }`}
                   animate={{
                     scale: idx === loadingStep ? [1, 1.2, 1] : 1,
@@ -367,10 +367,10 @@ const ResumeAnalyzer = () => {
           >
             {/* Existing Analysis Quick View */}
             {existingAnalysis && !resumeText && (
-              <div className="bg-[#111111] border border-white/10 rounded-md p-4">
+              <div className="bg-card border border-white/10 rounded-md p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="text-2xl font-bold text-[#FFD700] font-mono">
+                    <div className="text-2xl font-bold text-primary">
                       {existingAnalysis.score}%
                     </div>
                     <div>
@@ -391,7 +391,7 @@ const ResumeAnalyzer = () => {
                     onClick={() => setAnalysis(existingAnalysis)}
                     variant="outline"
                     size="sm"
-                    className="border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700]/10"
+                    className="border-primary/30 text-primary hover:bg-primary/10"
                   >
                     View Details
                   </Button>
@@ -400,20 +400,19 @@ const ResumeAnalyzer = () => {
             )}
 
             {/* Resume Input */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-12 h-12 border-t border-r border-white/10" />
+            <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden">
 
               {/* PDF Upload Section */}
               <div className="mb-6">
-                <label className="text-xs text-[#FFD700] uppercase tracking-wider mb-3 block font-mono">
+                <label className="text-xs text-primary mb-3 block">
                   📄 Upload PDF Resume (Recommended)
                 </label>
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#FFD700]/30 rounded-md cursor-pointer bg-[#0A0A0A] hover:bg-[#FFD700]/5 hover:border-[#FFD700]/50 transition-all">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-primary/30 rounded-md cursor-pointer bg-background hover:bg-primary/5 hover:border-primary/50 transition-all">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     {pdfFile ? (
                       <>
-                        <FileText className="w-8 h-8 mb-2 text-[#FFD700]" />
-                        <p className="text-sm text-[#FFD700] font-medium">
+                        <FileText className="w-8 h-8 mb-2 text-primary" />
+                        <p className="text-sm text-primary font-medium">
                           {pdfFile.name}
                         </p>
                         <p className="text-xs text-gray-500">
@@ -422,9 +421,9 @@ const ResumeAnalyzer = () => {
                       </>
                     ) : (
                       <>
-                        <Upload className="w-8 h-8 mb-2 text-[#FFD700]/60" />
+                        <Upload className="w-8 h-8 mb-2 text-primary/60" />
                         <p className="text-sm text-gray-400">
-                          <span className="text-[#FFD700] font-medium">
+                          <span className="text-primary font-medium">
                             Click to upload
                           </span>{" "}
                           or drag and drop
@@ -454,7 +453,7 @@ const ResumeAnalyzer = () => {
               </div>
 
               {/* Text Input */}
-              <label className="text-xs text-gray-500 uppercase tracking-wider mb-3 block font-mono">
+              <label className="text-xs text-gray-500 mb-3 block">
                 Paste Resume Text
               </label>
               <textarea
@@ -462,7 +461,7 @@ const ResumeAnalyzer = () => {
                 onChange={(e) => setResumeText(e.target.value)}
                 placeholder="Alternatively, paste your resume content here..."
                 rows={6}
-                className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-[#FFD700]/50 focus:outline-none resize-none font-mono text-sm"
+                className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none resize-none text-sm"
               />
 
               <div className="flex items-center justify-between mt-4">
@@ -474,7 +473,7 @@ const ResumeAnalyzer = () => {
 
                 <button
                   onClick={() => setShowJobInput(!showJobInput)}
-                  className="text-[#FFD700] text-sm flex items-center gap-1 hover:underline"
+                  className="text-primary text-sm flex items-center gap-1 hover:underline"
                 >
                   {showJobInput ? "Hide" : "Compare to Job"}
                   {showJobInput ? (
@@ -493,9 +492,9 @@ const ResumeAnalyzer = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-[#111111] border border-[#FFD700]/20 rounded-md p-6"
+                  className="bg-card border border-primary/20 rounded-md p-6"
                 >
-                  <label className="text-xs text-[#FFD700] uppercase tracking-wider mb-3 block font-mono">
+                  <label className="text-xs text-primary mb-3 block">
                     Job Description (Optional)
                   </label>
                   <textarea
@@ -503,7 +502,7 @@ const ResumeAnalyzer = () => {
                     onChange={(e) => setJobDescription(e.target.value)}
                     placeholder="Paste the job description to compare your resume against specific requirements..."
                     rows={4}
-                    className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-[#FFD700]/50 focus:outline-none resize-none font-mono text-sm"
+                    className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none resize-none text-sm"
                   />
                 </motion.div>
               )}
@@ -513,7 +512,7 @@ const ResumeAnalyzer = () => {
             <Button
               onClick={handleAnalyze}
               disabled={loading || resumeText.length < 100}
-              className="w-full py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold text-sm uppercase tracking-wider disabled:opacity-50"
+              className="w-full py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold text-sm disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -536,9 +535,7 @@ const ResumeAnalyzer = () => {
             className="space-y-6"
           >
             {/* Score Card */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-[#FFD700]/30" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-[#FFD700]/30" />
+            <div className="bg-card border border-white/10 rounded-md p-8 relative overflow-hidden">
 
               <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                 {/* Score Circle */}
@@ -565,10 +562,10 @@ const ResumeAnalyzer = () => {
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-bold text-white font-mono">
+                    <span className="text-4xl font-bold text-white">
                       {analysis.score}
                     </span>
-                    <span className="text-xs text-gray-500 uppercase tracking-wider">
+                    <span className="text-xs text-gray-500">
                       Score
                     </span>
                   </div>
@@ -588,8 +585,8 @@ const ResumeAnalyzer = () => {
                           ? "🚀 GPT-4o mini"
                           : analysis.source === "gemini-ai"
                             ? "✨ Gemini AI"
-                            : analysis.analysisMethod === "unified-3-engine"
-                              ? "🔥 3-Engine AI"
+                            : analysis.analysisMethod === "unified-multi-engine"
+                              ? "🔥 Multi-Engine AI"
                               : "Quick Scan"}
                       </Badge>
                     )}
@@ -600,7 +597,7 @@ const ResumeAnalyzer = () => {
                       <div className="text-xs text-gray-500 uppercase mb-1">
                         ATS Score
                       </div>
-                      <div className="text-xl font-bold text-white font-mono">
+                      <div className="text-xl font-bold text-white">
                         {analysis.atsScore || "--"}%
                       </div>
                     </div>
@@ -608,7 +605,7 @@ const ResumeAnalyzer = () => {
                       <div className="text-xs text-gray-500 uppercase mb-1">
                         Skills Found
                       </div>
-                      <div className="text-xl font-bold text-white font-mono">
+                      <div className="text-xl font-bold text-white">
                         {analysis.totalSkillsFound ||
                           analysis.skills?.technical?.length ||
                           analysis.skills?.matched?.length ||
@@ -619,7 +616,7 @@ const ResumeAnalyzer = () => {
                       <div className="text-xs text-gray-500 uppercase mb-1">
                         Experience
                       </div>
-                      <div className="text-xl font-bold text-white font-mono">
+                      <div className="text-xl font-bold text-white">
                         {analysis.experienceYears
                           ? `${analysis.experienceYears} yrs`
                           : analysis.experience?.totalYears
@@ -633,7 +630,7 @@ const ResumeAnalyzer = () => {
                       <div className="text-xs text-gray-500 uppercase mb-1">
                         Education
                       </div>
-                      <div className="text-xl font-bold text-white font-mono truncate">
+                      <div className="text-xl font-bold text-white truncate">
                         {analysis.educationLevel ||
                           analysis.education?.level ||
                           "--"}
@@ -650,10 +647,10 @@ const ResumeAnalyzer = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-[#111111] border border-white/10 rounded-md p-6"
+                className="bg-card border border-white/10 rounded-md p-6"
               >
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-[#FFD700]" />
+                <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-primary" />
                   Score Breakdown
                 </h3>
                 <div className="space-y-4">
@@ -672,7 +669,7 @@ const ResumeAnalyzer = () => {
                           <span className="text-sm text-gray-400 group-hover:text-white transition-colors">
                             {item.label}
                           </span>
-                          <span className="text-sm font-mono text-white">
+                          <span className="text-sm text-white">
                             {score}<span className="text-gray-600">/{item.max}</span>
                           </span>
                         </div>
@@ -692,8 +689,8 @@ const ResumeAnalyzer = () => {
             )}   {/* Skills Section */}
             <div className="grid md:grid-cols-2 gap-4">
               {/* Matched Skills */}
-              <div className="bg-[#111111] border border-white/10 rounded-md p-5">
-                <h3 className="text-sm font-bold text-[#00FF94] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <div className="bg-card border border-white/10 rounded-md p-5">
+                <h3 className="text-sm font-bold text-accent mb-4 flex items-center gap-2">
                   <CheckCircle className="w-4 h-4" />
                   Skills Matched (
                   {
@@ -717,7 +714,7 @@ const ResumeAnalyzer = () => {
                     .map((skill, idx) => (
                       <Badge
                         key={idx}
-                        className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30 text-xs"
+                        className="bg-accent/10 text-accent border-accent/30 text-xs"
                       >
                         {skill}
                       </Badge>
@@ -736,8 +733,8 @@ const ResumeAnalyzer = () => {
               </div>
 
               {/* Missing Skills */}
-              <div className="bg-[#111111] border border-white/10 rounded-md p-5">
-                <h3 className="text-sm font-bold text-amber-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <div className="bg-card border border-white/10 rounded-md p-5">
+                <h3 className="text-sm font-bold text-amber-400 mb-4 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
                   Skills to Add (
                   {
@@ -769,8 +766,8 @@ const ResumeAnalyzer = () => {
 
             {/* Suggestions */}
             {getSuggestions().length > 0 && (
-              <div className="bg-[#111111] border border-[#FFD700]/20 rounded-md p-5">
-                <h3 className="text-sm font-bold text-[#FFD700] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <div className="bg-card border border-primary/20 rounded-md p-5">
+                <h3 className="text-sm font-bold text-primary mb-4 flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
                   Improvement Suggestions
                 </h3>
@@ -780,7 +777,7 @@ const ResumeAnalyzer = () => {
                       key={idx}
                       className="flex items-start gap-2 text-gray-300 text-sm"
                     >
-                      <ArrowRight className="w-4 h-4 text-[#FFD700] mt-0.5 flex-shrink-0" />
+                      <ArrowRight className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       {typeof suggestion === "string"
                         ? suggestion
                         : suggestion?.suggestion ||
@@ -794,8 +791,8 @@ const ResumeAnalyzer = () => {
 
             {/* Quick Wins Section */}
             {analysis.quickWins && analysis.quickWins.length > 0 && (
-              <div className="bg-[#111111] border border-[#00FF94]/20 rounded-md p-5">
-                <h3 className="text-sm font-bold text-[#00FF94] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <div className="bg-card border border-accent/20 rounded-md p-5">
+                <h3 className="text-sm font-bold text-accent mb-4 flex items-center gap-2">
                   <Zap className="w-4 h-4" />
                   Quick Wins (30 min or less)
                 </h3>
@@ -805,7 +802,7 @@ const ResumeAnalyzer = () => {
                       key={idx}
                       className="flex items-start gap-2 text-gray-300 text-sm"
                     >
-                      <CheckCircle className="w-4 h-4 text-[#00FF94] mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
                       {typeof win === "string" ? win : win?.suggestion || win}
                     </li>
                   ))}
@@ -816,8 +813,8 @@ const ResumeAnalyzer = () => {
             {/* ATS Optimization Tips */}
             {analysis.atsOptimizationTips &&
               analysis.atsOptimizationTips.length > 0 && (
-                <div className="bg-[#111111] border border-cyan-500/20 rounded-md p-5">
-                  <h3 className="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <div className="bg-card border border-cyan-500/20 rounded-md p-5">
+                  <h3 className="text-sm font-bold text-cyan-400 mb-4 flex items-center gap-2">
                     <Target className="w-4 h-4" />
                     ATS Optimization Tips
                   </h3>
@@ -838,8 +835,8 @@ const ResumeAnalyzer = () => {
             {/* Learning Resources */}
             {analysis.learningResources &&
               analysis.learningResources.length > 0 && (
-                <div className="bg-[#111111] border border-purple-500/20 rounded-md p-5">
-                  <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <div className="bg-card border border-purple-500/20 rounded-md p-5">
+                  <h3 className="text-sm font-bold text-purple-400 mb-4 flex items-center gap-2">
                     <GraduationCap className="w-4 h-4" />
                     Recommended Learning Resources
                   </h3>
@@ -880,8 +877,8 @@ const ResumeAnalyzer = () => {
             {/* Interview Preparation */}
             {analysis.interviewQuestions &&
               analysis.interviewQuestions.length > 0 && (
-                <div className="bg-[#111111] border border-pink-500/20 rounded-md p-5">
-                  <h3 className="text-sm font-bold text-pink-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <div className="bg-card border border-pink-500/20 rounded-md p-5">
+                  <h3 className="text-sm font-bold text-pink-400 mb-4 flex items-center gap-2">
                     <Briefcase className="w-4 h-4" />
                     Interview Preparation
                   </h3>
@@ -899,7 +896,7 @@ const ResumeAnalyzer = () => {
                         </p>
                         {q.howToPrepare && (
                           <p className="text-gray-400 text-xs">
-                            <span className="text-[#FFD700]">
+                            <span className="text-primary">
                               How to prepare:
                             </span>{" "}
                             {q.howToPrepare}
@@ -913,8 +910,8 @@ const ResumeAnalyzer = () => {
 
             {/* Key Strengths */}
             {analysis.keyStrengths && analysis.keyStrengths.length > 0 && (
-              <div className="bg-[#111111] border border-emerald-500/20 rounded-md p-5">
-                <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <div className="bg-card border border-emerald-500/20 rounded-md p-5">
+                <h3 className="text-sm font-bold text-emerald-400 mb-4 flex items-center gap-2">
                   <Award className="w-4 h-4" />
                   Your Key Strengths
                 </h3>
@@ -936,8 +933,8 @@ const ResumeAnalyzer = () => {
 
             {/* Market Position */}
             {analysis.competitorComparison && (
-              <div className="bg-[#111111] border border-white/10 rounded-md p-5">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+              <div className="bg-card border border-white/10 rounded-md p-5">
+                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" />
                   Market Position
                 </h3>
@@ -962,8 +959,8 @@ const ResumeAnalyzer = () => {
                   )}
                 </div>
                 {analysis.competitorComparison.competitiveAdvantage && (
-                  <div className="mt-3 p-3 bg-[#FFD700]/10 rounded-sm">
-                    <div className="text-xs text-[#FFD700] uppercase mb-1">
+                  <div className="mt-3 p-3 bg-primary/10 rounded-sm">
+                    <div className="text-xs text-primary uppercase mb-1">
                       Competitive Advantage
                     </div>
                     <div className="text-sm text-gray-300">

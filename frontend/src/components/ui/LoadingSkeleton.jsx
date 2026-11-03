@@ -19,14 +19,14 @@ const SkeletonBase = ({ className = "", ...props }) => (
     variants={shimmerVariants}
     initial="initial"
     animate="animate"
-    className={`bg-gradient-to-r from-white/5 via-[#FFD700]/10 to-white/5 bg-[length:200%_100%] rounded-sm ${className}`}
+    className={`bg-[length:200%_100%] rounded-sm bg-primary ${className}`}
     {...props}
   />
 );
 
 // Job Card Skeleton
 export const JobCardSkeleton = () => (
-  <div className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5 space-y-4">
+  <div className="bg-background border border-white/10 rounded-sm p-5 space-y-4">
     <div className="flex items-start gap-4">
       <SkeletonBase className="w-14 h-14 rounded-sm" />
       <div className="flex-1 space-y-2">
@@ -61,7 +61,7 @@ export const TableRowSkeleton = ({ columns = 5 }) => (
 
 // Stats Card Skeleton
 export const StatsCardSkeleton = () => (
-  <div className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5">
+  <div className="bg-background border border-white/10 rounded-sm p-5">
     <div className="flex items-center justify-between mb-3">
       <SkeletonBase className="w-10 h-10 rounded-sm" />
       <SkeletonBase className="w-12 h-5 rounded-sm" />
@@ -73,7 +73,7 @@ export const StatsCardSkeleton = () => (
 
 // Profile Card Skeleton
 export const ProfileCardSkeleton = () => (
-  <div className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5 space-y-4">
+  <div className="bg-background border border-white/10 rounded-sm p-5 space-y-4">
     <div className="flex items-center gap-4">
       <SkeletonBase className="w-16 h-16 rounded-sm" />
       <div className="space-y-2">
@@ -115,7 +115,7 @@ export const DashboardSkeleton = () => (
 
 // Applicant Row Skeleton
 export const ApplicantRowSkeleton = () => (
-  <div className="bg-[#0a0a0a] border border-white/10 rounded-sm p-4">
+  <div className="bg-background border border-white/10 rounded-sm p-4">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
         <SkeletonBase className="w-10 h-10 rounded-sm" />
@@ -136,7 +136,7 @@ export const ApplicantRowSkeleton = () => (
 
 // Analytics Chart Skeleton
 export const ChartSkeleton = ({ height = 200 }) => (
-  <div className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5">
+  <div className="bg-background border border-white/10 rounded-sm p-5">
     <div className="flex items-center gap-2 mb-4">
       <SkeletonBase className="w-4 h-4" />
       <SkeletonBase className="h-4 w-32" />
@@ -149,7 +149,7 @@ export const ChartSkeleton = ({ height = 200 }) => (
 export const KanbanColumnSkeleton = () => (
   <div className="flex-shrink-0 w-64">
     <SkeletonBase className="h-12 w-full rounded-t-sm mb-0" />
-    <div className="min-h-[300px] p-2 space-y-2 bg-[#0a0a0a] border border-t-0 border-white/10 rounded-b-sm">
+    <div className="min-h-[300px] p-2 space-y-2 bg-background border border-t-0 border-white/10 rounded-b-sm">
       {Array(3)
         .fill(0)
         .map((_, i) => (

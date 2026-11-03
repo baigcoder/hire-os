@@ -49,7 +49,7 @@ const RatingInput = ({ value, onChange, label, description }) => {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label className="text-gray-400">{label}</Label>
-        <span className="text-xs text-gray-600 font-mono">{value || 0}/5</span>
+        <span className="text-xs text-gray-600">{value || 0}/5</span>
       </div>
       {description && <p className="text-xs text-gray-600">{description}</p>}
       <div className="flex gap-1">
@@ -63,7 +63,7 @@ const RatingInput = ({ value, onChange, label, description }) => {
             <Star
               className={`w-6 h-6 transition-colors ${
                 star <= (value || 0)
-                  ? "text-[#FFD700] fill-[#FFD700]"
+                  ? "text-primary fill-primary"
                   : "text-gray-700"
               }`}
             />
@@ -124,7 +124,7 @@ const ScorecardSection = ({ scorecard, onChange }) => {
       {categories.map((cat) => (
         <div
           key={cat.key}
-          className="p-4 bg-[#0A0A0A] border border-white/10 rounded-sm"
+          className="p-4 bg-background border border-white/10 rounded-sm"
         >
           <RatingInput
             value={scorecard[cat.key]?.score}
@@ -136,7 +136,7 @@ const ScorecardSection = ({ scorecard, onChange }) => {
             placeholder={`Notes about ${cat.label.toLowerCase()}...`}
             value={scorecard[cat.key]?.notes || ""}
             onChange={(e) => updateScore(cat.key, "notes", e.target.value)}
-            className="mt-3 bg-[#111111] border-white/10 text-white text-sm"
+            className="mt-3 bg-card border-white/10 text-white text-sm"
           />
         </div>
       ))}
@@ -174,7 +174,7 @@ const TagInput = ({ items, onChange, placeholder, type }) => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="bg-[#0A0A0A] border-white/10 text-white text-sm"
+          className="bg-background border-white/10 text-white text-sm"
         />
         <Button
           type="button"
@@ -193,7 +193,7 @@ const TagInput = ({ items, onChange, placeholder, type }) => {
               key={idx}
               className={`${
                 type === "strength"
-                  ? "bg-[#00FF94]/10 text-[#00FF94]"
+                  ? "bg-accent/10 text-accent"
                   : "bg-red-500/10 text-red-400"
               } flex items-center gap-1`}
             >
@@ -315,7 +315,7 @@ const InterviewFeedbackForm = ({
   })();
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif] py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4 max-w-3xl">
         {/* Header */}
         <motion.div
@@ -325,7 +325,7 @@ const InterviewFeedbackForm = ({
         >
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <MessageSquare className="w-7 h-7 text-[#FFD700]" />
+              <MessageSquare className="w-7 h-7 text-primary" />
               Interview Feedback
             </h1>
             {onClose && (
@@ -341,12 +341,12 @@ const InterviewFeedbackForm = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="p-6 bg-[#111111] border border-white/10 rounded-sm mb-6"
+          className="p-6 bg-card border border-white/10 rounded-sm mb-6"
         >
           <div className="flex items-center gap-4">
             <Avatar className="w-16 h-16 rounded-sm">
               <AvatarImage src={candidate?.profile?.profilePhoto} />
-              <AvatarFallback className="rounded-sm bg-[#FFD700]/10 text-[#FFD700] text-xl font-bold">
+              <AvatarFallback className="rounded-sm bg-primary/10 text-primary text-xl font-bold">
                 {candidate?.fullname?.[0] || "C"}
               </AvatarFallback>
             </Avatar>
@@ -356,7 +356,7 @@ const InterviewFeedbackForm = ({
               </h2>
               <p className="text-gray-400">{candidate?.email}</p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge className="bg-[#FFD700]/10 text-[#FFD700]">
+                <Badge className="bg-primary/10 text-primary">
                   <Briefcase className="w-3 h-3 mr-1" />
                   {job?.title || "Position"}
                 </Badge>
@@ -370,14 +370,14 @@ const InterviewFeedbackForm = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="p-6 bg-[#111111] border border-[#FFD700]/30 rounded-sm mb-6"
+          className="p-6 bg-card border border-primary/30 rounded-sm mb-6"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider">
+              <p className="text-xs text-gray-500">
                 Overall Score
               </p>
-              <p className="text-4xl font-bold text-[#FFD700] font-mono mt-1">
+              <p className="text-4xl font-bold text-primary mt-1">
                 {overallScore}
               </p>
               <p className="text-xs text-gray-600">out of 5.0</p>
@@ -388,7 +388,7 @@ const InterviewFeedbackForm = ({
                   key={star}
                   className={`w-8 h-8 ${
                     star <= Math.round(overallScore)
-                      ? "text-[#FFD700] fill-[#FFD700]"
+                      ? "text-primary fill-primary"
                       : "text-gray-700"
                   }`}
                 />
@@ -402,10 +402,10 @@ const InterviewFeedbackForm = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="p-6 bg-[#111111] border border-white/10 rounded-sm mb-6"
+          className="p-6 bg-card border border-white/10 rounded-sm mb-6"
         >
           <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-            <Star className="w-5 h-5 text-[#FFD700]" />
+            <Star className="w-5 h-5 text-primary" />
             Scorecard
           </h3>
           <ScorecardSection
@@ -423,9 +423,9 @@ const InterviewFeedbackForm = ({
           transition={{ delay: 0.25 }}
           className="grid md:grid-cols-2 gap-6 mb-6"
         >
-          <div className="p-6 bg-[#111111] border border-white/10 rounded-sm">
+          <div className="p-6 bg-card border border-white/10 rounded-sm">
             <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-              <ThumbsUp className="w-4 h-4 text-[#00FF94]" />
+              <ThumbsUp className="w-4 h-4 text-accent" />
               Key Strengths
             </h3>
             <TagInput
@@ -438,7 +438,7 @@ const InterviewFeedbackForm = ({
             />
           </div>
 
-          <div className="p-6 bg-[#111111] border border-white/10 rounded-sm">
+          <div className="p-6 bg-card border border-white/10 rounded-sm">
             <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
               <ThumbsDown className="w-4 h-4 text-red-400" />
               Areas of Concern
@@ -459,7 +459,7 @@ const InterviewFeedbackForm = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="p-6 bg-[#111111] border border-white/10 rounded-sm mb-6"
+          className="p-6 bg-card border border-white/10 rounded-sm mb-6"
         >
           <h3 className="text-sm font-bold text-white mb-4">
             Final Recommendation *
@@ -486,7 +486,7 @@ const InterviewFeedbackForm = ({
                 }
                 className={`p-4 border rounded-sm text-center transition-all ${
                   formData.recommendation === rec.value
-                    ? "border-[#FFD700] bg-[#FFD700]/10"
+                    ? "border-primary bg-primary/10"
                     : "border-white/10 hover:border-white/30"
                 }`}
               >
@@ -515,7 +515,7 @@ const InterviewFeedbackForm = ({
           transition={{ delay: 0.35 }}
           className="grid md:grid-cols-2 gap-6 mb-8"
         >
-          <div className="p-6 bg-[#111111] border border-white/10 rounded-sm">
+          <div className="p-6 bg-card border border-white/10 rounded-sm">
             <Label className="text-gray-400">General Notes</Label>
             <p className="text-xs text-gray-600 mb-2">Visible to hiring team</p>
             <Textarea
@@ -524,11 +524,11 @@ const InterviewFeedbackForm = ({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, notes: e.target.value }))
               }
-              className="bg-[#0A0A0A] border-white/10 text-white min-h-[120px]"
+              className="bg-background border-white/10 text-white min-h-[120px]"
             />
           </div>
 
-          <div className="p-6 bg-[#111111] border border-white/10 rounded-sm">
+          <div className="p-6 bg-card border border-white/10 rounded-sm">
             <Label className="text-gray-400">Private Notes</Label>
             <p className="text-xs text-gray-600 mb-2">Only visible to you</p>
             <Textarea
@@ -540,7 +540,7 @@ const InterviewFeedbackForm = ({
                   privateNotes: e.target.value,
                 }))
               }
-              className="bg-[#0A0A0A] border-white/10 text-white min-h-[120px]"
+              className="bg-background border-white/10 text-white min-h-[120px]"
             />
           </div>
         </motion.div>
@@ -550,7 +550,7 @@ const InterviewFeedbackForm = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="flex items-center justify-between p-6 bg-[#111111] border border-white/10 rounded-sm"
+          className="flex items-center justify-between p-6 bg-card border border-white/10 rounded-sm"
         >
           <Button
             variant="outline"
@@ -575,7 +575,7 @@ const InterviewFeedbackForm = ({
             <Button
               onClick={handleSubmit}
               disabled={submitting || !formData.recommendation}
-              className="bg-[#FFD700] text-black hover:bg-[#FFE44D]"
+              className="bg-primary text-black hover:bg-[#FFE44D]"
             >
               <Send className="w-4 h-4 mr-2" />
               {submitting ? "Submitting..." : "Submit Feedback"}

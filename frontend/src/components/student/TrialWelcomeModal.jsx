@@ -58,7 +58,7 @@ const TrialWelcomeModal = ({ isOpen, onClose, userName, trialEndDate }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80"
           onClick={onClose}
         >
           <motion.div
@@ -66,7 +66,7 @@ const TrialWelcomeModal = ({ isOpen, onClose, userName, trialEndDate }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 20 }}
-            className="relative w-full max-w-lg bg-[#0A0A0A] border border-[#FFD700]/30 rounded-lg overflow-hidden shadow-[0_0_100px_rgba(255,215,0,0.15)]"
+            className="relative w-full max-w-lg bg-background border border-primary/30 rounded-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -78,7 +78,6 @@ const TrialWelcomeModal = ({ isOpen, onClose, userName, trialEndDate }) => {
             </button>
 
             {/* Gold Glow Effect */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#FFD700]/10 rounded-full blur-[100px] -translate-y-1/2" />
 
             {/* Content */}
             <div className="relative p-8 text-center">
@@ -87,14 +86,14 @@ const TrialWelcomeModal = ({ isOpen, onClose, userName, trialEndDate }) => {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
-                className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA500] flex items-center justify-center shadow-[0_0_40px_rgba(255,215,0,0.4)]"
+                className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center bg-primary"
               >
                 <Gift className="w-10 h-10 text-black" />
               </motion.div>
 
               {/* Title */}
-              <h2 className="text-2xl md:text-3xl font-black text-white mb-2 font-['Space_Grotesk',sans-serif]">
-                Welcome to <span className="text-[#FFD700]">HIRE.OS</span>
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-2">
+                Welcome to <span className="text-primary">HIRE.OS</span>
               </h2>
               <p className="text-gray-400 mb-6">
                 Hello{" "}
@@ -109,27 +108,27 @@ const TrialWelcomeModal = ({ isOpen, onClose, userName, trialEndDate }) => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FF94]/10 border border-[#00FF94]/30 rounded-full mb-6"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/30 rounded-full mb-6"
               >
-                <Sparkles className="w-4 h-4 text-[#00FF94]" />
-                <span className="text-[#00FF94] font-bold text-sm">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span className="text-accent font-bold text-sm">
                   30-DAY FREE TRIAL ACTIVATED
                 </span>
               </motion.div>
 
               {/* Days Counter */}
-              <div className="bg-[#111111] border border-white/10 rounded-lg p-4 mb-6">
+              <div className="bg-card border border-white/10 rounded-lg p-4 mb-6">
                 <div className="flex items-center justify-center gap-4">
-                  <Clock className="w-5 h-5 text-[#FFD700]" />
+                  <Clock className="w-5 h-5 text-primary" />
                   <div className="text-left">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">
+                    <p className="text-xs text-gray-500">
                       Trial Expires
                     </p>
                     <p className="text-white font-bold">{formattedEndDate}</p>
                   </div>
                   <div className="h-10 w-px bg-white/10" />
                   <div className="text-center">
-                    <p className="text-3xl font-black text-[#FFD700] font-mono">
+                    <p className="text-3xl font-black text-primary">
                       {daysRemaining}
                     </p>
                     <p className="text-xs text-gray-500">days left</p>
@@ -147,14 +146,14 @@ const TrialWelcomeModal = ({ isOpen, onClose, userName, trialEndDate }) => {
                     transition={{ delay: 0.4 + idx * 0.1 }}
                     className="flex items-center gap-2 p-3 bg-white/5 rounded-lg"
                   >
-                    <div className="w-8 h-8 rounded-md bg-[#FFD700]/10 flex items-center justify-center">
-                      <feature.icon className="w-4 h-4 text-[#FFD700]" />
+                    <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center">
+                      <feature.icon className="w-4 h-4 text-primary" />
                     </div>
                     <div className="text-left">
                       <p className="text-xs font-bold text-white">
                         {feature.title}
                       </p>
-                      <p className="text-[10px] text-gray-500">
+                      <p className="text-xs text-gray-500">
                         {feature.desc}
                       </p>
                     </div>
@@ -168,7 +167,7 @@ const TrialWelcomeModal = ({ isOpen, onClose, userName, trialEndDate }) => {
                   onClose();
                   navigate("/profile?tab=subscription");
                 }}
-                className="w-full py-6 text-base font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-lg uppercase tracking-wider"
+                className="w-full py-6 text-base font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-lg"
               >
                 <Rocket className="w-5 h-5 mr-2" />
                 Start Exploring
@@ -180,7 +179,7 @@ const TrialWelcomeModal = ({ isOpen, onClose, userName, trialEndDate }) => {
             </div>
 
             {/* Bottom Accent */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#FFD700] to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-1" />
           </motion.div>
         </motion.div>
       )}

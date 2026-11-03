@@ -44,9 +44,8 @@ const DashboardLoader = ({
 
   return (
     <div
-      className={`${fullScreen ? "min-h-screen" : "min-h-[400px]"} bg-[#0a0a0a] flex items-center justify-center relative overflow-hidden`}
+      className={`${fullScreen ? "min-h-screen" : "min-h-[400px]"} bg-background flex items-center justify-center relative overflow-hidden`}
     >
-      {/* Industrial Grid Background */}
       <div className="absolute inset-0 opacity-20">
         <div
           className="absolute inset-0"
@@ -58,10 +57,10 @@ const DashboardLoader = ({
       </div>
 
       {/* Corner Accents */}
-      <div className="absolute top-8 left-8 w-16 h-16 border-t-2 border-l-2 border-[#FFD700]/20" />
-      <div className="absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-[#FFD700]/20" />
-      <div className="absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-[#FFD700]/20" />
-      <div className="absolute bottom-8 right-8 w-16 h-16 border-b-2 border-r-2 border-[#FFD700]/20" />
+      <div className="absolute top-8 left-8 w-16 h-16 border-t-2 border-l-2 border-primary/20" />
+      <div className="absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-primary/20" />
+      <div className="absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-primary/20" />
+      <div className="absolute bottom-8 right-8 w-16 h-16 border-b-2 border-r-2 border-primary/20" />
 
       <div className="text-center relative z-10">
         {/* Main Loader Container */}
@@ -73,14 +72,14 @@ const DashboardLoader = ({
         >
           {/* Outer rotating border */}
           <motion.div
-            className="absolute -inset-3 border border-[#FFD700]/20 rounded-sm"
+            className="absolute -inset-3 border border-primary/20 rounded-sm"
             animate={{ rotate: 360 }}
             transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
           />
 
           {/* Middle pulsing border */}
           <motion.div
-            className="absolute -inset-1.5 border border-[#FFD700]/30 rounded-sm"
+            className="absolute -inset-1.5 border border-primary/30 rounded-sm"
             animate={{
               borderColor: [
                 "rgba(255,215,0,0.1)",
@@ -93,7 +92,7 @@ const DashboardLoader = ({
 
           {/* Main box with icon */}
           <motion.div
-            className="w-20 h-20 bg-[#111111] border-2 border-[#FFD700]/40 rounded-sm flex items-center justify-center relative overflow-hidden"
+            className="w-20 h-20 bg-card border-2 border-primary/40 rounded-sm flex items-center justify-center relative overflow-hidden"
             animate={{
               borderColor: [
                 "rgba(255,215,0,0.3)",
@@ -105,7 +104,7 @@ const DashboardLoader = ({
           >
             {/* Scanning line effect */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FFD700]/10 to-transparent"
+              className="absolute inset-0"
               initial={{ y: "-100%" }}
               animate={{ y: "200%" }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -128,10 +127,10 @@ const DashboardLoader = ({
           </motion.div>
 
           {/* Corner decorations */}
-          <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-[#FFD700]" />
-          <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-[#FFD700]" />
-          <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-[#FFD700]" />
-          <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-[#FFD700]" />
+          <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-primary" />
+          <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-primary" />
+          <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-primary" />
+          <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-primary" />
         </motion.div>
 
         {/* HIRE.OS Badge */}
@@ -141,7 +140,7 @@ const DashboardLoader = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-sm text-[#FFD700] text-[10px] font-mono tracking-widest">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 border border-primary/30 rounded-sm text-primary text-xs tracking-widest">
             <Zap className="w-3 h-3" />
             HIRE.OS
           </span>
@@ -149,7 +148,7 @@ const DashboardLoader = ({
 
         {/* Loading Text */}
         <motion.p
-          className="text-gray-500 font-mono text-sm tracking-[0.3em] uppercase mb-4"
+          className="text-gray-500 text-sm mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -165,7 +164,7 @@ const DashboardLoader = ({
           transition={{ delay: 0.4, duration: 0.3 }}
         >
           <motion.div
-            className="h-full bg-gradient-to-r from-transparent via-[#FFD700] to-transparent"
+            className="h-full bg-primary"
             initial={{ x: "-100%" }}
             animate={{ x: "100%" }}
             transition={{
@@ -186,7 +185,7 @@ const DashboardLoader = ({
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
-              className="w-1.5 h-1.5 bg-[#FFD700] rounded-full"
+              className="w-1.5 h-1.5 bg-primary rounded-full"
               animate={{
                 opacity: [0.3, 1, 0.3],
                 scale: [0.8, 1, 0.8],
@@ -221,14 +220,14 @@ export const ComponentLoader = ({
       <motion.div className="relative mb-3">
         {/* Outer ring */}
         <motion.div
-          className="w-12 h-12 border-2 border-[#FFD700]/20 rounded-sm"
+          className="w-12 h-12 border-2 border-primary/20 rounded-sm"
           animate={{ rotate: 360 }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
         />
 
         {/* Inner spinning element */}
         <motion.div
-          className="absolute inset-1 border border-transparent border-t-[#FFD700] border-r-[#FFD700] rounded-sm"
+          className="absolute inset-1 border border-transparent border-t-primary border-r-primary rounded-sm"
           animate={{ rotate: -360 }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
         />
@@ -239,11 +238,11 @@ export const ComponentLoader = ({
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1, repeat: Infinity }}
         >
-          <div className="w-2 h-2 bg-[#FFD700] rounded-sm" />
+          <div className="w-2 h-2 bg-primary rounded-sm" />
         </motion.div>
       </motion.div>
 
-      <p className="text-gray-500 font-mono text-xs tracking-widest uppercase">
+      <p className="text-gray-500 text-xs">
         {message}
       </p>
     </div>
@@ -279,7 +278,7 @@ export const SkeletonLoader = ({ rows = 3, className = "" }) => {
 export const CardLoader = ({ className = "" }) => {
   return (
     <div
-      className={`bg-[#111111] border border-white/10 rounded-sm p-6 ${className}`}
+      className={`bg-card border border-white/10 rounded-sm p-6 ${className}`}
     >
       <div className="flex items-center gap-3 mb-4">
         <motion.div

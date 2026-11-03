@@ -262,7 +262,7 @@ const CallDialog = () => {
         className={`fixed z-50 overflow-hidden shadow-2xl transition-all duration-300 ${
           isMinimized
             ? "bottom-4 right-4 w-72 h-48 rounded-2xl"
-            : "inset-0 bg-[#0A0A0A]"
+            : "inset-0 bg-background"
         } bg-[#1A1A1A] border border-white/10`}
       >
         {/* Minimized / Maximized Toggle */}
@@ -309,9 +309,9 @@ const CallDialog = () => {
           ) : (
             // Audio Call Interface
             <div className="flex flex-col items-center justify-center p-8">
-              <Avatar className="w-32 h-32 border-4 border-[#FFD700] mb-6 animate-pulse">
+              <Avatar className="w-32 h-32 border-4 border-primary mb-6 animate-pulse">
                 <AvatarImage src="" />
-                <AvatarFallback className="text-4xl bg-[#FFD700] text-black font-bold">
+                <AvatarFallback className="text-4xl bg-primary text-black font-bold">
                   {isIncoming ? activeCall.callerName?.[0] : "U"}
                 </AvatarFallback>
               </Avatar>
@@ -332,19 +332,19 @@ const CallDialog = () => {
 
           {/* Controls Overlay */}
           {!isMinimized && (
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 p-4 bg-black/60 backdrop-blur-md rounded-2xl border border-white/10">
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 p-4 bg-black/60 rounded-2xl border border-white/10">
               {/* Call Controls */}
               {callStatus === "ringing" ? (
                 <>
                   <Button
                     onClick={handleEndCall}
-                    className="bg-red-500 hover:bg-red-600 rounded-full w-14 h-14 p-0 shadow-lg shadow-red-500/20"
+                    className="bg-red-500 hover:bg-red-600 rounded-full w-14 h-14 p-0 shadow-lg"
                   >
                     <PhoneOff className="w-6 h-6 text-white" />
                   </Button>
                   <Button
                     onClick={handleAcceptCall}
-                    className="bg-green-500 hover:bg-green-600 rounded-full w-14 h-14 p-0 animate-bounce shadow-lg shadow-green-500/20"
+                    className="bg-green-500 hover:bg-green-600 rounded-full w-14 h-14 p-0 animate-bounce shadow-lg"
                   >
                     <Phone className="w-6 h-6 text-white" />
                   </Button>
@@ -364,7 +364,7 @@ const CallDialog = () => {
 
                   <Button
                     onClick={handleEndCall}
-                    className="bg-red-500 hover:bg-red-600 rounded-full w-16 h-16 p-0 mx-4 shadow-xl shadow-red-500/30"
+                    className="bg-red-500 hover:bg-red-600 rounded-full w-16 h-16 p-0 mx-4 shadow-xl"
                   >
                     <PhoneOff className="w-8 h-8 text-white" />
                   </Button>

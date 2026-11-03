@@ -16,9 +16,6 @@ import {
   Monitor,
   MonitorOff,
   BrainCircuit,
-  Sparkles,
-  AlertTriangle,
-  CheckCircle,
   Users,
   Settings,
   Send,
@@ -28,21 +25,31 @@ import {
   Copy,
   FileText,
   Star,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSupabaseRealtime } from "@/hooks/useSupabaseRealtime";
 import { useVideoCall } from "@/hooks/useVideoCall";
+import { useCallConfig } from "@/hooks/useCallConfig";
 import ReportGenerationModal from "./ReportGenerationModal";
+import ConsentScreen from "./integrity/ConsentScreen";
+import IntegrityMeter from "./integrity/IntegrityMeter";
+import MonitoringBadge from "./integrity/MonitoringBadge";
+import { useCandidateProctor } from "@/integrity/useCandidateProctor";
+import { useRecruiterVerifier } from "@/integrity/useRecruiterVerifier";
+import { useIntegrityLive } from "@/integrity/useIntegrityLive";
+import { integrityApi } from "@/integrity/api";
+import CopilotPanel from "./copilot/CopilotPanel";
+import { useCopilot } from "@/copilot/useCopilot";
+import { useTranscriber } from "@/copilot/useTranscriber";
 
 const LiveInterview = () => {
   const { id: interviewId } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
+
+  // ICE (TURN) servers and the private channel token for this interview
+  const callConfig = useCallConfig(interviewId);
 
   // Supabase Realtime hook for room management and chat (replaces Socket.io)
   const {
@@ -58,13 +65,17 @@ const LiveInterview = () => {
     stopTyping,
     updateMediaState,
     endInterview,
-    reportFraudAlert,
-    toggleMonitoring, // Recruiter can toggle monitoring on/off
     // WebRTC signaling via Supabase
     sendOffer,
     sendAnswer,
     sendIceCandidate,
   } = useSupabaseRealtime(interviewId, {
+    callConfig:
+      callConfig.status === "loading"
+        ? undefined
+        : callConfig.status === "denied"
+          ? null
+          : callConfig.config,
     onOffer: (data) => {
       // Handle incoming WebRTC offer
       if (videoCallRef.current?.handleOffer) {
@@ -82,23 +93,6 @@ const LiveInterview = () => {
       if (videoCallRef.current?.handleIceCandidate) {
         videoCallRef.current.handleIceCandidate(data);
       }
-    },
-    onFraudAlert: (data) => {
-      // Add to fraud alerts state for recruiter panel
-      const newAlert = {
-        id: Date.now(),
-        type: data.type,
-        details: data.details,
-        timestamp: new Date().toISOString(),
-        severity: data.type === 'tab_switch' ? 'high' :
-          data.type === 'copy_paste' ? 'medium' : 'low',
-      };
-      setFraudAlerts(prev => [newAlert, ...prev].slice(0, 10));
-      toast.warning(`⚠️ Fraud Alert: ${data.type}`);
-    },
-    onMonitoringToggle: (enabled) => {
-      // Candidate receives monitoring state from recruiter
-      setIsMonitoringEnabled(enabled);
     },
   });
 
@@ -125,7 +119,9 @@ const LiveInterview = () => {
     handleOffer,
     handleAnswer,
     handleIceCandidate,
-  } = useVideoCall({ sendOffer, sendAnswer, sendIceCandidate }, interviewId);
+  } = useVideoCall({ sendOffer, sendAnswer, sendIceCandidate }, interviewId, {
+    iceServers: callConfig.config?.ice?.iceServers,
+  });
 
   // Store video call ref for signaling callbacks from Supabase
   useEffect(() => {
@@ -138,31 +134,15 @@ const LiveInterview = () => {
 
   // Local state
   const [inputMessage, setInputMessage] = useState("");
-  const [aiFeedback, setAiFeedback] = useState([]);
-  const [confidenceScore, setConfidenceScore] = useState(85);
   const [timer, setTimer] = useState(0);
   const [showChat, setShowChat] = useState(true);
   const [isWaiting, setIsWaiting] = useState(true);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [fraudAlerts, setFraudAlerts] = useState([]); // Real-time fraud alerts for recruiter
-  const [isMonitoringEnabled, setIsMonitoringEnabled] = useState(true); // Fraud monitoring state (controllable by recruiter)
 
   // Recruiter-only enhancements
   const [interviewNotes, setInterviewNotes] = useState("");
   const [candidateRating, setCandidateRating] = useState(0);
   const [showNotes, setShowNotes] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [suggestedQuestions] = useState([
-    "Tell me about your most challenging project and how you handled it.",
-    "Describe a situation where you had to work with a difficult team member.",
-    "What's your approach to learning new technologies?",
-    "How do you prioritize tasks when facing multiple deadlines?",
-    "Tell me about a time you failed and what you learned from it.",
-    "What motivates you in your professional career?",
-    "How do you handle constructive criticism?",
-    "Where do you see yourself in 5 years?",
-  ]);
-
   // MCQ Results for recruiter
   const [mcqResults, setMcqResults] = useState(null);
 
@@ -191,7 +171,7 @@ const LiveInterview = () => {
     const fetchMcqResults = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/interviews/${interviewId}/mcq/result`,
+          `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/interview/${interviewId}/mcq/result`,
           { credentials: 'include' }
         );
         if (response.ok) {
@@ -227,97 +207,48 @@ const LiveInterview = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Comprehensive fraud detection for candidates (silently broadcast to recruiter)
-  // Only runs when monitoring is enabled by recruiter
-  useEffect(() => {
-    if (!isRecruiter && roomState === "active" && isMonitoringEnabled) {
-      // Tab switch detection (silent - don't alert student)
-      const handleVisibility = () => {
-        if (document.hidden) {
-          reportFraudAlert("tab_switch", "Candidate switched tabs during interview");
-        }
-      };
+  // Live-interview integrity (see src/integrity). Candidate: consent,
+  // in-browser detectors and signed batches. Recruiter: live monitor and
+  // an independent detector on the video it receives.
+  const proctor = useCandidateProctor({
+    interviewId,
+    enabled: Boolean(interviewId) && !isRecruiter,
+    localVideoRef,
+    localStream,
+    remoteStream,
+  });
+  const [joinWithoutMonitoring, setJoinWithoutMonitoring] = useState(false);
+  const showConsent =
+    !isRecruiter &&
+    (proctor.phase === "needs_consent" ||
+      proctor.phase === "starting" ||
+      (proctor.phase === "declined" && !joinWithoutMonitoring));
+  const integrityLive = useIntegrityLive({
+    interviewId,
+    enabled: Boolean(interviewId) && isRecruiter,
+  });
+  const verifier = useRecruiterVerifier({
+    interviewId,
+    enabled:
+      integrityLive.snapshot?.role === "recruiter" &&
+      integrityLive.snapshot?.status === "active" &&
+      Boolean(remoteStream),
+    remoteVideoRef,
+  });
 
-      // Copy/paste detection
-      const handleCopy = () => {
-        reportFraudAlert("copy_paste", "Candidate used copy action during interview");
-      };
-
-      const handlePaste = () => {
-        reportFraudAlert("copy_paste", "Candidate used paste action during interview");
-      };
-
-      // Window blur detection (alt+tab, etc)
-      const handleBlur = () => {
-        reportFraudAlert("window_blur", "Candidate switched away from interview window");
-      };
-
-      // Developer tools detection
-      const handleKeydown = (e) => {
-        // Detect F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-        if (e.key === "F12" ||
-          (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
-          (e.ctrlKey && e.key === "u")) {
-          reportFraudAlert("dev_tools", "Candidate attempted to open developer tools");
-          e.preventDefault();
-        }
-        // Detect Alt+Tab capture (limited)
-        if (e.altKey && e.key === "Tab") {
-          reportFraudAlert("window_switch", "Candidate used Alt+Tab shortcut");
-        }
-      };
-
-      // Right-click detection (potential copy attempt)
-      const handleContextMenu = (e) => {
-        reportFraudAlert("context_menu", "Candidate opened context menu");
-      };
-
-      document.addEventListener("visibilitychange", handleVisibility);
-      document.addEventListener("copy", handleCopy);
-      document.addEventListener("paste", handlePaste);
-      window.addEventListener("blur", handleBlur);
-      document.addEventListener("keydown", handleKeydown);
-      document.addEventListener("contextmenu", handleContextMenu);
-
-      return () => {
-        document.removeEventListener("visibilitychange", handleVisibility);
-        document.removeEventListener("copy", handleCopy);
-        document.removeEventListener("paste", handlePaste);
-        window.removeEventListener("blur", handleBlur);
-        document.removeEventListener("keydown", handleKeydown);
-        document.removeEventListener("contextmenu", handleContextMenu);
-      };
-    }
-  }, [roomState, reportFraudAlert, isRecruiter]);
-
-  // AI Feedback simulation
-  useEffect(() => {
-    if (roomState !== "active") return;
-
-    const feedbacks = [
-      { type: "positive", text: "Great eye contact maintained." },
-      {
-        type: "neutral",
-        text: "Try to slow down your speaking pace slightly.",
-      },
-      { type: "warning", text: "Technical term explained vaguely." },
-      {
-        type: "positive",
-        text: "Excellent structured answer using STAR method.",
-      },
-    ];
-
-    const interval = setInterval(() => {
-      const randomFeedback =
-        feedbacks[Math.floor(Math.random() * feedbacks.length)];
-      setAiFeedback((prev) => [randomFeedback, ...prev].slice(0, 3));
-      setConfidenceScore((prev) =>
-        Math.min(100, Math.max(60, prev + (Math.random() * 10 - 5))),
-      );
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [roomState]);
+  // Each side transcribes its own mic, only once the candidate has agreed
+  // and while the call is live; the recruiter also gets the copilot
+  const transcriber = useTranscriber({
+    interviewId,
+    enabled:
+      roomState === "active" &&
+      (isRecruiter
+        ? integrityLive.snapshot?.status === "active"
+        : proctor.phase === "active"),
+    stream: localStream,
+  });
+  const copilot = useCopilot({ interviewId, enabled: Boolean(interviewId) && isRecruiter });
+  const [sideTab, setSideTab] = useState("copilot");
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -365,8 +296,11 @@ const LiveInterview = () => {
     if (isRecruiter) {
       // Simply end the call first, recruiter can generate report after
       endInterview();
+      // Closes integrity monitoring and queues its report
+      if (interviewId) integrityApi.endCall(interviewId).catch(() => {});
       setIsReportModalOpen(true); // Auto open report modal
     } else {
+      proctor.stop();
       navigate(-1);
       cleanup();
     }
@@ -385,24 +319,35 @@ const LiveInterview = () => {
   // Get other participant for display (compare by user ID since we use Supabase presence)
   const otherParticipant = participants.find((p) => p.id !== user?._id);
 
+  const consentOverlay = showConsent ? (
+    <ConsentScreen
+      phase={proctor.phase}
+      policy={proctor.policy}
+      error={proctor.error}
+      onAccept={proctor.accept}
+      onDecline={proctor.decline}
+      onContinue={() => setJoinWithoutMonitoring(true)}
+    />
+  ) : null;
+
   // Waiting Room
   if (isWaiting) {
     return (
-      <div className="h-screen bg-[#0A0A0A] text-white flex items-center justify-center font-['Space_Grotesk',sans-serif]">
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="h-screen bg-background text-white flex items-center justify-center">
+        {consentOverlay}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center max-w-md px-6 relative z-10"
         >
-          <div className="w-20 h-20 mx-auto mb-6 bg-[#FFD700] rounded-sm flex items-center justify-center border border-[#FFD700]/50 shadow-[0_0_30px_rgba(255,215,0,0.3)]">
+          <div className="w-20 h-20 mx-auto mb-6 bg-primary rounded-sm flex items-center justify-center border border-primary/50">
             <Video className="w-10 h-10 text-black" />
           </div>
 
           <h1 className="text-2xl font-bold mb-2 uppercase tracking-tight">
             Waiting Room
           </h1>
-          <div className="text-gray-500 mb-8 text-sm font-mono">
+          <div className="text-gray-500 mb-8 text-sm">
             {isRecruiter
               ? "Awaiting candidate connection..."
               : "Awaiting interviewer connection..."}
@@ -410,20 +355,21 @@ const LiveInterview = () => {
 
           {/* Connection Status */}
           <div className="flex items-center justify-center gap-2 mb-6">
+            {!isRecruiter && <MonitoringBadge phase={proctor.phase} engine={proctor.engine} />}
             {isConnected ? (
-              <Badge className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30 rounded-sm text-xs uppercase tracking-wider font-mono">
+              <Badge className="bg-accent/10 text-accent border-accent/30 rounded-sm text-xs">
                 <Wifi className="w-3 h-3 mr-1" /> Connected
               </Badge>
             ) : (
-              <Badge className="bg-red-500/10 text-red-400 border-red-500/30 rounded-sm text-xs uppercase tracking-wider font-mono">
+              <Badge className="bg-red-500/10 text-red-400 border-red-500/30 rounded-sm text-xs">
                 <WifiOff className="w-3 h-3 mr-1" /> Connecting...
               </Badge>
             )}
           </div>
 
           {/* Participants */}
-          <div className="bg-[#111111] rounded-sm p-4 mb-6 text-left border border-white/10">
-            <div className="text-xs text-gray-500 mb-3 flex items-center gap-2 uppercase tracking-wider">
+          <div className="bg-card rounded-sm p-4 mb-6 text-left border border-white/10">
+            <div className="text-xs text-gray-500 mb-3 flex items-center gap-2">
               <Users size={14} /> In Room ({participants.length})
             </div>
             {participants.map((p, idx) => (
@@ -481,7 +427,7 @@ const LiveInterview = () => {
           <Button
             variant="outline"
             onClick={copyMeetingLink}
-            className="border-white/10 mt-4 rounded-sm text-xs uppercase tracking-wider"
+            className="border-white/10 mt-4 rounded-sm text-xs"
           >
             <Copy className="mr-2" size={14} /> Copy Link
           </Button>
@@ -490,7 +436,7 @@ const LiveInterview = () => {
           {isRecruiter && participants.length > 1 && (
             <Button
               onClick={createOffer}
-              className="w-full mt-4 bg-[#00FF94] hover:bg-[#00FF94]/80 text-black font-bold rounded-sm uppercase tracking-wider"
+              className="w-full mt-4 bg-accent hover:bg-accent/80 text-black font-bold rounded-sm"
             >
               Start Interview
             </Button>
@@ -502,8 +448,8 @@ const LiveInterview = () => {
 
   // Main Interview View
   return (
-    <div className="h-screen bg-[#0A0A0A] text-white flex flex-col font-['Space_Grotesk',sans-serif] overflow-hidden">
-      <div className="fixed inset-0 bg-grid opacity-20 pointer-events-none" />
+    <div className="h-screen bg-background text-white flex flex-col overflow-hidden">
+      {consentOverlay}
       <ReportGenerationModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
@@ -512,17 +458,17 @@ const LiveInterview = () => {
       />
 
       {/* Header */}
-      <div className="h-14 border-b border-white/10 bg-[#111111] flex items-center justify-between px-6 shrink-0 relative z-20">
+      <div className="h-14 border-b border-white/10 bg-card flex items-center justify-between px-6 shrink-0 relative z-20">
         <div className="flex items-center gap-4">
-          <div className="bg-red-500/10 border border-red-500/30 text-red-500 px-2 py-0.5 rounded-sm text-[10px] font-bold flex items-center gap-2 animate-pulse uppercase tracking-wider">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-500 px-2 py-0.5 rounded-sm text-xs font-bold flex items-center gap-2 animate-pulse">
             <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div> Live
           </div>
           <div className="h-6 w-px bg-white/10"></div>
           <div>
-            <h2 className="font-bold text-xs text-gray-300 uppercase tracking-wider">
+            <h2 className="font-bold text-xs text-gray-300">
               Interview Session
             </h2>
-            <p className="text-[10px] text-gray-500 font-mono">
+            <p className="text-xs text-gray-500">
               {formatTime(timer)} • {participants.length} Connected
             </p>
           </div>
@@ -531,7 +477,7 @@ const LiveInterview = () => {
         <div className="flex items-center gap-4">
           {/* Connection Status */}
           <Badge
-            className={`rounded-sm text-[10px] uppercase tracking-wider font-mono ${isConnected ? "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30" : "bg-red-500/10 text-red-400 border-red-500/30"}`}
+            className={`rounded-sm text-xs ${isConnected ? "bg-accent/10 text-accent border-accent/30" : "bg-red-500/10 text-red-400 border-red-500/30"}`}
           >
             {isConnected ? (
               <Wifi size={10} className="mr-1" />
@@ -541,43 +487,13 @@ const LiveInterview = () => {
             {connectionState}
           </Badge>
 
-          {/* AI Confidence */}
-          <div className="hidden md:flex flex-col items-end mr-4">
-            <div className="flex items-center gap-2 text-[10px] text-[#FFD700] font-bold mb-1 uppercase tracking-wider">
-              <BrainCircuit size={12} /> AI Analysis
-            </div>
-            <div className="w-24 h-1 bg-white/5 rounded-sm overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-yellow-600 to-yellow-400"
-                animate={{ width: `${confidenceScore}%` }}
-                transition={{ type: "spring", stiffness: 50 }}
-              />
-            </div>
-          </div>
+          {!isRecruiter && <MonitoringBadge phase={proctor.phase} engine={proctor.engine} />}
 
           {isRecruiter && (
             <>
-              {/* Monitoring Toggle */}
               <Button
                 variant="outline"
-                onClick={() => {
-                  const newState = !isMonitoringEnabled;
-                  setIsMonitoringEnabled(newState);
-                  toggleMonitoring(newState);
-                  toast.info(newState ? "🔒 Monitoring enabled" : "🔓 Monitoring disabled");
-                }}
-                className={`${isMonitoringEnabled
-                  ? 'bg-green-600/10 text-green-400 border-green-600/30 hover:bg-green-600/20'
-                  : 'bg-gray-600/10 text-gray-400 border-gray-600/30 hover:bg-gray-600/20'
-                  }`}
-              >
-                {isMonitoringEnabled ? <Eye className="mr-2 h-4 w-4" /> : <EyeOff className="mr-2 h-4 w-4" />}
-                {isMonitoringEnabled ? "Monitoring ON" : "Monitoring OFF"}
-              </Button>
-
-              <Button
-                variant="outline"
-                className="bg-[#FFD700]/10 hover:bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/50 hover:border-[#FFD700] font-bold uppercase tracking-wider animate-pulse"
+                className="bg-primary/10 hover:bg-primary/20 text-primary border-primary/50 hover:border-primary font-bold animate-pulse"
                 onClick={() => setIsReportModalOpen(true)}
               >
                 <FileText className="mr-2 h-4 w-4" /> Generate Report
@@ -635,78 +551,26 @@ const LiveInterview = () => {
               </div>
             </div>
 
-            {/* AI Insights */}
-            <div className="absolute top-6 right-6 z-20 max-w-xs space-y-2">
-              <AnimatePresence>
-                {aiFeedback.map((fb, idx) => (
-                  <motion.div
-                    key={`${fb.text}-${idx}`}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0 }}
-                    className={`p-3 rounded-lg backdrop-blur-md border border-white/10 text-xs font-medium shadow-lg
-                                            ${fb.type === "positive"
-                        ? "bg-green-500/10 text-green-300"
-                        : fb.type === "warning"
-                          ? "bg-red-500/10 text-red-300"
-                          : "bg-blue-500/10 text-cyan-300"
-                      }`}
-                  >
-                    <div className="flex gap-2">
-                      {fb.type === "positive" ? (
-                        <CheckCircle size={14} />
-                      ) : fb.type === "warning" ? (
-                        <AlertTriangle size={14} />
-                      ) : (
-                        <Sparkles size={14} />
-                      )}
-                      {fb.text}
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-
-            {/* Fraud Alerts Panel - Recruiter Only */}
-            {isRecruiter && fraudAlerts.length > 0 && (
-              <div className="absolute top-6 left-6 z-20 w-72">
-                <div className="bg-red-500/10 backdrop-blur-md border border-red-500/30 rounded-lg p-3">
-                  <div className="flex items-center gap-2 text-red-400 font-bold text-xs mb-2 uppercase tracking-wider">
-                    <AlertTriangle size={14} />
-                    Fraud Detection ({fraudAlerts.length})
-                  </div>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {fraudAlerts.slice(0, 5).map((alert) => (
-                      <motion.div
-                        key={alert.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className={`p-2 rounded text-xs border ${alert.severity === 'high'
-                          ? 'bg-red-500/20 border-red-500/40 text-red-300'
-                          : alert.severity === 'medium'
-                            ? 'bg-orange-500/20 border-orange-500/40 text-orange-300'
-                            : 'bg-yellow-500/20 border-yellow-500/40 text-yellow-300'
-                          }`}
-                      >
-                        <div className="font-semibold capitalize">{alert.type.replace(/_/g, ' ')}</div>
-                        <div className="text-[10px] opacity-80">
-                          {new Date(alert.timestamp).toLocaleTimeString()}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
+            {/* Integrity monitor - Recruiter Only */}
+            {integrityLive.snapshot?.role === "recruiter" && (
+              <div className="absolute top-6 left-6 z-20 w-80">
+                <IntegrityMeter
+                  interviewId={interviewId}
+                  snapshot={integrityLive.snapshot}
+                  streaming={integrityLive.streaming}
+                  verifier={verifier}
+                />
               </div>
             )}
 
             {/* MCQ Results Panel - Recruiter Only */}
             {isRecruiter && mcqResults && (
               <div className="absolute top-6 right-6 z-20 w-64">
-                <div className={`backdrop-blur-md border rounded-lg p-3 ${mcqResults.passed
+                <div className={`border rounded-lg p-3 ${mcqResults.passed
                   ? 'bg-green-500/10 border-green-500/30'
                   : 'bg-amber-500/10 border-amber-500/30'
                   }`}>
-                  <div className={`flex items-center gap-2 font-bold text-xs mb-2 uppercase tracking-wider ${mcqResults.passed ? 'text-green-400' : 'text-amber-400'
+                  <div className={`flex items-center gap-2 font-bold text-xs mb-2 ${mcqResults.passed ? 'text-green-400' : 'text-amber-400'
                     }`}>
                     <BrainCircuit size={14} />
                     MCQ Test Results
@@ -714,15 +578,15 @@ const LiveInterview = () => {
                   <div className="grid grid-cols-3 gap-2 text-center mb-2">
                     <div className="bg-black/30 rounded p-2">
                       <div className="text-xl font-bold text-white">{mcqResults.score}%</div>
-                      <div className="text-[9px] text-gray-500">SCORE</div>
+                      <div className="text-xs text-gray-500">SCORE</div>
                     </div>
                     <div className="bg-black/30 rounded p-2">
                       <div className="text-xl font-bold text-green-400">{mcqResults.correctAnswers}</div>
-                      <div className="text-[9px] text-gray-500">CORRECT</div>
+                      <div className="text-xs text-gray-500">CORRECT</div>
                     </div>
                     <div className="bg-black/30 rounded p-2">
                       <div className="text-xl font-bold text-red-400">{mcqResults.wrongAnswers}</div>
-                      <div className="text-[9px] text-gray-500">WRONG</div>
+                      <div className="text-xs text-gray-500">WRONG</div>
                     </div>
                   </div>
                   <div className={`text-center py-1 rounded text-xs font-bold ${mcqResults.passed
@@ -739,16 +603,16 @@ const LiveInterview = () => {
             {isRecruiter && (
               <div className="absolute bottom-6 left-6 z-20 w-80 space-y-3">
                 {/* Quick Rating */}
-                <div className="bg-[#111111]/95 backdrop-blur-md border border-white/10 rounded-lg p-3">
+                <div className="bg-card/95 border border-white/10 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Quick Rating</span>
+                    <span className="text-xs text-gray-400 font-bold">Quick Rating</span>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           onClick={() => setCandidateRating(star)}
                           className={`p-1 rounded transition-all ${candidateRating >= star
-                            ? 'text-[#FFD700]'
+                            ? 'text-primary'
                             : 'text-gray-600 hover:text-gray-400'
                             }`}
                         >
@@ -756,36 +620,6 @@ const LiveInterview = () => {
                         </button>
                       ))}
                     </div>
-                  </div>
-                </div>
-
-                {/* Question Prompts */}
-                <div className="bg-[#111111]/95 backdrop-blur-md border border-white/10 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Suggested Question</span>
-                    <span className="text-[10px] text-[#FFD700]">{currentQuestionIndex + 1}/{suggestedQuestions.length}</span>
-                  </div>
-                  <p className="text-xs text-gray-300 mb-3 leading-relaxed">
-                    "{suggestedQuestions[currentQuestionIndex]}"
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
-                      disabled={currentQuestionIndex === 0}
-                      className="flex-1 h-7 text-xs border-white/10 text-gray-400"
-                    >
-                      <ChevronLeft size={12} className="mr-1" /> Prev
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => setCurrentQuestionIndex(prev => Math.min(suggestedQuestions.length - 1, prev + 1))}
-                      disabled={currentQuestionIndex === suggestedQuestions.length - 1}
-                      className="flex-1 h-7 text-xs bg-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/30 border border-[#FFD700]/30"
-                    >
-                      Next <ChevronRight size={12} className="ml-1" />
-                    </Button>
                   </div>
                 </div>
 
@@ -805,16 +639,16 @@ const LiveInterview = () => {
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="bg-[#111111]/95 backdrop-blur-md border border-white/10 rounded-lg p-3"
+                    className="bg-card/95 border border-white/10 rounded-lg p-3"
                   >
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold block mb-2">Interview Notes</span>
+                    <span className="text-xs text-gray-400 font-bold block mb-2">Interview Notes</span>
                     <textarea
                       value={interviewNotes}
                       onChange={(e) => setInterviewNotes(e.target.value)}
                       placeholder="Type your observations here..."
-                      className="w-full h-24 bg-black/30 border border-white/10 rounded text-xs text-gray-300 p-2 resize-none focus:outline-none focus:border-[#FFD700]/50"
+                      className="w-full h-24 bg-black/30 border border-white/10 rounded text-xs text-gray-300 p-2 resize-none focus:outline-none focus:border-primary/50"
                     />
-                    <div className="text-[10px] text-gray-500 mt-1">
+                    <div className="text-xs text-gray-500 mt-1">
                       {interviewNotes.length} characters
                     </div>
                   </motion.div>
@@ -837,7 +671,7 @@ const LiveInterview = () => {
                 <VideoOff className="text-gray-500" size={24} />
               </div>
             )}
-            <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 rounded text-[10px] font-bold">
+            <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 rounded text-xs font-bold">
               You
             </div>
           </div>
@@ -887,16 +721,43 @@ const LiveInterview = () => {
           {showChat && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 320, opacity: 1 }}
+              animate={{ width: isRecruiter ? 380 : 320, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="bg-[#0a0a0a] border-l border-white/10 flex flex-col overflow-hidden"
+              className="bg-background border-l border-white/10 flex flex-col overflow-hidden"
             >
-              <div className="p-4 border-b border-white/5 font-bold text-sm flex justify-between items-center">
-                INTERVIEW CHAT
-                <Badge variant="secondary" className="text-xs">
-                  {messages.length}
-                </Badge>
-              </div>
+              {isRecruiter ? (
+                <div className="flex border-b border-white/5" role="tablist">
+                  {[
+                    ["copilot", "Copilot"],
+                    ["chat", `Chat (${messages.length})`],
+                  ].map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      role="tab"
+                      aria-selected={sideTab === key}
+                      onClick={() => setSideTab(key)}
+                      className={`flex-1 p-3 text-xs font-bold border-b-2 ${
+                        sideTab === key ? "border-primary text-white" : "border-transparent text-gray-500 hover:text-gray-300"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 border-b border-white/5 font-bold text-sm flex justify-between items-center">
+                  INTERVIEW CHAT
+                  <Badge variant="secondary" className="text-xs">
+                    {messages.length}
+                  </Badge>
+                </div>
+              )}
+
+              {isRecruiter && sideTab === "copilot" ? (
+                <CopilotPanel interviewId={interviewId} copilot={copilot} transcriber={transcriber} />
+              ) : (
+              <>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -910,7 +771,7 @@ const LiveInterview = () => {
                     key={msg.id || idx}
                     className={`flex flex-col ${msg.senderId === user?._id || msg.senderName === user?.fullname ? "items-end" : "items-start"}`}
                   >
-                    <p className="text-[10px] text-gray-500 mb-1">
+                    <p className="text-xs text-gray-500 mb-1">
                       {msg.senderName}
                     </p>
                     <div
@@ -922,7 +783,7 @@ const LiveInterview = () => {
                     >
                       {msg.message}
                     </div>
-                    <span className="text-[10px] text-gray-600 mt-1 px-1">
+                    <span className="text-xs text-gray-600 mt-1 px-1">
                       {new Date(msg.timestamp).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -959,6 +820,8 @@ const LiveInterview = () => {
                   </Button>
                 </form>
               </div>
+              </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

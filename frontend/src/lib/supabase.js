@@ -146,36 +146,8 @@ export const supabaseStorage = {
     return { data, error };
   },
 
-  // Upload resume/CV
-  uploadResume: async (userId, file) => {
-    // Generate unique filename
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${userId}/resume_${Date.now()}.${fileExt}`;
-
-    const { data, error } = await supabase.storage
-      .from("resumes")
-      .upload(fileName, file, {
-        cacheControl: "3600",
-        upsert: true,
-        contentType: file.type,
-      });
-
-    if (error) return { data: null, error };
-
-    // Get public URL
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("resumes").getPublicUrl(fileName);
-
-    return {
-      data: {
-        path: fileName,
-        url: publicUrl,
-        originalName: file.name,
-      },
-      error: null,
-    };
-  },
+  // Resumes are not uploaded from the browser: the private "resumes" bucket
+  // is written by the API (POST /user/profile/update) with the service-role key.
 
   // Upload profile photo
   uploadProfilePhoto: async (userId, file) => {

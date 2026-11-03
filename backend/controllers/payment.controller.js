@@ -1,4 +1,9 @@
 import crypto from "crypto";
+import {
+  rawBodyOf,
+  verifySafepaySignature,
+  webhookPolicy,
+} from "../utils/webhookSecurity.js";
 import axios from "axios";
 import { Company, SUBSCRIPTION_PLANS } from "../models/company.model.js";
 import { Notification } from "../models/notification.model.js";
@@ -14,7 +19,8 @@ const SAFEPAY_CONFIG = {
     "ce4bc1209378d9b7d179e8f18d5b74549dca056f8ccabc6fd7af176ddcb8b100",
   baseUrl: "https://sandbox.api.getsafepay.com", // For TEST MODE
   checkoutBaseUrl: "https://sandbox.api.getsafepay.com/checkout", // Checkout UI base
-  webhookSecret: process.env.SAFEPAY_WEBHOOK_SECRET || "webhook_secret_key",
+  // No default: a known fallback secret lets anyone forge webhooks (S16)
+  webhookSecret: process.env.SAFEPAY_WEBHOOK_SECRET,
 };
 
 // Helper: Generate unique transaction ID
@@ -121,13 +127,14 @@ const createSafepaySession = async (
 // Initiate payment - Creates SafePay checkout session
 export const initiatePayment = async (req, res) => {
   try {
-    const { planId, billingCycle, amount, companyData } = req.body;
+    const { planId, billingCycle = "monthly", companyData } = req.body;
 
-    // Validate input
-    if (!planId || !amount) {
+    // SECURITY (S19): the amount comes from the plan table, never the client
+    const amount = SUBSCRIPTION_PLANS[planId]?.prices?.[billingCycle];
+    if (!amount) {
       return res.status(400).json({
         success: false,
-        message: "Plan ID and amount are required",
+        message: "Unknown plan or billing cycle",
       });
     }
 
@@ -355,23 +362,27 @@ export const completeRegistration = async (req, res) => {
 // SafePay Webhook Handler
 export const handleWebhook = async (req, res) => {
   try {
-    const signature = req.headers["x-safepay-signature"];
-    const payload = JSON.stringify(req.body);
-
-    // Verify webhook signature (in production)
-    if (!SAFEPAY_CONFIG.sandbox && signature) {
-      const expectedSignature = crypto
-        .createHmac("sha256", SAFEPAY_CONFIG.webhookSecret)
-        .update(payload)
-        .digest("hex");
-
-      if (signature !== expectedSignature) {
-        console.warn("Invalid webhook signature");
-        return res.status(401).json({
-          success: false,
-          message: "Invalid webhook signature",
-        });
-      }
+    // SECURITY (S16): every webhook must carry a valid signature over the
+    // raw body. Previously it was only checked when the header was present
+    // and never in "sandbox" mode (hardcoded on), so anyone could activate
+    // a subscription by posting a fake payment.success event.
+    const policy = webhookPolicy(SAFEPAY_CONFIG.webhookSecret, "SafePay");
+    if (!policy.allowed) {
+      return res.status(503).json({ success: false, message: "Webhooks are not configured" });
+    }
+    if (
+      policy.verify &&
+      !verifySafepaySignature(
+        rawBodyOf(req),
+        req.headers["x-safepay-signature"],
+        SAFEPAY_CONFIG.webhookSecret,
+      )
+    ) {
+      console.warn("Invalid SafePay webhook signature");
+      return res.status(401).json({
+        success: false,
+        message: "Invalid webhook signature",
+      });
     }
 
     const { event, data } = req.body;

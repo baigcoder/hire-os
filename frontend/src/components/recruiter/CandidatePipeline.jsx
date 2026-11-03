@@ -87,7 +87,7 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="relative p-4 bg-[#0A0A0A] border border-white/10 rounded-sm hover:border-[#8B5CF6]/30 transition-all cursor-pointer group"
+      className="relative p-4 bg-background border border-white/10 rounded-sm hover:border-[#8B5CF6]/30 transition-all cursor-pointer group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onSelect(application)}
@@ -124,7 +124,7 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
                   <MoreVertical className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#111111] border-white/10">
+              <DropdownMenuContent className="bg-card border-white/10">
                 <DropdownMenuItem className="text-gray-300">
                   <Eye className="w-4 h-4 mr-2" /> View Profile
                 </DropdownMenuItem>
@@ -155,13 +155,13 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
               {application.tags.slice(0, 2).map((tag, idx) => (
                 <Badge
                   key={idx}
-                  className="text-[10px] bg-white/5 text-gray-400 rounded-sm px-1.5 py-0"
+                  className="text-xs bg-white/5 text-gray-400 rounded-sm px-1.5 py-0"
                 >
                   {tag}
                 </Badge>
               ))}
               {application.tags.length > 2 && (
-                <Badge className="text-[10px] bg-white/5 text-gray-400 rounded-sm px-1.5 py-0">
+                <Badge className="text-xs bg-white/5 text-gray-400 rounded-sm px-1.5 py-0">
                   +{application.tags.length - 2}
                 </Badge>
               )}
@@ -183,12 +183,12 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
                           : "#F59E0B",
                   }}
                 />
-                <span className="text-xs font-mono text-gray-400">
+                <span className="text-xs text-gray-400">
                   {application.resumeScore}%
                 </span>
               </div>
             )}
-            <span className="text-[10px] text-gray-600 font-mono">
+            <span className="text-xs text-gray-600">
               {new Date(application.createdAt).toLocaleDateString()}
             </span>
           </div>
@@ -238,7 +238,7 @@ const PipelineColumn = ({
 
   return (
     <div
-      className={`flex-shrink-0 w-80 bg-[#111111] border rounded-sm transition-colors ${isDragOver ? "border-[#8B5CF6]/50 bg-[#8B5CF6]/5" : "border-white/10"
+      className={`flex-shrink-0 w-80 bg-card border rounded-sm transition-colors ${isDragOver ? "border-[#8B5CF6]/50 bg-[#8B5CF6]/5" : "border-white/10"
         }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -255,7 +255,7 @@ const PipelineColumn = ({
             <h3 className="text-sm font-bold text-white">{stage.label}</h3>
           </div>
           <Badge
-            className="text-xs font-mono rounded-sm"
+            className="text-xs rounded-sm"
             style={{
               backgroundColor: `${stage.color}15`,
               color: stage.color,
@@ -333,6 +333,11 @@ const CandidatePipeline = () => {
   };
 
   const handleStatusChange = async (applicationId, newStatus) => {
+    // Offers and hires follow the owner's decision on the interview report
+    if (["offer_pending", "hired"].includes(newStatus)) {
+      toast.info("Offers and hires go through the owner's decision. Send the interview report from the candidate's scorecard.");
+      return;
+    }
     try {
       const response = await api.post(
         `${APPLICATION_API_END_POINT}/status/${applicationId}/update`,
@@ -349,7 +354,7 @@ const CandidatePipeline = () => {
       }
     } catch (error) {
       console.error("Status update error:", error);
-      toast.error("Failed to update status");
+      toast.error(error.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -405,13 +410,13 @@ const CandidatePipeline = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             <div className="w-16 h-16 border-2 border-[#8B5CF6]/30 rounded-sm" />
             <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#8B5CF6] rounded-sm animate-spin" />
           </div>
-          <p className="text-[#8B5CF6]/70 font-mono text-sm uppercase tracking-wider">
+          <p className="text-[#8B5CF6]/70 text-sm">
             Loading Pipeline...
           </p>
         </div>
@@ -420,8 +425,7 @@ const CandidatePipeline = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background">
 
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
@@ -465,7 +469,7 @@ const CandidatePipeline = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-[#111111] border border-white/10 rounded-sm"
+          className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-card border border-white/10 rounded-sm"
         >
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -473,15 +477,15 @@ const CandidatePipeline = () => {
               placeholder="Search candidates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-[#0A0A0A] border-white/10 text-white"
+              className="pl-10 bg-background border-white/10 text-white"
             />
           </div>
 
           <Select value={selectedJob} onValueChange={setSelectedJob}>
-            <SelectTrigger className="w-[200px] bg-[#0A0A0A] border-white/10 text-white">
+            <SelectTrigger className="w-[200px] bg-background border-white/10 text-white">
               <SelectValue placeholder="All Jobs" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111111] border-white/10">
+            <SelectContent className="bg-card border-white/10">
               <SelectItem value="all" className="text-gray-300">
                 All Jobs
               </SelectItem>
@@ -497,7 +501,7 @@ const CandidatePipeline = () => {
             </SelectContent>
           </Select>
 
-          <Badge className="bg-[#8B5CF6]/10 text-[#8B5CF6] font-mono">
+          <Badge className="bg-[#8B5CF6]/10 text-[#8B5CF6]">
             {getFilteredApplications().length} candidates
           </Badge>
         </motion.div>
@@ -537,7 +541,7 @@ const CandidatePipeline = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25 }}
-              className="absolute right-0 top-0 h-full w-full max-w-md bg-[#111111] border-l border-white/10 overflow-y-auto"
+              className="absolute right-0 top-0 h-full w-full max-w-md bg-card border-l border-white/10 overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
@@ -577,7 +581,7 @@ const CandidatePipeline = () => {
                 {/* Resume Score */}
                 {selectedApplication.resumeScore && (
                   <div className="p-4 bg-white/5 rounded-sm mb-6">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">
+                    <p className="text-xs text-gray-500 mb-2">
                       Resume Score
                     </p>
                     <div className="flex items-center gap-3">
@@ -595,7 +599,7 @@ const CandidatePipeline = () => {
                           }}
                         />
                       </div>
-                      <span className="text-white font-bold font-mono">
+                      <span className="text-white font-bold">
                         {selectedApplication.resumeScore}%
                       </span>
                     </div>

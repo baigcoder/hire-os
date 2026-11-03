@@ -60,10 +60,10 @@ const CompaniesTable = () => {
   if (!filterCompany || filterCompany.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-sm bg-[#FFD700]/10 border border-[#FFD700]/30 flex items-center justify-center">
-          <Building2 className="w-10 h-10 text-[#FFD700]/50" />
+        <div className="w-20 h-20 mx-auto mb-6 rounded-sm bg-primary/10 border border-primary/30 flex items-center justify-center">
+          <Building2 className="w-10 h-10 text-primary/50" />
         </div>
-        <p className="text-gray-400 font-mono text-sm mb-2">No companies found</p>
+        <p className="text-gray-400 text-sm mb-2">No companies found</p>
         <p className="text-gray-600 text-xs mb-6">
           {searchCompanyByText
             ? "Try adjusting your search"
@@ -72,7 +72,7 @@ const CompaniesTable = () => {
         {!searchCompanyByText && (
           <Button
             onClick={() => navigate("/admin/companies/create")}
-            className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold uppercase tracking-wider"
+            className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold"
           >
             Add Company
           </Button>
@@ -85,19 +85,19 @@ const CompaniesTable = () => {
     <div>
       {/* Table Header */}
       <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/10 bg-white/[0.02]">
-        <div className="col-span-4 text-[10px] text-gray-500 uppercase tracking-wider font-mono">
+        <div className="col-span-4 text-xs text-gray-500">
           Company
         </div>
-        <div className="col-span-2 text-[10px] text-gray-500 uppercase tracking-wider font-mono">
+        <div className="col-span-2 text-xs text-gray-500">
           Status
         </div>
-        <div className="col-span-2 text-[10px] text-gray-500 uppercase tracking-wider font-mono">
+        <div className="col-span-2 text-xs text-gray-500">
           Team
         </div>
-        <div className="col-span-2 text-[10px] text-gray-500 uppercase tracking-wider font-mono">
+        <div className="col-span-2 text-xs text-gray-500">
           Registered
         </div>
-        <div className="col-span-2 text-[10px] text-gray-500 uppercase tracking-wider font-mono text-right">
+        <div className="col-span-2 text-xs text-gray-500 text-right">
           Actions
         </div>
       </div>
@@ -115,23 +115,23 @@ const CompaniesTable = () => {
             {/* Company Info */}
             <div className="col-span-4 flex items-center gap-4">
               <div className="relative">
-                <Avatar className="h-12 w-12 rounded-sm border-2 border-[#FFD700]/20 group-hover:border-[#FFD700]/50 transition-colors">
+                <Avatar className="h-12 w-12 rounded-sm border-2 border-primary/20 group-hover:border-primary/50 transition-colors">
                   {company.logo ? (
                     <AvatarImage src={company.logo} className="object-cover" />
                   ) : null}
-                  <AvatarFallback className="bg-[#FFD700]/10 text-[#FFD700] font-bold text-lg rounded-sm">
+                  <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg rounded-sm">
                     {company.name?.charAt(0)?.toUpperCase() || "C"}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#00FF94] rounded-full border-2 border-[#0A0A0A] flex items-center justify-center">
-                  <span className="w-2 h-2 bg-[#00FF94] rounded-full animate-pulse" />
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-accent rounded-full border-2 border-background flex items-center justify-center">
+                  <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
                 </div>
               </div>
               <div className="min-w-0">
-                <p className="text-white font-medium truncate text-sm group-hover:text-[#FFD700] transition-colors">
+                <p className="text-white font-medium truncate text-sm group-hover:text-primary transition-colors">
                   {company.name}
                 </p>
-                <p className="text-gray-500 text-xs font-mono truncate">
+                <p className="text-gray-500 text-xs truncate">
                   {company.website || company.location || "No details"}
                 </p>
               </div>
@@ -140,11 +140,11 @@ const CompaniesTable = () => {
             {/* Status */}
             <div className="col-span-2 flex items-center">
               <Badge
-                className="rounded-sm text-[10px] font-mono px-2 py-1 bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30 uppercase"
+                className="rounded-sm text-xs px-2 py-1 bg-accent/10 text-accent border-accent/30 uppercase"
               >
                 <span className="relative flex h-1.5 w-1.5 mr-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF94] opacity-50"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00FF94]"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-50"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent"></span>
                 </span>
                 Active
               </Badge>
@@ -156,7 +156,7 @@ const CompaniesTable = () => {
                 <div className="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center">
                   <Users className="w-4 h-4" />
                 </div>
-                <span className="text-sm font-mono">
+                <span className="text-sm">
                   {company.recruiters?.length || company.teamSize || 1}
                 </span>
               </div>
@@ -164,7 +164,7 @@ const CompaniesTable = () => {
 
             {/* Date */}
             <div className="col-span-2 flex items-center">
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-mono">
+              <div className="flex items-center gap-2 text-gray-500 text-xs">
                 <Calendar className="w-3 h-3" />
                 {formatDate(company.createdAt)}
               </div>
@@ -193,13 +193,13 @@ const CompaniesTable = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="bg-[#111111] border-white/10 rounded-sm w-48"
+                  className="bg-card border-white/10 rounded-sm w-48"
                 >
                   <DropdownMenuItem
                     onClick={() => navigate(`/admin/companies/${company._id}`)}
                     className="text-gray-300 hover:bg-white/5 focus:bg-white/5 rounded-sm cursor-pointer"
                   >
-                    <Edit2 className="w-4 h-4 mr-2 text-[#FFD700]" />
+                    <Edit2 className="w-4 h-4 mr-2 text-primary" />
                     Edit Details
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -236,7 +236,7 @@ const CompaniesTable = () => {
 
       {/* Footer */}
       <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between bg-white/[0.01]">
-        <p className="text-[10px] text-gray-600 font-mono uppercase">
+        <p className="text-xs text-gray-600 uppercase">
           Showing {filterCompany?.length || 0} of {companies?.length || 0} companies
         </p>
         <div className="flex items-center gap-2 text-xs">

@@ -53,7 +53,7 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
 
   if (loading) {
     return (
-      <div className="bg-[#111111] border border-white/10 rounded-sm p-4 animate-pulse">
+      <div className="bg-card border border-white/10 rounded-sm p-4 animate-pulse">
         <div className="h-4 w-24 bg-white/10 rounded mb-3"></div>
         <div className="h-8 w-full bg-white/10 rounded"></div>
       </div>
@@ -62,7 +62,7 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
 
   if (error || !subscription) {
     return (
-      <div className="bg-[#111111] border border-red-500/30 rounded-sm p-4">
+      <div className="bg-card border border-red-500/30 rounded-sm p-4">
         <p className="text-red-400 text-sm">Failed to load subscription</p>
         <Button size="sm" onClick={refresh} className="mt-2 text-xs">
           <RefreshCw className="w-3 h-3 mr-1" /> Retry
@@ -91,12 +91,12 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`bg-[#111111] border ${isExpiringSoon() ? "border-amber-500/30" : "border-white/10"} rounded-sm p-4`}
+        className={`bg-card border ${isExpiringSoon() ? "border-amber-500/30" : "border-white/10"} rounded-sm p-4`}
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Crown className="w-4 h-4 text-[#FFD700]" />
-            <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">
+            <Crown className="w-4 h-4 text-primary" />
+            <span className="text-xs text-gray-400">
               Subscription
             </span>
           </div>
@@ -106,7 +106,7 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div className="bg-white/5 p-2 rounded-sm">
-            <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
               <span>Jobs</span>
               <span>
                 {subscription.usage?.activeJobs || 0}/
@@ -118,7 +118,7 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
             <Progress value={jobsUsage} className="h-1" />
           </div>
           <div className="bg-white/5 p-2 rounded-sm">
-            <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
               <span>Team</span>
               <span>
                 {subscription.usage?.activeRecruiters || 0}/
@@ -138,9 +138,9 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
               daysRemaining <= 7 ? "bg-amber-500/10" : "bg-white/5"
             }`}
           >
-            <span className="text-[10px] text-gray-500">Expires</span>
+            <span className="text-xs text-gray-500">Expires</span>
             <span
-              className={`text-xs font-mono ${daysRemaining <= 7 ? "text-amber-400" : "text-gray-300"}`}
+              className={`text-xs ${daysRemaining <= 7 ? "text-amber-400" : "text-gray-300"}`}
             >
               {daysRemaining <= 0 ? "Expired" : `${daysRemaining} days`}
             </span>
@@ -155,19 +155,19 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#111111] border border-white/10 rounded-sm overflow-hidden"
+      className="bg-card border border-white/10 rounded-sm overflow-hidden"
     >
       {/* Header */}
       <div className="p-4 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[#FFD700]/10 rounded-sm border border-[#FFD700]/30">
-            <Crown className="w-5 h-5 text-[#FFD700]" />
+          <div className="p-2 bg-primary/10 rounded-sm border border-primary/30">
+            <Crown className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="text-white font-bold text-sm uppercase tracking-wider">
+            <h3 className="text-white font-bold text-sm">
               Subscription
             </h3>
-            <p className="text-gray-500 text-xs font-mono">
+            <p className="text-gray-500 text-xs">
               {subscription.type || "Monthly"} Plan
             </p>
           </div>
@@ -204,12 +204,12 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-blue-400" />
-              <span className="text-xs text-gray-400 font-mono">
+              <span className="text-xs text-gray-400">
                 JOB POSTINGS
               </span>
             </div>
             <span
-              className={`text-sm font-mono ${isLimitReached("jobs") ? "text-red-400" : "text-white"}`}
+              className={`text-sm ${isLimitReached("jobs") ? "text-red-400" : "text-white"}`}
             >
               {subscription.usage?.activeJobs || 0} /{" "}
               {subscription.features?.maxJobPostings === -1
@@ -228,12 +228,12 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-purple-400" />
-              <span className="text-xs text-gray-400 font-mono">
+              <span className="text-xs text-gray-400">
                 TEAM MEMBERS
               </span>
             </div>
             <span
-              className={`text-sm font-mono ${isLimitReached("recruiters") ? "text-red-400" : "text-white"}`}
+              className={`text-sm ${isLimitReached("recruiters") ? "text-red-400" : "text-white"}`}
             >
               {subscription.usage?.activeRecruiters || 0} /{" "}
               {subscription.features?.maxRecruiters === -1
@@ -249,7 +249,7 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
 
         {/* Features */}
         <div className="pt-4 border-t border-white/10">
-          <h4 className="text-xs text-gray-500 font-mono mb-3 uppercase tracking-wider">
+          <h4 className="text-xs text-gray-500 mb-3">
             Plan Features
           </h4>
           <div className="grid grid-cols-2 gap-2">
@@ -268,7 +268,7 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
                 }`}
               >
                 <feature.icon className="w-3 h-3" />
-                <span className="text-[10px] font-mono uppercase">
+                <span className="text-xs uppercase">
                   {feature.name}
                 </span>
                 {hasFeature(feature.key) ? (
@@ -284,10 +284,10 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
         {/* Dates */}
         <div className="pt-4 border-t border-white/10 grid grid-cols-2 gap-3">
           <div className="bg-white/5 p-3 rounded-sm">
-            <div className="text-[10px] text-gray-500 font-mono mb-1">
+            <div className="text-xs text-gray-500 mb-1">
               STARTED
             </div>
-            <div className="text-sm text-white font-mono">
+            <div className="text-sm text-white">
               {subscription.startDate
                 ? new Date(subscription.startDate).toLocaleDateString()
                 : "-"}
@@ -296,11 +296,11 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
           <div
             className={`p-3 rounded-sm ${daysRemaining <= 7 ? "bg-amber-500/10" : "bg-white/5"}`}
           >
-            <div className="text-[10px] text-gray-500 font-mono mb-1">
+            <div className="text-xs text-gray-500 mb-1">
               EXPIRES
             </div>
             <div
-              className={`text-sm font-mono ${daysRemaining <= 7 ? "text-amber-400" : "text-white"}`}
+              className={`text-sm ${daysRemaining <= 7 ? "text-amber-400" : "text-white"}`}
             >
               {subscription.endDate
                 ? new Date(subscription.endDate).toLocaleDateString()
@@ -325,7 +325,7 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
             <>
               <Button
                 onClick={() => navigate("/company/pricing")}
-                className="flex-1 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold"
+                className="flex-1 bg-primary hover:bg-[#FFE44D] text-black font-bold"
               >
                 <ArrowUpRight className="w-4 h-4 mr-2" />
                 Upgrade Plan

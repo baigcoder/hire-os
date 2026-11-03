@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import { isTokenBlacklisted } from "../utils/tokenBlacklist.js";
+import { getLogContext } from "../utils/logger.js";
 
 const isAuthenticated = async (req, res, next) => {
   try {
@@ -35,8 +37,17 @@ const isAuthenticated = async (req, res, next) => {
           code: "INVALID_TOKEN",
         });
       }
+      if (await isTokenBlacklisted(token)) {
+        return res.status(401).json({
+          message: "Session has been revoked. Please login again.",
+          success: false,
+          code: "TOKEN_REVOKED",
+        });
+      }
       req.id = decode.userId;
       req.tokenExp = decode.exp;
+      const logContext = getLogContext();
+      if (logContext) logContext.userId = decode.userId;
       next();
     } catch (jwtError) {
       if (jwtError.name === "TokenExpiredError") {

@@ -43,12 +43,12 @@ const About = () => {
         {stats.map((stat, idx) => (
           <div
             key={idx}
-            className="bg-[#111111] p-6 text-center border border-white/10 rounded-sm group hover:border-[#FFD700]/30 transition-colors"
+            className="bg-card p-6 text-center border border-white/10 rounded-sm group hover:border-primary/30 transition-colors"
           >
-            <h3 className="text-3xl font-black text-white mb-1 group-hover:text-[#FFD700] transition-colors">
+            <h3 className="text-3xl font-black text-white mb-1 group-hover:text-primary transition-colors">
               {stat.value}
             </h3>
-            <p className="text-gray-500 text-xs uppercase tracking-wider font-mono">
+            <p className="text-gray-500 text-xs">
               {stat.label}
             </p>
           </div>
@@ -56,10 +56,9 @@ const About = () => {
       </div>
 
       {/* Mission Section */}
-      <div className="bg-[#111111] p-8 md:p-12 border border-white/10 rounded-sm mb-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700]/5 rounded-full blur-[50px]" />
+      <div className="bg-card p-8 md:p-12 border border-white/10 rounded-sm mb-20 relative overflow-hidden">
         <div className="relative z-10">
-          <h2 className="text-2xl font-bold text-white mb-6 uppercase tracking-wider">
+          <h2 className="text-2xl font-bold text-white mb-6">
             Our Mission
           </h2>
           <p className="text-gray-400 leading-relaxed text-lg max-w-3xl">
@@ -74,20 +73,20 @@ const About = () => {
 
       {/* Values Grid */}
       <div className="mb-20">
-        <h2 className="text-2xl font-bold text-white mb-8 uppercase tracking-wider">
+        <h2 className="text-2xl font-bold text-white mb-8">
           Core Values
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {values.map((item, idx) => (
             <div
               key={idx}
-              className="flex gap-4 p-6 bg-[#111111] border border-white/10 rounded-sm hover:border-[#FFD700]/30 transition-colors group"
+              className="flex gap-4 p-6 bg-card border border-white/10 rounded-sm hover:border-primary/30 transition-colors group"
             >
-              <div className="w-12 h-12 rounded-sm bg-white/5 flex items-center justify-center text-[#FFD700] group-hover:bg-[#FFD700] group-hover:text-black transition-all">
+              <div className="w-12 h-12 rounded-sm bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all">
                 <item.icon size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[#FFD700] transition-colors">
+                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-primary transition-colors">
                   {item.title}
                 </h3>
                 <p className="text-gray-500 text-sm leading-relaxed">
@@ -107,7 +106,7 @@ const About = () => {
         <div className="flex justify-center gap-4">
           <a
             href="/careers"
-            className="px-8 py-4 bg-[#FFD700] text-black font-bold uppercase tracking-wider rounded-sm hover:bg-[#FFE44D] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all"
+            className="px-8 py-4 bg-primary text-black font-bold rounded-sm hover:bg-[#FFE44D] transition-all"
           >
             View Open Positions
           </a>

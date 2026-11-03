@@ -1,10 +1,13 @@
 /**
  * Token Blacklist Utility
- * Stores revoked tokens in memory with automatic cleanup
- * For production with multiple instances, use Redis instead
+ * Stores revoked tokens in Redis (shared across instances / serverless
+ * invocations) with an in-memory copy as a fast path and fallback.
  */
 
 import crypto from 'crypto';
+import cache from './cache.js';
+
+const REDIS_PREFIX = 'bl:';
 
 // In-memory store for blacklisted tokens
 // Format: { tokenHash: expiryTimestamp }
@@ -25,7 +28,7 @@ const hashToken = (token) => {
  * @param {string} token - JWT token to blacklist
  * @param {number} expiryTime - Unix timestamp when token expires (or Date object)
  */
-export const blacklistToken = (token, expiryTime) => {
+export const blacklistToken = async (token, expiryTime) => {
     if (!token) return;
 
     const hash = hashToken(token);
@@ -34,19 +37,25 @@ export const blacklistToken = (token, expiryTime) => {
         : (expiryTime * 1000); // Convert seconds to ms if needed
 
     blacklistedTokens.set(hash, expiry);
+
+    const ttlSeconds = Math.ceil((expiry - Date.now()) / 1000);
+    if (ttlSeconds > 0) {
+        await cache.set(REDIS_PREFIX + hash, 1, ttlSeconds);
+    }
     console.log(`🔒 Token blacklisted (hash: ${hash.substring(0, 8)}...)`);
 };
 
 /**
  * Check if a token is blacklisted
  * @param {string} token - JWT token to check
- * @returns {boolean} - true if blacklisted
+ * @returns {Promise<boolean>} - true if blacklisted
  */
-export const isTokenBlacklisted = (token) => {
+export const isTokenBlacklisted = async (token) => {
     if (!token) return false;
 
     const hash = hashToken(token);
-    return blacklistedTokens.has(hash);
+    if (blacklistedTokens.has(hash)) return true;
+    return (await cache.get(REDIS_PREFIX + hash)) !== null;
 };
 
 /**

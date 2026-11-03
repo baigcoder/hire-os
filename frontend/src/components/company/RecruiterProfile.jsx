@@ -230,10 +230,10 @@ const RecruiterProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 text-[#FFD700] animate-spin mx-auto mb-3" />
-          <p className="text-gray-500 font-mono text-xs uppercase tracking-wider">
+          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-3" />
+          <p className="text-gray-500 text-xs">
             Loading Profile...
           </p>
         </div>
@@ -244,9 +244,7 @@ const RecruiterProfile = () => {
   const RoleIcon = getRoleIcon(profile.role);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-8 relative z-10">
         <motion.div
@@ -257,17 +255,15 @@ const RecruiterProfile = () => {
           {/* Industrial Header */}
           <div className="relative mb-8 rounded-md overflow-hidden border border-white/10">
             {/* Industrial Banner */}
-            <div className="h-28 bg-gradient-to-r from-[#FFD700]/20 via-[#FFD700]/10 to-transparent relative overflow-hidden">
-              <div className="absolute inset-0 bg-grid opacity-50" />
-              <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/40" />
-              <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/40" />
+            <div className="h-28 relative overflow-hidden bg-primary">
+              <div className="absolute inset-0 opacity-50" />
             </div>
 
             {/* Profile Quick Info */}
-            <div className="bg-[#111111] px-6 py-4 flex items-center justify-between">
+            <div className="bg-card px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-4 -mt-10">
                 <div className="relative group">
-                  <div className="w-20 h-20 rounded-sm overflow-hidden border-2 border-[#FFD700]/50 bg-[#0A0A0A] shadow-[0_0_30px_rgba(255,215,0,0.2)]">
+                  <div className="w-20 h-20 rounded-sm overflow-hidden border-2 border-primary/50 bg-background">
                     {profile.profilePhoto ? (
                       <img
                         src={profile.profilePhoto}
@@ -275,7 +271,7 @@ const RecruiterProfile = () => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-[#FFD700]">
+                      <div className="w-full h-full flex items-center justify-center bg-primary">
                         <span className="text-xl font-bold text-black">
                           {profile.fullname
                             ?.split(" ")
@@ -307,13 +303,13 @@ const RecruiterProfile = () => {
                     {profile.fullname}
                   </h1>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-[#FFD700]/10 text-[#FFD700] text-xs font-bold uppercase tracking-wider border border-[#FFD700]/30">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-primary/10 text-primary text-xs font-bold border border-primary/30">
                       <RoleIcon className="w-3 h-3" />
                       {getRoleDisplayName(profile.role)}
                     </span>
                     {companyInfo && (
                       <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-white/5 text-gray-400 text-xs border border-white/10">
-                        <Building2 className="w-3 h-3 text-[#FFD700]" />
+                        <Building2 className="w-3 h-3 text-primary" />
                         {companyInfo.name}
                       </span>
                     )}
@@ -326,7 +322,7 @@ const RecruiterProfile = () => {
                 {!isEditing ? (
                   <Button
                     onClick={() => setIsEditing(true)}
-                    className="bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold rounded-sm text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+                    className="bg-primary hover:bg-[#FFE44D] text-black font-bold rounded-sm text-xs"
                   >
                     <Edit3 className="w-3.5 h-3.5 mr-2" />
                     Edit
@@ -336,7 +332,7 @@ const RecruiterProfile = () => {
                     <Button
                       variant="outline"
                       onClick={() => setIsEditing(false)}
-                      className="border-white/10 hover:bg-white/5 text-gray-400 rounded-sm text-xs uppercase tracking-wider"
+                      className="border-white/10 hover:bg-white/5 text-gray-400 rounded-sm text-xs"
                     >
                       <X className="w-3.5 h-3.5 mr-1" />
                       Cancel
@@ -344,7 +340,7 @@ const RecruiterProfile = () => {
                     <Button
                       onClick={handleSaveProfile}
                       disabled={saving}
-                      className="bg-[#00FF94] text-black hover:bg-[#00FF94]/80 font-bold rounded-sm text-xs uppercase tracking-wider"
+                      className="bg-accent text-black hover:bg-accent/80 font-bold rounded-sm text-xs"
                     >
                       {saving ? (
                         <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
@@ -361,12 +357,12 @@ const RecruiterProfile = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Profile Card */}
-            <Card className="lg:col-span-1 bg-[#111111] border-white/10 rounded-md">
+            <Card className="lg:col-span-1 bg-card border-white/10 rounded-md">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
                   {/* Profile Photo */}
                   <div className="relative group">
-                    <div className="w-24 h-24 rounded-sm overflow-hidden border-2 border-[#FFD700]/30 bg-[#0A0A0A]">
+                    <div className="w-24 h-24 rounded-sm overflow-hidden border-2 border-primary/30 bg-background">
                       {profile.profilePhoto ? (
                         <img
                           src={profile.profilePhoto}
@@ -398,14 +394,14 @@ const RecruiterProfile = () => {
                   <h2 className="text-lg font-bold text-white mt-4 uppercase tracking-tight">
                     {profile.fullname}
                   </h2>
-                  <p className="text-gray-500 text-xs font-mono">
+                  <p className="text-gray-500 text-xs">
                     {profile.email}
                   </p>
 
                   {/* Role Badge */}
-                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30">
+                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-primary/10 text-primary border border-primary/30">
                     <RoleIcon className="w-3.5 h-3.5" />
-                    <span className="text-xs font-bold uppercase tracking-wider">
+                    <span className="text-xs font-bold">
                       {getRoleDisplayName(profile.role)}
                     </span>
                   </div>
@@ -414,8 +410,8 @@ const RecruiterProfile = () => {
                   {companyInfo && (
                     <div className="mt-4 p-3 bg-white/5 rounded-sm w-full border border-white/5">
                       <div className="flex items-center gap-2 text-gray-400">
-                        <Building2 className="w-3.5 h-3.5 text-[#FFD700]" />
-                        <span className="text-xs font-mono">
+                        <Building2 className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-xs">
                           {companyInfo.name}
                         </span>
                       </div>
@@ -426,19 +422,19 @@ const RecruiterProfile = () => {
             </Card>
 
             {/* Details Card */}
-            <Card className="lg:col-span-2 bg-[#111111] border-white/10 rounded-md">
+            <Card className="lg:col-span-2 bg-card border-white/10 rounded-md">
               <CardHeader>
-                <CardTitle className="text-white text-sm uppercase tracking-wider">
+                <CardTitle className="text-white text-sm">
                   Account Details
                 </CardTitle>
-                <CardDescription className="text-gray-500 text-xs font-mono">
+                <CardDescription className="text-gray-500 text-xs">
                   Personal information
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Full Name */}
                 <div className="space-y-2">
-                  <Label className="text-gray-500 text-[10px] uppercase tracking-wider">
+                  <Label className="text-gray-500 text-xs">
                     Full Name
                   </Label>
                   {isEditing ? (
@@ -450,12 +446,12 @@ const RecruiterProfile = () => {
                           fullname: e.target.value,
                         }))
                       }
-                      className="bg-[#0A0A0A] border-white/10 text-white rounded-sm font-mono"
+                      className="bg-background border-white/10 text-white rounded-sm"
                     />
                   ) : (
                     <div className="flex items-center gap-3 p-3 bg-white/5 rounded-sm border border-white/5">
-                      <User className="w-4 h-4 text-[#FFD700]" />
-                      <span className="text-white text-sm font-mono">
+                      <User className="w-4 h-4 text-primary" />
+                      <span className="text-white text-sm">
                         {profile.fullname}
                       </span>
                     </div>
@@ -464,21 +460,21 @@ const RecruiterProfile = () => {
 
                 {/* Email (read-only) */}
                 <div className="space-y-2">
-                  <Label className="text-gray-500 text-[10px] uppercase tracking-wider">
+                  <Label className="text-gray-500 text-xs">
                     Email Address
                   </Label>
                   <div className="flex items-center gap-3 p-3 bg-white/5 rounded-sm border border-white/5">
-                    <Mail className="w-4 h-4 text-[#FFD700]" />
-                    <span className="text-white text-sm font-mono">
+                    <Mail className="w-4 h-4 text-primary" />
+                    <span className="text-white text-sm">
                       {profile.email}
                     </span>
-                    <CheckCircle className="w-3.5 h-3.5 text-[#00FF94] ml-auto" />
+                    <CheckCircle className="w-3.5 h-3.5 text-accent ml-auto" />
                   </div>
                 </div>
 
                 {/* Phone */}
                 <div className="space-y-2">
-                  <Label className="text-gray-500 text-[10px] uppercase tracking-wider">
+                  <Label className="text-gray-500 text-xs">
                     Phone Number
                   </Label>
                   {isEditing ? (
@@ -490,13 +486,13 @@ const RecruiterProfile = () => {
                           phoneNumber: e.target.value,
                         }))
                       }
-                      className="bg-[#0A0A0A] border-white/10 text-white rounded-sm font-mono"
+                      className="bg-background border-white/10 text-white rounded-sm"
                       placeholder="+92 300 1234567"
                     />
                   ) : (
                     <div className="flex items-center gap-3 p-3 bg-white/5 rounded-sm border border-white/5">
-                      <Phone className="w-4 h-4 text-[#FFD700]" />
-                      <span className="text-white text-sm font-mono">
+                      <Phone className="w-4 h-4 text-primary" />
+                      <span className="text-white text-sm">
                         {profile.phoneNumber || "Not set"}
                       </span>
                     </div>
@@ -505,12 +501,12 @@ const RecruiterProfile = () => {
 
                 {/* Role */}
                 <div className="space-y-2">
-                  <Label className="text-gray-500 text-[10px] uppercase tracking-wider">
+                  <Label className="text-gray-500 text-xs">
                     Role
                   </Label>
                   <div className="flex items-center gap-3 p-3 bg-white/5 rounded-sm border border-white/5">
-                    <RoleIcon className="w-4 h-4 text-[#FFD700]" />
-                    <span className="text-white text-sm font-mono">
+                    <RoleIcon className="w-4 h-4 text-primary" />
+                    <span className="text-white text-sm">
                       {getRoleDisplayName(profile.role)}
                     </span>
                   </div>
@@ -520,7 +516,7 @@ const RecruiterProfile = () => {
 
             {/* Subscription Card (for company_admin) */}
             {profile.role === "company_admin" && companyInfo?.subscription && (
-              <Card className="lg:col-span-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/30">
+              <Card className="lg:col-span-3 border-yellow-500/30 bg-primary">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Crown className="w-5 h-5 text-yellow-500" />

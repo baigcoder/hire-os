@@ -55,10 +55,10 @@ const BarChart = ({ data, maxHeight = 150 }) => {
             className="w-full rounded-t-sm"
             style={{ backgroundColor: item.color || "#FFD700" }}
           />
-          <p className="text-[10px] text-gray-500 mt-2 text-center truncate w-full">
+          <p className="text-xs text-gray-500 mt-2 text-center truncate w-full">
             {item.label}
           </p>
-          <p className="text-xs font-mono text-white">{item.value}</p>
+          <p className="text-xs text-white">{item.value}</p>
         </div>
       ))}
     </div>
@@ -79,26 +79,26 @@ const MetricCard = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 bg-[#111111] border border-white/10 rounded-sm"
+      className="p-6 bg-card border border-white/10 rounded-sm"
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-mono">
+          <p className="text-xs text-gray-500">
             {title}
           </p>
-          <p className="text-3xl font-bold text-white font-mono mt-2">
+          <p className="text-3xl font-bold text-white mt-2">
             {value}
           </p>
           {change !== undefined && (
             <div
-              className={`flex items-center gap-1 mt-2 ${isPositive ? "text-[#00FF94]" : "text-red-400"}`}
+              className={`flex items-center gap-1 mt-2 ${isPositive ? "text-accent" : "text-red-400"}`}
             >
               {isPositive ? (
                 <ArrowUpRight className="w-4 h-4" />
               ) : (
                 <ArrowDownRight className="w-4 h-4" />
               )}
-              <span className="text-sm font-mono">{Math.abs(change)}%</span>
+              <span className="text-sm">{Math.abs(change)}%</span>
               <span className="text-gray-600 text-xs">vs last month</span>
             </div>
           )}
@@ -118,7 +118,7 @@ const MetricCard = ({
 const SourceRow = ({ source, applications, hires, conversionRate }) => (
   <div className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
     <div className="flex items-center gap-3">
-      <div className="w-3 h-3 rounded-full bg-[#FFD700]" />
+      <div className="w-3 h-3 rounded-full bg-primary" />
       <span className="text-sm text-white capitalize">
         {source.replace("_", " ")}
       </span>
@@ -126,16 +126,16 @@ const SourceRow = ({ source, applications, hires, conversionRate }) => (
     <div className="flex items-center gap-6">
       <div className="text-center">
         <p className="text-xs text-gray-500">Apps</p>
-        <p className="text-sm font-mono text-white">{applications}</p>
+        <p className="text-sm text-white">{applications}</p>
       </div>
       <div className="text-center">
         <p className="text-xs text-gray-500">Hires</p>
-        <p className="text-sm font-mono text-[#00FF94]">{hires}</p>
+        <p className="text-sm text-accent">{hires}</p>
       </div>
       <div className="w-20">
         <div className="flex items-center gap-2">
           <Progress value={conversionRate} className="h-1.5" />
-          <span className="text-xs font-mono text-gray-400">
+          <span className="text-xs text-gray-400">
             {conversionRate}%
           </span>
         </div>
@@ -149,11 +149,11 @@ const RecruiterCard = ({ recruiter }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    className="p-4 bg-[#0A0A0A] border border-white/10 rounded-sm"
+    className="p-4 bg-background border border-white/10 rounded-sm"
   >
     <div className="flex items-center gap-3 mb-4">
-      <div className="w-10 h-10 rounded-sm bg-[#FFD700]/10 flex items-center justify-center">
-        <span className="text-[#FFD700] font-bold">
+      <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
+        <span className="text-primary font-bold">
           {recruiter.user?.fullname?.[0] || "R"}
         </span>
       </div>
@@ -167,28 +167,28 @@ const RecruiterCard = ({ recruiter }) => (
 
     <div className="grid grid-cols-4 gap-2">
       <div className="text-center p-2 bg-white/5 rounded-sm">
-        <p className="text-lg font-bold text-white font-mono">
+        <p className="text-lg font-bold text-white">
           {recruiter.stats?.jobsPosted || 0}
         </p>
-        <p className="text-[10px] text-gray-500">Jobs</p>
+        <p className="text-xs text-gray-500">Jobs</p>
       </div>
       <div className="text-center p-2 bg-white/5 rounded-sm">
-        <p className="text-lg font-bold text-white font-mono">
+        <p className="text-lg font-bold text-white">
           {recruiter.stats?.interviewsConducted || 0}
         </p>
-        <p className="text-[10px] text-gray-500">Interviews</p>
+        <p className="text-xs text-gray-500">Interviews</p>
       </div>
       <div className="text-center p-2 bg-white/5 rounded-sm">
-        <p className="text-lg font-bold text-[#00FF94] font-mono">
+        <p className="text-lg font-bold text-accent">
           {recruiter.stats?.successfulHires || 0}
         </p>
-        <p className="text-[10px] text-gray-500">Hires</p>
+        <p className="text-xs text-gray-500">Hires</p>
       </div>
       <div className="text-center p-2 bg-white/5 rounded-sm">
-        <p className="text-lg font-bold text-[#FFD700] font-mono">
+        <p className="text-lg font-bold text-primary">
           {recruiter.stats?.hireRate || 0}%
         </p>
-        <p className="text-[10px] text-gray-500">Rate</p>
+        <p className="text-xs text-gray-500">Rate</p>
       </div>
     </div>
   </motion.div>
@@ -259,8 +259,7 @@ const AnalyticsDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background">
 
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
@@ -271,7 +270,7 @@ const AnalyticsDashboard = () => {
         >
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <BarChart3 className="w-7 h-7 text-[#FFD700]" />
+              <BarChart3 className="w-7 h-7 text-primary" />
               Analytics Dashboard
             </h1>
             <p className="text-gray-500 text-sm mt-1">
@@ -281,10 +280,10 @@ const AnalyticsDashboard = () => {
 
           <div className="flex items-center gap-3">
             <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className="w-[150px] bg-[#111111] border-white/10 text-white">
+              <SelectTrigger className="w-[150px] bg-card border-white/10 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#111111] border-white/10">
+              <SelectContent className="bg-card border-white/10">
                 <SelectItem value="7" className="text-gray-300">
                   Last 7 days
                 </SelectItem>
@@ -350,7 +349,7 @@ const AnalyticsDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-6 bg-[#111111] border border-white/10 rounded-sm"
+            className="p-6 bg-card border border-white/10 rounded-sm"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -376,7 +375,7 @@ const AnalyticsDashboard = () => {
               {funnel.slice(1).map((stage, idx) => (
                 <div key={idx} className="text-center">
                   <p className="text-xs text-gray-500">{stage.stage}</p>
-                  <p className="text-sm font-mono text-[#FFD700]">
+                  <p className="text-sm text-primary">
                     {stage.conversionRate}%
                   </p>
                 </div>
@@ -389,7 +388,7 @@ const AnalyticsDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="p-6 bg-[#111111] border border-white/10 rounded-sm"
+            className="p-6 bg-card border border-white/10 rounded-sm"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -398,20 +397,20 @@ const AnalyticsDashboard = () => {
                   Days from application to hire
                 </p>
               </div>
-              <Badge className="bg-[#FFD700]/10 text-[#FFD700] font-mono">
+              <Badge className="bg-primary/10 text-primary">
                 {timeToHire?.totalHires || 0} hires
               </Badge>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="p-4 bg-white/5 rounded-sm text-center">
-                <p className="text-3xl font-bold text-white font-mono">
+                <p className="text-3xl font-bold text-white">
                   {timeToHire?.average || 0}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">Average Days</p>
               </div>
               <div className="p-4 bg-white/5 rounded-sm text-center">
-                <p className="text-3xl font-bold text-[#00FF94] font-mono">
+                <p className="text-3xl font-bold text-accent">
                   {timeToHire?.fastest || 0}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">Fastest Hire</p>
@@ -421,7 +420,7 @@ const AnalyticsDashboard = () => {
             {/* By Job */}
             {timeToHire?.byJob?.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">
+                <p className="text-xs text-gray-500 mb-3">
                   By Job
                 </p>
                 <div className="space-y-2">
@@ -437,7 +436,7 @@ const AnalyticsDashboard = () => {
                         <span className="text-sm text-gray-500">
                           {job.hires} hires
                         </span>
-                        <span className="text-sm font-mono text-[#FFD700]">
+                        <span className="text-sm text-primary">
                           {job.averageDays}d
                         </span>
                       </div>
@@ -454,7 +453,7 @@ const AnalyticsDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="p-6 bg-[#111111] border border-white/10 rounded-sm mb-8"
+          className="p-6 bg-card border border-white/10 rounded-sm mb-8"
         >
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -492,7 +491,7 @@ const AnalyticsDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="p-6 bg-[#111111] border border-white/10 rounded-sm"
+            className="p-6 bg-card border border-white/10 rounded-sm"
           >
             <div className="flex items-center justify-between mb-6">
               <div>

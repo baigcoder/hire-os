@@ -80,11 +80,11 @@ const AnalysisResult = () => {
           <div>
             <div className="flex items-center gap-2 text-yellow-500 mb-2">
               <BrainCircuit size={20} />{" "}
-              <span className="text-sm font-bold tracking-widest uppercase">
+              <span className="text-sm font-bold">
                 AI Resume Intelligence
               </span>
             </div>
-            <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+            <h1 className="text-4xl font-extrabold">
               Analysis Report
             </h1>
             <p className="text-gray-400 mt-2">
@@ -116,9 +116,9 @@ const AnalysisResult = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="bg-[#0a0a0a] border-white/10 relative overflow-hidden">
+              <Card className="bg-background border-white/10 relative overflow-hidden">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-gray-400 text-sm font-medium uppercase tracking-wider">
+                  <CardTitle className="text-gray-400 text-sm font-medium">
                     Overall Match Score
                   </CardTitle>
                 </CardHeader>
@@ -209,7 +209,7 @@ const AnalysisResult = () => {
           {/* Middle Col: Detailed Analysis */}
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="visual" className="w-full">
-              <TabsList className="bg-[#0a0a0a] border border-white/10 p-1 rounded-xl">
+              <TabsList className="bg-background border border-white/10 p-1 rounded-xl">
                 <TabsTrigger
                   value="visual"
                   className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black rounded-lg transition-all"
@@ -229,7 +229,7 @@ const AnalysisResult = () => {
               <div className="mt-6">
                 <TabsContent value="visual" className="space-y-6">
                   {/* Skills Radar */}
-                  <Card className="bg-[#0a0a0a] border-white/10 p-6">
+                  <Card className="bg-background border-white/10 p-6">
                     <h3 className="text-lg font-bold text-white mb-4">
                       Competency Map
                     </h3>
@@ -302,7 +302,7 @@ const AnalysisResult = () => {
                   <Card className="bg-[#050505] border-white/10">
                     <CardHeader className="bg-white/5 border-b border-white/5 py-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-xs font-mono text-gray-500">
+                        <span className="text-xs text-gray-500">
                           api_response_v3.json
                         </span>
                         <Button size="icon" variant="ghost" className="h-6 w-6">
@@ -312,7 +312,7 @@ const AnalysisResult = () => {
                     </CardHeader>
                     <CardContent className="p-0">
                       <ScrollArea className="h-[400px] w-full p-4">
-                        <pre className="text-xs font-mono text-emerald-400 leading-relaxed">
+                        <pre className="text-xs text-emerald-400 leading-relaxed">
                           {JSON.stringify(analysisData.full_json, null, 2)}
                         </pre>
                       </ScrollArea>

@@ -83,10 +83,10 @@ const RecruiterAnalytics = () => {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <div className="relative">
-          <div className="w-16 h-16 border-2 border-[#FFD700]/20 rounded-full animate-pulse" />
-          <BarChart3 className="absolute inset-0 m-auto w-6 h-6 text-[#FFD700] animate-pulse" />
+          <div className="w-16 h-16 border-2 border-primary/20 rounded-full animate-pulse" />
+          <BarChart3 className="absolute inset-0 m-auto w-6 h-6 text-primary animate-pulse" />
         </div>
-        <p className="text-gray-400 mt-4 font-mono text-sm tracking-wider">
+        <p className="text-gray-400 mt-4 text-sm tracking-wider">
           LOADING ANALYTICS...
         </p>
       </div>
@@ -101,14 +101,14 @@ const RecruiterAnalytics = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#FFD700]/20 to-amber-500/10 rounded-sm flex items-center justify-center border border-[#FFD700]/30">
-            <BarChart3 className="w-5 h-5 text-[#FFD700]" />
+          <div className="w-12 h-12 rounded-sm flex items-center justify-center border border-primary/30 bg-primary">
+            <BarChart3 className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-white tracking-tight">
               RECRUITMENT ANALYTICS
             </h2>
-            <p className="text-xs text-gray-500 font-mono tracking-wider">
+            <p className="text-xs text-gray-500 tracking-wider">
               REAL-TIME HIRING METRICS
             </p>
           </div>
@@ -119,9 +119,9 @@ const RecruiterAnalytics = () => {
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm transition-all ${
+              className={`px-3 py-1.5 text-xs rounded-sm transition-all ${
                 period === p
-                  ? "bg-[#FFD700] text-black"
+                  ? "bg-primary text-black"
                   : "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10"
               }`}
             >
@@ -174,7 +174,7 @@ const RecruiterAnalytics = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5"
+              className="bg-background border border-white/10 rounded-sm p-5"
             >
               <div className="flex items-center justify-between mb-3">
                 <div
@@ -184,17 +184,17 @@ const RecruiterAnalytics = () => {
                 </div>
                 {stat.change !== undefined && (
                   <Badge
-                    className={`${stat.change >= 0 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-red-500/10 text-red-400 border-red-500/30"} border font-mono text-[10px]`}
+                    className={`${stat.change >= 0 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-red-500/10 text-red-400 border-red-500/30"} border text-xs`}
                   >
                     {stat.change >= 0 ? "+" : ""}
                     {stat.change}%
                   </Badge>
                 )}
               </div>
-              <div className="text-2xl font-bold text-white font-mono">
+              <div className="text-2xl font-bold text-white">
                 {stat.value}
               </div>
-              <div className="text-[10px] text-gray-500 font-mono tracking-wider mt-1">
+              <div className="text-xs text-gray-500 tracking-wider mt-1">
                 {stat.label}
               </div>
             </motion.div>
@@ -208,11 +208,11 @@ const RecruiterAnalytics = () => {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5"
+          className="bg-background border border-white/10 rounded-sm p-5"
         >
           <div className="flex items-center gap-2 mb-5">
-            <Activity className="w-4 h-4 text-[#FFD700]" />
-            <h3 className="text-xs text-gray-500 font-mono tracking-wider">
+            <Activity className="w-4 h-4 text-primary" />
+            <h3 className="text-xs text-gray-500 tracking-wider">
               HIRING FUNNEL
             </h3>
           </div>
@@ -230,7 +230,7 @@ const RecruiterAnalytics = () => {
 
               return (
                 <div key={stage.key} className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-mono">
+                  <div className="flex justify-between text-xs">
                     <span className="text-gray-500 tracking-wider">
                       {stage.label}
                     </span>
@@ -254,11 +254,11 @@ const RecruiterAnalytics = () => {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5"
+          className="bg-background border border-white/10 rounded-sm p-5"
         >
           <div className="flex items-center gap-2 mb-5">
-            <Sparkles className="w-4 h-4 text-[#FFD700]" />
-            <h3 className="text-xs text-gray-500 font-mono tracking-wider">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <h3 className="text-xs text-gray-500 tracking-wider">
               STATUS BREAKDOWN
             </h3>
           </div>
@@ -279,11 +279,11 @@ const RecruiterAnalytics = () => {
                   className={`p-3 rounded-sm bg-${status.color}-500/10 border border-${status.color}-500/20`}
                 >
                   <div
-                    className={`text-xl font-bold font-mono text-${status.color}-400`}
+                    className={`text-xl font-bold text-${status.color}-400`}
                   >
                     {value}
                   </div>
-                  <div className="text-[10px] text-gray-500 font-mono tracking-wider">
+                  <div className="text-xs text-gray-500 tracking-wider">
                     {status.label}
                   </div>
                 </div>
@@ -297,11 +297,11 @@ const RecruiterAnalytics = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5"
+        className="bg-background border border-white/10 rounded-sm p-5"
       >
         <div className="flex items-center gap-2 mb-5">
-          <TrendingUp className="w-4 h-4 text-[#FFD700]" />
-          <h3 className="text-xs text-gray-500 font-mono tracking-wider">
+          <TrendingUp className="w-4 h-4 text-primary" />
+          <h3 className="text-xs text-gray-500 tracking-wider">
             TOP PERFORMING JOBS
           </h3>
         </div>
@@ -310,39 +310,39 @@ const RecruiterAnalytics = () => {
           {(analytics?.topJobs || []).map((job, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-3 bg-white/5 rounded-sm border border-white/5 hover:border-[#FFD700]/30 transition-colors"
+              className="flex items-center justify-between p-3 bg-white/5 rounded-sm border border-white/5 hover:border-primary/30 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-sm bg-[#FFD700]/10 flex items-center justify-center text-[#FFD700] font-bold font-mono text-sm border border-[#FFD700]/30">
+                <div className="w-8 h-8 rounded-sm bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/30">
                   {index + 1}
                 </div>
                 <span className="text-white font-medium">{job.title}</span>
               </div>
               <div className="flex items-center gap-6">
                 <div className="text-center">
-                  <div className="text-sm text-white font-mono">
+                  <div className="text-sm text-white">
                     {job.applications}
                   </div>
-                  <div className="text-[10px] text-gray-500 font-mono">
+                  <div className="text-xs text-gray-500">
                     APPS
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-emerald-400 font-mono">
+                  <div className="text-sm text-emerald-400">
                     {job.interviews}
                   </div>
-                  <div className="text-[10px] text-gray-500 font-mono">
+                  <div className="text-xs text-gray-500">
                     INTERVIEWS
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-[#FFD700] font-mono">
+                  <div className="text-sm text-primary">
                     {job.applications > 0
                       ? Math.round((job.interviews / job.applications) * 100)
                       : 0}
                     %
                   </div>
-                  <div className="text-[10px] text-gray-500 font-mono">
+                  <div className="text-xs text-gray-500">
                     CONV.
                   </div>
                 </div>
@@ -356,9 +356,9 @@ const RecruiterAnalytics = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5"
+        className="bg-background border border-white/10 rounded-sm p-5"
       >
-        <h3 className="text-xs text-gray-500 font-mono tracking-wider mb-5">
+        <h3 className="text-xs text-gray-500 tracking-wider mb-5">
           WEEKLY APPLICATION TREND
         </h3>
 
@@ -379,17 +379,17 @@ const RecruiterAnalytics = () => {
                       initial={{ height: 0 }}
                       animate={{ height: `${height}%` }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="w-full max-w-[40px] bg-gradient-to-t from-[#FFD700]/30 to-[#FFD700] rounded-t-sm"
+                      className="w-full max-w-[40px] rounded-t-sm bg-primary"
                       style={{
                         height: `${height}px`,
                         minHeight: height > 0 ? "4px" : "0",
                       }}
                     />
-                    <div className="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-white font-mono bg-[#1a1a1a] px-2 py-1 rounded-sm border border-white/10">
+                    <div className="absolute -top-6 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-white bg-[#1a1a1a] px-2 py-1 rounded-sm border border-white/10">
                       {value}
                     </div>
                   </div>
-                  <div className="text-[10px] text-gray-500 font-mono mt-2">
+                  <div className="text-xs text-gray-500 mt-2">
                     {day}
                   </div>
                 </div>

@@ -309,12 +309,13 @@ export const getReferralStats = async (req, res) => {
 // Apply referral code (during signup)
 export const applyReferralCode = async (req, res) => {
     try {
-        const { code, userId } = req.body;
+        const { code } = req.body;
+        const userId = String(req.id);
 
-        if (!code || !userId) {
+        if (!code) {
             return res.status(400).json({
                 success: false,
-                message: "Code and userId are required",
+                message: "Code is required",
             });
         }
 

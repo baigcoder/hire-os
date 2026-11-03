@@ -45,23 +45,23 @@ const KeyboardShortcuts = ({ isOpen, onClose }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
         onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="w-full max-w-lg bg-[#0a0a0a] border border-[#FFD700]/20 rounded-sm shadow-2xl overflow-hidden"
+          className="w-full max-w-lg bg-background border border-primary/20 rounded-sm shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-[#FFD700]/10 rounded-sm border border-[#FFD700]/30">
-                <Keyboard className="w-4 h-4 text-[#FFD700]" />
+              <div className="p-2 bg-primary/10 rounded-sm border border-primary/30">
+                <Keyboard className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-white font-bold font-mono tracking-wider">
+              <span className="text-white font-bold tracking-wider">
                 KEYBOARD SHORTCUTS
               </span>
             </div>
@@ -77,7 +77,7 @@ const KeyboardShortcuts = ({ isOpen, onClose }) => {
           <div className="p-4 max-h-[60vh] overflow-y-auto">
             {SHORTCUTS.map((section) => (
               <div key={section.category} className="mb-6 last:mb-0">
-                <h3 className="text-[10px] text-[#FFD700] font-mono tracking-widest mb-3">
+                <h3 className="text-xs text-primary tracking-widest mb-3">
                   {section.category.toUpperCase()}
                 </h3>
                 <div className="space-y-2">
@@ -86,17 +86,17 @@ const KeyboardShortcuts = ({ isOpen, onClose }) => {
                       key={idx}
                       className="flex items-center justify-between py-2 px-3 bg-white/5 rounded-sm border border-white/5"
                     >
-                      <span className="text-gray-400 text-sm font-mono">
+                      <span className="text-gray-400 text-sm">
                         {shortcut.description}
                       </span>
                       <div className="flex items-center gap-1">
                         {shortcut.keys.map((key, kidx) => (
                           <React.Fragment key={kidx}>
-                            <kbd className="px-2 py-1 text-[10px] font-mono bg-[#111111] border border-white/20 rounded text-white min-w-[24px] text-center">
+                            <kbd className="px-2 py-1 text-xs bg-card border border-white/20 rounded text-white min-w-[24px] text-center">
                               {key}
                             </kbd>
                             {kidx < shortcut.keys.length - 1 && (
-                              <span className="text-gray-600 text-[10px]">
+                              <span className="text-gray-600 text-xs">
                                 +
                               </span>
                             )}
@@ -112,11 +112,11 @@ const KeyboardShortcuts = ({ isOpen, onClose }) => {
 
           {/* Footer */}
           <div className="flex items-center justify-between px-4 py-3 border-t border-white/10 bg-white/5">
-            <span className="text-[10px] text-gray-500 font-mono">
+            <span className="text-xs text-gray-500">
               Press <kbd className="px-1 bg-white/10 rounded">?</kbd> anytime to
               show
             </span>
-            <span className="text-[10px] text-[#FFD700] font-mono">
+            <span className="text-xs text-primary">
               HIRE.iOS
             </span>
           </div>

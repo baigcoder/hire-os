@@ -271,7 +271,7 @@ const PaymentSimulator = () => {
 
             <Button
               onClick={() => navigate("/company/admin/dashboard")}
-              className="px-8 py-6 text-lg bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold"
+              className="px-8 py-6 text-lg text-black font-bold bg-primary"
             >
               Go to Dashboard →
             </Button>
@@ -282,7 +282,7 @@ const PaymentSimulator = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-black">
+    <div className="min-h-screen bg-card">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <motion.div
@@ -300,7 +300,7 @@ const PaymentSimulator = () => {
           </button>
 
           {/* Payment Card */}
-          <Card className="bg-zinc-900/80 border-zinc-800 backdrop-blur-xl">
+          <Card className="bg-zinc-900/80 border-zinc-800">
             <CardHeader className="text-center border-b border-zinc-800 pb-6">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-500/20 flex items-center justify-center">
                 <CreditCard className="w-8 h-8 text-yellow-500" />
@@ -315,7 +315,7 @@ const PaymentSimulator = () => {
 
             <CardContent className="pt-6 space-y-6">
               {/* Amount Display */}
-              <div className="text-center p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl border border-yellow-500/20">
+              <div className="text-center p-4 rounded-xl border border-yellow-500/20 bg-primary">
                 <p className="text-gray-400 text-sm">Total Amount</p>
                 <p className="text-4xl font-bold text-white">
                   Rs {parseInt(amount).toLocaleString()}
@@ -419,7 +419,7 @@ const PaymentSimulator = () => {
               <Button
                 onClick={processPayment}
                 disabled={loading}
-                className="w-full h-14 text-lg font-bold bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black disabled:opacity-50"
+                className="w-full h-14 text-lg font-bold text-black disabled:opacity-50 bg-primary"
               >
                 {loading ? (
                   <>

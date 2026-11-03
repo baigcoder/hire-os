@@ -9,8 +9,9 @@ import {
   Github,
   Facebook,
 } from "lucide-react";
+import { useInShell } from "../app/shellContext";
 
-const Footer = () => {
+const FooterBar = () => {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
@@ -47,18 +48,18 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[#0A0A0A] border-t border-white/5 pt-16 pb-8 font-['Space_Grotesk',sans-serif]">
+    <footer className="bg-background border-t border-white/5 pt-16 pb-8">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-6 group">
-              <div className="w-9 h-9 rounded-md bg-[#FFD700] flex items-center justify-center text-black font-black text-sm tracking-tighter shadow-[0_0_20px_rgba(255,215,0,0.2)] group-hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] transition-all duration-300">
+              <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center text-black font-black text-sm tracking-tighter transition-all duration-300">
                 H.
               </div>
-              <span className="text-lg font-bold text-white tracking-tight group-hover:text-[#FFD700] transition-colors">
-                HIRE<span className="text-[#FFD700]">.OS</span>
+              <span className="text-lg font-bold text-white tracking-tight group-hover:text-primary transition-colors">
+                HIRE<span className="text-primary">.OS</span>
               </span>
             </Link>
             <p className="text-gray-500 leading-relaxed mb-8 max-w-sm text-sm">
@@ -72,7 +73,7 @@ const Footer = () => {
                 <a
                   key={idx}
                   href={social.href}
-                  className="w-9 h-9 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center text-gray-500 hover:bg-[#FFD700] hover:text-black hover:border-[#FFD700] transition-all duration-200"
+                  className="w-9 h-9 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-black hover:border-primary transition-all duration-200"
                   aria-label={social.label}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -85,7 +86,7 @@ const Footer = () => {
 
           {/* Product Links */}
           <div>
-            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">
+            <h3 className="text-white font-bold mb-6 text-sm">
               Platform
             </h3>
             <ul className="space-y-3">
@@ -93,7 +94,7 @@ const Footer = () => {
                 <li key={idx}>
                   <Link
                     to={link.path}
-                    className="text-gray-500 hover:text-[#FFD700] transition-colors text-sm"
+                    className="text-gray-500 hover:text-primary transition-colors text-sm"
                   >
                     {link.label}
                   </Link>
@@ -104,7 +105,7 @@ const Footer = () => {
 
           {/* Company Links */}
           <div>
-            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">
+            <h3 className="text-white font-bold mb-6 text-sm">
               Company
             </h3>
             <ul className="space-y-3">
@@ -112,7 +113,7 @@ const Footer = () => {
                 <li key={idx}>
                   <Link
                     to={link.path}
-                    className="text-gray-500 hover:text-[#FFD700] transition-colors text-sm"
+                    className="text-gray-500 hover:text-primary transition-colors text-sm"
                   >
                     {link.label}
                   </Link>
@@ -123,24 +124,24 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">
+            <h3 className="text-white font-bold mb-6 text-sm">
               Contact
             </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-gray-500 group">
                 <MapPin
                   size={16}
-                  className="flex-shrink-0 mt-0.5 text-[#FFD700]/70"
+                  className="flex-shrink-0 mt-0.5 text-primary/70"
                 />
                 <span className="text-sm">Lahore, Pakistan</span>
               </li>
               <li className="flex items-center gap-3 text-gray-500 group">
-                <Phone size={16} className="flex-shrink-0 text-[#FFD700]/70" />
-                <span className="text-sm font-mono">+92 300 1234567</span>
+                <Phone size={16} className="flex-shrink-0 text-primary/70" />
+                <span className="text-sm">+92 300 1234567</span>
               </li>
               <li className="flex items-center gap-3 text-gray-500 group">
-                <Mail size={16} className="flex-shrink-0 text-[#FFD700]/70" />
-                <span className="text-sm font-mono">support@hire.os</span>
+                <Mail size={16} className="flex-shrink-0 text-primary/70" />
+                <span className="text-sm">support@hire.os</span>
               </li>
             </ul>
           </div>
@@ -148,7 +149,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-600 text-xs font-mono">
+          <p className="text-gray-600 text-xs">
             © {currentYear} HIRE.OS · Industrial Grade Talent Acquisition
           </p>
           <ul className="flex flex-wrap gap-6 text-xs">
@@ -156,7 +157,7 @@ const Footer = () => {
               <li key={idx}>
                 <Link
                   to={link.path}
-                  className="text-gray-600 hover:text-[#FFD700] transition-colors font-mono uppercase tracking-wider"
+                  className="text-gray-600 hover:text-primary transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -168,5 +169,8 @@ const Footer = () => {
     </footer>
   );
 };
+
+// Inside the app shell the shell's own navigation takes over
+const Footer = () => (useInShell() ? null : <FooterBar />);
 
 export default Footer;

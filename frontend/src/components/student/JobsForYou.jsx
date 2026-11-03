@@ -69,10 +69,10 @@ const JobsForYou = () => {
     if (score >= 70)
       return {
         label: "STRONG MATCH",
-        color: "from-[#FFD700] to-amber-400",
-        bg: "bg-[#FFD700]/10",
-        border: "border-[#FFD700]/30",
-        text: "text-[#FFD700]",
+        color: "from-primary to-amber-400",
+        bg: "bg-primary/10",
+        border: "border-primary/30",
+        text: "text-primary",
       };
     if (score >= 55)
       return {
@@ -110,16 +110,16 @@ const JobsForYou = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#FFD700]/20 to-amber-500/10 rounded-sm flex items-center justify-center border border-[#FFD700]/30">
-              <Target className="w-5 h-5 text-[#FFD700]" />
+            <div className="w-12 h-12 rounded-sm flex items-center justify-center border border-primary/30 bg-primary">
+              <Target className="w-5 h-5 text-primary" />
             </div>
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#FFD700] rounded-full animate-pulse" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-white tracking-tight">
               JOBS FOR YOU
             </h2>
-            <p className="text-xs text-gray-500 font-mono tracking-wider">
+            <p className="text-xs text-gray-500 tracking-wider">
               AI-POWERED RECOMMENDATIONS
             </p>
           </div>
@@ -131,8 +131,8 @@ const JobsForYou = () => {
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm transition-all ${activeFilter === filter
-                  ? "bg-[#FFD700] text-black"
+              className={`px-3 py-1.5 text-xs rounded-sm transition-all ${activeFilter === filter
+                  ? "bg-primary text-black"
                   : "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10"
                 }`}
             >
@@ -143,13 +143,13 @@ const JobsForYou = () => {
       </div>
 
       {/* Stats Bar */}
-      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#0a0a0a] to-[#111111] border border-white/10 rounded-sm">
+      <div className="flex items-center justify-between p-4 border border-white/10 rounded-sm bg-card">
         <div className="flex items-center gap-8">
           <div className="text-center">
             <div className="text-2xl font-bold text-white">
               {jobs.filter((j) => j.matchScore >= 85).length}
             </div>
-            <div className="text-xs text-emerald-400 font-mono">EXCELLENT</div>
+            <div className="text-xs text-emerald-400">EXCELLENT</div>
           </div>
           <div className="w-px h-10 bg-white/10" />
           <div className="text-center">
@@ -159,7 +159,7 @@ const JobsForYou = () => {
                   .length
               }
             </div>
-            <div className="text-xs text-[#FFD700] font-mono">STRONG</div>
+            <div className="text-xs text-primary">STRONG</div>
           </div>
           <div className="w-px h-10 bg-white/10" />
           <div className="text-center">
@@ -169,12 +169,12 @@ const JobsForYou = () => {
                   .length
               }
             </div>
-            <div className="text-xs text-blue-400 font-mono">GOOD</div>
+            <div className="text-xs text-blue-400">GOOD</div>
           </div>
         </div>
         <div className="flex items-center gap-2 text-xs text-gray-500">
-          <Sparkles className="w-4 h-4 text-[#FFD700]" />
-          <span className="font-mono">POWERED BY GEMINI AI</span>
+          <Sparkles className="w-4 h-4 text-primary" />
+          <span className="">POWERED BY GEMINI AI</span>
         </div>
       </div>
 
@@ -183,7 +183,7 @@ const JobsForYou = () => {
         {filteredJobs.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
             <Target className="w-12 h-12 mx-auto mb-4 opacity-30" />
-            <p className="font-mono text-sm">NO JOBS MATCH CURRENT FILTER</p>
+            <p className="text-sm">NO JOBS MATCH CURRENT FILTER</p>
           </div>
         ) : (
           filteredJobs.map((job, index) => {
@@ -198,14 +198,14 @@ const JobsForYou = () => {
                 transition={{ delay: index * 0.05 }}
                 onMouseEnter={() => setHoveredId(job._id)}
                 onMouseLeave={() => setHoveredId(null)}
-                className={`relative group bg-[#0a0a0a] border rounded-sm overflow-hidden transition-all duration-300 ${isHovered ? `${badge.border} shadow-lg` : "border-white/10"
+                className={`relative group bg-background border rounded-sm overflow-hidden transition-all duration-300 ${isHovered ? `${badge.border} shadow-lg` : "border-white/10"
                   }`}
               >
                 {/* Glow Effect on Hover */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: isHovered ? 1 : 0 }}
-                  className={`absolute inset-0 bg-gradient-to-r ${badge.color} opacity-5 pointer-events-none`}
+                  className={`absolute inset-0 ${badge.color} opacity-5 pointer-events-none`}
                 />
 
                 <div className="relative p-5">
@@ -226,11 +226,11 @@ const JobsForYou = () => {
                     {/* Job Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
-                        <h3 className="font-semibold text-white text-lg group-hover:text-[#FFD700] transition-colors truncate">
+                        <h3 className="font-semibold text-white text-lg group-hover:text-primary transition-colors truncate">
                           {job.title}
                         </h3>
                         <Badge
-                          className={`${badge.bg} ${badge.text} ${badge.border} border font-mono text-[10px] px-2`}
+                          className={`${badge.bg} ${badge.text} ${badge.border} border text-xs px-2`}
                         >
                           {badge.label}
                         </Badge>
@@ -245,7 +245,7 @@ const JobsForYou = () => {
                           {job.location || "Remote"}
                         </span>
                         {job.salary && (
-                          <span className="text-[#FFD700]">
+                          <span className="text-primary">
                             ${(job.salary / 1000).toFixed(0)}K
                           </span>
                         )}
@@ -308,7 +308,7 @@ const JobsForYou = () => {
                           />
                         </svg>
                       </div>
-                      <span className="text-[10px] text-gray-500 mt-1 font-mono">
+                      <span className="text-xs text-gray-500 mt-1">
                         MATCH
                       </span>
                     </div>
@@ -323,13 +323,13 @@ const JobsForYou = () => {
                     }}
                     className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between"
                   >
-                    <div className="text-xs text-gray-500 font-mono">
+                    <div className="text-xs text-gray-500">
                       {job.aiInsight ||
                         "Skills and experience align well with requirements"}
                     </div>
                     <Button
                       size="sm"
-                      className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-mono text-xs"
+                      className="bg-primary text-black hover:bg-primary/90 text-xs"
                     >
                       VIEW JOB
                       <ChevronRight className="w-4 h-4 ml-1" />

@@ -120,7 +120,7 @@ const OfferLetterTemplates = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white font-sans selection:bg-[#FFD700] selection:text-black">
+        <div className="min-h-screen bg-black text-white font-sans selection:bg-primary selection:text-black">
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 py-8">
@@ -134,16 +134,16 @@ const OfferLetterTemplates = () => {
                     </Button>
                     <div className="flex-1">
                         <h1 className="text-3xl font-bold uppercase tracking-tighter flex items-center gap-3">
-                            <FileText className="w-8 h-8 text-[#FFD700]" />
+                            <FileText className="w-8 h-8 text-primary" />
                             Offer Templates
                         </h1>
-                        <p className="text-gray-500 font-mono text-sm mt-1">
+                        <p className="text-gray-500 text-sm mt-1">
                             Manage standardized offer letter templates for your organization
                         </p>
                     </div>
                     <Button
                         onClick={() => setShowAddModal(true)}
-                        className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-bold"
+                        className="bg-primary text-black hover:bg-primary/90 font-bold"
                     >
                         <Plus className="w-5 h-5 mr-2" />
                         Create Template
@@ -152,7 +152,7 @@ const OfferLetterTemplates = () => {
 
                 {loading ? (
                     <div className="flex justify-center py-20">
-                        <Loader2 className="w-10 h-10 text-[#FFD700] animate-spin" />
+                        <Loader2 className="w-10 h-10 text-primary animate-spin" />
                     </div>
                 ) : templates.length === 0 ? (
                     <div className="text-center py-20 bg-[#111] border border-white/10 rounded-lg">
@@ -164,7 +164,7 @@ const OfferLetterTemplates = () => {
                         <Button
                             onClick={() => setShowAddModal(true)}
                             variant="outline"
-                            className="mt-6 border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700]/10"
+                            className="mt-6 border-primary/30 text-primary hover:bg-primary/10"
                         >
                             <Plus className="w-4 h-4 mr-2" /> Create First Template
                         </Button>
@@ -174,26 +174,26 @@ const OfferLetterTemplates = () => {
                         {templates.map((template) => (
                             <div
                                 key={template._id}
-                                className="bg-[#111] border border-white/10 rounded-lg p-6 group hover:border-[#FFD700]/50 transition-colors relative"
+                                className="bg-[#111] border border-white/10 rounded-lg p-6 group hover:border-primary/50 transition-colors relative"
                             >
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
-                                        <h3 className="text-lg font-bold text-white group-hover:text-[#FFD700] transition-colors">
+                                        <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">
                                             {template.name}
                                         </h3>
-                                        <p className="text-xs text-gray-500 font-mono mt-1">
+                                        <p className="text-xs text-gray-500 mt-1">
                                             Subject: {template.subject}
                                         </p>
                                     </div>
                                     {template.isDefault && (
-                                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/20 text-[10px]">
+                                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/20 text-xs">
                                             DEFAULT
                                         </Badge>
                                     )}
                                 </div>
 
                                 <div className="bg-white/5 rounded p-3 mb-4 h-32 overflow-hidden text-xs text-gray-400 relative">
-                                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#111] to-transparent pointer-events-none" />
+                                    <div className="absolute inset-x-0 bottom-0 h-12 pointer-events-none" />
                                     <pre className="whitespace-pre-wrap font-sans">
                                         {template.content.replace(/<[^>]*>?/gm, '')}
                                     </pre>
@@ -226,10 +226,10 @@ const OfferLetterTemplates = () => {
 
             {/* Create Modal */}
             <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-                <DialogContent className="max-w-4xl bg-[#0a0a0a] border-white/10 text-white">
+                <DialogContent className="max-w-4xl bg-background border-white/10 text-white">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-[#FFD700]" />
+                            <FileText className="w-5 h-5 text-primary" />
                             Create Offer Template
                         </DialogTitle>
                         <DialogDescription className="text-gray-400">
@@ -240,7 +240,7 @@ const OfferLetterTemplates = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-4">
                         <div className="lg:col-span-2 space-y-4">
                             <div>
-                                <label className="text-xs font-mono text-gray-500 mb-1 block">TEMPLATE NAME</label>
+                                <label className="text-xs text-gray-500 mb-1 block">TEMPLATE NAME</label>
                                 <Input
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -250,7 +250,7 @@ const OfferLetterTemplates = () => {
                             </div>
 
                             <div>
-                                <label className="text-xs font-mono text-gray-500 mb-1 block">EMAIL SUBJECT</label>
+                                <label className="text-xs text-gray-500 mb-1 block">EMAIL SUBJECT</label>
                                 <Input
                                     value={formData.subject}
                                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -260,12 +260,12 @@ const OfferLetterTemplates = () => {
                             </div>
 
                             <div className="flex-1">
-                                <label className="text-xs font-mono text-gray-500 mb-1 block">CONTENT (HTML Supported)</label>
+                                <label className="text-xs text-gray-500 mb-1 block">CONTENT (HTML Supported)</label>
                                 <Textarea
                                     value={formData.content}
                                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                                     placeholder="Type your offer letter content here..."
-                                    className="bg-white/5 border-white/10 min-h-[300px] font-mono text-sm"
+                                    className="bg-white/5 border-white/10 min-h-[300px] text-sm"
                                 />
                             </div>
                         </div>
@@ -273,7 +273,7 @@ const OfferLetterTemplates = () => {
                         <div className="space-y-6">
                             <div className="bg-[#111] border border-white/10 rounded-lg p-4">
                                 <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                                    <Info className="w-4 h-4 text-[#FFD700]" />
+                                    <Info className="w-4 h-4 text-primary" />
                                     Variables
                                 </h4>
                                 <div className="space-y-2">
@@ -289,7 +289,7 @@ const OfferLetterTemplates = () => {
                                         <button
                                             key={variance}
                                             onClick={() => insertVariable(variance)}
-                                            className="w-full text-left text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 p-2 rounded transition-colors flex justify-between group"
+                                            className="w-full text-left text-xs text-gray-400 hover:text-white hover:bg-white/5 p-2 rounded transition-colors flex justify-between group"
                                         >
                                             {variance}
                                             <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100" />
@@ -304,7 +304,7 @@ const OfferLetterTemplates = () => {
                                     id="isDefault"
                                     checked={formData.isDefault}
                                     onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
-                                    className="accent-[#FFD700] w-4 h-4"
+                                    className="accent-primary w-4 h-4"
                                 />
                                 <label htmlFor="isDefault" className="text-sm text-gray-300 cursor-pointer select-none">
                                     Set as default template
@@ -320,7 +320,7 @@ const OfferLetterTemplates = () => {
                         <Button
                             onClick={handleCreate}
                             disabled={processing}
-                            className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-bold"
+                            className="bg-primary text-black hover:bg-primary/90 font-bold"
                         >
                             {processing ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
                             Save Template

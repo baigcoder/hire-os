@@ -47,6 +47,11 @@ module.exports = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
+        brand: {
+          DEFAULT: "hsl(var(--brand))",
+          foreground: "hsl(var(--brand-foreground))",
+          ink: "hsl(var(--brand-ink))",
+        },
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -94,7 +99,7 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          "Inter",
+          "General Sans",
           "system-ui",
           "-apple-system",
           "BlinkMacSystemFont",
@@ -102,6 +107,7 @@ module.exports = {
           "Roboto",
           "sans-serif",
         ],
+        display: ["Gambarino", "Georgia", "serif"],
       },
       keyframes: {
         "accordion-down": {

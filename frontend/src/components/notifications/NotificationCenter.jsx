@@ -264,7 +264,7 @@ export const NotificationBell = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="relative p-2">
+        <Button variant="ghost" className="relative p-2" aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : "Notifications"}>
           <Bell className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 text-black text-xs font-bold rounded-full flex items-center justify-center">
@@ -467,7 +467,7 @@ const NotificationCenter = () => {
               {unreadCount > 0 && (
                 <Button
                   onClick={handleMarkAllAsRead}
-                  className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black"
+                  className="text-black bg-primary"
                 >
                   <CheckCheck className="w-4 h-4 mr-2" />
                   Mark all read

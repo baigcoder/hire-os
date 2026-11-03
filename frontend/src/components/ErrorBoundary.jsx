@@ -53,10 +53,10 @@ class ErrorBoundary extends Component {
         if (this.state.hasError) {
             // Custom fallback UI
             return (
-                <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4">
+                <div className="min-h-screen bg-background flex items-center justify-center p-4">
                     <div className="max-w-lg w-full">
                         {/* Error Container */}
-                        <div className="bg-[#111111] border border-red-500/20 rounded-lg p-8 text-center relative overflow-hidden">
+                        <div className="bg-card border border-red-500/20 rounded-lg p-8 text-center relative overflow-hidden">
                             {/* Corner Accents */}
                             <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-red-500/30" />
                             <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-red-500/30" />
@@ -67,24 +67,24 @@ class ErrorBoundary extends Component {
                             </div>
 
                             {/* Title */}
-                            <h1 className="text-2xl font-bold text-white mb-2 uppercase tracking-wider">
+                            <h1 className="text-2xl font-bold text-white mb-2">
                                 System Error
                             </h1>
 
                             {/* Subtitle */}
-                            <p className="text-gray-400 mb-6 font-mono text-sm">
+                            <p className="text-gray-400 mb-6 text-sm">
                                 An unexpected error has occurred. Our team has been notified.
                             </p>
 
                             {/* Error Details (Development only) */}
                             {process.env.NODE_ENV === 'development' && this.state.error && (
                                 <div className="bg-black/50 border border-red-500/10 rounded p-4 mb-6 text-left overflow-auto max-h-40">
-                                    <p className="text-red-400 font-mono text-xs mb-2">
+                                    <p className="text-red-400 text-xs mb-2">
                                         <Bug className="w-3 h-3 inline mr-1" />
                                         {this.state.error.toString()}
                                     </p>
                                     {this.state.errorInfo && (
-                                        <pre className="text-gray-500 text-[10px] whitespace-pre-wrap">
+                                        <pre className="text-gray-500 text-xs whitespace-pre-wrap">
                                             {this.state.errorInfo.componentStack}
                                         </pre>
                                     )}
@@ -110,7 +110,7 @@ class ErrorBoundary extends Component {
                             </div>
 
                             {/* Error Code */}
-                            <p className="text-gray-600 font-mono text-[10px] mt-6 uppercase">
+                            <p className="text-gray-600 text-xs mt-6 uppercase">
                                 Error ID: {Date.now().toString(36).toUpperCase()}
                             </p>
                         </div>

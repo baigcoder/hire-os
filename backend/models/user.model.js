@@ -131,7 +131,13 @@ const userSchema = new mongoose.Schema(
         },
       ],
       resume: {
-        type: String, // URL to resume file
+        // Link to the resume: our authenticated /api/v1/resumes/:userId
+        // endpoint, which redirects to a short-lived signed URL
+        type: String,
+      },
+      resumePath: {
+        // Object path in the private "resumes" storage bucket
+        type: String,
       },
       resumeOriginalName: {
         type: String,
@@ -379,6 +385,18 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    // Secrets never leave the server, including when a user is populated
+    // into another document (e.g. an application's applicant)
+    toJSON: {
+      transform: (_doc, ret) => {
+        delete ret.password;
+        delete ret.passwordResetToken;
+        delete ret.passwordResetExpires;
+        delete ret.failedLoginAttempts;
+        if (ret.securitySettings) delete ret.securitySettings.twoFactorSecret;
+        return ret;
+      },
+    },
   },
 );
 

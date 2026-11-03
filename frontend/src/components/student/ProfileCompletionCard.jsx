@@ -83,7 +83,7 @@ const ProfileCompletionCard = () => {
     if (percentage >= 80)
       return { color: "emerald", gradient: "from-emerald-500 to-green-400" };
     if (percentage >= 60)
-      return { color: "[#FFD700]", gradient: "from-[#FFD700] to-amber-400" };
+      return { color: "[#FFD700]", gradient: "from-primary to-amber-400" };
     if (percentage >= 40)
       return { color: "blue", gradient: "from-blue-500 to-cyan-400" };
     return { color: "red", gradient: "from-red-500 to-orange-400" };
@@ -109,26 +109,26 @@ const ProfileCompletionCard = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5"
+      className="bg-background border border-white/10 rounded-sm p-5"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#FFD700]/20 to-amber-500/10 rounded-sm flex items-center justify-center border border-[#FFD700]/30">
-            <Sparkles className="w-4 h-4 text-[#FFD700]" />
+          <div className="w-10 h-10 rounded-sm flex items-center justify-center border border-primary/30 bg-primary">
+            <Sparkles className="w-4 h-4 text-primary" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white tracking-tight">
               PROFILE COMPLETION
             </h3>
-            <p className="text-[10px] text-gray-500 font-mono tracking-wider">
+            <p className="text-xs text-gray-500 tracking-wider">
               COMPLETE PROFILES GET 40% MORE VIEWS
             </p>
           </div>
         </div>
         <div className="text-right">
           <span
-            className={`text-3xl font-bold font-mono text-${style.color}-400`}
+            className={`text-3xl font-bold text-${style.color}-400`}
           >
             {completionData.percentage}%
           </span>
@@ -142,7 +142,7 @@ const ProfileCompletionCard = () => {
             initial={{ width: 0 }}
             animate={{ width: `${completionData.percentage}%` }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className={`h-full bg-gradient-to-r ${style.gradient} rounded-sm`}
+            className={`h-full bg-card ${style.gradient} rounded-sm`}
           />
         </div>
         {/* Markers */}
@@ -165,7 +165,7 @@ const ProfileCompletionCard = () => {
             : message.type === "info"
               ? "bg-blue-500/10 border border-blue-500/30"
               : message.type === "warning"
-                ? "bg-[#FFD700]/10 border border-[#FFD700]/30"
+                ? "bg-primary/10 border border-primary/30"
                 : "bg-red-500/10 border border-red-500/30"
         }`}
       >
@@ -177,19 +177,19 @@ const ProfileCompletionCard = () => {
               message.type === "info"
                 ? "text-blue-400"
                 : message.type === "warning"
-                  ? "text-[#FFD700]"
+                  ? "text-primary"
                   : "text-red-400"
             }`}
           />
         )}
         <span
-          className={`text-[10px] font-mono tracking-wider ${
+          className={`text-xs tracking-wider ${
             message.type === "success"
               ? "text-emerald-400"
               : message.type === "info"
                 ? "text-blue-400"
                 : message.type === "warning"
-                  ? "text-[#FFD700]"
+                  ? "text-primary"
                   : "text-red-400"
           }`}
         >
@@ -204,7 +204,7 @@ const ProfileCompletionCard = () => {
           return (
             <div
               key={item.id}
-              className={`flex items-center gap-2 p-2.5 rounded-sm text-[10px] font-mono transition-all ${
+              className={`flex items-center gap-2 p-2.5 rounded-sm text-xs transition-all ${
                 item.complete
                   ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                   : "bg-white/5 text-gray-500 border border-white/10"
@@ -227,7 +227,7 @@ const ProfileCompletionCard = () => {
       {completionData.percentage < 100 && (
         <Button
           onClick={() => navigate("/profile")}
-          className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-mono text-xs tracking-wider"
+          className="w-full bg-primary text-black hover:bg-primary/90 text-xs tracking-wider"
         >
           COMPLETE YOUR PROFILE
           <ChevronRight className="w-4 h-4 ml-2" />

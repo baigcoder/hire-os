@@ -222,7 +222,7 @@ const ReferralDashboard = () => {
             </div>
 
             {/* Referral Link Card */}
-            <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+            <Card className="border-2 border-primary/20 bg-primary">
                 <CardContent className="pt-6">
                     <div className="flex flex-col md:flex-row items-center gap-4">
                         <div className="flex-1 w-full">
@@ -230,7 +230,7 @@ const ReferralDashboard = () => {
                                 Your Referral Link
                             </label>
                             <div className="flex mt-1 gap-2">
-                                <div className="flex-1 bg-background border rounded-lg px-4 py-3 font-mono text-sm truncate">
+                                <div className="flex-1 bg-background border rounded-lg px-4 py-3 text-sm truncate">
                                     {`${window.location.origin}/signup?ref=${referralCode?.code || "..."}`}
                                 </div>
                                 <Button

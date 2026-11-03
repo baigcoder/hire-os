@@ -1,0 +1,34 @@
+Jordan Reyes
+Backend Engineer
+jordan.reyes@example.com | +1 555 010 2233 | github.com/jordan-reyes-dev | Austin, TX
+
+SUMMARY
+Backend engineer with four years building Node.js services and PostgreSQL data models for payments and logistics products.
+
+EXPERIENCE
+Senior Software Engineer — Parcelwise
+Mar 2023 – Present
+• Led migration of the shipment tracking API from a monolith to 6 Node.js microservices, cutting p95 latency from 820ms to 190ms
+• Designed PostgreSQL schemas and partitioning for 40M tracking events per month
+• Built CI/CD pipelines with GitHub Actions and Docker, reducing deploy time by 70%
+• Mentored 3 junior engineers through code review and pairing
+
+Software Engineer — Ledgerly
+Jun 2021 – Feb 2023
+• Developed REST APIs in Express and TypeScript for invoicing used by 12,000 small businesses
+• Implemented idempotent payment webhooks with Redis locks, eliminating duplicate charges
+• Wrote Jest integration tests raising coverage from 35% to 80%
+• Deployed services on AWS ECS with Terraform
+
+Backend Intern — CityBike Labs
+Jun 2020 – Aug 2020
+• Built an internal admin dashboard API with Node.js and MongoDB
+
+EDUCATION
+B.S. Computer Science, University of Texas at Austin, 2017 – 2021
+
+SKILLS
+Node.js, TypeScript, JavaScript, Express, PostgreSQL, MongoDB, Redis, Docker, AWS, Terraform, GitHub Actions, Jest, REST APIs, Microservices
+
+PROJECTS
+queue-lite — open-source job queue for Node.js backed by PostgreSQL (420 GitHub stars)

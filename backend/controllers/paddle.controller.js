@@ -1,5 +1,10 @@
-import crypto from "crypto";
+import {
+  rawBodyOf,
+  verifyPaddleSignature,
+  webhookPolicy,
+} from "../utils/webhookSecurity.js";
 import { Company, SUBSCRIPTION_PLANS } from "../models/company.model.js";
+import { PADDLE_CONFIG as PADDLE_CATALOG } from "../config/paddle.config.js";
 import { Notification } from "../models/notification.model.js";
 
 // =====================================================
@@ -10,7 +15,10 @@ const PADDLE_CONFIG = {
   environment: process.env.PADDLE_ENVIRONMENT || "sandbox",
   clientToken: process.env.PADDLE_CLIENT_TOKEN || "",
   apiKey: process.env.PADDLE_API_KEY || "",
-  webhookSecret: process.env.PADDLE_WEBHOOK_SECRET || "",
+  // Read per request so a rotated secret applies without a code change
+  get webhookSecret() {
+    return process.env.PADDLE_WEBHOOK_SECRET || "";
+  },
   apiUrl:
     process.env.PADDLE_ENVIRONMENT === "production"
       ? "https://api.paddle.com"
@@ -49,8 +57,17 @@ export const initiatePayment = async (req, res) => {
       billingCycle = "monthly",
       amount,
       companyData,
-      paddlePriceId,
     } = req.body;
+
+    // SECURITY (S19): the plan decides the price. The client never picks the
+    // Paddle price, or it could pay for "basic" and register as "enterprise".
+    const planPrices = Object.hasOwn(PADDLE_CATALOG.prices, planId)
+      ? PADDLE_CATALOG.prices[planId]
+      : null;
+    if (!planPrices || !(billingCycle in planPrices)) {
+      return res.status(400).json({ success: false, message: "Unknown plan or billing cycle" });
+    }
+    const paddlePriceId = planPrices[billingCycle] || null;
 
     // Generate transaction reference
     const transactionRef = `TXN_${Date.now()}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -79,6 +96,7 @@ export const initiatePayment = async (req, res) => {
     res.json({
       success: true,
       transactionRef,
+      paddlePriceId,
       paddleConfig: {
         environment: PADDLE_CONFIG.environment,
         clientToken: PADDLE_CONFIG.clientToken,
@@ -116,8 +134,9 @@ export const verifyPayment = async (req, res) => {
       });
     }
 
-    // In production, verify with Paddle API
-    // For sandbox, we trust the frontend callback
+    // The browser's word is not proof of payment: this only records the
+    // callback for the UI. Only the verified webhook marks a transaction
+    // "completed", which is what company registration requires (S17).
 
     console.log("✅ Payment verified:", {
       transactionRef,
@@ -152,20 +171,22 @@ export const verifyPayment = async (req, res) => {
  */
 export const handlePaddleWebhook = async (req, res) => {
   try {
-    const signature = req.headers["paddle-signature"];
-    const rawBody = JSON.stringify(req.body);
-
-    // Verify webhook signature (skip in development if no secret)
-    if (PADDLE_CONFIG.webhookSecret) {
-      const isValid = verifyWebhookSignature(
-        signature,
-        rawBody,
+    // SECURITY (S16): verify over the raw body with replay protection;
+    // production refuses webhooks when no secret is configured.
+    const policy = webhookPolicy(PADDLE_CONFIG.webhookSecret, "Paddle");
+    if (!policy.allowed) {
+      return res.status(503).json({ error: "Webhooks are not configured" });
+    }
+    if (
+      policy.verify &&
+      !verifyPaddleSignature(
+        rawBodyOf(req),
+        req.headers["paddle-signature"],
         PADDLE_CONFIG.webhookSecret,
-      );
-      if (!isValid) {
-        console.error("❌ Invalid webhook signature");
-        return res.status(401).json({ error: "Invalid signature" });
-      }
+      )
+    ) {
+      console.error("❌ Invalid webhook signature");
+      return res.status(401).json({ error: "Invalid signature" });
     }
 
     const event = req.body;
@@ -198,25 +219,6 @@ export const handlePaddleWebhook = async (req, res) => {
   }
 };
 
-// Webhook signature verification
-const verifyWebhookSignature = (signature, payload, secret) => {
-  try {
-    if (!signature) return false;
-
-    const [ts, h1] = signature.split(";").map((part) => part.split("=")[1]);
-    const signedPayload = `${ts}:${payload}`;
-    const expectedSignature = crypto
-      .createHmac("sha256", secret)
-      .update(signedPayload)
-      .digest("hex");
-
-    return h1 === expectedSignature;
-  } catch (error) {
-    console.error("Signature verification error:", error);
-    return false;
-  }
-};
-
 // Webhook handlers - Enhanced to properly save subscription data
 const handleTransactionCompleted = async (data) => {
   console.log("💰 Transaction completed:", data.id);
@@ -232,6 +234,21 @@ const handleTransactionCompleted = async (data) => {
     let company = null;
 
     if (transactionRef) {
+      // Only this signature-verified webhook may mark a payment completed;
+      // company registration honours nothing else (S17). The paid price must
+      // be the one the plan maps to (S19).
+      const expectedPrice = pendingTransactions.get(transactionRef)?.paddlePriceId;
+      const paidPrices = (data.items || []).map(
+        (item) => item.price?.id || item.price_id,
+      );
+      const priceMatches = !expectedPrice || paidPrices.includes(expectedPrice);
+      if (!priceMatches) {
+        console.warn("⚠️ Paid price does not match the plan:", data.id);
+      }
+      markPendingTransaction(transactionRef, {
+        status: priceMatches ? "completed" : "price_mismatch",
+        paddleTransactionId: data.id,
+      });
       // Check pending transactions first
       const pendingData = pendingTransactions.get(transactionRef);
       if (pendingData?.companyData?.email) {
@@ -444,6 +461,16 @@ const handleSubscriptionCanceled = async (data) => {
  */
 export const getPendingTransaction = (transactionRef) => {
   return pendingTransactions.get(transactionRef);
+};
+
+/** Test seam: seed an in-memory pending transaction. */
+export const setPendingTransactionForTests = (transactionRef, data) => {
+  pendingTransactions.set(transactionRef, data);
+};
+
+export const markPendingTransaction = (transactionRef, changes) => {
+  const current = pendingTransactions.get(transactionRef);
+  if (current) pendingTransactions.set(transactionRef, { ...current, ...changes });
 };
 
 export default {

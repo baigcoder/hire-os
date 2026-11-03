@@ -59,7 +59,8 @@ router.route("/login").post(authLimiter, validateLogin, login);
 router.route("/logout").get(logout);
 router
   .route("/change-initial-password")
-  .post(authLimiter, changeInitialPassword); // For first-time recruiter login
+  // Requires the session from logging in with the temporary password (S14)
+  .post(authLimiter, isAuthenticated, changeInitialPassword); // For first-time recruiter login
 router.route("/unlock-account").post(authLimiter, unlockAccount); // Reset failed login attempts
 
 // Token refresh - public (uses refresh token cookie)

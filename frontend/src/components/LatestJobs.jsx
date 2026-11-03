@@ -11,7 +11,7 @@ const LatestJobs = () => {
 
   return (
     <section className="section bg-black relative border-t border-white/5">
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-yellow-500/20 to-transparent"></div>
+      <div className="absolute top-0 left-0 w-full h-px"></div>
       <div className="container-pro relative z-10">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12">
@@ -64,7 +64,7 @@ const LatestJobs = () => {
         {/* CTA Section */}
         {allJobs.length > 0 && (
           <div className="mt-16 text-center animate animate-fadeInUp">
-            <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-8 bg-gradient-to-r from-neutral-900 to-black border border-white/10 rounded-2xl relative overflow-hidden group">
+            <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-8 border border-white/10 rounded-2xl relative overflow-hidden group bg-card">
               <div className="absolute inset-0 bg-yellow-500/5 group-hover:bg-yellow-500/10 transition-colors duration-500"></div>
               <div className="text-white text-left relative z-10">
                 <h3 className="text-xl font-bold text-white">

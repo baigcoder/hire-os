@@ -31,6 +31,13 @@ const notificationSchema = new mongoose.Schema(
         "mcq_failed", // Student: MCQ score below threshold
         "video_interview_ready", // Student: Video interview can start
         "fraud_alert", // Recruiter: Fraud detected during interview
+        "integrity_report", // Recruiter: Post-interview integrity report ready
+        // Hiring decision flow (used by interview.controller.js but missing
+        // here, so sending a report to the CEO and the CEO's decision failed)
+        "interview_report_submitted", // CEO: report awaiting decision
+        "candidate_approved", // Recruiter: CEO approved
+        "candidate_rejected", // Recruiter: CEO rejected / on hold
+        "prepare_offer", // Recruiter: prepare the offer letter
 
         // Offer Related
         "offer_received", // Student: You received an offer

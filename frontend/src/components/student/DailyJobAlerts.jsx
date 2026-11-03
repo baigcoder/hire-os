@@ -147,7 +147,7 @@ const DailyJobAlerts = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Bell className="text-[#FFD700]" /> Daily Job Alerts
+            <Bell className="text-primary" /> Daily Job Alerts
           </h2>
           <p className="text-gray-400 text-sm mt-1">
             Personalized job recommendations just for you
@@ -170,7 +170,7 @@ const DailyJobAlerts = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-[#111111] border border-white/10 rounded-2xl p-6 overflow-hidden"
+            className="bg-card border border-white/10 rounded-2xl p-6 overflow-hidden"
           >
             <h3 className="text-lg font-bold text-white mb-4">
               Alert Preferences
@@ -221,7 +221,7 @@ const DailyJobAlerts = () => {
                       }
                       className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                         preferences.jobTypes?.includes(type)
-                          ? "bg-[#FFD700] text-black"
+                          ? "bg-primary text-black"
                           : "bg-white/5 text-gray-400 hover:bg-white/10"
                       }`}
                     >
@@ -272,7 +272,7 @@ const DailyJobAlerts = () => {
                     }))
                   }
                   className={`w-12 h-6 rounded-full transition-all relative ${
-                    preferences.emailAlerts ? "bg-[#FFD700]" : "bg-white/10"
+                    preferences.emailAlerts ? "bg-primary" : "bg-white/10"
                   }`}
                 >
                   <div
@@ -296,7 +296,7 @@ const DailyJobAlerts = () => {
                 Cancel
               </Button>
               <Button
-                className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90"
+                className="bg-primary text-black hover:bg-primary/90"
                 onClick={savePreferences}
                 disabled={savingPrefs}
               >
@@ -314,7 +314,7 @@ const DailyJobAlerts = () => {
             {
               label: "Total Matches",
               value: summary.totalMatches,
-              color: "text-[#FFD700]",
+              color: "text-primary",
             },
             {
               label: "New Today",
@@ -337,10 +337,10 @@ const DailyJobAlerts = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="bg-[#111111] border border-white/10 rounded-xl p-4"
+              className="bg-card border border-white/10 rounded-xl p-4"
             >
               <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-              <p className="text-xs text-gray-500 uppercase tracking-wider">
+              <p className="text-xs text-gray-500">
                 {stat.label}
               </p>
             </motion.div>
@@ -380,7 +380,7 @@ const DailyJobAlerts = () => {
             Update your preferences to get better matches
           </p>
           <Button
-            className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90"
+            className="bg-primary text-black hover:bg-primary/90"
             onClick={() => setShowSettings(true)}
           >
             Set Preferences
@@ -394,11 +394,11 @@ const DailyJobAlerts = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="group bg-[#111111] border border-white/10 rounded-xl p-5 hover:border-[#FFD700]/30 transition-all"
+              className="group bg-card border border-white/10 rounded-xl p-5 hover:border-primary/30 transition-all"
             >
               <div className="flex items-start gap-4">
                 {/* Company Logo */}
-                <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:border-[#FFD700]/30 transition-colors">
+                <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:border-primary/30 transition-colors">
                   {job.company?.logo ? (
                     <img
                       src={job.company.logo}
@@ -414,7 +414,7 @@ const DailyJobAlerts = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div>
-                      <h3 className="font-semibold text-white group-hover:text-[#FFD700] transition-colors">
+                      <h3 className="font-semibold text-white group-hover:text-primary transition-colors">
                         {job.title}
                       </h3>
                       <p className="text-sm text-gray-500">
@@ -424,7 +424,7 @@ const DailyJobAlerts = () => {
 
                     <div className="flex items-center gap-2">
                       {job.isNew && (
-                        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
+                        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
                           NEW
                         </Badge>
                       )}
@@ -440,7 +440,7 @@ const DailyJobAlerts = () => {
                       {job.location || "Remote"}
                     </span>
                     <span className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4 text-[#FFD700]" />
+                      <DollarSign className="w-4 h-4 text-primary" />
                       {job.salary || "Competitive"}
                     </span>
                     <span className="flex items-center gap-1">
@@ -462,7 +462,7 @@ const DailyJobAlerts = () => {
                       {job.matchedSkills.slice(0, 4).map((skill, i) => (
                         <Badge
                           key={i}
-                          className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]"
+                          className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs"
                         >
                           <Check className="w-2 h-2 mr-1" /> {skill}
                         </Badge>
@@ -474,7 +474,7 @@ const DailyJobAlerts = () => {
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
-                      className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90"
+                      className="bg-primary text-black hover:bg-primary/90"
                       onClick={() => navigate(`/description/${job._id}`)}
                     >
                       View Job <ArrowUpRight className="w-4 h-4 ml-1" />
@@ -484,7 +484,7 @@ const DailyJobAlerts = () => {
                       variant="outline"
                       className={`border-white/10 ${
                         job.isSaved
-                          ? "text-[#FFD700] border-[#FFD700]/30"
+                          ? "text-primary border-primary/30"
                           : "text-gray-400 hover:text-white"
                       }`}
                       onClick={() => handleSaveJob(job._id)}

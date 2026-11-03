@@ -206,7 +206,7 @@ const InterviewReport = () => {
             className="lg:col-span-2 space-y-6"
           >
             {/* Overall Score Card */}
-            <Card className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border-purple-500/30">
+            <Card className="border-purple-500/30 bg-card">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -404,7 +404,7 @@ const InterviewReport = () => {
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-2xl font-bold text-white">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-card">
                     {report.candidateName?.charAt(0) || "C"}
                   </div>
                   <div>
@@ -437,7 +437,7 @@ const InterviewReport = () => {
 
             {/* CEO Decision Section */}
             {isCompanyAdmin && report.status === "submitted" && (
-              <Card className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/30">
+              <Card className="border-yellow-500/30 bg-primary">
                 <CardHeader>
                   <CardTitle className="text-white">Final Decision</CardTitle>
                   <CardDescription>

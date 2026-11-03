@@ -105,13 +105,13 @@ const LearningResources = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="bg-[#111111] border border-white/10 rounded-2xl p-8">
+        <div className="bg-card border border-white/10 rounded-2xl p-8">
           <div className="flex flex-col items-center justify-center py-12">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-[#FFD700]/20 rounded-full animate-pulse" />
-              <BookOpen className="absolute inset-0 m-auto w-8 h-8 text-[#FFD700] animate-pulse" />
+              <div className="w-16 h-16 border-4 border-primary/20 rounded-full animate-pulse" />
+              <BookOpen className="absolute inset-0 m-auto w-8 h-8 text-primary animate-pulse" />
             </div>
-            <p className="text-gray-400 mt-4 font-mono text-sm">
+            <p className="text-gray-400 mt-4 text-sm">
               CURATING LEARNING RESOURCES...
             </p>
             <p className="text-gray-600 text-xs mt-2">
@@ -129,7 +129,7 @@ const LearningResources = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <BookOpen className="text-[#FFD700]" /> Learning Resources
+            <BookOpen className="text-primary" /> Learning Resources
           </h2>
           <p className="text-gray-400 text-sm mt-1">
             AI-curated courses to accelerate your career
@@ -143,7 +143,7 @@ const LearningResources = () => {
               variant={filter === f ? "default" : "ghost"}
               size="sm"
               className={
-                filter === f ? "bg-[#FFD700] text-black" : "text-gray-400"
+                filter === f ? "bg-primary text-black" : "text-gray-400"
               }
               onClick={() => setFilter(f)}
             >
@@ -161,18 +161,18 @@ const LearningResources = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-[#111111] to-[#0a0a0a] border border-[#FFD700]/20 rounded-2xl p-6"
+              className="border border-primary/20 rounded-2xl p-6 bg-card"
             >
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Sparkles className="text-[#FFD700]" /> Your Learning Path
+                <Sparkles className="text-primary" /> Your Learning Path
               </h3>
               <div className="relative">
-                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#FFD700] to-emerald-500" />
+                <div className="absolute left-4 top-0 bottom-0 w-0.5" />
                 <div className="space-y-4 pl-10">
                   {resources.learningPath.map((step, idx) => (
                     <div key={idx} className="relative">
-                      <div className="absolute -left-10 w-8 h-8 rounded-full bg-[#FFD700]/20 border border-[#FFD700]/40 flex items-center justify-center">
-                        <span className="text-sm font-bold text-[#FFD700]">
+                      <div className="absolute -left-10 w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
+                        <span className="text-sm font-bold text-primary">
                           {idx + 1}
                         </span>
                       </div>
@@ -199,7 +199,7 @@ const LearningResources = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="group bg-[#111111] border border-white/10 rounded-xl p-5 hover:border-[#FFD700]/30 transition-all"
+                    className="group bg-card border border-white/10 rounded-xl p-5 hover:border-primary/30 transition-all"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <Badge className={getPlatformColor(course.platform)}>
@@ -216,7 +216,7 @@ const LearningResources = () => {
                       )}
                     </div>
 
-                    <h4 className="font-semibold text-white mb-2 group-hover:text-[#FFD700] transition-colors line-clamp-2">
+                    <h4 className="font-semibold text-white mb-2 group-hover:text-primary transition-colors line-clamp-2">
                       {course.title}
                     </h4>
 
@@ -257,7 +257,7 @@ const LearningResources = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-[#111111] border border-white/10 rounded-2xl p-6"
+              className="bg-card border border-white/10 rounded-2xl p-6"
             >
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <Code className="text-cyan-400" /> Portfolio Project Ideas
@@ -283,7 +283,7 @@ const LearningResources = () => {
         <div className="space-y-6">
           {/* Quick Wins */}
           {resources?.quickWins?.length > 0 && (
-            <div className="bg-[#111111] border border-white/10 rounded-2xl p-5">
+            <div className="bg-card border border-white/10 rounded-2xl p-5">
               <h4 className="font-bold text-white mb-4 flex items-center gap-2">
                 <Play className="w-4 h-4 text-emerald-400" /> Quick Wins (1
                 Week)
@@ -304,18 +304,18 @@ const LearningResources = () => {
 
           {/* Certifications */}
           {resources?.certifications?.length > 0 && (
-            <div className="bg-[#111111] border border-white/10 rounded-2xl p-5">
+            <div className="bg-card border border-white/10 rounded-2xl p-5">
               <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                <Award className="w-4 h-4 text-[#FFD700]" /> Certifications to
+                <Award className="w-4 h-4 text-primary" /> Certifications to
                 Pursue
               </h4>
               <div className="space-y-3">
                 {resources.certifications.map((cert, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-3 p-3 bg-[#FFD700]/5 border border-[#FFD700]/10 rounded-lg"
+                    className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/10 rounded-lg"
                   >
-                    <Award className="w-4 h-4 text-[#FFD700]" />
+                    <Award className="w-4 h-4 text-primary" />
                     <span className="text-sm text-gray-300">{cert}</span>
                   </div>
                 ))}
@@ -324,7 +324,7 @@ const LearningResources = () => {
           )}
 
           {/* Skills to Learn */}
-          <div className="bg-[#111111] border border-white/10 rounded-2xl p-5">
+          <div className="bg-card border border-white/10 rounded-2xl p-5">
             <h4 className="font-bold text-white mb-3">In-Demand Skills</h4>
             <div className="flex flex-wrap gap-2">
               {inDemandSkills.slice(0, 10).map((skill, idx) => (

@@ -1,4 +1,5 @@
 import { Job } from "../models/job.model.js";
+import { canManageJob } from "../utils/jobAccess.js";
 import { User } from "../models/user.model.js";
 import { Application } from "../models/application.model.js";
 import { Company } from "../models/company.model.js";
@@ -6,8 +7,33 @@ import {
   getMatchedJobsForStudent,
   getApplicationMatchScore,
 } from "../utils/jobMatcher.js";
+import {
+  enqueueJobIndexing,
+  removeJobFromIndex,
+} from "../modules/discover/indexing.js";
 
 // Create new job posting (Company Admin/CEO only)
+/** "80,000 - 120,000 PKR" → 80000; numbers pass through; anything else → 0. */
+export const parseSalary = (salary) => {
+  if (typeof salary === "number" && !Number.isNaN(salary)) return salary;
+  const match = String(salary ?? "").replace(/,/g, "").match(/\d+/);
+  return match ? parseInt(match[0], 10) : 0;
+};
+
+/** "1-2 years" → 1, "6+ years" → 6, "Senior Level" → 6, "Fresher" → 0. */
+export const parseYears = (experience) => {
+  if (typeof experience === "number" && !Number.isNaN(experience)) return experience;
+  const text = String(experience ?? "").toLowerCase();
+  const match = text.match(/\d+/);
+  if (match) return parseInt(match[0], 10);
+  return /senior|lead|principal/.test(text) ? 6 : 0;
+};
+
+const toList = (value) => (typeof value === "string" ? value.split(",").map((v) => v.trim()).filter(Boolean) : value);
+
+// What an edit may change. Never the company, the poster, its applications or counters.
+const EDITABLE = ["title", "description", "requirements", "salary", "location", "jobType", "experience", "position", "skills", "benefits", "deadline", "isRemote"];
+
 export const postJob = async (req, res) => {
   try {
     const {
@@ -73,26 +99,12 @@ export const postJob = async (req, res) => {
     const job = await Job.create({
       title: title.trim(),
       description: description.trim(),
-      requirements:
-        typeof requirements === "string"
-          ? requirements.split(",").map((r) => r.trim())
-          : requirements,
-      // Parse salary - handle string ranges like "80,000 - 120,000 PKR"
-      salary: (() => {
-        if (!salary) return 0;
-        if (typeof salary === 'number' && !isNaN(salary)) return salary;
-        if (typeof salary === 'string') {
-          // Remove non-digit characters except for the first number sequence
-          const cleaned = salary.replace(/,/g, ''); // Remove commas first
-          const match = cleaned.match(/\d+/); // Get first number sequence
-          const parsed = match ? parseInt(match[0], 10) : 0;
-          return isNaN(parsed) ? 0 : parsed;
-        }
-        return 0;
-      })(),
+      requirements: toList(requirements),
+      salary: parseSalary(salary),
       location: location.trim(),
       jobType,
-      experienceLevel: isNaN(Number(experience)) ? 0 : Number(experience),
+      // The form sends text like "1-2 years"; Number() made every job 0 years
+      experienceLevel: parseYears(experience),
       position: Number(position),
       company: companyId,
       created_by: userId,
@@ -113,6 +125,8 @@ export const postJob = async (req, res) => {
     });
 
     await job.populate("company");
+    // Semantic search index (background; no-op without embeddings configured)
+    await enqueueJobIndexing(job._id);
 
     return res.status(201).json({
       message: "Job posted successfully!",
@@ -426,7 +440,6 @@ export const updateJob = async (req, res) => {
   try {
     const jobId = req.params.id;
     const userId = req.id;
-    const updates = req.body;
 
     const job = await Job.findById(jobId);
 
@@ -438,35 +451,40 @@ export const updateJob = async (req, res) => {
     }
 
     // Check ownership
-    if (job.created_by.toString() !== userId) {
+    // Any manager of the job's company, not only the person who posted it
+    const actor = await User.findById(userId).select("role companyId").lean();
+    if (!canManageJob(actor, job)) {
       return res.status(403).json({
         message: "You don't have permission to update this job",
         success: false,
       });
     }
 
-    // Process updates
-    if (updates.requirements && typeof updates.requirements === "string") {
-      updates.requirements = updates.requirements
-        .split(",")
-        .map((r) => r.trim());
+    // Only the editable fields, read the same way as when posting
+    const body = req.body ?? {};
+    const updates = {};
+    for (const key of EDITABLE) if (body[key] !== undefined) updates[key] = body[key];
+    if (updates.requirements !== undefined) updates.requirements = toList(updates.requirements);
+    if (updates.skills !== undefined) updates.skills = toList(updates.skills);
+    if (updates.benefits !== undefined) updates.benefits = toList(updates.benefits);
+    if (updates.salary !== undefined) updates.salary = parseSalary(updates.salary);
+    if (updates.experience !== undefined) {
+      updates.experienceLevel = parseYears(updates.experience);
+      delete updates.experience;
     }
-    if (updates.skills && typeof updates.skills === "string") {
-      updates.skills = updates.skills.split(",").map((s) => s.trim());
+    if (updates.position !== undefined) updates.position = Math.max(1, Number(updates.position) || 1);
+    if (updates.deadline !== undefined) updates.deadline = updates.deadline ? new Date(updates.deadline) : null;
+    if (typeof updates.title === "string") updates.title = updates.title.trim();
+    if (!Object.keys(updates).length) {
+      return res.status(400).json({ message: "Nothing to update", success: false });
     }
-    if (updates.benefits && typeof updates.benefits === "string") {
-      updates.benefits = updates.benefits.split(",").map((b) => b.trim());
-    }
-    if (updates.salary) updates.salary = Number(updates.salary);
-    if (updates.experience)
-      updates.experienceLevel = Number(updates.experience);
-    if (updates.position) updates.position = Number(updates.position);
 
     const updatedJob = await Job.findByIdAndUpdate(
       jobId,
       { $set: updates },
       { new: true, runValidators: true },
     ).populate("company");
+    await enqueueJobIndexing(jobId);
 
     return res.status(200).json({
       message: "Job updated successfully",
@@ -498,7 +516,9 @@ export const deleteJob = async (req, res) => {
     }
 
     // Check ownership
-    if (job.created_by.toString() !== userId) {
+    // Any manager of the job's company, not only the person who posted it
+    const actor = await User.findById(userId).select("role companyId").lean();
+    if (!canManageJob(actor, job)) {
       return res.status(403).json({
         message: "You don't have permission to delete this job",
         success: false,
@@ -510,6 +530,7 @@ export const deleteJob = async (req, res) => {
 
     // Delete the job
     await Job.findByIdAndDelete(jobId);
+    await removeJobFromIndex(job._id).catch(() => {});
 
     return res.status(200).json({
       message: "Job deleted successfully",
@@ -539,7 +560,9 @@ export const toggleJobStatus = async (req, res) => {
       });
     }
 
-    if (job.created_by.toString() !== userId) {
+    // Any manager of the job's company, not only the person who posted it
+    const actor = await User.findById(userId).select("role companyId").lean();
+    if (!canManageJob(actor, job)) {
       return res.status(403).json({
         message: "You don't have permission to modify this job",
         success: false,
@@ -785,6 +808,12 @@ export const getJobReportStats = async (req, res) => {
         message: "Job not found",
         success: false,
       });
+    }
+
+    // SECURITY (S18): applicant statistics are for the job's company only
+    const viewer = await User.findById(req.id).select("role companyId").lean();
+    if (!canManageJob(viewer, job)) {
+      return res.status(403).json({ message: "Access denied", success: false });
     }
 
     const stats = {

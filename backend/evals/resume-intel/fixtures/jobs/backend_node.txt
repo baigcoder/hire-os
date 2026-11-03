@@ -1,0 +1,16 @@
+Title: Backend Engineer (Node.js)
+
+We're hiring a backend engineer to build the APIs behind our logistics platform.
+
+Requirements:
+- 3+ years of professional backend development experience
+- Strong Node.js and TypeScript
+- Relational databases (PostgreSQL or MySQL), including schema design
+- Experience running services on a major cloud provider (AWS, GCP or Azure)
+- Docker and CI/CD pipelines
+- Writing automated tests
+
+Nice to have:
+- Kubernetes
+- Message queues such as Kafka or RabbitMQ
+- Experience mentoring other engineers

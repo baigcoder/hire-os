@@ -359,7 +359,7 @@ const MCQTestPage = () => {
                   onClick={() => navigate(`/interview/live/${interviewId}`)}
                   className={`px-8 ${result.passed
                       ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                      : "bg-gradient-to-r from-[#FFD700] to-amber-500 text-black"
+                      : "bg-gradient-to-r from-primary to-amber-500 text-black"
                     }`}
                 >
                   Join Interview Room
@@ -390,7 +390,7 @@ const MCQTestPage = () => {
           >
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardHeader className="text-center">
-                <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-primary">
                   <Brain className="w-10 h-10 text-black" />
                 </div>
                 <CardTitle className="text-2xl text-white">
@@ -435,7 +435,7 @@ const MCQTestPage = () => {
 
                 <Button
                   onClick={startTest}
-                  className="w-full py-6 text-lg bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold"
+                  className="w-full py-6 text-lg text-black font-semibold bg-primary"
                 >
                   <Play className="w-5 h-5 mr-2" />
                   Start Test
@@ -476,7 +476,7 @@ const MCQTestPage = () => {
                 }`}
             >
               <Timer className="w-5 h-5" />
-              <span className="text-xl font-mono font-bold">
+              <span className="text-xl font-bold">
                 {formatTime(timeLeft)}
               </span>
             </div>
@@ -587,7 +587,7 @@ const MCQTestPage = () => {
             {currentQuestionIndex < questions.length - 1 ? (
               <Button
                 onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
-                className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black"
+                className="text-black bg-primary"
               >
                 Next
                 <ChevronRight className="w-4 h-4 ml-2" />
@@ -595,7 +595,7 @@ const MCQTestPage = () => {
             ) : (
               <Button
                 onClick={() => setConfirmSubmitOpen(true)}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                className="text-white bg-card"
               >
                 <Send className="w-4 h-4 mr-2" />
                 Submit Test
@@ -631,7 +631,7 @@ const MCQTestPage = () => {
             <Button
               onClick={submitTest}
               disabled={submitting}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+              className="text-white bg-card"
             >
               {submitting ? "Submitting..." : "Confirm Submit"}
             </Button>

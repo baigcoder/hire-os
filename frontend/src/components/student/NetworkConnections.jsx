@@ -158,7 +158,7 @@ const NetworkConnections = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Users className="text-[#FFD700]" /> Network
+            <Users className="text-primary" /> Network
           </h2>
           <p className="text-gray-400 text-sm mt-1">
             {connections.length} connections
@@ -179,7 +179,7 @@ const NetworkConnections = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-[#111111] border border-white/10 rounded-xl p-1.5 inline-flex gap-1">
+      <div className="bg-card border border-white/10 rounded-xl p-1.5 inline-flex gap-1">
         {[
           {
             id: "connections",
@@ -205,7 +205,7 @@ const NetworkConnections = () => {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               activeTab === tab.id
-                ? "bg-[#FFD700] text-black"
+                ? "bg-primary text-black"
                 : "text-gray-400 hover:text-white hover:bg-white/5"
             }`}
           >
@@ -262,7 +262,7 @@ const NetworkConnections = () => {
                   Start building your professional network
                 </p>
                 <Button
-                  className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90"
+                  className="bg-primary text-black hover:bg-primary/90"
                   onClick={() => setActiveTab("suggestions")}
                 >
                   Find People to Connect
@@ -276,17 +276,17 @@ const NetworkConnections = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="group bg-[#111111] border border-white/10 rounded-xl p-5 hover:border-[#FFD700]/30 transition-all"
+                    className="group bg-card border border-white/10 rounded-xl p-5 hover:border-primary/30 transition-all"
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <Avatar className="h-12 w-12 border-2 border-white/10">
                         <AvatarImage src={conn.user?.profile?.profilePhoto} />
-                        <AvatarFallback className="bg-[#FFD700]/20 text-[#FFD700]">
+                        <AvatarFallback className="bg-primary/20 text-primary">
                           {conn.user?.fullname?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-white truncate group-hover:text-[#FFD700] transition-colors">
+                        <h4 className="font-semibold text-white truncate group-hover:text-primary transition-colors">
                           {conn.user?.fullname}
                         </h4>
                         <p className="text-xs text-gray-500 truncate">
@@ -316,13 +316,13 @@ const NetworkConnections = () => {
                           .map((skill, i) => (
                             <Badge
                               key={i}
-                              className="bg-white/5 text-gray-400 border-white/10 text-[10px]"
+                              className="bg-white/5 text-gray-400 border-white/10 text-xs"
                             >
                               {skill}
                             </Badge>
                           ))}
                         {conn.user.profile.skills.length > 3 && (
-                          <Badge className="bg-white/5 text-gray-500 border-white/10 text-[10px]">
+                          <Badge className="bg-white/5 text-gray-500 border-white/10 text-xs">
                             +{conn.user.profile.skills.length - 3}
                           </Badge>
                         )}
@@ -332,7 +332,7 @@ const NetworkConnections = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full border-white/10 text-gray-400 hover:text-white hover:border-[#FFD700]/30"
+                      className="w-full border-white/10 text-gray-400 hover:text-white hover:border-primary/30"
                       onClick={() => navigate("/messages")}
                     >
                       <MessageSquare className="w-4 h-4 mr-2" /> Message
@@ -367,7 +367,7 @@ const NetworkConnections = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="flex items-center gap-4 p-4 bg-[#111111] border border-white/10 rounded-xl hover:border-cyan-500/30 transition-all"
+                    className="flex items-center gap-4 p-4 bg-card border border-white/10 rounded-xl hover:border-cyan-500/30 transition-all"
                   >
                     <Avatar className="h-14 w-14 border-2 border-cyan-500/30">
                       <AvatarImage
@@ -423,8 +423,8 @@ const NetworkConnections = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            <div className="mb-4 p-4 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl">
-              <div className="flex items-center gap-2 text-[#FFD700]">
+            <div className="mb-4 p-4 bg-primary/10 border border-primary/20 rounded-xl">
+              <div className="flex items-center gap-2 text-primary">
                 <Sparkles className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   AI-Powered Suggestions
@@ -453,12 +453,12 @@ const NetworkConnections = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="group bg-[#111111] border border-white/10 rounded-xl p-5 hover:border-[#FFD700]/30 transition-all"
+                    className="group bg-card border border-white/10 rounded-xl p-5 hover:border-primary/30 transition-all"
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <Avatar className="h-12 w-12 border-2 border-white/10">
                         <AvatarImage src={user.profile?.profilePhoto} />
-                        <AvatarFallback className="bg-[#FFD700]/20 text-[#FFD700]">
+                        <AvatarFallback className="bg-primary/20 text-primary">
                           {user.fullname?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
@@ -471,7 +471,7 @@ const NetworkConnections = () => {
                         </p>
                       </div>
                       {user.matchScore > 0 && (
-                        <Badge className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20">
+                        <Badge className="bg-primary/10 text-primary border-primary/20">
                           {user.matchScore}%
                         </Badge>
                       )}
@@ -486,7 +486,7 @@ const NetworkConnections = () => {
                         {user.sharedSkills.slice(0, 3).map((skill, i) => (
                           <Badge
                             key={i}
-                            className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]"
+                            className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs"
                           >
                             {skill}
                           </Badge>
@@ -496,7 +496,7 @@ const NetworkConnections = () => {
 
                     <Button
                       size="sm"
-                      className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 mt-2"
+                      className="w-full bg-primary text-black hover:bg-primary/90 mt-2"
                       onClick={() => handleConnect(user._id)}
                     >
                       <UserPlus className="w-4 h-4 mr-2" /> Connect

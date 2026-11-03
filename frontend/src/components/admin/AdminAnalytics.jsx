@@ -123,10 +123,9 @@ const AdminAnalytics = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Industrial Grid Background */}
       <div
         className="fixed inset-0 opacity-30 pointer-events-none"
         style={{
@@ -136,8 +135,6 @@ const AdminAnalytics = () => {
         }}
       />
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-[#00FF94]/5 rounded-full blur-[120px]" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 pt-24 relative z-10">
@@ -148,28 +145,28 @@ const AdminAnalytics = () => {
           className="flex items-center justify-between mb-8"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#00FF94] rounded-sm flex items-center justify-center">
+            <div className="w-12 h-12 bg-accent rounded-sm flex items-center justify-center">
               <BarChart3 className="w-6 h-6 text-black" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white uppercase tracking-tight">
                 Analytics
               </h1>
-              <p className="text-gray-500 text-sm font-mono">
+              <p className="text-gray-500 text-sm">
                 Recruitment performance metrics
               </p>
             </div>
           </div>
 
           {/* Period Selector */}
-          <div className="flex gap-1 p-1 bg-[#111111] border border-white/10 rounded-sm">
+          <div className="flex gap-1 p-1 bg-card border border-white/10 rounded-sm">
             {["7d", "30d", "90d"].map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-3 py-1.5 text-xs font-mono uppercase rounded-sm transition-all ${
+                className={`px-3 py-1.5 text-xs uppercase rounded-sm transition-all ${
                   period === p
-                    ? "bg-[#FFD700] text-black"
+                    ? "bg-primary text-black"
                     : "text-gray-500 hover:text-white"
                 }`}
               >
@@ -181,7 +178,7 @@ const AdminAnalytics = () => {
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-[#FFD700] animate-spin" />
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
         ) : (
           <>
@@ -224,9 +221,8 @@ const AdminAnalytics = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 + idx * 0.05 }}
-                  className="relative p-5 bg-[#111111] border border-white/10 rounded-sm group hover:border-[#FFD700]/30 transition-all"
+                  className="relative p-5 bg-card border border-white/10 rounded-sm group hover:border-primary/30 transition-all"
                 >
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
                   <div className="flex items-center justify-between mb-3">
                     <stat.icon
                       className="w-5 h-5"
@@ -234,7 +230,7 @@ const AdminAnalytics = () => {
                     />
                     {stat.change !== undefined && (
                       <Badge
-                        className={`${stat.change >= 0 ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"} rounded-sm text-[10px]`}
+                        className={`${stat.change >= 0 ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"} rounded-sm text-xs`}
                       >
                         {stat.change >= 0 ? (
                           <TrendingUp className="w-2 h-2 mr-1" />
@@ -248,7 +244,7 @@ const AdminAnalytics = () => {
                   <p className="text-3xl font-bold text-white mb-1">
                     {stat.value}
                   </p>
-                  <p className="text-xs font-mono text-gray-500 uppercase">
+                  <p className="text-xs text-gray-500 uppercase">
                     {stat.label}
                   </p>
                 </motion.div>
@@ -261,12 +257,11 @@ const AdminAnalytics = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="relative p-6 bg-[#111111] border border-white/10 rounded-sm"
+                className="relative p-6 bg-card border border-white/10 rounded-sm"
               >
-                <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#FFD700]/30" />
                 <div className="flex items-center gap-2 mb-6">
-                  <Target className="w-4 h-4 text-[#FFD700]" />
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  <Target className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-bold text-white">
                     Hiring Funnel
                   </h3>
                 </div>
@@ -278,7 +273,7 @@ const AdminAnalytics = () => {
                     return (
                       <div key={stage.key}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-mono text-gray-400 uppercase">
+                          <span className="text-xs text-gray-400 uppercase">
                             {stage.label}
                           </span>
                           <span
@@ -313,10 +308,10 @@ const AdminAnalytics = () => {
                 {/* Conversion Rate */}
                 <div className="mt-6 pt-4 border-t border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-gray-500">
+                    <span className="text-xs text-gray-500">
                       CONVERSION RATE
                     </span>
-                    <span className="text-lg font-bold text-[#00FF94]">
+                    <span className="text-lg font-bold text-accent">
                       {analytics.funnel?.applied > 0
                         ? (
                             (analytics.funnel?.hired /
@@ -335,12 +330,11 @@ const AdminAnalytics = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
-                className="relative p-6 bg-[#111111] border border-white/10 rounded-sm"
+                className="relative p-6 bg-card border border-white/10 rounded-sm"
               >
-                <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#00FF94]/30" />
                 <div className="flex items-center gap-2 mb-6">
-                  <Activity className="w-4 h-4 text-[#00FF94]" />
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  <Activity className="w-4 h-4 text-accent" />
+                  <h3 className="text-sm font-bold text-white">
                     Application Timeline
                   </h3>
                 </div>
@@ -360,15 +354,15 @@ const AdminAnalytics = () => {
                             delay: 0.3 + idx * 0.05,
                             duration: 0.5,
                           }}
-                          className="w-full bg-gradient-to-t from-[#FFD700]/60 to-[#FFD700]/20 rounded-t-sm relative group cursor-pointer"
+                          className="w-full rounded-t-sm relative group cursor-pointer bg-primary"
                         >
                           <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-xs font-mono text-[#FFD700]">
+                            <span className="text-xs text-primary">
                               {day.applications}
                             </span>
                           </div>
                         </motion.div>
-                        <span className="text-[10px] font-mono text-gray-600 uppercase">
+                        <span className="text-xs text-gray-600 uppercase">
                           {day.date}
                         </span>
                       </div>
@@ -383,12 +377,11 @@ const AdminAnalytics = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="relative p-6 bg-[#111111] border border-white/10 rounded-sm"
+              className="relative p-6 bg-card border border-white/10 rounded-sm"
             >
-              <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#3B82F6]/30" />
               <div className="flex items-center gap-2 mb-6">
                 <Briefcase className="w-4 h-4 text-[#3B82F6]" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-white">
                   Job Performance
                 </h3>
               </div>
@@ -400,25 +393,25 @@ const AdminAnalytics = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35 + idx * 0.05 }}
-                    className="p-4 bg-white/5 border border-white/5 rounded-sm hover:border-[#FFD700]/30 transition-all group"
+                    className="p-4 bg-white/5 border border-white/5 rounded-sm hover:border-primary/30 transition-all group"
                   >
-                    <h4 className="text-xs font-medium text-white truncate mb-3 group-hover:text-[#FFD700] transition-colors">
+                    <h4 className="text-xs font-medium text-white truncate mb-3 group-hover:text-primary transition-colors">
                       {job.title}
                     </h4>
                     <div className="flex items-end justify-between">
                       <div>
-                        <p className="text-2xl font-bold text-[#FFD700]">
+                        <p className="text-2xl font-bold text-primary">
                           {job.applications}
                         </p>
-                        <p className="text-[10px] font-mono text-gray-600 uppercase">
+                        <p className="text-xs text-gray-600 uppercase">
                           Applications
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-[#00FF94]">
+                        <p className="text-lg font-bold text-accent">
                           {job.hired}
                         </p>
-                        <p className="text-[10px] font-mono text-gray-600 uppercase">
+                        <p className="text-xs text-gray-600 uppercase">
                           Hired
                         </p>
                       </div>
@@ -433,12 +426,11 @@ const AdminAnalytics = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="relative p-6 bg-[#111111] border border-white/10 rounded-sm mt-6"
+              className="relative p-6 bg-card border border-white/10 rounded-sm mt-6"
             >
-              <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-purple-500/30" />
               <div className="flex items-center gap-2 mb-6">
                 <PieChart className="w-4 h-4 text-purple-400" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-white">
                   Status Distribution
                 </h3>
               </div>
@@ -468,7 +460,7 @@ const AdminAnalytics = () => {
                         >
                           {count}
                         </p>
-                        <p className="text-[10px] font-mono text-gray-500 uppercase">
+                        <p className="text-xs text-gray-500 uppercase">
                           {status}
                         </p>
                       </motion.div>

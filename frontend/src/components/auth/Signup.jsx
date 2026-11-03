@@ -17,11 +17,9 @@ import {
   User,
   CheckCircle2,
   XCircle,
-  Shield,
   AlertCircle,
   Phone,
   ArrowLeft,
-  Terminal,
   Building,
 } from "lucide-react";
 
@@ -230,7 +228,11 @@ const Signup = () => {
             try {
               await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/referral/apply`, {
                 code: referralCode,
-                userId: response.data.user._id,
+              }, {
+                withCredentials: true,
+                headers: response.data.token
+                  ? { Authorization: `Bearer ${response.data.token}` }
+                  : undefined,
               });
               toast.success('Referral code applied!');
             } catch (refErr) {
@@ -293,39 +295,36 @@ const Signup = () => {
   const getStrengthColor = () => {
     if (passwordStrength.score <= 2) return "bg-red-500";
     if (passwordStrength.score <= 3) return "bg-yellow-500";
-    return "bg-[#00FF94]";
+    return "bg-accent";
   };
 
   // OTP Verification Step
   if (step === "otp") {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif] flex items-center justify-center p-6">
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="min-h-screen bg-background text-white flex items-center justify-center p-6">
 
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-md relative z-10"
         >
-          <div className="bg-[#111111] border border-white/10 rounded-sm p-8 relative">
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
+          <div className="bg-card border border-white/10 rounded-sm p-8 relative">
 
             <button
               onClick={() => setStep("form")}
-              className="flex items-center gap-2 text-gray-500 hover:text-white text-xs uppercase tracking-wider mb-6"
+              className="flex items-center gap-2 text-gray-500 hover:text-white text-xs mb-6"
             >
               <ArrowLeft size={14} /> Back
             </button>
 
             <div className="text-center mb-6">
-              <div className="w-12 h-12 mx-auto rounded-sm bg-[#FFD700]/10 border border-[#FFD700]/30 flex items-center justify-center mb-4">
-                <Mail size={20} className="text-[#FFD700]" />
+              <div className="w-12 h-12 mx-auto rounded-sm bg-primary/10 border border-primary/30 flex items-center justify-center mb-4">
+                <Mail size={20} className="text-primary" />
               </div>
-              <h2 className="text-xl font-bold uppercase tracking-wider mb-2">
+              <h2 className="text-xl font-bold mb-2">
                 Verify Email
               </h2>
-              <p className="text-gray-600 text-xs font-mono">
+              <p className="text-gray-600 text-xs">
                 Code sent to{" "}
                 <span className="text-white">{formData.email}</span>
               </p>
@@ -334,7 +333,7 @@ const Signup = () => {
             {error && (
               <div className="flex items-center gap-2 p-3 bg-red-900/20 border border-red-900/50 rounded-sm text-red-400 text-xs mb-4">
                 <AlertCircle size={14} />
-                <span className="font-mono">{error}</span>
+                <span className="">{error}</span>
               </div>
             )}
 
@@ -353,21 +352,21 @@ const Signup = () => {
                     if (e.key === "Backspace" && !digit && idx > 0)
                       document.getElementById(`otp-${idx - 1}`)?.focus();
                   }}
-                  className="w-10 h-12 text-center text-lg font-mono font-bold rounded-sm border border-white/10 bg-white/5 text-[#FFD700] focus:outline-none focus:border-[#FFD700] transition-all"
+                  className="w-10 h-12 text-center text-lg font-bold rounded-sm border border-white/10 bg-white/5 text-primary focus:outline-none focus:border-primary transition-all"
                 />
               ))}
             </div>
 
             <div className="text-center mb-4">
               {otpTimer > 0 ? (
-                <p className="text-xs text-gray-600 font-mono">
-                  Resend in <span className="text-[#FFD700]">{otpTimer}s</span>
+                <p className="text-xs text-gray-600">
+                  Resend in <span className="text-primary">{otpTimer}s</span>
                 </p>
               ) : (
                 <button
                   onClick={handleResendOTP}
                   disabled={loading}
-                  className="text-xs text-[#FFD700] hover:underline font-mono"
+                  className="text-xs text-primary hover:underline"
                 >
                   Resend
                 </button>
@@ -377,13 +376,13 @@ const Signup = () => {
             <button
               onClick={handleVerifyOTP}
               disabled={loading || otpCode.join("").length !== 6}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold text-xs uppercase tracking-wider rounded-sm shadow-[0_0_20px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-[#FFE44D] text-black font-bold text-xs rounded-sm transition-all disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
                 <>
-                  Initialize Account <ArrowRight size={14} />
+                  Verify and continue <ArrowRight size={14} />
                 </>
               )}
             </button>
@@ -395,66 +394,25 @@ const Signup = () => {
 
   // Main Form
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif] flex">
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white flex">
 
-      {/* Left Panel */}
-      <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="hidden lg:flex lg:w-1/2 bg-[#050505] p-12 flex-col justify-between relative border-r border-white/5"
-      >
-        <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-[#FFD700]/30" />
-        <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-[#FFD700]/30" />
-        <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-[#FFD700]/30" />
-        <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-[#FFD700]/30" />
-
-        <Link to="/" className="flex items-center gap-2 relative z-10">
-          <div className="w-10 h-10 rounded-sm bg-[#FFD700] flex items-center justify-center text-black font-black text-sm shadow-[0_0_20px_rgba(255,215,0,0.3)]">
-            H.
-          </div>
-          <span className="text-xl font-bold tracking-tight">
-            HIRE<span className="text-[#FFD700]">.OS</span>
-          </span>
+      {/* Left panel: the brand and one picture of hiring's old world */}
+      <div className="hidden lg:flex lg:w-1/2 h-screen sticky top-0 flex-col gap-10 p-10 bg-[#0a0a0a]">
+        <Link to="/" className="inline-flex items-center gap-2.5 text-white">
+          <span className="w-3 h-3 bg-brand" aria-hidden="true" />
+          <span className="font-display text-2xl">HIRE.OS</span>
         </Link>
-
-        <div className="relative z-10 space-y-8">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-[#FFD700] font-mono mb-3">
-              // New User Registration
-            </p>
-            <h1 className="text-4xl font-bold uppercase tracking-tight mb-4">
-              Initialize
-              <br />
-              <span className="text-[#FFD700]">Profile</span>
-            </h1>
-            <p className="text-gray-500 text-sm font-mono max-w-sm">
-              Create your account to access industrial-grade career tools.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            {[
-              { icon: Shield, text: "Secure authentication" },
-              { icon: Terminal, text: "AI-powered matching" },
-              { icon: CheckCircle2, text: "Verified employers" },
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-gray-500">
-                <div className="w-8 h-8 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center">
-                  <item.icon size={14} className="text-[#FFD700]" />
-                </div>
-                <span className="text-xs uppercase tracking-wider">
-                  {item.text}
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-md">
+          <p className="font-display text-6xl leading-[0.95] tracking-tight">Start here.</p>
+          <p className="mt-6 text-lg text-[#d0d0d0]">
+            Candidates get every tool free for 30 days. Companies run interviews that end in evidence, not impressions.
+          </p>
         </div>
-
-        <p className="text-gray-700 text-[10px] font-mono uppercase tracking-wider relative z-10">
-          © {new Date().getFullYear()} HIRE.OS
-        </p>
-      </motion.div>
+        <figure className="flex-1 min-h-0 flex flex-col gap-2">
+          <img src="/landing/at-the-employment-office.jpg" alt="Ink drawing of a young applicant standing before two women seated at a desk" className="flex-1 min-h-0 w-full object-cover grayscale" />
+          <figcaption className="text-xs text-[#a0a0a0]">At the Employment Office, Charles Samuel Keene, 1870–91</figcaption>
+        </figure>
+      </div>
 
       {/* Right Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-6 relative z-10 overflow-y-auto">
@@ -463,29 +421,23 @@ const Signup = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-md"
         >
-          <div className="bg-[#111111] border border-white/10 rounded-sm p-6 relative">
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
+          <div className="bg-card rounded-xl p-6 relative">
 
             <div className="lg:hidden text-center mb-4">
-              <Link to="/" className="inline-flex items-center gap-2">
-                <div className="w-8 h-8 rounded-sm bg-[#FFD700] flex items-center justify-center text-black font-bold text-xs">
-                  H.
-                </div>
-                <span className="text-lg font-bold">
-                  HIRE<span className="text-[#FFD700]">.OS</span>
-                </span>
+              <Link to="/" className="inline-flex items-center gap-2.5">
+                <span className="w-3 h-3 bg-brand" aria-hidden="true" />
+                <span className="font-display text-2xl">HIRE.OS</span>
               </Link>
             </div>
 
             <div className="text-center mb-4">
-              <h2 className="text-xl font-bold uppercase tracking-wider mb-1">
-                Create Account
-              </h2>
-              <p className="text-gray-600 text-xs font-mono">
+              <h1 className="text-2xl font-semibold mb-1">
+                Create an account
+              </h1>
+              <p className="text-gray-600 text-xs">
                 Have an account?{" "}
-                <Link to="/login" className="text-[#FFD700] hover:underline">
-                  Sign In
+                <Link to="/login" className="text-white underline underline-offset-2">
+                  Sign in
                 </Link>
               </p>
             </div>
@@ -493,13 +445,13 @@ const Signup = () => {
             {error && (
               <div className="flex items-center gap-2 p-2 bg-red-900/20 border border-red-900/50 rounded-sm text-red-400 text-xs mb-4">
                 <AlertCircle size={14} />
-                <span className="font-mono">{error}</span>
+                <span className="">{error}</span>
               </div>
             )}
 
             {/* Role Selection */}
             <div className="mb-4">
-              <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-2 block">
+              <label className="text-xs text-gray-500 mb-2 block">
                 I am a
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -507,12 +459,12 @@ const Signup = () => {
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "student" })}
                   className={`p-3 border rounded-sm text-center transition-all ${formData.role === "student"
-                    ? "border-[#00FF94] bg-[#00FF94]/10 text-[#00FF94]"
+                    ? "border-accent bg-accent/10 text-accent"
                     : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
                     }`}
                 >
                   <User className="w-5 h-5 mx-auto mb-1" />
-                  <span className="text-xs font-bold uppercase tracking-wider block">
+                  <span className="text-xs font-bold block">
                     Job Seeker
                   </span>
                 </button>
@@ -522,12 +474,12 @@ const Signup = () => {
                     setFormData({ ...formData, role: "company_admin" })
                   }
                   className={`p-3 border rounded-sm text-center transition-all ${formData.role === "company_admin"
-                    ? "border-[#FFD700] bg-[#FFD700]/10 text-[#FFD700]"
+                    ? "border-primary bg-primary/10 text-primary"
                     : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
                     }`}
                 >
                   <Building className="w-5 h-5 mx-auto mb-1" />
-                  <span className="text-xs font-bold uppercase tracking-wider block">
+                  <span className="text-xs font-bold block">
                     Company Owner
                   </span>
                 </button>
@@ -537,7 +489,7 @@ const Signup = () => {
             <button
               onClick={handleGoogleSignUp}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 rounded-sm bg-white/5 hover:bg-white/10 text-xs font-medium uppercase tracking-wider transition-all mb-3"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 rounded-sm bg-white/5 hover:bg-white/10 text-xs font-medium transition-all mb-3"
             >
               <GoogleIcon />
               <span>Continue with Google</span>
@@ -548,7 +500,7 @@ const Signup = () => {
                 <div className="w-full border-t border-white/10" />
               </div>
               <div className="relative flex justify-center">
-                <span className="px-3 bg-[#111111] text-gray-600 text-[10px] font-mono uppercase tracking-wider">
+                <span className="px-3 bg-card text-gray-600 text-xs">
                   or
                 </span>
               </div>
@@ -557,7 +509,7 @@ const Signup = () => {
             <form onSubmit={handleSubmit} className="space-y-3">
               {/* Name */}
               <div>
-                <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1 block">
+                <label className="text-xs text-gray-500 mb-1 block">
                   Full Name
                 </label>
                 <div className="relative">
@@ -571,14 +523,14 @@ const Signup = () => {
                     value={formData.fullname}
                     onChange={handleChange}
                     placeholder="John Doe"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 font-mono"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50"
                   />
                 </div>
               </div>
 
               {/* Email */}
               <div>
-                <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1 block">
+                <label className="text-xs text-gray-500 mb-1 block">
                   Email
                 </label>
                 <div className="relative">
@@ -592,14 +544,14 @@ const Signup = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="you@example.com"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 font-mono"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50"
                   />
                 </div>
               </div>
 
               {/* Phone */}
               <div>
-                <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1 block">
+                <label className="text-xs text-gray-500 mb-1 block">
                   Phone (Optional)
                 </label>
                 <div className="relative">
@@ -613,7 +565,7 @@ const Signup = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="+92 300 1234567"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 font-mono"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50"
                   />
                 </div>
               </div>
@@ -621,7 +573,7 @@ const Signup = () => {
               {/* Password & Confirm Password Grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1 block">
+                  <label className="text-xs text-gray-500 mb-1 block">
                     Password
                   </label>
                   <div className="relative">
@@ -635,7 +587,7 @@ const Signup = () => {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full pl-9 pr-8 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 font-mono"
+                      className="w-full pl-9 pr-8 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50"
                     />
                     <button
                       type="button"
@@ -647,7 +599,7 @@ const Signup = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1 block">
+                  <label className="text-xs text-gray-500 mb-1 block">
                     Confirm
                   </label>
                   <div className="relative">
@@ -661,7 +613,7 @@ const Signup = () => {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full pl-9 pr-8 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 font-mono"
+                      className="w-full pl-9 pr-8 py-2.5 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50"
                     />
                     <button
                       type="button"
@@ -701,20 +653,20 @@ const Signup = () => {
                   id="terms"
                   checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
-                  className="w-3 h-3 mt-0.5 rounded-sm border-white/20 bg-white/5 text-[#FFD700] accent-[#FFD700]"
+                  className="w-3 h-3 mt-0.5 rounded-sm border-white/20 bg-white/5 text-primary accent-primary"
                 />
                 <label
                   htmlFor="terms"
-                  className="text-[9px] text-gray-500 font-mono leading-tight"
+                  className="text-xs text-gray-500 leading-tight"
                 >
                   I accept the{" "}
-                  <Link to="/terms" className="text-[#FFD700] hover:underline">
+                  <Link to="/terms" className="text-primary hover:underline">
                     Terms
                   </Link>{" "}
                   &{" "}
                   <Link
                     to="/privacy"
-                    className="text-[#FFD700] hover:underline"
+                    className="text-primary hover:underline"
                   >
                     Privacy Policy
                   </Link>
@@ -725,7 +677,7 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold text-xs uppercase tracking-wider rounded-sm shadow-[0_0_20px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50 mt-2"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-[#FFE44D] text-black font-bold text-xs rounded-sm transition-all disabled:opacity-50 mt-2"
               >
                 {loading ? (
                   <Loader2 size={16} className="animate-spin" />

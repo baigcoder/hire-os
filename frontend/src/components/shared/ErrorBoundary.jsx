@@ -48,7 +48,7 @@ class ErrorBoundary extends Component {
         <div className="min-h-screen flex items-center justify-center bg-black text-white font-['Outfit',sans-serif] p-6">
           <div className="max-w-lg w-full">
             {/* Error Container */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
               {/* Icon */}
               <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <AlertTriangle className="w-10 h-10 text-red-400" />
@@ -72,7 +72,7 @@ class ErrorBoundary extends Component {
                       Error Details
                     </span>
                   </div>
-                  <p className="text-red-300 text-sm font-mono break-all">
+                  <p className="text-red-300 text-sm break-all">
                     {this.state.error.toString()}
                   </p>
                   {this.state.errorInfo?.componentStack && (
@@ -87,7 +87,7 @@ class ErrorBoundary extends Component {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={this.handleReload}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-bold rounded-xl hover:from-yellow-400 hover:to-yellow-500 transition-all"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 text-black font-bold rounded-xl transition-all bg-primary"
                 >
                   <RefreshCw className="w-5 h-5" />
                   Try Again

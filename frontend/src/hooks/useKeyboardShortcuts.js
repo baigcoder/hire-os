@@ -146,7 +146,7 @@ export const ShortcutHint = ({ combo, className = "" }) => {
       {keys.map((key, i) => (
         <kbd
           key={i}
-          className="px-1.5 py-0.5 text-[10px] font-mono bg-white/10 border border-white/20 rounded text-gray-400"
+          className="px-1.5 py-0.5 text-xs bg-white/10 border border-white/20 rounded text-gray-400"
         >
           {key}
         </kbd>
@@ -204,7 +204,7 @@ export const ShortcutsModal = ({ isOpen, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="bg-[#111111] border border-white/10 rounded-lg max-w-2xl w-full mx-4 p-6"
+        className="bg-card border border-white/10 rounded-lg max-w-2xl w-full mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
@@ -217,7 +217,7 @@ export const ShortcutsModal = ({ isOpen, onClose }) => {
         <div className="grid grid-cols-2 gap-6">
           {shortcutGroups.map((group, i) => (
             <div key={i}>
-              <h3 className="text-sm text-gray-500 uppercase tracking-wider mb-3">
+              <h3 className="text-sm text-gray-500 mb-3">
                 {group.title}
               </h3>
               <div className="space-y-2">

@@ -82,13 +82,13 @@ const CompanyProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-[#FFD700]/30 rounded-sm" />
-            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#FFD700] rounded-sm animate-spin" />
+            <div className="w-16 h-16 border-2 border-primary/30 rounded-sm" />
+            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-primary rounded-sm animate-spin" />
           </div>
-          <p className="text-[#FFD700]/70 font-mono text-sm uppercase tracking-wider">
+          <p className="text-primary/70 text-sm">
             Loading...
           </p>
         </div>
@@ -98,7 +98,7 @@ const CompanyProfilePage = () => {
 
   if (!company) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A]">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-20 text-center">
           <Building2 className="w-16 h-16 mx-auto mb-4 text-gray-700" />
@@ -110,7 +110,7 @@ const CompanyProfilePage = () => {
           </p>
           <Button
             onClick={() => navigate("/companies")}
-            className="bg-[#FFD700] text-black"
+            className="bg-primary text-black"
           >
             Browse Companies
           </Button>
@@ -120,11 +120,11 @@ const CompanyProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Cover Image Section */}
-      <div className="relative h-64 md:h-80 bg-gradient-to-r from-[#1a1a1a] to-[#0a0a0a]">
+      <div className="relative h-64 md:h-80 bg-card">
         {company.coverImage ? (
           <img
             src={company.coverImage}
@@ -132,9 +132,9 @@ const CompanyProfilePage = () => {
             className="w-full h-full object-cover opacity-80"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/10 via-transparent to-[#FFD700]/5" />
+          <div className="absolute inset-0" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
+        <div className="absolute inset-0" />
 
         {/* Back Button */}
         <Button
@@ -155,7 +155,7 @@ const CompanyProfilePage = () => {
           className="flex flex-col md:flex-row gap-6 items-start md:items-end"
         >
           {/* Logo */}
-          <div className="w-32 h-32 md:w-40 md:h-40 bg-[#111111] border-2 border-[#FFD700]/30 rounded-sm overflow-hidden flex items-center justify-center">
+          <div className="w-32 h-32 md:w-40 md:h-40 bg-card border-2 border-primary/30 rounded-sm overflow-hidden flex items-center justify-center">
             {company.logo ? (
               <img
                 src={company.logo}
@@ -163,7 +163,7 @@ const CompanyProfilePage = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <Building2 className="w-16 h-16 text-[#FFD700]/50" />
+              <Building2 className="w-16 h-16 text-primary/50" />
             )}
           </div>
 
@@ -174,7 +174,7 @@ const CompanyProfilePage = () => {
                 {company.name}
               </h1>
               {company.isVerified && (
-                <Badge className="bg-[#00FF94]/20 text-[#00FF94] border-[#00FF94]/30">
+                <Badge className="bg-accent/20 text-accent border-accent/30">
                   <Shield className="w-3 h-3 mr-1" />
                   Verified
                 </Badge>
@@ -225,7 +225,7 @@ const CompanyProfilePage = () => {
             )}
             <Button
               onClick={() => navigate(`/jobs?company=${company._id}`)}
-              className="bg-[#FFD700] text-black hover:bg-[#FFE44D]"
+              className="bg-primary text-black hover:bg-[#FFE44D]"
             >
               View Jobs ({jobs.length})
             </Button>
@@ -243,10 +243,10 @@ const CompanyProfilePage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-[#111111] border border-white/10 rounded-sm p-6"
+              className="bg-card border border-white/10 rounded-sm p-6"
             >
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-[#FFD700]" />
+                <Building2 className="w-5 h-5 text-primary" />
                 About {company.name}
               </h2>
               <p className="text-gray-400 leading-relaxed whitespace-pre-line">
@@ -260,17 +260,17 @@ const CompanyProfilePage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-[#111111] border border-white/10 rounded-sm p-6"
+                className="bg-card border border-white/10 rounded-sm p-6"
               >
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-[#FFD700]" />
+                  <Heart className="w-5 h-5 text-primary" />
                   Culture & Values
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {company.culture.map((value, idx) => (
                     <Badge
                       key={idx}
-                      className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30 px-3 py-1"
+                      className="bg-primary/10 text-primary border-primary/30 px-3 py-1"
                     >
                       {value}
                     </Badge>
@@ -285,10 +285,10 @@ const CompanyProfilePage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-[#111111] border border-white/10 rounded-sm p-6"
+                className="bg-card border border-white/10 rounded-sm p-6"
               >
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Award className="w-5 h-5 text-[#FFD700]" />
+                  <Award className="w-5 h-5 text-primary" />
                   Employee Benefits
                 </h2>
                 <div className="grid md:grid-cols-2 gap-3">
@@ -297,7 +297,7 @@ const CompanyProfilePage = () => {
                       key={idx}
                       className="flex items-center gap-2 text-gray-400"
                     >
-                      <Zap className="w-4 h-4 text-[#00FF94]" />
+                      <Zap className="w-4 h-4 text-accent" />
                       {benefit}
                     </div>
                   ))}
@@ -311,10 +311,10 @@ const CompanyProfilePage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-[#111111] border border-white/10 rounded-sm p-6"
+                className="bg-card border border-white/10 rounded-sm p-6"
               >
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Coffee className="w-5 h-5 text-[#FFD700]" />
+                  <Coffee className="w-5 h-5 text-primary" />
                   Life at {company.name}
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -329,7 +329,7 @@ const CompanyProfilePage = () => {
                         className="w-full h-full object-cover transition-transform group-hover:scale-105"
                       />
                       {image.caption && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
                           <span className="text-white text-sm">
                             {image.caption}
                           </span>
@@ -346,10 +346,10 @@ const CompanyProfilePage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-[#111111] border border-white/10 rounded-sm p-6"
+              className="bg-card border border-white/10 rounded-sm p-6"
             >
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-[#FFD700]" />
+                <Briefcase className="w-5 h-5 text-primary" />
                 Open Positions ({jobs.length})
               </h2>
               {jobs.length > 0 ? (
@@ -358,7 +358,7 @@ const CompanyProfilePage = () => {
                     <div
                       key={job._id}
                       onClick={() => navigate(`/description/${job._id}`)}
-                      className="p-4 bg-white/5 rounded-sm border border-white/5 hover:border-[#FFD700]/30 cursor-pointer transition-colors"
+                      className="p-4 bg-white/5 rounded-sm border border-white/5 hover:border-primary/30 cursor-pointer transition-colors"
                     >
                       <div className="flex items-center justify-between">
                         <div>
@@ -385,7 +385,7 @@ const CompanyProfilePage = () => {
                     <Button
                       variant="ghost"
                       onClick={() => navigate(`/jobs?company=${company._id}`)}
-                      className="w-full text-[#FFD700] hover:bg-[#FFD700]/10"
+                      className="w-full text-primary hover:bg-primary/10"
                     >
                       View All {jobs.length} Jobs
                       <ChevronRight className="w-4 h-4 ml-2" />
@@ -407,16 +407,16 @@ const CompanyProfilePage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-[#111111] border border-white/10 rounded-sm p-6"
+              className="bg-card border border-white/10 rounded-sm p-6"
             >
-              <h3 className="text-sm font-bold text-white uppercase mb-4 tracking-wider">
+              <h3 className="text-sm font-bold text-white mb-4">
                 Contact
               </h3>
               <div className="space-y-3">
                 {company.email && (
                   <a
                     href={`mailto:${company.email}`}
-                    className="flex items-center gap-3 text-gray-400 hover:text-[#FFD700] transition-colors"
+                    className="flex items-center gap-3 text-gray-400 hover:text-primary transition-colors"
                   >
                     <Mail className="w-4 h-4" />
                     {company.email}
@@ -425,7 +425,7 @@ const CompanyProfilePage = () => {
                 {company.phone && (
                   <a
                     href={`tel:${company.phone}`}
-                    className="flex items-center gap-3 text-gray-400 hover:text-[#FFD700] transition-colors"
+                    className="flex items-center gap-3 text-gray-400 hover:text-primary transition-colors"
                   >
                     <Phone className="w-4 h-4" />
                     {company.phone}
@@ -436,7 +436,7 @@ const CompanyProfilePage = () => {
                     href={company.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-gray-400 hover:text-[#FFD700] transition-colors"
+                    className="flex items-center gap-3 text-gray-400 hover:text-primary transition-colors"
                   >
                     <Globe className="w-4 h-4" />
                     Visit Website
@@ -453,9 +453,9 @@ const CompanyProfilePage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="bg-[#111111] border border-white/10 rounded-sm p-6"
+                  className="bg-card border border-white/10 rounded-sm p-6"
                 >
-                  <h3 className="text-sm font-bold text-white uppercase mb-4 tracking-wider">
+                  <h3 className="text-sm font-bold text-white mb-4">
                     Follow Us
                   </h3>
                   <div className="flex flex-wrap gap-3">
@@ -469,7 +469,7 @@ const CompanyProfilePage = () => {
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-10 h-10 bg-white/5 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#FFD700]/20 hover:text-[#FFD700] transition-colors"
+                            className="w-10 h-10 bg-white/5 rounded-sm flex items-center justify-center text-gray-400 hover:bg-primary/20 hover:text-primary transition-colors"
                           >
                             <Icon className="w-5 h-5" />
                           </a>
@@ -487,9 +487,9 @@ const CompanyProfilePage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="bg-[#111111] border border-white/10 rounded-sm p-6"
+                  className="bg-card border border-white/10 rounded-sm p-6"
                 >
-                  <h3 className="text-sm font-bold text-white uppercase mb-4 tracking-wider">
+                  <h3 className="text-sm font-bold text-white mb-4">
                     Headquarters
                   </h3>
                   <div className="text-gray-400 text-sm leading-relaxed">
@@ -510,20 +510,20 @@ const CompanyProfilePage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-[#111111] border border-white/10 rounded-sm p-6"
+              className="bg-card border border-white/10 rounded-sm p-6"
             >
-              <h3 className="text-sm font-bold text-white uppercase mb-4 tracking-wider">
+              <h3 className="text-sm font-bold text-white mb-4">
                 Quick Stats
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-3 bg-white/5 rounded-sm">
-                  <p className="text-2xl font-bold text-[#FFD700]">
+                  <p className="text-2xl font-bold text-primary">
                     {jobs.length}
                   </p>
                   <p className="text-xs text-gray-500">Open Positions</p>
                 </div>
                 <div className="text-center p-3 bg-white/5 rounded-sm">
-                  <p className="text-2xl font-bold text-[#FFD700]">
+                  <p className="text-2xl font-bold text-primary">
                     {company.companySize?.split("-")[0] || "?"}
                   </p>
                   <p className="text-xs text-gray-500">Employees</p>

@@ -80,7 +80,7 @@ const Profile = () => {
   };
 
   const StatCard = ({ icon: Icon, label, value, color }) => (
-    <div className="p-4 rounded-md bg-[#111111] border border-white/10 hover:border-[#FFD700]/30 transition-all">
+    <div className="p-4 rounded-md bg-card border border-white/10 hover:border-primary/30 transition-all">
       <div className="flex items-center gap-3">
         <div
           className={`w-9 h-9 rounded-sm bg-white/5 flex items-center justify-center ${color}`}
@@ -88,8 +88,8 @@ const Profile = () => {
           <Icon size={16} />
         </div>
         <div>
-          <p className="text-2xl font-bold text-white font-mono">{value}</p>
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+          <p className="text-2xl font-bold text-white">{value}</p>
+          <p className="text-xs text-gray-500">
             {label}
           </p>
         </div>
@@ -98,9 +98,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white">
       <Navbar />
 
       <main className="max-w-6xl mx-auto px-4 py-8 relative z-10">
@@ -108,13 +106,11 @@ const Profile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#111111] border border-white/10 rounded-md overflow-hidden mb-6"
+          className="bg-card border border-white/10 rounded-md overflow-hidden mb-6"
         >
           {/* Cover / Header */}
-          <div className="h-32 bg-gradient-to-r from-[#FFD700]/20 via-[#FFD700]/10 to-transparent relative overflow-hidden">
-            <div className="absolute inset-0 bg-grid opacity-50" />
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
+          <div className="h-32 relative overflow-hidden bg-primary">
+            <div className="absolute inset-0 opacity-50" />
           </div>
 
           {/* Profile Info */}
@@ -127,20 +123,20 @@ const Profile = () => {
                 className="relative"
               >
                 {user?.profile?.profilePhoto ? (
-                  <Avatar className="w-28 h-28 border-2 border-[#FFD700]/50 shadow-[0_0_30px_rgba(255,215,0,0.2)]">
+                  <Avatar className="w-28 h-28 border-2 border-primary/50">
                     <AvatarImage
                       src={user.profile.profilePhoto}
                       alt={user?.fullname}
                     />
                   </Avatar>
                 ) : (
-                  <div className="w-28 h-28 rounded-full border-2 border-[#FFD700]/50 shadow-[0_0_30px_rgba(255,215,0,0.2)] bg-[#FFD700] flex items-center justify-center">
+                  <div className="w-28 h-28 rounded-full border-2 border-primary/50 bg-primary flex items-center justify-center">
                     <span className="text-4xl font-bold text-black">
                       {getInitials(user?.fullname)}
                     </span>
                   </div>
                 )}
-                <div className="absolute bottom-2 right-2 w-5 h-5 bg-[#00FF94] rounded-full border-2 border-[#111111]"></div>
+                <div className="absolute bottom-2 right-2 w-5 h-5 bg-accent rounded-full border-2 border-card"></div>
               </motion.div>
 
               {/* Name & Role */}
@@ -150,13 +146,13 @@ const Profile = () => {
                     <h1 className="text-2xl font-bold text-white flex items-center gap-3 uppercase tracking-tight">
                       {user?.fullname || "User"}
                       {user?.authProvider === "google" && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#00FF94]/10 text-[#00FF94] text-[10px] font-medium rounded-sm border border-[#00FF94]/30 uppercase tracking-wider">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/10 text-accent text-xs font-medium rounded-sm border border-accent/30">
                           <Shield size={10} />
                           Verified
                         </span>
                       )}
                     </h1>
-                    <p className="text-gray-500 mt-1 text-sm font-mono">
+                    <p className="text-gray-500 mt-1 text-sm">
                       {user?.profile?.bio ? (
                         <span className="line-clamp-1">{user.profile.bio}</span>
                       ) : (
@@ -166,7 +162,7 @@ const Profile = () => {
                   </div>
                   <Button
                     onClick={() => setOpen(true)}
-                    className="hidden sm:flex items-center gap-2 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold shadow-[0_0_20px_rgba(255,215,0,0.2)] rounded-sm text-xs uppercase tracking-wider"
+                    className="hidden sm:flex items-center gap-2 bg-primary hover:bg-[#FFE44D] text-black font-bold rounded-sm text-xs"
                   >
                     <Pen size={14} />
                     Edit
@@ -178,7 +174,7 @@ const Profile = () => {
             {/* Mobile Edit Button */}
             <Button
               onClick={() => setOpen(true)}
-              className="sm:hidden w-full mt-4 flex items-center justify-center gap-2 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold rounded-sm text-xs uppercase tracking-wider"
+              className="sm:hidden w-full mt-4 flex items-center justify-center gap-2 bg-primary hover:bg-[#FFE44D] text-black font-bold rounded-sm text-xs"
             >
               <Pen size={14} />
               Edit Profile
@@ -187,14 +183,14 @@ const Profile = () => {
             {/* Contact Info Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/5">
               <div className="flex items-center gap-3 p-3 bg-white/5 rounded-sm border border-white/5">
-                <div className="w-8 h-8 rounded-sm bg-[#FFD700]/10 flex items-center justify-center">
-                  <Mail size={14} className="text-[#FFD700]" />
+                <div className="w-8 h-8 rounded-sm bg-primary/10 flex items-center justify-center">
+                  <Mail size={14} className="text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+                  <p className="text-xs text-gray-500">
                     Email
                   </p>
-                  <p className="text-xs font-mono text-gray-300 truncate">
+                  <p className="text-xs text-gray-300 truncate">
                     {user?.email}
                   </p>
                 </div>
@@ -307,7 +303,7 @@ const Profile = () => {
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary">
                   <Code size={16} className="text-white" />
                 </div>
                 Skills
@@ -324,7 +320,7 @@ const Profile = () => {
                 user.profile.skills.map((skill, index) => (
                   <Badge
                     key={index}
-                    className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800 px-3 py-1 font-medium"
+                    className="text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800 px-3 py-1 font-medium bg-primary"
                   >
                     {skill}
                   </Badge>
@@ -358,7 +354,7 @@ const Profile = () => {
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-card">
                   <Building2 size={16} className="text-white" />
                 </div>
                 Experience
@@ -412,7 +408,7 @@ const Profile = () => {
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-card">
                   <GraduationCap size={16} className="text-white" />
                 </div>
                 Education
@@ -467,7 +463,7 @@ const Profile = () => {
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-card">
                 <FileText size={16} className="text-white" />
               </div>
               Applied Jobs
@@ -484,7 +480,7 @@ const Profile = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10 border border-yellow-200 dark:border-yellow-800/30 rounded-xl"
+          className="mt-6 p-4 border border-yellow-200 dark:border-yellow-800/30 rounded-xl bg-primary"
         >
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">

@@ -59,11 +59,11 @@ const StepIndicator = ({ currentStep, steps }) => (
       <React.Fragment key={index}>
         <div className="flex flex-col items-center flex-shrink-0">
           <div
-            className={`w-10 h-10 md:w-12 md:h-12 rounded-sm flex items-center justify-center font-mono font-bold text-sm transition-all border ${
+            className={`w-10 h-10 md:w-12 md:h-12 rounded-sm flex items-center justify-center font-bold text-sm transition-all border ${
               index < currentStep
-                ? "bg-[#00FF94]/20 border-[#00FF94]/50 text-[#00FF94]"
+                ? "bg-accent/20 border-accent/50 text-accent"
                 : index === currentStep
-                  ? "bg-[#FFD700] border-[#FFD700] text-black"
+                  ? "bg-primary border-primary text-black"
                   : "bg-white/5 border-white/10 text-gray-600"
             }`}
           >
@@ -74,14 +74,14 @@ const StepIndicator = ({ currentStep, steps }) => (
             )}
           </div>
           <span
-            className={`mt-2 text-[10px] md:text-xs font-mono uppercase tracking-wider text-center max-w-[80px] ${index <= currentStep ? "text-white" : "text-gray-600"}`}
+            className={`mt-2 text-xs md:text-xs text-center max-w-[80px] ${index <= currentStep ? "text-white" : "text-gray-600"}`}
           >
             {step}
           </span>
         </div>
         {index < steps.length - 1 && (
           <div
-            className={`w-8 md:w-16 h-px mx-1 md:mx-2 flex-shrink-0 ${index < currentStep ? "bg-[#00FF94]" : "bg-white/10"}`}
+            className={`w-8 md:w-16 h-px mx-1 md:mx-2 flex-shrink-0 ${index < currentStep ? "bg-accent" : "bg-white/10"}`}
           />
         )}
       </React.Fragment>
@@ -109,37 +109,37 @@ const PlanCard = ({ plan, selected, onSelect, billingCycle }) => {
       onClick={() => onSelect(plan)}
       className={`relative p-5 md:p-6 rounded-sm cursor-pointer transition-all border ${
         selected
-          ? "border-[#FFD700] bg-[#FFD700]/5 shadow-[0_0_30px_rgba(255,215,0,0.1)]"
-          : "border-white/10 bg-[#111111] hover:border-white/20"
+          ? "border-primary bg-primary/5 shadow-[0_0_30px_rgba(255,215,0,0.1)]"
+          : "border-white/10 bg-card hover:border-white/20"
       }`}
     >
       <div
-        className={`absolute top-0 right-0 w-5 h-5 border-t border-r ${selected ? "border-[#FFD700]/50" : "border-white/10"}`}
+        className={`absolute top-0 right-0 w-5 h-5 border-t border-r ${selected ? "border-primary/50" : "border-white/10"}`}
       />
       <div
-        className={`absolute bottom-0 left-0 w-5 h-5 border-b border-l ${selected ? "border-[#FFD700]/50" : "border-white/10"}`}
+        className={`absolute bottom-0 left-0 w-5 h-5 border-b border-l ${selected ? "border-primary/50" : "border-white/10"}`}
       />
 
       {plan.popular && (
-        <Badge className="absolute -top-px right-4 bg-[#FFD700] text-black text-[10px] font-bold px-2 py-0.5 rounded-b-sm rounded-t-none uppercase tracking-wider">
+        <Badge className="absolute -top-px right-4 bg-primary text-black text-xs font-bold px-2 py-0.5 rounded-b-sm rounded-t-none">
           Popular
         </Badge>
       )}
       {savings && (
-        <Badge className="absolute top-2 left-2 bg-[#00FF94]/20 text-[#00FF94] text-[9px] font-bold px-1.5 py-0.5 rounded-sm">
+        <Badge className="absolute top-2 left-2 bg-accent/20 text-accent text-xs font-bold px-1.5 py-0.5 rounded-sm">
           {savings}
         </Badge>
       )}
 
-      <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-1">
+      <h3 className="text-lg font-bold text-white mb-1">
         {plan.name}
       </h3>
-      <p className="text-gray-600 text-xs font-mono mb-4">{plan.description}</p>
+      <p className="text-gray-600 text-xs mb-4">{plan.description}</p>
       <div className="flex items-baseline gap-1 mb-4">
-        <span className="text-2xl md:text-3xl font-bold text-white font-mono">
+        <span className="text-2xl md:text-3xl font-bold text-white">
           Rs {price.toLocaleString()}
         </span>
-        <span className="text-gray-600 text-xs font-mono">
+        <span className="text-gray-600 text-xs">
           /
           {billingCycle === "yearly"
             ? "year"
@@ -152,9 +152,9 @@ const PlanCard = ({ plan, selected, onSelect, billingCycle }) => {
         {plan.features.slice(0, 5).map((feature, idx) => (
           <li
             key={idx}
-            className="flex items-center gap-2 text-gray-500 text-xs font-mono"
+            className="flex items-center gap-2 text-gray-500 text-xs"
           >
-            <Check className="w-3 h-3 text-[#00FF94] flex-shrink-0" />
+            <Check className="w-3 h-3 text-accent flex-shrink-0" />
             <span className="truncate">{feature}</span>
           </li>
         ))}
@@ -166,7 +166,6 @@ const PlanCard = ({ plan, selected, onSelect, billingCycle }) => {
 // ========== RECRUITER FORM ==========
 const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
   <div className="p-4 bg-white/5 border border-white/10 rounded-sm relative">
-    <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-white/10" />
     {canRemove && (
       <button
         onClick={() => onRemove(index)}
@@ -177,18 +176,18 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
     )}
     <div className="grid md:grid-cols-2 gap-3">
       <div>
-        <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1 block">
+        <Label className="text-xs text-gray-500 mb-1 block">
           Name *
         </Label>
         <Input
           placeholder="John Doe"
           value={recruiter.name}
           onChange={(e) => onChange(index, "name", e.target.value)}
-          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono h-9"
+          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm h-9"
         />
       </div>
       <div>
-        <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1 block">
+        <Label className="text-xs text-gray-500 mb-1 block">
           Email *
         </Label>
         <Input
@@ -196,7 +195,7 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
           placeholder="john@company.com"
           value={recruiter.email}
           onChange={(e) => onChange(index, "email", e.target.value)}
-          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono h-9"
+          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm h-9"
         />
       </div>
     </div>
@@ -514,7 +513,7 @@ const AdminSignupFlow = () => {
   // Success Screen
   if (registrationComplete) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-16 relative z-10">
           <motion.div
@@ -522,19 +521,19 @@ const AdminSignupFlow = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="max-w-2xl mx-auto text-center"
           >
-            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-[#00FF94]/10 border border-[#00FF94]/30 flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-[#00FF94]" />
+            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-accent/10 border border-accent/30 flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-accent" />
             </div>
-            <h1 className="text-3xl font-bold text-white uppercase tracking-wider mb-4">
+            <h1 className="text-3xl font-bold text-white mb-4">
               Welcome to Hire.OS
             </h1>
-            <p className="text-gray-500 font-mono mb-8">
+            <p className="text-gray-500 mb-8">
               Your company has been successfully registered. You can now start
               posting jobs!
             </p>
             <Button
               onClick={() => navigate("/admin/dashboard")}
-              className="px-8 py-5 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider"
+              className="px-8 py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
             >
               Go to Dashboard <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
@@ -548,8 +547,7 @@ const AdminSignupFlow = () => {
   const stepContentIndex = isLoggedIn ? currentStep + 1 : currentStep;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
-      <div className="fixed inset-0 bg-grid opacity-20 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white">
       <Navbar />
 
       <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
@@ -560,13 +558,13 @@ const AdminSignupFlow = () => {
         >
           {/* Header */}
           <div className="text-center mb-6">
-            <Badge className="mb-3 px-3 py-1 bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20 text-[10px] font-mono uppercase tracking-widest">
+            <Badge className="mb-3 px-3 py-1 bg-primary/10 text-primary border-primary/20 text-xs">
               <Building2 className="w-3 h-3 mr-1.5" /> Company Registration
             </Badge>
             <h1 className="text-2xl md:text-4xl font-bold uppercase tracking-tight mb-2">
-              Start <span className="text-[#FFD700]">Hiring</span> Today
+              Start <span className="text-primary">Hiring</span> Today
             </h1>
-            <p className="text-gray-600 font-mono text-xs md:text-sm">
+            <p className="text-gray-600 text-xs md:text-sm">
               Complete the steps below to set up your recruitment platform
             </p>
           </div>
@@ -583,18 +581,16 @@ const AdminSignupFlow = () => {
             >
               {/* Step 0: Create Account (only for non-logged in users) */}
               {!isLoggedIn && currentStep === 0 && (
-                <div className="bg-[#111111] border border-white/10 rounded-sm p-6 md:p-8 relative">
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
+                <div className="bg-card border border-white/10 rounded-sm p-6 md:p-8 relative">
 
-                  <h2 className="text-lg font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <Crown className="w-5 h-5 text-[#FFD700]" />
+                  <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <Crown className="w-5 h-5 text-primary" />
                     Create Admin Account
                   </h2>
 
                   <div className="grid md:grid-cols-2 gap-5">
                     <div className="md:col-span-2">
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Full Name *
                       </Label>
                       <div className="relative">
@@ -605,13 +601,13 @@ const AdminSignupFlow = () => {
                           onChange={(e) =>
                             handleAdminChange("fullname", e.target.value)
                           }
-                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono pl-10"
+                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm pl-10"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Email *
                       </Label>
                       <div className="relative">
@@ -623,13 +619,13 @@ const AdminSignupFlow = () => {
                           onChange={(e) =>
                             handleAdminChange("email", e.target.value)
                           }
-                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono pl-10"
+                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm pl-10"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Phone
                       </Label>
                       <div className="relative">
@@ -641,13 +637,13 @@ const AdminSignupFlow = () => {
                           onChange={(e) =>
                             handleAdminChange("phone", e.target.value)
                           }
-                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono pl-10"
+                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm pl-10"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Password *
                       </Label>
                       <div className="relative">
@@ -659,7 +655,7 @@ const AdminSignupFlow = () => {
                           onChange={(e) =>
                             handleAdminChange("password", e.target.value)
                           }
-                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono pl-10 pr-10"
+                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm pl-10 pr-10"
                         />
                         <button
                           type="button"
@@ -676,7 +672,7 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Confirm Password *
                       </Label>
                       <div className="relative">
@@ -688,15 +684,15 @@ const AdminSignupFlow = () => {
                           onChange={(e) =>
                             handleAdminChange("confirmPassword", e.target.value)
                           }
-                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono pl-10"
+                          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm pl-10"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-600 font-mono mt-4">
+                  <p className="text-xs text-gray-600 mt-4">
                     Already have an account?{" "}
-                    <a href="/login" className="text-[#FFD700] hover:underline">
+                    <a href="/login" className="text-primary hover:underline">
                       Login here
                     </a>
                   </p>
@@ -707,7 +703,7 @@ const AdminSignupFlow = () => {
               {((isLoggedIn && currentStep === 0) ||
                 (!isLoggedIn && currentStep === 1)) && (
                 <div>
-                  <h2 className="text-lg font-bold text-white uppercase tracking-wider mb-4 text-center">
+                  <h2 className="text-lg font-bold text-white mb-4 text-center">
                     Choose Your Plan
                   </h2>
 
@@ -718,9 +714,9 @@ const AdminSignupFlow = () => {
                         <button
                           key={cycle}
                           onClick={() => setBillingCycle(cycle)}
-                          className={`px-4 py-2 text-xs font-mono uppercase tracking-wider transition-all rounded-sm ${
+                          className={`px-4 py-2 text-xs transition-all rounded-sm ${
                             billingCycle === cycle
-                              ? "bg-[#FFD700] text-black"
+                              ? "bg-primary text-black"
                               : "text-gray-500 hover:text-white"
                           }`}
                         >
@@ -747,12 +743,10 @@ const AdminSignupFlow = () => {
               {/* Step: Company Info */}
               {((isLoggedIn && currentStep === 1) ||
                 (!isLoggedIn && currentStep === 2)) && (
-                <div className="bg-[#111111] border border-white/10 rounded-sm p-6 md:p-8 relative">
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
+                <div className="bg-card border border-white/10 rounded-sm p-6 md:p-8 relative">
 
-                  <h2 className="text-lg font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-[#FFD700]" />
+                  <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-primary" />
                     Company Details
                   </h2>
 
@@ -777,12 +771,12 @@ const AdminSignupFlow = () => {
                           onChange={handleLogoUpload}
                           className="hidden"
                         />
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-sm text-xs font-mono text-gray-400 hover:text-white hover:border-white/20 transition-colors">
+                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-sm text-xs text-gray-400 hover:text-white hover:border-white/20 transition-colors">
                           <Upload className="w-3 h-3" />
                           Upload Logo
                         </span>
                       </label>
-                      <p className="text-[10px] text-gray-600 font-mono mt-1">
+                      <p className="text-xs text-gray-600 mt-1">
                         Max 2MB, JPG/PNG
                       </p>
                     </div>
@@ -790,7 +784,7 @@ const AdminSignupFlow = () => {
 
                   <div className="grid md:grid-cols-2 gap-5">
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Company Name *
                       </Label>
                       <Input
@@ -799,12 +793,12 @@ const AdminSignupFlow = () => {
                         onChange={(e) =>
                           handleCompanyChange("name", e.target.value)
                         }
-                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
                       />
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Website
                       </Label>
                       <Input
@@ -813,12 +807,12 @@ const AdminSignupFlow = () => {
                         onChange={(e) =>
                           handleCompanyChange("website", e.target.value)
                         }
-                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
                       />
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Location *
                       </Label>
                       <Input
@@ -827,12 +821,12 @@ const AdminSignupFlow = () => {
                         onChange={(e) =>
                           handleCompanyChange("location", e.target.value)
                         }
-                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
                       />
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Industry
                       </Label>
                       <select
@@ -840,7 +834,7 @@ const AdminSignupFlow = () => {
                         onChange={(e) =>
                           handleCompanyChange("industry", e.target.value)
                         }
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-sm px-4 py-2.5 text-sm font-mono focus:border-[#FFD700]/50 focus:outline-none"
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-sm px-4 py-2.5 text-sm focus:border-primary/50 focus:outline-none"
                       >
                         <option value="" className="bg-[#111]">
                           Select industry
@@ -873,7 +867,7 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Company Size
                       </Label>
                       <select
@@ -881,7 +875,7 @@ const AdminSignupFlow = () => {
                         onChange={(e) =>
                           handleCompanyChange("size", e.target.value)
                         }
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-sm px-4 py-2.5 text-sm font-mono focus:border-[#FFD700]/50 focus:outline-none"
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-sm px-4 py-2.5 text-sm focus:border-primary/50 focus:outline-none"
                       >
                         <option value="" className="bg-[#111]">
                           Select size
@@ -908,7 +902,7 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Tagline
                       </Label>
                       <Input
@@ -917,13 +911,13 @@ const AdminSignupFlow = () => {
                         onChange={(e) =>
                           handleCompanyChange("tagline", e.target.value)
                         }
-                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
                       />
                     </div>
                   </div>
 
                   <div className="mt-5">
-                    <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                    <Label className="text-xs text-gray-500 mb-1.5 block">
                       Description
                     </Label>
                     <Textarea
@@ -932,7 +926,7 @@ const AdminSignupFlow = () => {
                       onChange={(e) =>
                         handleCompanyChange("description", e.target.value)
                       }
-                      className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono min-h-[100px]"
+                      className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm min-h-[100px]"
                     />
                   </div>
                 </div>
@@ -943,34 +937,33 @@ const AdminSignupFlow = () => {
                 (!isLoggedIn && currentStep === 3)) && (
                 <div className="space-y-6">
                   {/* Admin Preview */}
-                  <div className="bg-[#111111] border border-white/10 rounded-sm p-5 relative">
-                    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#FFD700]/30" />
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <Crown className="w-4 h-4 text-[#FFD700]" /> CEO / Admin
+                  <div className="bg-card border border-white/10 rounded-sm p-5 relative">
+                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-primary" /> CEO / Admin
                       (You)
                     </h3>
                     <div className="grid md:grid-cols-3 gap-3">
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-[10px] text-gray-600 uppercase font-mono mb-0.5">
+                        <p className="text-xs text-gray-600 uppercase mb-0.5">
                           Name
                         </p>
-                        <p className="text-white text-sm font-mono truncate">
+                        <p className="text-white text-sm truncate">
                           {adminInfo.fullname || user?.fullname || "-"}
                         </p>
                       </div>
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-[10px] text-gray-600 uppercase font-mono mb-0.5">
+                        <p className="text-xs text-gray-600 uppercase mb-0.5">
                           Email
                         </p>
-                        <p className="text-white text-sm font-mono truncate">
+                        <p className="text-white text-sm truncate">
                           {adminInfo.email || user?.email || "-"}
                         </p>
                       </div>
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-[10px] text-gray-600 uppercase font-mono mb-0.5">
+                        <p className="text-xs text-gray-600 uppercase mb-0.5">
                           Role
                         </p>
-                        <p className="text-[#FFD700] text-sm font-mono">
+                        <p className="text-primary text-sm">
                           Company Admin
                         </p>
                       </div>
@@ -978,19 +971,18 @@ const AdminSignupFlow = () => {
                   </div>
 
                   {/* Recruiters */}
-                  <div className="bg-[#111111] border border-white/10 rounded-sm p-5 relative">
-                    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10" />
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
-                      <Users className="w-4 h-4 text-[#FFD700]" /> Invite Team
+                  <div className="bg-card border border-white/10 rounded-sm p-5 relative">
+                    <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                      <Users className="w-4 h-4 text-primary" /> Invite Team
                       Members
-                      <Badge className="ml-auto bg-white/10 text-gray-400 text-[10px] font-mono">
+                      <Badge className="ml-auto bg-white/10 text-gray-400 text-xs">
                         {recruiters.length}/
                         {selectedPlan?.maxRecruiters === -1
                           ? "∞"
                           : selectedPlan?.maxRecruiters - 1 || 0}
                       </Badge>
                     </h3>
-                    <p className="text-gray-600 text-xs font-mono mb-4">
+                    <p className="text-gray-600 text-xs mb-4">
                       Add recruiters who'll help manage job postings and
                       candidates
                     </p>
@@ -1019,7 +1011,7 @@ const AdminSignupFlow = () => {
                       <Plus className="w-4 h-4 mr-2" /> Add Recruiter
                     </Button>
 
-                    <p className="text-[10px] text-gray-600 font-mono mt-3 text-center">
+                    <p className="text-xs text-gray-600 mt-3 text-center">
                       💡 You can skip this and invite team members later
                     </p>
                   </div>
@@ -1029,40 +1021,38 @@ const AdminSignupFlow = () => {
               {/* Step: Payment */}
               {((isLoggedIn && currentStep === 3) ||
                 (!isLoggedIn && currentStep === 4)) && (
-                <div className="bg-[#111111] border border-white/10 rounded-sm p-6 md:p-8 relative">
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
+                <div className="bg-card border border-white/10 rounded-sm p-6 md:p-8 relative">
 
-                  <h2 className="text-lg font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-[#FFD700]" /> Order
+                  <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-primary" /> Order
                     Summary
                   </h2>
 
                   <div className="p-5 bg-white/5 rounded-sm mb-6">
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-500 font-mono">Plan</span>
-                        <span className="text-white font-mono">
+                        <span className="text-gray-500">Plan</span>
+                        <span className="text-white">
                           {selectedPlan?.name}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500 font-mono">Billing</span>
-                        <span className="text-white font-mono capitalize">
+                        <span className="text-gray-500">Billing</span>
+                        <span className="text-white capitalize">
                           {billingCycle}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500 font-mono">Company</span>
-                        <span className="text-white font-mono">
+                        <span className="text-gray-500">Company</span>
+                        <span className="text-white">
                           {companyInfo.name}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500 font-mono">
+                        <span className="text-gray-500">
                           Team Size
                         </span>
-                        <span className="text-white font-mono">
+                        <span className="text-white">
                           {recruiters.filter((r) => r.name && r.email).length +
                             1}
                         </span>
@@ -1070,7 +1060,7 @@ const AdminSignupFlow = () => {
                       <div className="border-t border-white/10 my-3" />
                       <div className="flex justify-between text-lg font-bold">
                         <span className="text-white">Total</span>
-                        <span className="text-[#FFD700] font-mono">
+                        <span className="text-primary">
                           Rs{" "}
                           {(billingCycle === "yearly"
                             ? selectedPlan?.yearlyPrice
@@ -1083,24 +1073,24 @@ const AdminSignupFlow = () => {
                     </div>
                   </div>
 
-                  <div className="p-4 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-sm mb-6">
+                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-sm mb-6">
                     <div className="flex items-center gap-2 mb-2">
-                      <Shield className="w-4 h-4 text-[#FFD700]" />
+                      <Shield className="w-4 h-4 text-primary" />
                       <span className="text-white font-bold text-sm">
                         Secure Payment
                       </span>
                     </div>
-                    <ul className="space-y-1 text-xs text-gray-500 font-mono">
+                    <ul className="space-y-1 text-xs text-gray-500">
                       <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-[#00FF94]" />{" "}
+                        <Check className="w-3 h-3 text-accent" />{" "}
                         Credit/Debit Cards
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-[#00FF94]" /> Bank
+                        <Check className="w-3 h-3 text-accent" /> Bank
                         Transfer
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-[#00FF94]" /> 30-day
+                        <Check className="w-3 h-3 text-accent" /> 30-day
                         Money Back Guarantee
                       </li>
                     </ul>
@@ -1109,7 +1099,7 @@ const AdminSignupFlow = () => {
                   <Button
                     onClick={handlePayment}
                     disabled={loading}
-                    className="w-full py-5 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+                    className="w-full py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
                   >
                     {loading ? (
                       <>
@@ -1124,7 +1114,7 @@ const AdminSignupFlow = () => {
                     )}
                   </Button>
 
-                  <p className="text-center text-gray-600 text-[10px] font-mono mt-4">
+                  <p className="text-center text-gray-600 text-xs mt-4">
                     By completing, you agree to our Terms of Service and Privacy
                     Policy
                   </p>
@@ -1139,7 +1129,7 @@ const AdminSignupFlow = () => {
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="border-white/20 text-gray-400 hover:bg-white/5 rounded-sm uppercase tracking-wider text-xs"
+              className="border-white/20 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
             >
               <ArrowLeft className="w-4 h-4 mr-2" /> Previous
             </Button>
@@ -1147,7 +1137,7 @@ const AdminSignupFlow = () => {
             {currentStep < steps.length - 1 && (
               <Button
                 onClick={nextStep}
-                className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider text-xs font-bold"
+                className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold"
               >
                 Continue <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

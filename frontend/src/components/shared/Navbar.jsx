@@ -25,8 +25,9 @@ import {
   Calendar,
 } from "lucide-react";
 import AddReviewModal from "./AddReviewModal";
+import { useInShell } from "../app/shellContext";
 
-const Navbar = () => {
+const NavbarBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -78,7 +79,7 @@ const Navbar = () => {
       } catch (e) { }
       localStorage.removeItem("token");
       localStorage.removeItem("pendingSignupRole");
-      toast.success("System logout complete");
+      toast.success("Signed out");
       navigate("/", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
@@ -142,16 +143,16 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 font-['Space_Grotesk',sans-serif] ${isScrolled ? "bg-[#0A0A0A]/90 backdrop-blur-lg border-b border-white/5 py-3" : "bg-transparent py-5"}`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-background/90 backdrop-blur-lg border-b border-white/5 py-3" : "bg-transparent py-5"}`}
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
           {/* HIRE.OS Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-md bg-[#FFD700] flex items-center justify-center text-black font-black text-sm tracking-tighter shadow-[0_0_20px_rgba(255,215,0,0.3)] group-hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all duration-300">
+            <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center text-black font-black text-sm tracking-tighter transition-all duration-300">
               H.
             </div>
-            <span className="text-lg font-bold text-white tracking-tight group-hover:text-[#FFD700] transition-colors">
-              HIRE<span className="text-[#FFD700]">.OS</span>
+            <span className="text-lg font-bold text-white tracking-tight group-hover:text-primary transition-colors">
+              HIRE<span className="text-primary">.OS</span>
             </span>
           </Link>
 
@@ -162,7 +163,7 @@ const Navbar = () => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`flex items-center gap-1.5 text-sm font-medium transition-colors uppercase tracking-wide ${isActive(link.path) ? "text-[#FFD700]" : "text-gray-400 hover:text-white"}`}
+                  className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${isActive(link.path) ? "text-primary" : "text-gray-400 hover:text-white"}`}
                 >
                   <link.icon size={14} strokeWidth={2.5} />
                   {link.label}
@@ -173,13 +174,13 @@ const Navbar = () => {
               <>
                 <Link
                   to="/browse"
-                  className={`text-sm font-medium transition-colors uppercase tracking-wide ${isActive("/browse") ? "text-[#FFD700]" : "text-gray-400 hover:text-white"}`}
+                  className={`text-sm font-medium transition-colors ${isActive("/browse") ? "text-primary" : "text-gray-400 hover:text-white"}`}
                 >
                   Browse
                 </Link>
                 <Link
                   to="/company/pricing"
-                  className={`text-sm font-medium transition-colors uppercase tracking-wide ${isActive("/company/pricing") ? "text-[#FFD700]" : "text-gray-400 hover:text-white"}`}
+                  className={`text-sm font-medium transition-colors ${isActive("/company/pricing") ? "text-primary" : "text-gray-400 hover:text-white"}`}
                 >
                   Pricing
                 </Link>
@@ -195,12 +196,12 @@ const Navbar = () => {
                 {user?.role === "company_admin" && (
                   <Link
                     to="/ceo/messages"
-                    className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-[#FFD700] border border-transparent hover:border-[#FFD700]/30"
+                    className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-primary border border-transparent hover:border-primary/30"
                     title="Messages"
                   >
                     <MessageSquare size={18} />
                     {unreadMessageCount > 0 && (
-                      <span className="absolute -top-1 -right-1 min-w-5 h-5 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
+                      <span className="absolute -top-1 -right-1 min-w-5 h-5 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1">
                         {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
                       </span>
                     )}
@@ -211,7 +212,7 @@ const Navbar = () => {
                 {user?.role !== "recruiter" && (
                   <button className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-white border border-transparent hover:border-white/10">
                     <Bell size={18} />
-                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#00FF94] rounded-full"></span>
+                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-accent rounded-full"></span>
                   </button>
                 )}
 
@@ -219,7 +220,7 @@ const Navbar = () => {
                 {user?.role !== "recruiter" && (
                   <button
                     onClick={() => setShowReviewModal(true)}
-                    className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-[#FFD700] border border-transparent hover:border-[#FFD700]/30"
+                    className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-primary border border-transparent hover:border-primary/30"
                     title="Write a Review"
                   >
                     <PenLine size={18} />
@@ -230,23 +231,23 @@ const Navbar = () => {
                 <div className="relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 p-1.5 pl-3 pr-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 transition-all hover:border-[#FFD700]/30"
+                    className="flex items-center gap-2 p-1.5 pl-3 pr-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 transition-all hover:border-primary/30"
                   >
-                    <span className="hidden sm:inline text-sm font-medium text-gray-300 font-mono">
+                    <span className="hidden sm:inline text-sm font-medium text-gray-300">
                       {user?.fullname?.split(" ")[0]?.toUpperCase()}
                     </span>
-                    <div className="w-7 h-7 rounded-sm bg-[#FFD700] flex items-center justify-center text-black font-bold text-xs">
+                    <div className="w-7 h-7 rounded-sm bg-primary flex items-center justify-center text-black font-bold text-xs">
                       {user?.fullname?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                   </button>
 
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-64 bg-[#111111] rounded-md shadow-2xl border border-white/10 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="absolute right-0 mt-2 w-64 bg-card rounded-md shadow-2xl border border-white/10 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
                       <div className="p-4 border-b border-white/5 bg-white/5">
-                        <p className="text-sm font-bold text-white truncate font-mono">
+                        <p className="text-sm font-bold text-white truncate">
                           {user?.fullname?.toUpperCase()}
                         </p>
-                        <p className="text-xs text-gray-500 truncate font-mono">
+                        <p className="text-xs text-gray-500 truncate">
                           {user?.email}
                         </p>
                       </div>
@@ -254,7 +255,7 @@ const Navbar = () => {
                       <div className="p-2">
                         <Link
                           to="/profile"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 rounded-md transition-colors hover:text-[#FFD700] font-medium"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 rounded-md transition-colors hover:text-primary font-medium"
                           onClick={() => setShowUserMenu(false)}
                         >
                           <User size={14} />
@@ -281,13 +282,13 @@ const Navbar = () => {
                 <Link to="/login">
                   <Button
                     variant="ghost"
-                    className="hidden sm:inline-flex text-gray-300 hover:text-[#FFD700] hover:bg-transparent px-3 font-medium uppercase tracking-wide text-sm"
+                    className="hidden sm:inline-flex text-gray-300 hover:text-primary hover:bg-transparent px-3 font-medium text-sm"
                   >
                     Login
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button className="bg-[#FFD700] text-black font-bold hover:bg-[#FFE44D] hover:shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all rounded-md px-5 uppercase tracking-wide text-sm">
+                  <Button className="bg-primary text-black font-bold hover:bg-[#FFE44D] transition-all rounded-md px-5 text-sm">
                     Get Access
                   </Button>
                 </Link>
@@ -296,7 +297,7 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 text-white hover:text-[#FFD700] transition-colors"
+              className="md:hidden p-2 text-white hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -306,14 +307,14 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-[#0A0A0A] border-b border-white/10 animate-in slide-in-from-top-5 duration-200 z-[60]">
+          <div className="md:hidden absolute top-full left-0 w-full bg-background border-b border-white/10 animate-in slide-in-from-top-5 duration-200 z-[60]">
             <div className="p-4 space-y-2">
               {isLoggedIn ? (
                 navLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors uppercase tracking-wide text-sm font-medium ${isActive(link.path) ? "bg-[#FFD700]/10 text-[#FFD700]" : "text-gray-400 hover:bg-white/5 hover:text-white"}`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors text-sm font-medium ${isActive(link.path) ? "bg-primary/10 text-primary" : "text-gray-400 hover:bg-white/5 hover:text-white"}`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <link.icon size={16} />
@@ -324,7 +325,7 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/jobs"
-                    className="flex items-center gap-3 px-4 py-3 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors uppercase tracking-wide text-sm font-medium"
+                    className="flex items-center gap-3 px-4 py-3 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors text-sm font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Briefcase size={16} />
@@ -332,7 +333,7 @@ const Navbar = () => {
                   </Link>
                   <Link
                     to="/browse"
-                    className="flex items-center gap-3 px-4 py-3 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors uppercase tracking-wide text-sm font-medium"
+                    className="flex items-center gap-3 px-4 py-3 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors text-sm font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Search size={16} />
@@ -348,7 +349,7 @@ const Navbar = () => {
       {/* Click outside to close menus */}
       {(showUserMenu || mobileMenuOpen) && (
         <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+          className="fixed inset-0 z-40 bg-black/30"
           onClick={() => {
             setShowUserMenu(false);
             setMobileMenuOpen(false);
@@ -364,5 +365,8 @@ const Navbar = () => {
     </>
   );
 };
+
+// Inside the app shell the shell's own navigation takes over
+const Navbar = () => (useInShell() ? null : <NavbarBar />);
 
 export default Navbar;

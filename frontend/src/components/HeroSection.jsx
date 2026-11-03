@@ -86,10 +86,10 @@ const HeroSection = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 px-6 py-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-500 mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(234,179,8,0.2)] hover:scale-105 transition-transform duration-300"
+            className="inline-flex items-center gap-2 px-6 py-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-500 mb-8 hover:scale-105 transition-transform duration-300"
           >
             <Crown size={18} />
-            <span className="text-sm font-bold tracking-widest uppercase">
+            <span className="text-sm font-bold">
               The Gold Standard of Hiring
             </span>
           </motion.div>
@@ -102,7 +102,7 @@ const HeroSection = () => {
             className="text-6xl md:text-8xl lg:text-9xl font-black text-white leading-tight tracking-tighter mb-8 drop-shadow-2xl"
           >
             Find Your <br />
-            <span className="bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-600 bg-clip-text text-transparent animate-shine bg-[length:200%_auto]">
+            <span className="animate-shine bg-[length:200%_auto]">
               Legacy
             </span>
           </motion.h1>
@@ -133,9 +133,9 @@ const HeroSection = () => {
             }}
           >
             {/* Glow under search bar */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/0 via-yellow-500/20 to-yellow-500/0 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+            <div className="absolute -inset-1 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
 
-            <div className="relative flex flex-col md:flex-row items-center bg-black/60 border border-white/10 rounded-2xl p-2 md:p-3 backdrop-blur-xl shadow-2xl hover:border-yellow-500/40 transition-all duration-300">
+            <div className="relative flex flex-col md:flex-row items-center bg-black/60 border border-white/10 rounded-2xl p-2 md:p-3 shadow-2xl hover:border-yellow-500/40 transition-all duration-300">
               <div className="flex-1 flex items-center w-full px-4 mb-4 md:mb-0">
                 <Search
                   size={22}
@@ -167,7 +167,7 @@ const HeroSection = () => {
               </div>
               <Button
                 onClick={searchJobHandler}
-                className="w-full md:w-auto px-8 py-6 text-lg bg-yellow-500 text-black hover:bg-yellow-400 font-bold rounded-xl shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_40px_rgba(234,179,8,0.5)] transition-all duration-300 hover:scale-105 active:scale-95"
+                className="w-full md:w-auto px-8 py-6 text-lg bg-yellow-500 text-black hover:bg-yellow-400 font-bold rounded-xl transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 <Search size={20} className="mr-2" />
                 Search
@@ -208,13 +208,13 @@ const HeroSection = () => {
               key={idx}
               className="flex flex-col items-center gap-2 group cursor-default hover:transform hover:translate-y-[-5px] transition-transform duration-300"
             >
-              <div className="p-3 rounded-full bg-white/5 text-yellow-500/80 group-hover:text-yellow-500 group-hover:bg-yellow-500/10 transition-colors duration-300 group-hover:shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+              <div className="p-3 rounded-full bg-white/5 text-yellow-500/80 group-hover:text-yellow-500 group-hover:bg-yellow-500/10 transition-colors duration-300">
                 <stat.icon size={24} />
               </div>
               <div className="text-3xl md:text-4xl font-black text-white tracking-tight">
                 {stat.value}
               </div>
-              <div className="text-xs text-gray-500 uppercase tracking-widest font-bold">
+              <div className="text-xs text-gray-500 font-bold">
                 {stat.label}
               </div>
             </div>
@@ -228,7 +228,7 @@ const HeroSection = () => {
           transition={{ duration: 1, delay: 1 }}
           className="mt-20 opacity-60 hover:opacity-100 transition-opacity duration-500"
         >
-          <p className="text-xs text-gray-600 uppercase tracking-[0.2em] mb-8 font-bold">
+          <p className="text-xs text-gray-600 mb-8 font-bold">
             Trust by Industry Leaders
           </p>
           <div className="flex flex-wrap justify-center items-center gap-12 grayscale hover:grayscale-0 transition-all duration-500">

@@ -83,7 +83,7 @@ import DailyJobAlerts from "./DailyJobAlerts";
 import PracticeHistory from "./PracticeHistory";
 import AICareerCoach from "./AICareerCoach";
 import ReferralDashboard from "./ReferralDashboard";
-import ResumeAnalyzer from "./ResumeAnalyzer";
+import ResumeAnalyzer from "./resume-intel/ResumeAnalyzerGate";
 import { useSupabaseDashboard } from "../../hooks/useSupabaseDashboard";
 import DashboardLoader from "../shared/DashboardLoader";
 import RealtimeNotifications from "../shared/RealtimeNotifications";
@@ -94,15 +94,15 @@ const LiveBadge = ({ isLive }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.8 }}
     animate={{ opacity: 1, scale: 1 }}
-    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${isLive
-      ? "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30"
+    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${isLive
+      ? "bg-accent/10 text-accent border-accent/30"
       : "bg-gray-500/10 text-gray-400 border-gray-500/30"
       }`}
   >
     <motion.div
       animate={{ scale: isLive ? [1, 1.2, 1] : 1 }}
       transition={{ repeat: isLive ? Infinity : 0, duration: 1.5 }}
-      className={`w-2 h-2 rounded-full ${isLive ? "bg-[#00FF94]" : "bg-gray-500"}`}
+      className={`w-2 h-2 rounded-full ${isLive ? "bg-accent" : "bg-gray-500"}`}
     />
     {isLive ? "LIVE" : "OFFLINE"}
   </motion.div>
@@ -331,11 +331,11 @@ const StudentDashboard = () => {
         label: "Video Interview",
       },
       mcq_pending: {
-        color: "bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30",
+        color: "bg-primary/10 text-primary border-primary/30",
         label: "MCQ Test Pending",
       },
       mcq_passed: {
-        color: "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30",
+        color: "bg-accent/10 text-accent border-accent/30",
         label: "MCQ Passed ✓",
       },
       video_completed: {
@@ -369,7 +369,7 @@ const StudentDashboard = () => {
     };
     return (
       <Badge
-        className={`${badge.color} border px-3 py-1 text-xs rounded-full uppercase tracking-wider font-bold`}
+        className={`${badge.color} border px-3 py-1 text-xs rounded-full font-bold`}
       >
         {badge.label}
       </Badge>
@@ -394,7 +394,7 @@ const StudentDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif] selection:bg-[#FFD700]/30 selection:text-[#FFD700]">
+    <div className="min-h-screen bg-background text-white selection:bg-primary/30 selection:text-primary">
       {/* Trial Welcome Modal */}
       <TrialWelcomeModal
         isOpen={showTrialModal}
@@ -403,14 +403,11 @@ const StudentDashboard = () => {
         trialEndDate={trialEndDate || user?.trialEndDate}
       />
 
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
       </div>
 
       {/* Top Header Bar */}
-      <div className="fixed top-0 left-0 right-0 h-14 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-white/5 z-50">
+      <div className="fixed top-0 left-0 right-0 h-14 bg-background/95 border-b border-white/5 z-50">
         <div className="max-w-[1600px] mx-auto h-full px-4 flex items-center justify-end gap-4">
           {/* Realtime Notification Bell */}
           <RealtimeNotifications />
@@ -427,7 +424,7 @@ const StudentDashboard = () => {
           {/* Settings */}
           <button
             onClick={() => navigate("/settings")}
-            className="p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-[#FFD700] border border-transparent hover:border-[#FFD700]/30"
+            className="p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-primary border border-transparent hover:border-primary/30"
             title="Settings"
           >
             <Settings size={18} />
@@ -437,23 +434,23 @@ const StudentDashboard = () => {
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 p-1.5 pl-3 pr-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 transition-all hover:border-[#FFD700]/30"
+              className="flex items-center gap-2 p-1.5 pl-3 pr-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 transition-all hover:border-primary/30"
             >
-              <span className="hidden sm:inline text-sm font-medium text-gray-300 font-mono">
+              <span className="hidden sm:inline text-sm font-medium text-gray-300">
                 {user?.fullname?.split(" ")[0]?.toUpperCase()}
               </span>
-              <div className="w-7 h-7 rounded-sm bg-[#FFD700] flex items-center justify-center text-black font-bold text-xs">
+              <div className="w-7 h-7 rounded-sm bg-primary flex items-center justify-center text-black font-bold text-xs">
                 {user?.fullname?.charAt(0)?.toUpperCase() || "U"}
               </div>
             </button>
 
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-[#111111] rounded-md shadow-2xl border border-white/10 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 mt-2 w-64 bg-card rounded-md shadow-2xl border border-white/10 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="p-4 border-b border-white/5 bg-white/5">
-                  <p className="text-sm font-bold text-white truncate font-mono">
+                  <p className="text-sm font-bold text-white truncate">
                     {user?.fullname?.toUpperCase()}
                   </p>
-                  <p className="text-xs text-gray-500 truncate font-mono">
+                  <p className="text-xs text-gray-500 truncate">
                     {user?.email}
                   </p>
                 </div>
@@ -461,7 +458,7 @@ const StudentDashboard = () => {
                 <div className="p-2">
                   <Link
                     to="/profile"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 rounded-md transition-colors hover:text-[#FFD700] font-medium"
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 rounded-md transition-colors hover:text-primary font-medium"
                     onClick={() => setShowUserMenu(false)}
                   >
                     <User size={14} />
@@ -497,12 +494,11 @@ const StudentDashboard = () => {
             animate={{ opacity: 1, x: 0 }}
             className="w-full md:w-1/3"
           >
-            <div className="bg-[#111111] border border-white/10 rounded-md p-6 relative overflow-hidden group hover:border-[#FFD700]/30 transition-colors duration-300">
-              <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
+            <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden group hover:border-primary/30 transition-colors duration-300">
 
               <button
                 onClick={() => navigate("/settings")}
-                className="absolute top-4 right-4 text-gray-500 hover:text-[#FFD700] transition-colors z-20"
+                className="absolute top-4 right-4 text-gray-500 hover:text-primary transition-colors z-20"
                 title="Settings"
               >
                 <Settings size={20} />
@@ -511,7 +507,7 @@ const StudentDashboard = () => {
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="relative">
-                    <Avatar className="h-20 w-20 border-2 border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.2)]">
+                    <Avatar className="h-20 w-20 border-2 border-yellow-500/50">
                       <AvatarImage
                         src={user?.profile?.profilePhoto}
                         className="object-cover"
@@ -534,7 +530,7 @@ const StudentDashboard = () => {
                     </h1>
                     <Badge
                       variant="outline"
-                      className="border-[#FFD700]/30 text-[#FFD700] bg-[#FFD700]/5 text-xs uppercase tracking-wider"
+                      className="border-primary/30 text-primary bg-primary/5 text-xs"
                     >
                       <GraduationCap className="h-3 w-3 mr-1" /> Candidate
                     </Badge>
@@ -560,17 +556,17 @@ const StudentDashboard = () => {
 
                 <div className="bg-white/5 rounded-sm p-3 border border-white/5">
                   <div className="flex justify-between mb-2 text-xs">
-                    <span className="text-gray-500 uppercase tracking-wider">
+                    <span className="text-gray-500">
                       Profile Strength
                     </span>
-                    <span className="text-[#FFD700] font-mono">
+                    <span className="text-primary">
                       {profileCompletion}%
                     </span>
                   </div>
                   <Progress
                     value={profileCompletion}
                     className="h-1 bg-white/5"
-                    indicatorClassName="bg-[#FFD700]"
+                    indicatorClassName="bg-primary"
                   />
                 </div>
 
@@ -579,22 +575,22 @@ const StudentDashboard = () => {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-r from-[#00FF94]/10 to-emerald-500/5 rounded-sm p-3 border border-[#00FF94]/30 mt-3"
+                    className="rounded-sm p-3 border border-accent/30 mt-3 bg-card"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-[#00FF94]" />
-                        <span className="text-xs text-[#00FF94] font-bold uppercase tracking-wider">
+                        <Sparkles className="w-4 h-4 text-accent" />
+                        <span className="text-xs text-accent font-bold">
                           Free Trial
                         </span>
                       </div>
-                      <Badge className="bg-[#00FF94]/20 text-[#00FF94] border-[#00FF94]/30 text-[10px]">
+                      <Badge className="bg-accent/20 text-accent border-accent/30 text-xs">
                         ACTIVE
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-2xl font-black text-white font-mono">
+                        <p className="text-2xl font-black text-white">
                           {Math.max(
                             0,
                             Math.ceil(
@@ -603,13 +599,13 @@ const StudentDashboard = () => {
                             ),
                           )}
                         </p>
-                        <p className="text-[10px] text-gray-500">
+                        <p className="text-xs text-gray-500">
                           days remaining
                         </p>
                       </div>
                       <Button
                         size="sm"
-                        className="bg-[#00FF94]/20 text-[#00FF94] hover:bg-[#00FF94]/30 border border-[#00FF94]/30 text-xs"
+                        className="bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30 text-xs"
                         onClick={() => navigate("/profile?tab=subscription")}
                       >
                         View Details
@@ -621,13 +617,13 @@ const StudentDashboard = () => {
                 <div className="grid grid-cols-2 gap-2 mt-5">
                   <Button
                     variant="outline"
-                    className="w-full bg-white/5 border-white/10 hover:bg-white/10 hover:border-[#FFD700]/30 text-gray-400 hover:text-white rounded-sm text-xs uppercase tracking-wider"
+                    className="w-full bg-white/5 border-white/10 hover:bg-white/10 hover:border-primary/30 text-gray-400 hover:text-white rounded-sm text-xs"
                     onClick={() => navigate("/profile")}
                   >
                     Edit
                   </Button>
                   <Button
-                    className="w-full bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold border-none rounded-sm text-xs uppercase tracking-wider"
+                    className="w-full bg-primary hover:bg-[#FFE44D] text-black font-bold border-none rounded-sm text-xs"
                     onClick={() =>
                       user?.profile?.resume
                         ? window.open(user.profile.resume, "_blank")
@@ -644,7 +640,7 @@ const StudentDashboard = () => {
           {/* Stats Grid */}
           <div className="flex-1">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-gray-500 uppercase tracking-wider">
+              <span className="text-xs text-gray-500">
                 Real-time Stats
               </span>
               <LiveBadge isLive={isLive} />
@@ -655,7 +651,7 @@ const StudentDashboard = () => {
                   label: "APPLIED",
                   value: stats.applied,
                   icon: FileText,
-                  color: "text-[#00FF94]",
+                  color: "text-accent",
                 },
                 {
                   label: "INTERVIEWS",
@@ -667,7 +663,7 @@ const StudentDashboard = () => {
                   label: "OFFERS",
                   value: stats.accepted,
                   icon: Target,
-                  color: "text-[#FFD700]",
+                  color: "text-primary",
                 },
                 {
                   label: "PENDING",
@@ -682,18 +678,17 @@ const StudentDashboard = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.08 * idx }}
                 >
-                  <div className="h-full bg-[#111111] border border-white/10 rounded-md p-5 relative overflow-hidden group hover:border-[#FFD700]/30 transition-all">
-                    <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
+                  <div className="h-full bg-card border border-white/10 rounded-md p-5 relative overflow-hidden group hover:border-primary/30 transition-all">
                     <div className="relative z-10">
                       <div
                         className={`p-2 rounded-sm bg-white/5 w-fit mb-3 ${stat.color}`}
                       >
                         <stat.icon size={18} />
                       </div>
-                      <div className="text-3xl font-bold text-white mb-1 font-mono">
+                      <div className="text-3xl font-bold text-white mb-1">
                         {stat.value}
                       </div>
-                      <div className="text-gray-500 text-xs uppercase tracking-wider">
+                      <div className="text-gray-500 text-xs">
                         {stat.label}
                       </div>
                     </div>
@@ -708,23 +703,22 @@ const StudentDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <div className="bg-[#111111] border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-cyan-500/30" />
+                <div className="bg-card border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
                   <div className="relative z-10 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-sm bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30">
                       <BrainCircuit size={24} className="text-cyan-400" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-white mb-1 uppercase tracking-wider">
+                      <h3 className="text-sm font-bold text-white mb-1">
                         AI Interview Coach
                       </h3>
-                      <p className="text-gray-500 text-xs font-mono">
+                      <p className="text-gray-500 text-xs">
                         AI-powered mock interview preparation
                       </p>
                     </div>
                   </div>
                   <Button
-                    className="relative z-10 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 font-bold rounded-sm px-5 py-2.5 h-auto border border-cyan-500/30 text-xs uppercase tracking-wider w-full sm:w-auto mt-2 sm:mt-0"
+                    className="relative z-10 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 font-bold rounded-sm px-5 py-2.5 h-auto border border-cyan-500/30 text-xs w-full sm:w-auto mt-2 sm:mt-0"
                     onClick={() => {
                       setSearchParams({ tab: "practice" });
                       setActiveTab("practice");
@@ -742,23 +736,22 @@ const StudentDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45 }}
               >
-                <div className="bg-[#111111] border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden h-full">
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
+                <div className="bg-card border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden h-full">
                   <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-sm bg-[#FFD700]/10 flex items-center justify-center border border-[#FFD700]/30">
-                      <Brain size={24} className="text-[#FFD700]" />
+                    <div className="w-12 h-12 rounded-sm bg-primary/10 flex items-center justify-center border border-primary/30">
+                      <Brain size={24} className="text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-white mb-1 uppercase tracking-wider">
+                      <h3 className="text-sm font-bold text-white mb-1">
                         Mock MCQ Tests
                       </h3>
-                      <p className="text-gray-500 text-xs font-mono">
+                      <p className="text-gray-500 text-xs">
                         AI-generated practice tests
                       </p>
                     </div>
                   </div>
                   <Button
-                    className="relative z-10 bg-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/30 font-bold rounded-sm px-5 py-2 h-auto border border-[#FFD700]/30 text-xs uppercase tracking-wider w-full sm:w-auto"
+                    className="relative z-10 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-sm px-5 py-2 h-auto border border-primary/30 text-xs w-full sm:w-auto"
                     onClick={() => {
                       setSearchParams({ tab: "practice" });
                       setActiveTab("practice");
@@ -776,23 +769,22 @@ const StudentDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <div className="bg-[#111111] border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden h-full">
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#00FF94]/30" />
+                <div className="bg-card border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden h-full">
                   <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-sm bg-[#00FF94]/10 flex items-center justify-center border border-[#00FF94]/30">
-                      <BarChart3 size={24} className="text-[#00FF94]" />
+                    <div className="w-12 h-12 rounded-sm bg-accent/10 flex items-center justify-center border border-accent/30">
+                      <BarChart3 size={24} className="text-accent" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-white mb-1 uppercase tracking-wider">
+                      <h3 className="text-sm font-bold text-white mb-1">
                         Skill Gap Analysis
                       </h3>
-                      <p className="text-gray-500 text-xs font-mono">
+                      <p className="text-gray-500 text-xs">
                         Identify skills to develop
                       </p>
                     </div>
                   </div>
                   <Button
-                    className="relative z-10 bg-[#00FF94]/20 text-[#00FF94] hover:bg-[#00FF94]/30 font-bold rounded-sm px-5 py-2 h-auto border border-[#00FF94]/30 text-xs uppercase tracking-wider w-full sm:w-auto"
+                    className="relative z-10 bg-accent/20 text-accent hover:bg-accent/30 font-bold rounded-sm px-5 py-2 h-auto border border-accent/30 text-xs w-full sm:w-auto"
                     onClick={() => {
                       setSearchParams({ tab: "career", sub: "skills" });
                       setActiveTab("career");
@@ -813,7 +805,7 @@ const StudentDashboard = () => {
           transition={{ delay: 0.5 }}
           className="mb-8 flex justify-center"
         >
-          <div className="bg-[#111111] border border-white/10 rounded-md p-1.5 flex gap-1.5 overflow-x-auto scrollbar-hide sm:inline-flex sm:flex-wrap sm:justify-center sm:p-2 sm:gap-2 max-w-full">
+          <div className="bg-card border border-white/10 rounded-md p-1.5 flex gap-1.5 overflow-x-auto scrollbar-hide sm:inline-flex sm:flex-wrap sm:justify-center sm:p-2 sm:gap-2 max-w-full">
             {[
               {
                 id: "overview",
@@ -853,7 +845,7 @@ const StudentDashboard = () => {
                   setSearchParams({ tab: tab.id });
                 }}
                 className={`group flex items-center gap-2 px-5 py-3 rounded-sm text-sm font-medium transition-all relative ${activeTab === tab.id
-                  ? "bg-[#FFD700] text-black"
+                  ? "bg-primary text-black"
                   : "text-gray-400 hover:text-white hover:bg-white/5"
                   }`}
               >
@@ -880,7 +872,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "find" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "find" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() => setSearchParams({ tab: "jobs", sub: "find" })}
                 >
                   <Search className="w-4 h-4 mr-2" /> Find Jobs
@@ -888,7 +880,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "saved" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "saved" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() => setSearchParams({ tab: "jobs", sub: "saved" })}
                 >
                   <Bookmark className="w-4 h-4 mr-2" /> Saved Jobs
@@ -896,7 +888,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "alerts" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "alerts" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "jobs", sub: "alerts" })
                   }
@@ -926,7 +918,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "mock" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "mock" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "interviews", sub: "mock" })
                   }
@@ -936,7 +928,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "calendar" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "calendar" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "interviews", sub: "calendar" })
                   }
@@ -946,7 +938,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "history" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "history" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "interviews", sub: "history" })
                   }
@@ -976,7 +968,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "coach" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "coach" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "coach" })
                   }
@@ -986,7 +978,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "skills" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "skills" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "skills" })
                   }
@@ -996,7 +988,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "salary" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "salary" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "salary" })
                   }
@@ -1006,7 +998,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "referrals" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "referrals" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "referrals" })
                   }
@@ -1016,7 +1008,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "resume" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "resume" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "resume" })
                   }
@@ -1026,7 +1018,7 @@ const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "learning" ? "bg-[#FFD700] text-black" : "text-gray-400 hover:text-white"}`}
+                  className={`border-white/10 ${searchParams.get("sub") === "learning" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
                   onClick={() =>
                     setSearchParams({ tab: "career", sub: "learning" })
                   }
@@ -1073,7 +1065,7 @@ const StudentDashboard = () => {
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 mb-6"
+                      className="bg-background border border-white/10 rounded-3xl p-6 mb-6"
                     >
                       <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                         <TrendingUp className="text-yellow-500" size={20} />
@@ -1155,7 +1147,7 @@ const StudentDashboard = () => {
                         <div className="flex items-center gap-2">
                           <div className="w-32 h-2 bg-zinc-800 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-yellow-500 to-emerald-500 transition-all duration-500"
+                              className="h-full transition-all duration-500 bg-primary"
                               style={{ width: `${successRate}%` }}
                             />
                           </div>
@@ -1188,10 +1180,10 @@ const StudentDashboard = () => {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.1 * idx }}
-                          className="group bg-[#0a0a0a] border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all cursor-pointer relative overflow-hidden"
+                          className="group bg-background border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all cursor-pointer relative overflow-hidden"
                           onClick={() => navigate("/applied-jobs")}
                         >
-                          <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-yellow-500 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <div className="absolute inset-y-0 left-0 w-1 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                           <div className="flex items-center justify-between relative z-10">
                             <div className="flex items-center gap-4">
                               <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white font-bold group-hover:bg-yellow-500/20 group-hover:text-yellow-500 transition-colors">
@@ -1220,7 +1212,7 @@ const StudentDashboard = () => {
                         </motion.div>
                       ))
                     ) : (
-                      <div className="text-center py-20 bg-[#0a0a0a] border border-white/10 rounded-3xl border-dashed">
+                      <div className="text-center py-20 bg-background border border-white/10 rounded-3xl border-dashed">
                         <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
                           <FileText className="text-gray-600" size={32} />
                         </div>
@@ -1253,22 +1245,21 @@ const StudentDashboard = () => {
                 {/* Right Sidebar: AI Recommendations */}
                 <div className="space-y-6">
                   <motion.div
-                    className="bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden relative"
+                    className="bg-background border border-white/10 rounded-3xl overflow-hidden relative"
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
                     <div className="p-4 border-b border-white/10 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 border border-[#FFD700]/30 flex items-center justify-center">
-                          <Sparkles className="w-5 h-5 text-[#FFD700]" />
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
+                          <Sparkles className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                          <h3 className="text-sm font-bold text-white">
                             AI Recommendations
                           </h3>
-                          <p className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">
+                          <p className="text-xs text-gray-500">
                             RAG + GPT MATCHING
                           </p>
                         </div>
@@ -1280,10 +1271,10 @@ const StudentDashboard = () => {
                       {aiLoading ? (
                         <div className="flex flex-col items-center justify-center py-8">
                           <div className="relative">
-                            <div className="w-12 h-12 border-2 border-[#FFD700]/20 rounded-full animate-pulse" />
-                            <Sparkles className="absolute inset-0 m-auto w-5 h-5 text-[#FFD700] animate-pulse" />
+                            <div className="w-12 h-12 border-2 border-primary/20 rounded-full animate-pulse" />
+                            <Sparkles className="absolute inset-0 m-auto w-5 h-5 text-primary animate-pulse" />
                           </div>
-                          <p className="text-gray-500 mt-3 font-mono text-xs tracking-wider uppercase">
+                          <p className="text-gray-500 mt-3 text-xs">
                             Analyzing best matches...
                           </p>
                         </div>
@@ -1301,8 +1292,8 @@ const StudentDashboard = () => {
                               : score >= 70
                                 ? {
                                   badge:
-                                    "bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30",
-                                  border: "hover:border-[#FFD700]/30",
+                                    "bg-primary/10 text-primary border-primary/30",
+                                  border: "hover:border-primary/30",
                                 }
                                 : score >= 55
                                   ? {
@@ -1322,13 +1313,13 @@ const StudentDashboard = () => {
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: 0.08 * idx }}
-                              className={`group relative p-3 bg-[#0A0A0A] border border-white/10 rounded-2xl ${tone.border} transition-all cursor-pointer`}
+                              className={`group relative p-3 bg-background border border-white/10 rounded-2xl ${tone.border} transition-all cursor-pointer`}
                               onClick={() =>
                                 navigate(`/description/${job._id}`)
                               }
                             >
                               <div className="flex items-start gap-3">
-                                <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#FFD700]/30 transition-colors shrink-0">
+                                <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-primary/30 transition-colors shrink-0">
                                   {job.company?.logo ? (
                                     <img
                                       src={job.company.logo}
@@ -1343,27 +1334,27 @@ const StudentDashboard = () => {
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                      <h4 className="text-sm font-semibold text-white group-hover:text-[#FFD700] transition-colors truncate">
+                                      <h4 className="text-sm font-semibold text-white group-hover:text-primary transition-colors truncate">
                                         {job.title}
                                       </h4>
-                                      <p className="text-xs text-gray-500 font-mono truncate">
+                                      <p className="text-xs text-gray-500 truncate">
                                         {job.company?.name}
                                       </p>
                                     </div>
                                     <Badge
-                                      className={`${tone.badge} text-[10px] font-mono uppercase tracking-wider`}
+                                      className={`${tone.badge} text-xs`}
                                     >
                                       {score}% match
                                     </Badge>
                                   </div>
 
-                                  <div className="flex items-center gap-3 text-[10px] mt-2 text-gray-400 font-mono uppercase tracking-wider">
+                                  <div className="flex items-center gap-3 text-xs mt-2 text-gray-400">
                                     <span className="flex items-center gap-1">
                                       <MapPin className="w-3 h-3" />
                                       {job.location || "Remote"}
                                     </span>
                                     <span className="flex items-center gap-1">
-                                      <DollarSign className="w-3 h-3 text-[#FFD700]" />
+                                      <DollarSign className="w-3 h-3 text-primary" />
                                       <span className="text-gray-300">
                                         {job.salary || "Competitive"}
                                       </span>
@@ -1386,7 +1377,7 @@ const StudentDashboard = () => {
                                                 .map((s) => (
                                                   <Badge
                                                     key={`${job._id}-${s}`}
-                                                    className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30 text-[10px] font-mono uppercase tracking-wider"
+                                                    className="bg-primary/10 text-primary border-primary/30 text-xs"
                                                   >
                                                     {s}
                                                   </Badge>
@@ -1396,14 +1387,14 @@ const StudentDashboard = () => {
                                                 .map((s) => (
                                                   <Badge
                                                     key={`${job._id}-missing-${s}`}
-                                                    className="bg-red-500/10 text-red-400 border-red-500/20 text-[10px] font-mono uppercase tracking-wider"
+                                                    className="bg-red-500/10 text-red-400 border-red-500/20 text-xs"
                                                   >
                                                     {s}
                                                   </Badge>
                                                 ))}
                                               {(job.matchedSkills || []).length >
                                                 3 && (
-                                                  <Badge className="bg-white/5 text-gray-400 border-white/10 text-[10px] font-mono uppercase tracking-wider">
+                                                  <Badge className="bg-white/5 text-gray-400 border-white/10 text-xs">
                                                     +
                                                     {(job.matchedSkills || [])
                                                       .length - 3}
@@ -1425,7 +1416,7 @@ const StudentDashboard = () => {
                                               isExpanded ? null : job._id,
                                             );
                                           }}
-                                          className="flex items-center justify-between w-full text-[10px] text-gray-400 font-mono uppercase tracking-wider hover:text-[#FFD700] transition-colors"
+                                          className="flex items-center justify-between w-full text-xs text-gray-400 hover:text-primary transition-colors"
                                         >
                                           <span>Why this job?</span>
                                           <ChevronDown
@@ -1441,7 +1432,7 @@ const StudentDashboard = () => {
                                             )}
                                             {job.topStrengths &&
                                               job.topStrengths.length > 0 && (
-                                                <ul className="text-[11px] text-gray-400 list-disc list-inside">
+                                                <ul className="text-xs text-gray-400 list-disc list-inside">
                                                   {job.topStrengths
                                                     .slice(0, 3)
                                                     .map((item, index) => (
@@ -1461,7 +1452,7 @@ const StudentDashboard = () => {
                               </div>
 
                               <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <ArrowUpRight className="w-4 h-4 text-[#FFD700]" />
+                                <ArrowUpRight className="w-4 h-4 text-primary" />
                               </div>
                             </motion.div>
                           );
@@ -1478,7 +1469,7 @@ const StudentDashboard = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="mt-3 border-[#FFD700]/30 text-[#FFD700]"
+                              className="mt-3 border-primary/30 text-primary"
                               onClick={() => navigate("/profile")}
                             >
                               Complete Profile
@@ -1490,7 +1481,7 @@ const StudentDashboard = () => {
 
                     <div className="p-4 border-t border-white/10">
                       <Button
-                        className="w-full bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold uppercase tracking-wider"
+                        className="w-full bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold"
                         onClick={() => navigate("/jobs")}
                       >
                         View All Matches

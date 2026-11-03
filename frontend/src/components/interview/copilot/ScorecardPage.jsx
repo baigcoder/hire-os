@@ -5,6 +5,7 @@ import { ArrowLeft, Loader2, ListChecks, Sparkles, RefreshCw, MessageSquareText 
 import { Button } from "../../ui/button";
 import { copilotApi } from "@/copilot/api";
 import { useCopilot } from "@/copilot/useCopilot";
+import ReportGenerationModal from "../ReportGenerationModal";
 
 const RECOMMENDATIONS = [
   { value: "strong_no", label: "Strong no" },
@@ -15,7 +16,7 @@ const RECOMMENDATIONS = [
 
 const COVERAGE_LABEL = { covered: "Covered", partial: "Partly covered", not_covered: "Not covered" };
 
-const Card = ({ children }) => <section className="bg-[#111111] border border-white/10 rounded-md p-5">{children}</section>;
+const Card = ({ children }) => <section className="bg-card border border-white/10 rounded-md p-5">{children}</section>;
 
 /** One competency: rubric, AI draft with quotes, and the recruiter's rating. */
 const CompetencyCard = ({ c, onRate }) => {
@@ -28,7 +29,7 @@ const CompetencyCard = ({ c, onRate }) => {
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-1">
         <h3 className="font-bold">
           {c.title}
-          <span className="ml-2 text-[10px] font-mono uppercase tracking-wider text-gray-500">{c.kind === "must" ? "must-have" : "nice-to-have"}</span>
+          <span className="ml-2 text-xs text-gray-500">{c.kind === "must" ? "must-have" : "nice-to-have"}</span>
         </h3>
         <span className="text-xs text-gray-500">{COVERAGE_LABEL[c.coverage?.status ?? "not_covered"]}</span>
       </div>
@@ -46,11 +47,11 @@ const CompetencyCard = ({ c, onRate }) => {
               aria-label={`${n}: ${c.rubric?.[n] ?? ""}`}
               onClick={() => onRate(c.id, active ? null : n, notes)}
               className={`text-left rounded-sm border p-2 transition-colors ${
-                active ? "border-[#FFD700] bg-[#FFD700]/10" : "border-white/10 hover:border-white/30"
+                active ? "border-primary bg-primary/10" : "border-white/10 hover:border-white/30"
               }`}
             >
-              <div className={`font-mono font-bold ${active ? "text-[#FFD700]" : "text-gray-300"}`}>{n}</div>
-              <div className="text-[11px] text-gray-400 leading-snug">{c.rubric?.[n]}</div>
+              <div className={`font-bold ${active ? "text-primary" : "text-gray-300"}`}>{n}</div>
+              <div className="text-xs text-gray-400 leading-snug">{c.rubric?.[n]}</div>
             </button>
           );
         })}
@@ -58,7 +59,7 @@ const CompetencyCard = ({ c, onRate }) => {
 
       {draft && (draft.rating || draft.rationale) && (
         <div className="rounded-sm border border-blue-400/20 bg-blue-400/5 p-3 mb-3">
-          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-blue-300 mb-1">
+          <div className="flex items-center gap-2 text-xs font-bold text-blue-300 mb-1">
             <Sparkles className="w-3 h-3" /> AI draft {draft.rating ? `· ${draft.rating}/4` : "· no rating"}
             {draft.rating && draft.rating !== c.rating?.value && (
               <button type="button" onClick={() => onRate(c.id, draft.rating, notes)} className="ml-auto normal-case tracking-normal text-blue-200 hover:underline">
@@ -82,14 +83,14 @@ const CompetencyCard = ({ c, onRate }) => {
       )}
 
       <label className="block">
-        <span className="text-[10px] font-mono uppercase tracking-wider text-gray-500">Your notes</span>
+        <span className="text-xs text-gray-500">Your notes</span>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           onBlur={() => notes !== (c.rating?.notes ?? "") && onRate(c.id, c.rating?.value ?? null, notes)}
           rows={2}
           maxLength={2000}
-          className="mt-1 w-full rounded-sm bg-black/40 border border-white/10 p-2 text-sm text-white focus:outline-none focus:border-[#FFD700]/50"
+          className="mt-1 w-full rounded-sm bg-black/40 border border-white/10 p-2 text-sm text-white focus:outline-none focus:border-primary/50"
         />
       </label>
     </Card>
@@ -106,6 +107,8 @@ const ScorecardPage = () => {
   const { data, error, refresh, rate } = useCopilot({ interviewId: id, enabled: true });
   const [overall, setOverall] = useState({ recommendation: "", notes: "" });
   const [showTranscript, setShowTranscript] = useState(false);
+  // The report can be generated and sent from here too, not only at the end of the call
+  const [reportOpen, setReportOpen] = useState(false);
   const card = data?.scorecard;
 
   useEffect(() => {
@@ -144,25 +147,39 @@ const ScorecardPage = () => {
   const rated = (card?.competencies ?? []).filter((c) => c.rating?.value).length;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
+    <div className="min-h-screen bg-background text-white">
+      <ReportGenerationModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        interviewId={id}
+        onReportSubmitted={() => {
+          setReportOpen(false);
+          refresh();
+        }}
+      />
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-4">
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <ListChecks className="w-6 h-6 text-[#FFD700]" /> Interview scorecard
+            <ListChecks className="w-6 h-6 text-primary" /> Interview scorecard
           </h1>
           {card?.status === "ready" && (
+            <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
               onClick={draftNow}
               disabled={card.draft?.status === "queued"}
-              className="border-white/10 rounded-sm text-xs uppercase tracking-wider"
+              className="border-white/10 rounded-sm text-xs"
             >
               {card.draft?.status === "queued" ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 mr-2" />}
               {card.draft?.status === "ready" ? "Redraft from transcript" : "Draft from transcript"}
             </Button>
+            <Button onClick={() => setReportOpen(true)} className="rounded-sm text-xs">
+              Report
+            </Button>
+            </div>
           )}
         </div>
 
@@ -182,7 +199,7 @@ const ScorecardPage = () => {
             ))}
 
             <Card>
-              <h2 className="text-xs font-mono uppercase tracking-wider text-[#FFD700] mb-3">Overall recommendation</h2>
+              <h2 className="text-xs text-primary mb-3">Overall recommendation</h2>
               <div className="flex flex-wrap gap-2 mb-3" role="radiogroup" aria-label="Overall recommendation">
                 {RECOMMENDATIONS.map((r) => (
                   <button
@@ -192,7 +209,7 @@ const ScorecardPage = () => {
                     aria-checked={overall.recommendation === r.value}
                     onClick={() => setOverall((o) => ({ ...o, recommendation: r.value }))}
                     className={`px-3 py-1.5 rounded-sm border text-sm ${
-                      overall.recommendation === r.value ? "border-[#FFD700] bg-[#FFD700]/10 text-[#FFD700]" : "border-white/10 text-gray-300 hover:border-white/30"
+                      overall.recommendation === r.value ? "border-primary bg-primary/10 text-primary" : "border-white/10 text-gray-300 hover:border-white/30"
                     }`}
                   >
                     {r.label}
@@ -206,12 +223,12 @@ const ScorecardPage = () => {
                 maxLength={4000}
                 aria-label="Overall notes"
                 placeholder="Why, in a few sentences, tied to the competencies above."
-                className="w-full rounded-sm bg-black/40 border border-white/10 p-2 text-sm text-white focus:outline-none focus:border-[#FFD700]/50 mb-3"
+                className="w-full rounded-sm bg-black/40 border border-white/10 p-2 text-sm text-white focus:outline-none focus:border-primary/50 mb-3"
               />
               <Button
                 onClick={saveOverall}
                 disabled={!overall.recommendation}
-                className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black font-bold rounded-sm uppercase tracking-wider text-xs"
+                className="bg-primary hover:bg-primary/90 text-black font-bold rounded-sm text-xs"
               >
                 Save recommendation
               </Button>
@@ -222,7 +239,7 @@ const ScorecardPage = () => {
                 type="button"
                 onClick={() => setShowTranscript((s) => !s)}
                 aria-expanded={showTranscript}
-                className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-gray-400"
+                className="flex items-center gap-2 text-xs text-gray-400"
               >
                 <MessageSquareText className="w-4 h-4" /> Transcript ({data.transcript.length} lines)
               </button>
@@ -230,7 +247,7 @@ const ScorecardPage = () => {
                 <div className="mt-3 space-y-2 max-h-[60vh] overflow-y-auto text-sm">
                   {data.transcript.map((s) => (
                     <p key={s._id}>
-                      <span className={s.speaker === "candidate" ? "text-[#00FF94]" : "text-blue-300"}>
+                      <span className={s.speaker === "candidate" ? "text-accent" : "text-blue-300"}>
                         {s.speaker === "candidate" ? "Candidate" : "Interviewer"}:
                       </span>{" "}
                       <span className="text-gray-300">{s.text}</span>

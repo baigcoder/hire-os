@@ -152,16 +152,16 @@ const RealtimeNotifications = ({ onNotificationClick }) => {
                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-80 max-h-[400px] bg-[#0a0a0a] border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50"
+                        className="absolute right-0 mt-2 w-80 max-h-[400px] bg-background border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50"
                     >
                         {/* Header */}
                         <div className="p-3 border-b border-white/10 flex items-center justify-between bg-[#111]">
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-bold text-white uppercase tracking-wider">
+                                <span className="text-sm font-bold text-white">
                                     Notifications
                                 </span>
                                 {isConnected && (
-                                    <span className="text-[10px] text-green-400 font-mono">
+                                    <span className="text-xs text-green-400">
                                         LIVE
                                     </span>
                                 )}
@@ -218,7 +218,7 @@ const RealtimeNotifications = ({ onNotificationClick }) => {
                                                 <p className="text-xs text-gray-500 truncate">
                                                     {notification.message || notification.data?.message || "New notification"}
                                                 </p>
-                                                <p className="text-[10px] text-gray-600 mt-1 font-mono">
+                                                <p className="text-xs text-gray-600 mt-1">
                                                     {formatDistanceToNow(new Date(notification.timestamp), {
                                                         addSuffix: true,
                                                     })}

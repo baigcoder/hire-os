@@ -13,7 +13,6 @@ import {
   Play,
   RefreshCw,
   ShieldAlert,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -85,7 +84,7 @@ const ScreeningDetail = ({ screeningId }) => {
   if (!screening) {
     return (
       <div className="flex justify-center p-6">
-        <Loader2 className="w-5 h-5 animate-spin text-[#FFD700]" />
+        <Loader2 className="w-5 h-5 animate-spin text-primary" />
       </div>
     );
   }
@@ -96,9 +95,9 @@ const ScreeningDetail = ({ screeningId }) => {
   );
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6 p-5 bg-[#0A0A0A] border-t border-white/5">
+    <div className="grid lg:grid-cols-2 gap-6 p-5 bg-background border-t border-white/5">
       <div>
-        <h4 className="text-xs font-mono uppercase tracking-wider text-[#FFD700] mb-2">
+        <h4 className="text-xs text-primary mb-2">
           Requirements
         </h4>
         <RequirementList
@@ -114,7 +113,7 @@ const ScreeningDetail = ({ screeningId }) => {
 
         {summary.strengths?.length > 0 && (
           <div>
-            <h4 className="text-xs font-mono uppercase tracking-wider text-emerald-400 mb-2">
+            <h4 className="text-xs text-emerald-400 mb-2">
               Strengths
             </h4>
             <ul className="space-y-2">
@@ -130,7 +129,7 @@ const ScreeningDetail = ({ screeningId }) => {
 
         {summary.concerns?.length > 0 && (
           <div>
-            <h4 className="text-xs font-mono uppercase tracking-wider text-orange-400 mb-2">
+            <h4 className="text-xs text-orange-400 mb-2">
               Concerns
             </h4>
             <ul className="space-y-1 list-disc list-inside text-sm text-gray-300">
@@ -143,7 +142,7 @@ const ScreeningDetail = ({ screeningId }) => {
 
         {summary.interviewProbes?.length > 0 && (
           <div>
-            <h4 className="flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">
+            <h4 className="flex items-center gap-1 text-xs text-gray-400 mb-2">
               <MessageSquare className="w-3 h-3" /> Interview probes
             </h4>
             <ul className="space-y-2">
@@ -157,7 +156,7 @@ const ScreeningDetail = ({ screeningId }) => {
           </div>
         )}
 
-        <div className="text-[11px] text-gray-600 space-y-1">
+        <div className="text-xs text-gray-600 space-y-1">
           <p>
             Experience from dates: {screening.signals?.experience?.years ?? "?"}{" "}
             years · ATS checks {screening.signals?.ats?.passed}/
@@ -261,7 +260,7 @@ const ScreeningPanel = ({ jobId }) => {
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-5 h-5 animate-spin text-[#FFD700]" />
+        <Loader2 className="w-5 h-5 animate-spin text-primary" />
       </div>
     );
   }
@@ -271,29 +270,26 @@ const ScreeningPanel = ({ jobId }) => {
   const unscreened = counts.notScreened + counts.failed;
 
   return (
-    <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden mb-8">
-      <div className="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-white/5">
+    <div className="bg-card rounded-xl overflow-hidden mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-[#1d1d1d]">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-            <Sparkles className="w-5 h-5 text-[#FFD700]" /> AI screening
-            <Badge className="border border-white/10 bg-white/5 text-gray-400 text-[10px] font-mono">
-              BLIND
-            </Badge>
+            Blind screening
           </h2>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-sm text-[#b4b4b4] mt-1">
             Names and contact details are removed before scoring. Scores come
             from a fixed formula over evidence verified against each resume.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-mono text-gray-400">
+          <span className="text-xs text-gray-400">
             {counts.completed}/{counts.total} screened
             {counts.pending > 0 && ` · ${counts.pending} in progress`}
             {counts.noResume > 0 && ` · ${counts.noResume} without resume`}
           </span>
           <Link
             to="/admin/talent-search"
-            className="text-xs text-gray-400 hover:text-[#FFD700] px-2"
+            className="text-xs text-gray-400 hover:text-primary px-2"
           >
             Search all candidates →
           </Link>
@@ -325,7 +321,7 @@ const ScreeningPanel = ({ jobId }) => {
             size="sm"
             disabled={running || !workerAvailable || unscreened === 0}
             onClick={() => run(false)}
-            className="bg-yellow-500 text-black hover:bg-yellow-400 font-bold"
+            className="rounded-full bg-white text-black hover:bg-[#e6e6e6] font-medium"
           >
             {running ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -368,7 +364,7 @@ const ScreeningPanel = ({ jobId }) => {
                   onClick={() => setExpanded(isOpen ? null : c.applicationId)}
                   className="w-full flex items-center gap-4 px-5 py-3 text-left hover:bg-white/[0.03] disabled:cursor-default"
                 >
-                  <span className="w-6 text-xs font-mono text-gray-600">
+                  <span className="w-6 text-xs text-gray-600">
                     {c.score !== null ? `#${index + 1}` : "—"}
                   </span>
                   {canOpen ? (
@@ -388,7 +384,7 @@ const ScreeningPanel = ({ jobId }) => {
                       {c.flags.map((f) => (
                         <Badge
                           key={f}
-                          className="border border-red-500/30 bg-red-500/10 text-red-300 text-[10px]"
+                          className="border border-red-500/30 bg-red-500/10 text-red-300 text-xs"
                         >
                           <ShieldAlert className="w-3 h-3 mr-1" />
                           {FLAG_LABEL[f] || f}
@@ -402,13 +398,13 @@ const ScreeningPanel = ({ jobId }) => {
                     </p>
                   </div>
                   {c.mustHave && (
-                    <span className="hidden sm:block text-xs text-gray-400 font-mono">
+                    <span className="hidden sm:block text-xs text-gray-400">
                       must-haves {c.mustHave.met}/{c.mustHave.total}
                     </span>
                   )}
                   {c.score !== null ? (
                     <Badge
-                      className={`border font-mono ${BAND_STYLES[c.band]}`}
+                      className={`border ${BAND_STYLES[c.band]}`}
                     >
                       {c.score}
                     </Badge>
@@ -428,7 +424,7 @@ const ScreeningPanel = ({ jobId }) => {
         </ul>
       )}
 
-      <p className="px-5 py-3 text-[11px] text-gray-600 border-t border-white/5">
+      <p className="px-5 py-3 text-xs text-gray-600 border-t border-white/5">
         AI screening is a decision aid. Review the evidence and the candidate
         yourself before rejecting anyone.
       </p>

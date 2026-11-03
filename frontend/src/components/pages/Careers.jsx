@@ -59,10 +59,10 @@ const Careers = () => {
       {/* Openings List */}
       <div className="mb-20">
         <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
-          <h2 className="text-2xl font-bold text-white uppercase tracking-wider">
+          <h2 className="text-2xl font-bold text-white">
             Open Positions
           </h2>
-          <span className="text-sm font-mono text-[#FFD700]">
+          <span className="text-sm text-primary">
             {openings.length} POSITIONS ACTIVE
           </span>
         </div>
@@ -71,20 +71,20 @@ const Careers = () => {
           {openings.map((job, idx) => (
             <div
               key={idx}
-              className="group relative bg-[#111111] p-6 border border-white/10 rounded-sm hover:border-[#FFD700]/50 transition-all cursor-pointer"
+              className="group relative bg-card p-6 border border-white/10 rounded-sm hover:border-primary/50 transition-all cursor-pointer"
             >
-              <div className="absolute top-0 right-0 w-0 h-full bg-[#FFD700]/5 group-hover:w-full transition-all duration-300" />
+              <div className="absolute top-0 right-0 w-0 h-full bg-primary/5 group-hover:w-full transition-all duration-300" />
 
               <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-white/5 rounded-sm flex items-center justify-center text-gray-400 group-hover:text-[#FFD700] group-hover:bg-[#FFD700]/10 transition-colors">
+                  <div className="w-12 h-12 bg-white/5 rounded-sm flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
                     <job.icon size={24} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-[#FFD700] transition-colors">
+                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">
                       {job.role}
                     </h3>
-                    <div className="flex gap-3 text-xs font-mono text-gray-500 uppercase">
+                    <div className="flex gap-3 text-xs text-gray-500 uppercase">
                       <span>{job.dept}</span>
                       <span className="text-white/20">|</span>
                       <span>{job.loc}</span>
@@ -94,7 +94,7 @@ const Careers = () => {
                   </div>
                 </div>
 
-                <Button className="bg-transparent border border-white/20 text-white hover:bg-[#FFD700] hover:text-black hover:border-transparent transition-all uppercase text-xs font-bold tracking-wider">
+                <Button className="bg-transparent border border-white/20 text-white hover:bg-primary hover:text-black hover:border-transparent transition-all text-xs font-bold">
                   Apply Now <ArrowRight size={14} className="ml-2" />
                 </Button>
               </div>
@@ -106,7 +106,7 @@ const Careers = () => {
       {/* Benefits Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-12">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-6 uppercase tracking-wider">
+          <h2 className="text-2xl font-bold text-white mb-6">
             Why HIRE.OS?
           </h2>
           <p className="text-gray-400 leading-relaxed mb-8">
@@ -118,20 +118,20 @@ const Careers = () => {
             {benefits.map((benefit, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 text-sm text-gray-300 font-mono"
+                className="flex items-center gap-2 text-sm text-gray-300"
               >
-                <div className="w-1.5 h-1.5 bg-[#00FF94] rounded-full" />
+                <div className="w-1.5 h-1.5 bg-accent rounded-full" />
                 {benefit}
               </div>
             ))}
           </div>
         </div>
-        <div className="h-64 bg-[#111111] border border-white/10 rounded-sm relative overflow-hidden group">
+        <div className="h-64 bg-card border border-white/10 rounded-sm relative overflow-hidden group">
           {/* Abstract Visual */}
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-20 grayscale group-hover:opacity-30 transition-opacity" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
+          <div className="absolute inset-0" />
           <div className="absolute bottom-6 left-6">
-            <p className="text-[#FFD700] font-mono text-xs mb-1">CULTURE.SYS</p>
+            <p className="text-primary text-xs mb-1">CULTURE.SYS</p>
             <h3 className="text-white font-bold text-xl uppercase">
               Success is a Team Sport
             </h3>

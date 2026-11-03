@@ -128,7 +128,7 @@ const ResourcePage = ({ type }) => {
           <input
             type="text"
             placeholder="Search usage protocols..."
-            className="w-full pl-12 pr-4 py-4 bg-[#111111] border border-white/10 rounded-sm text-white focus:border-[#FFD700] focus:outline-none transition-colors"
+            className="w-full pl-12 pr-4 py-4 bg-card border border-white/10 rounded-sm text-white focus:border-primary focus:outline-none transition-colors"
           />
         </div>
       )}
@@ -137,18 +137,18 @@ const ResourcePage = ({ type }) => {
         {content.categories.map((cat, idx) => (
           <div
             key={idx}
-            className="bg-[#111111] p-8 border border-white/10 rounded-sm group hover:border-[#FFD700]/30 transition-all cursor-pointer"
+            className="bg-card p-8 border border-white/10 rounded-sm group hover:border-primary/30 transition-all cursor-pointer"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-white/5 rounded-sm text-[#FFD700] group-hover:bg-[#FFD700] group-hover:text-black transition-colors">
+              <div className="p-3 bg-white/5 rounded-sm text-primary group-hover:bg-primary group-hover:text-black transition-colors">
                 <content.icon size={24} />
               </div>
               <ArrowRight
                 size={20}
-                className="text-gray-600 group-hover:text-[#FFD700] transition-colors"
+                className="text-gray-600 group-hover:text-primary transition-colors"
               />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#FFD700] transition-colors">
+            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
               {cat.title}
             </h3>
             <p className="text-gray-400 leading-relaxed text-sm">{cat.desc}</p>
@@ -157,14 +157,14 @@ const ResourcePage = ({ type }) => {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-[#FFD700]/5 border border-[#FFD700]/10 rounded-sm p-8 text-center">
-        <h3 className="text-white font-bold uppercase tracking-wider mb-2">
+      <div className="bg-primary/5 border border-primary/10 rounded-sm p-8 text-center">
+        <h3 className="text-white font-bold mb-2">
           Need escalated assistance?
         </h3>
         <p className="text-gray-400 text-sm mb-6">
           Our support engineers are online 24/7/365.
         </p>
-        <Button className="bg-transparent border border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all uppercase text-xs font-bold tracking-wider">
+        <Button className="bg-transparent border border-primary text-primary hover:bg-primary hover:text-black transition-all text-xs font-bold">
           Contact Support
         </Button>
       </div>

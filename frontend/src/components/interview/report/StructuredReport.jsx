@@ -25,8 +25,8 @@ const THEMES = {
 };
 
 const RECOMMENDATION = {
-  STRONGLY_RECOMMEND: { label: "Strongly recommend", className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/30" },
-  RECOMMEND: { label: "Recommend", className: "bg-blue-500/10 text-blue-500 border-blue-500/30" },
+  STRONGLY_RECOMMEND: { label: "Strongly recommend", className: "bg-accent/15 text-accent border-accent/30" },
+  RECOMMEND: { label: "Recommend", className: "bg-accent/15 text-accent border-accent/30" },
   CONSIDER: { label: "Consider", className: "bg-amber-500/10 text-amber-500 border-amber-500/30" },
   NOT_RECOMMENDED: { label: "Not recommended", className: "bg-red-500/10 text-red-500 border-red-500/30" },
 };
@@ -41,7 +41,7 @@ const PRIORITY = { routine: "Routine", review: "Worth a review", priority_review
 
 const Section = ({ t, title, icon: Icon, children }) => (
   <section className={`${t.card} rounded-md p-4`}>
-    <h3 className={`flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider mb-3 ${t.muted}`}>
+    <h3 className={`flex items-center gap-2 text-xs mb-3 ${t.muted}`}>
       <Icon className="w-3.5 h-3.5" /> {title}
     </h3>
     {children}
@@ -49,7 +49,7 @@ const Section = ({ t, title, icon: Icon, children }) => (
 );
 
 const Rating = ({ value, t }) =>
-  value == null ? <span className={t.muted}>—</span> : <span className={`font-mono font-bold ${t.strong}`}>{value}/4</span>;
+  value == null ? <span className={t.muted}>—</span> : <span className={`font-bold ${t.strong}`}>{value}/4</span>;
 
 const StructuredReport = ({ report, variant = "dark", interviewId, hideGaps = false }) => {
   const t = THEMES[variant] ?? THEMES.dark;
@@ -62,22 +62,22 @@ const StructuredReport = ({ report, variant = "dark", interviewId, hideGaps = fa
     <div className="space-y-4 text-sm">
       <div className="grid gap-3 sm:grid-cols-3">
         <div className={`${t.card} rounded-md p-4`}>
-          <div className={`text-[10px] font-mono uppercase tracking-wider ${t.muted}`}>Recommendation</div>
+          <div className={`text-xs ${t.muted}`}>Recommendation</div>
           <span className={`inline-block mt-1 px-2 py-0.5 rounded-sm border text-xs font-bold ${rec.className}`}>{rec.label}</span>
-          <div className={`text-[11px] mt-1 ${t.muted}`}>From {SOURCE[report.recommendationSource] ?? "the report"}</div>
+          <div className={`text-xs mt-1 ${t.muted}`}>From {SOURCE[report.recommendationSource] ?? "the report"}</div>
         </div>
         <div className={`${t.card} rounded-md p-4`}>
-          <div className={`text-[10px] font-mono uppercase tracking-wider ${t.muted}`}>Scorecard</div>
-          <div className={`text-2xl font-mono font-bold ${t.strong}`}>
+          <div className={`text-xs ${t.muted}`}>Scorecard</div>
+          <div className={`text-2xl font-bold ${t.strong}`}>
             {report.overallScore ?? "—"}
             {report.overallScore != null && <span className={`text-sm ${t.muted}`}>/100</span>}
           </div>
-          <div className={`text-[11px] ${t.muted}`}>
+          <div className={`text-xs ${t.muted}`}>
             {scorecard.rated}/{scorecard.total} rated by the interviewer
           </div>
         </div>
         <div className={`${t.card} rounded-md p-4`}>
-          <div className={`text-[10px] font-mono uppercase tracking-wider ${t.muted}`}>Other signals</div>
+          <div className={`text-xs ${t.muted}`}>Other signals</div>
           <div className={`text-xs space-y-0.5 mt-1 ${t.body}`}>
             <div>MCQ: {facts.mcq ? `${facts.mcq.percentage}%` : "not taken"}</div>
             <div>Resume screen: {facts.resumeScreening ? `${facts.resumeScreening.overall}/100` : "—"}</div>
@@ -92,12 +92,14 @@ const StructuredReport = ({ report, variant = "dark", interviewId, hideGaps = fa
         </div>
       )}
 
-      <section className={`${t.card} rounded-md p-4`}>
-        <p className={`leading-relaxed ${t.body}`}>{report.summary}</p>
-        {report.narrativeSource === "rules" && (
-          <p className={`text-[11px] mt-2 ${t.muted}`}>Written from the ratings without the AI (it was unavailable or its draft didn&apos;t pass the checks).</p>
-        )}
-      </section>
+      {report.summary && (
+        <section className={`${t.card} rounded-md p-4`}>
+          <p className={`leading-relaxed ${t.body}`}>{report.summary}</p>
+          {report.narrativeSource === "rules" && (
+            <p className={`text-xs mt-2 ${t.muted}`}>Written from the ratings without the AI (it was unavailable or its draft didn&apos;t pass the checks).</p>
+          )}
+        </section>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         <Section t={t} title="Strengths" icon={CheckCircle}>
@@ -106,7 +108,7 @@ const StructuredReport = ({ report, variant = "dark", interviewId, hideGaps = fa
               {report.strengths.map((s, i) => (
                 <li key={i}>
                   <div className={t.body}>{s.text}</div>
-                  <div className={`text-[11px] ${t.muted}`}>{titleOf.get(s.competencyId)}</div>
+                  <div className={`text-xs ${t.muted}`}>{titleOf.get(s.competencyId)}</div>
                   {s.evidence?.map((e) => (
                     <div key={e.quote} className={`text-xs italic mt-0.5 ${t.quote}`}>“{e.quote}”</div>
                   ))}
@@ -123,7 +125,7 @@ const StructuredReport = ({ report, variant = "dark", interviewId, hideGaps = fa
               {report.concerns.map((c, i) => (
                 <li key={i}>
                   <div className={t.body}>{c.text}</div>
-                  {c.competencyId && <div className={`text-[11px] ${t.muted}`}>{titleOf.get(c.competencyId)}</div>}
+                  {c.competencyId && <div className={`text-xs ${t.muted}`}>{titleOf.get(c.competencyId)}</div>}
                 </li>
               ))}
             </ul>
@@ -138,7 +140,7 @@ const StructuredReport = ({ report, variant = "dark", interviewId, hideGaps = fa
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className={`text-left text-[10px] uppercase tracking-wider ${t.muted}`}>
+                <tr className={`text-left text-xs ${t.muted}`}>
                   <th className="py-1 pr-3 font-normal">Competency</th>
                   <th className="py-1 pr-3 font-normal">Interviewer</th>
                   <th className="py-1 pr-3 font-normal">AI draft</th>
@@ -150,8 +152,8 @@ const StructuredReport = ({ report, variant = "dark", interviewId, hideGaps = fa
                   <tr key={c.id} className={`border-t ${t.rowBorder} align-top`}>
                     <td className={`py-2 pr-3 ${t.body}`}>
                       {c.title}
-                      {c.kind === "must" && <span className={`ml-1 text-[9px] uppercase ${t.muted}`}>must</span>}
-                      {c.ratingNotes && <div className={`text-[11px] mt-0.5 ${t.muted}`}>{c.ratingNotes}</div>}
+                      {c.kind === "must" && <span className={`ml-1 text-xs uppercase ${t.muted}`}>must</span>}
+                      {c.ratingNotes && <div className={`text-xs mt-0.5 ${t.muted}`}>{c.ratingNotes}</div>}
                     </td>
                     <td className="py-2 pr-3"><Rating value={c.rating} t={t} /></td>
                     <td className={`py-2 pr-3 ${t.muted}`}>{c.aiDraft != null ? `${c.aiDraft}/4` : "—"}</td>
@@ -168,9 +170,9 @@ const StructuredReport = ({ report, variant = "dark", interviewId, hideGaps = fa
       {facts.integrity?.summary && (
         <Section t={t} title="Interview integrity" icon={ShieldCheck}>
           <p className={`text-xs ${t.body}`}>{facts.integrity.summary}</p>
-          <p className={`text-[11px] mt-1 ${t.muted}`}>Monitoring signals are for review, not findings of misconduct.</p>
+          <p className={`text-xs mt-1 ${t.muted}`}>Monitoring signals are for review, not findings of misconduct.</p>
           {interviewId && (
-            <a href={`/interview/${interviewId}/integrity`} className="text-xs text-blue-500 hover:underline">
+            <a href={`/interview/${interviewId}/integrity`} className="text-xs underline underline-offset-2">
               Open integrity report
             </a>
           )}

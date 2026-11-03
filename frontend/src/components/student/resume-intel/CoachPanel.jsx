@@ -72,14 +72,14 @@ const RichText = ({ text }) => {
 const Message = ({ message }) =>
   message.role === "user" ? (
     <div className="flex justify-end">
-      <div className="max-w-[85%] rounded-md bg-[#FFD700]/10 border border-[#FFD700]/20 px-3 py-2 text-sm text-gray-100 whitespace-pre-wrap">
+      <div className="max-w-[85%] rounded-md bg-primary/10 border border-primary/20 px-3 py-2 text-sm text-gray-100 whitespace-pre-wrap">
         {message.content}
       </div>
     </div>
   ) : (
     <div className="flex gap-3">
-      <div className="w-7 h-7 shrink-0 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 flex items-center justify-center">
-        <Bot className="w-4 h-4 text-[#FFD700]" />
+      <div className="w-7 h-7 shrink-0 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+        <Bot className="w-4 h-4 text-primary" />
       </div>
       <div className="flex-1 min-w-0 text-sm text-gray-300 leading-relaxed">
         {message.trace?.length > 0 && (
@@ -87,7 +87,7 @@ const Message = ({ message }) =>
             {message.trace.map((t, i) => (
               <span
                 key={i}
-                className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-gray-400"
+                className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs text-gray-400"
               >
                 <Wrench className="w-3 h-3" />
                 {t.summary}
@@ -153,10 +153,10 @@ const CoachPanel = ({ reportId }) => {
   };
 
   return (
-    <section className="bg-[#111111] border border-[#FFD700]/20 rounded-md">
+    <section className="bg-card border border-primary/20 rounded-md">
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
         <div>
-          <h3 className="flex items-center gap-2 text-sm font-mono uppercase tracking-wider text-[#FFD700]">
+          <h3 className="flex items-center gap-2 text-sm text-primary">
             <Sparkles className="w-4 h-4" /> Resume Coach
           </h3>
           <p className="text-xs text-gray-500 mt-1">
@@ -185,7 +185,7 @@ const CoachPanel = ({ reportId }) => {
                 key={s}
                 type="button"
                 onClick={() => send(s)}
-                className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-gray-300 hover:border-[#FFD700]/40 hover:text-white"
+                className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-gray-300 hover:border-primary/40 hover:text-white"
               >
                 {s}
               </button>
@@ -197,7 +197,7 @@ const CoachPanel = ({ reportId }) => {
         ))}
         {sending && (
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Loader2 className="w-4 h-4 animate-spin text-[#FFD700]" /> Coach is
+            <Loader2 className="w-4 h-4 animate-spin text-primary" /> Coach is
             working…
           </div>
         )}
@@ -223,13 +223,13 @@ const CoachPanel = ({ reportId }) => {
           rows={1}
           maxLength={1000}
           placeholder="Ask the coach…"
-          className="flex-1 resize-none bg-[#0A0A0A] border border-white/10 rounded-md px-3 py-2 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-[#FFD700]/50"
+          className="flex-1 resize-none bg-background border border-white/10 rounded-md px-3 py-2 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-primary/50"
         />
         <Button
           type="submit"
           size="sm"
           disabled={sending || !draft.trim()}
-          className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90"
+          className="bg-primary text-black hover:bg-primary/90"
           aria-label="Send"
         >
           <Send className="w-4 h-4" />

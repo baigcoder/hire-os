@@ -10,7 +10,8 @@ import { Toaster } from "./components/ui/sonner";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
 import ChangePassword from "./components/auth/ChangePassword";
-import Home from "./components/Home";
+import Landing from "./components/landing/Landing";
+import AppShell from "./components/app/AppShell";
 import FeaturesPage from "./components/FeaturesPage";
 import Jobs from "./components/Jobs";
 import Browse from "./components/Browse";
@@ -21,12 +22,8 @@ import JobDescription from "./components/JobDescription";
 import Companies from "./components/admin/Companies";
 import CompanyCreate from "./components/admin/CompanyCreate";
 import CompanySetup from "./components/admin/CompanySetup";
-import AdminJobs from "./components/admin/AdminJobs";
 import PostJob from "./components/admin/PostJob";
-import Applicants from "./components/admin/Applicants";
 import TalentSearch from "./components/recruiter/TalentSearch";
-import AdminApplications from "./components/admin/AdminApplications";
-import AdminInterviews from "./components/admin/AdminInterviews";
 import AdminAnalytics from "./components/admin/AdminAnalytics";
 import ProtectedRoute, {
   RecruiterRoute,
@@ -43,7 +40,6 @@ import PaymentSimulator from "./components/company/PaymentSimulator";
 import PaddleCheckout from "./components/company/PaddleCheckout";
 import AdminSignupFlow from "./components/company/AdminSignupFlow";
 // import CompanyAdminDashboard from './components/company/CompanyAdminDashboard' // Lazy loaded
-import RecruiterJobs from "./components/recruiter/RecruiterJobs";
 // import LiveInterview from './components/interview/LiveInterview' // Lazy loaded
 import MCQTestPage from "./components/interview/MCQTestPage";
 import InterviewReport from "./components/interview/InterviewReport";
@@ -57,9 +53,12 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 
 // Lazy Load Heavy Dashboards
 const Dashboard = React.lazy(() => import("./components/student/DashboardNew"));
-const RecruiterDashboard = React.lazy(
-  () => import("./components/admin/RecruiterDashboardNew"),
-);
+const CandidateOverview = React.lazy(() => import("./components/student/CandidateOverview"));
+const JobApplicants = React.lazy(() => import("./components/recruiter/JobApplicants"));
+const JobsList = React.lazy(() => import("./components/recruiter/JobsList"));
+const InterviewsList = React.lazy(() => import("./components/recruiter/InterviewsList"));
+const ApplicantsList = React.lazy(() => import("./components/recruiter/ApplicantsList"));
+const RecruiterOverview = React.lazy(() => import("./components/recruiter/RecruiterOverview"));
 const CompanyAdminDashboard = React.lazy(
   () => import("./components/company/CompanyAdminDashboard"),
 );
@@ -88,9 +87,6 @@ const OfferLetterTemplates = React.lazy(
 );
 const InterviewFeedbackForm = React.lazy(
   () => import("./components/recruiter/InterviewFeedbackForm"),
-);
-const RecruiterInterviewSchedule = React.lazy(
-  () => import("./components/recruiter/InterviewSchedule"),
 );
 const RecruiterMessagesPage = React.lazy(
   () => import("./components/recruiter/MessagesPage"),
@@ -130,8 +126,7 @@ const LazyWrapper = ({ children }) => (
 
 // Redesigned 404 Component - Industrial Theme
 const NotFound = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A0A0A] font-['Space_Grotesk',sans-serif] relative overflow-hidden">
-    {/* Industrial Grid Background */}
+  <div className="min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden">
     <div
       className="fixed inset-0 opacity-30 pointer-events-none"
       style={{
@@ -142,40 +137,36 @@ const NotFound = () => (
     />
 
     {/* Glow Effects */}
-    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
-    <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-red-500/5 rounded-full blur-[100px]" />
 
-    <div className="relative z-10 text-center p-10 bg-[#111111] border border-white/10 rounded-sm shadow-2xl max-w-md">
+    <div className="relative z-10 text-center p-10 bg-card border border-white/10 rounded-sm shadow-2xl max-w-md">
       {/* Corner Accents */}
-      <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#FFD700]/50" />
-      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[#FFD700]/50" />
-      <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-white/20" />
-      <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-white/20" />
+      <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary/50" />
+      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary/50" />
 
       {/* Icon */}
       <div className="flex justify-center mb-6">
-        <div className="w-16 h-16 border-2 border-[#FFD700] rounded-full flex items-center justify-center">
-          <AlertCircle size={32} className="text-[#FFD700]" />
+        <div className="w-16 h-16 border-2 border-primary rounded-full flex items-center justify-center">
+          <AlertCircle size={32} className="text-primary" />
         </div>
       </div>
 
       {/* Error Code */}
-      <h1 className="text-7xl font-black text-[#FFD700] font-mono tracking-tighter mb-2">
+      <h1 className="text-7xl font-black text-primary tracking-tighter mb-2">
         404
       </h1>
 
       {/* Terminal-style Status */}
       <div className="flex items-center justify-center gap-2 mb-4">
         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-        <span className="text-xs font-mono text-red-400 uppercase tracking-wider">
+        <span className="text-xs text-red-400">
           Route Not Found
         </span>
       </div>
 
-      <h2 className="text-xl font-bold text-white uppercase tracking-wider mb-3">
+      <h2 className="text-xl font-bold text-white mb-3">
         System Error
       </h2>
-      <p className="text-gray-500 text-sm font-mono mb-8 max-w-sm mx-auto">
+      <p className="text-gray-500 text-sm mb-8 max-w-sm mx-auto">
         The requested endpoint does not exist in the current routing matrix.
         Please verify your navigation path.
       </p>
@@ -184,14 +175,14 @@ const NotFound = () => (
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <a
           href="/"
-          className="inline-flex items-center justify-center px-6 py-3 bg-[#FFD700] text-black font-bold text-xs uppercase tracking-wider rounded-sm hover:bg-[#FFE44D] transition-all"
+          className="inline-flex items-center justify-center px-6 py-3 bg-primary text-black font-bold text-xs rounded-sm hover:bg-[#FFE44D] transition-all"
         >
           <ArrowLeft size={16} className="mr-2" />
           Return Home
         </a>
         <button
           onClick={() => window.history.back()}
-          className="inline-flex items-center justify-center px-6 py-3 border border-white/20 text-gray-400 font-bold text-xs uppercase tracking-wider rounded-sm hover:border-[#FFD700]/50 hover:text-[#FFD700] transition-all"
+          className="inline-flex items-center justify-center px-6 py-3 border border-white/20 text-gray-400 font-bold text-xs rounded-sm hover:border-primary/50 hover:text-primary transition-all"
         >
           Go Back
         </button>
@@ -200,7 +191,7 @@ const NotFound = () => (
 
     {/* Footer Terminal Info */}
     <div className="absolute bottom-6 text-center">
-      <p className="text-[10px] font-mono text-gray-600 uppercase tracking-widest">
+      <p className="text-xs text-gray-600">
         HIRE.OS // Industrial Grade Talent Acquisition
       </p>
     </div>
@@ -218,7 +209,7 @@ import ResourcePage from "./components/pages/ResourcePage";
 const appRouter = createBrowserRouter([
   {
     path: "/",
-    element: <Home />, // Pure Landing Page
+    element: <Landing />,
     errorElement: <NotFound />,
   },
   {
@@ -279,7 +270,7 @@ const appRouter = createBrowserRouter([
     path: "/profile",
     element: (
       <ProtectedRoute>
-        <ProfilePage />
+        <AppShell title="Profile"><ProfilePage /></AppShell>
       </ProtectedRoute>
     ),
   },
@@ -295,7 +286,7 @@ const appRouter = createBrowserRouter([
     path: "/settings",
     element: (
       <ProtectedRoute>
-        <SettingsPage />
+        <AppShell title="Settings"><SettingsPage /></AppShell>
       </ProtectedRoute>
     ),
   },
@@ -316,7 +307,7 @@ const appRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <LazyWrapper>
-          <Dashboard />
+          <CandidateOverview />
         </LazyWrapper>
       </ProtectedRoute>
     ),
@@ -326,7 +317,18 @@ const appRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <LazyWrapper>
-          <Dashboard />
+          <CandidateOverview />
+        </LazyWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    // The candidate's career tools (coach, resume, salary, interviews, practice), by ?tab=
+    path: "/student/career",
+    element: (
+      <ProtectedRoute>
+        <LazyWrapper>
+          <AppShell title="Career tools"><Dashboard /></AppShell>
         </LazyWrapper>
       </ProtectedRoute>
     ),
@@ -335,7 +337,7 @@ const appRouter = createBrowserRouter([
     path: "/applied-jobs",
     element: (
       <ProtectedRoute>
-        <AppliedJobs />
+        <AppShell title="Applications"><AppliedJobs /></AppShell>
       </ProtectedRoute>
     ),
   },
@@ -351,7 +353,7 @@ const appRouter = createBrowserRouter([
     path: "/interview-prep", // Mock Interview Practice
     element: (
       <ProtectedRoute>
-        <MockInterview />
+        <AppShell title="Interview practice"><MockInterview /></AppShell>
       </ProtectedRoute>
     ),
   },
@@ -367,7 +369,7 @@ const appRouter = createBrowserRouter([
     path: "/notifications", // Notifications Center
     element: (
       <ProtectedRoute>
-        <NotificationCenter />
+        <AppShell title="Notifications"><NotificationCenter /></AppShell>
       </ProtectedRoute>
     ),
   },
@@ -376,7 +378,7 @@ const appRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <LazyWrapper>
-          <StudentMessagesPage />
+          <AppShell title="Messages"><StudentMessagesPage /></AppShell>
         </LazyWrapper>
       </ProtectedRoute>
     ),
@@ -386,7 +388,7 @@ const appRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <LazyWrapper>
-          <ReferralDashboard />
+          <AppShell title="Referrals"><ReferralDashboard /></AppShell>
         </LazyWrapper>
       </ProtectedRoute>
     ),
@@ -396,7 +398,7 @@ const appRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <LazyWrapper>
-          <AICareerCoach />
+          <AppShell title="Career coach"><AICareerCoach /></AppShell>
         </LazyWrapper>
       </ProtectedRoute>
     ),
@@ -406,7 +408,7 @@ const appRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <LazyWrapper>
-          <SalaryBenchmark />
+          <AppShell title="Salary benchmark"><SalaryBenchmark /></AppShell>
         </LazyWrapper>
       </ProtectedRoute>
     ),
@@ -416,7 +418,7 @@ const appRouter = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <LazyWrapper>
-          <ResumeAnalyzer />
+          <AppShell title="Resume analysis"><ResumeAnalyzer /></AppShell>
         </LazyWrapper>
       </ProtectedRoute>
     ),
@@ -506,23 +508,33 @@ const appRouter = createBrowserRouter([
     ),
   },
 
-  // Recruiter Dashboard
+  // Recruiter: the overview, and the full applicant table (bulk actions, pass to CEO)
   {
     path: "/recruiter/:name",
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <RecruiterDashboard />
+          <RecruiterOverview />
         </LazyWrapper>
       </RecruiterRoute>
     ),
   },
   {
-    path: "/recruiter/dashboard", // Fallback/Redirect
+    path: "/recruiter/dashboard",
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <RecruiterDashboard />
+          <RecruiterOverview />
+        </LazyWrapper>
+      </RecruiterRoute>
+    ),
+  },
+  {
+    path: "/recruiter/applicants",
+    element: (
+      <RecruiterRoute>
+        <LazyWrapper>
+          <AppShell title="Applicants"><ApplicantsList /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -532,7 +544,7 @@ const appRouter = createBrowserRouter([
     path: "/recruiter/jobs",
     element: (
       <RecruiterRoute>
-        <RecruiterJobs />
+        <AppShell title="Jobs"><JobsList /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -541,7 +553,7 @@ const appRouter = createBrowserRouter([
     path: "/recruiter/job/:id/applications",
     element: (
       <RecruiterRoute>
-        <Applicants />
+        <AppShell title="Applicants"><JobApplicants /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -556,7 +568,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <RecruiterInterviewSchedule />
+          <AppShell title="Interviews"><InterviewsList /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -567,7 +579,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <RecruiterMessagesPage />
+          <AppShell title="Messages"><RecruiterMessagesPage /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -578,7 +590,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <CandidatePipeline />
+          <AppShell title="Pipeline"><CandidatePipeline /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -589,7 +601,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <EmailTemplates />
+          <AppShell title="Email templates"><EmailTemplates /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -600,7 +612,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <JobTemplateManager />
+          <AppShell title="Job templates"><JobTemplateManager /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -611,7 +623,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <TalentPoolManager />
+          <AppShell title="Talent pool"><TalentPoolManager /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -622,7 +634,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <AssessmentBuilder />
+          <AppShell title="Assessments"><AssessmentBuilder /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -632,7 +644,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/companies",
     element: (
       <RecruiterRoute>
-        <Companies />
+        <AppShell title="Companies"><Companies /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -640,7 +652,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/companies/create",
     element: (
       <RecruiterRoute>
-        <CompanyCreate />
+        <AppShell title="New company"><CompanyCreate /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -648,7 +660,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/companies/:id",
     element: (
       <RecruiterRoute>
-        <CompanySetup />
+        <AppShell title="Company setup"><CompanySetup /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -656,7 +668,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/jobs",
     element: (
       <RecruiterRoute>
-        <AdminJobs />
+        <AppShell title="Jobs"><JobsList /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -664,7 +676,15 @@ const appRouter = createBrowserRouter([
     path: "/admin/jobs/create",
     element: (
       <CompanyAdminRoute>
-        <PostJob />
+        <AppShell title="Post a job"><PostJob /></AppShell>
+      </CompanyAdminRoute>
+    ), // Only CEO can post jobs
+  },
+  {
+    path: "/admin/jobs/:id/edit",
+    element: (
+      <CompanyAdminRoute>
+        <AppShell title="Edit job"><PostJob /></AppShell>
       </CompanyAdminRoute>
     ), // Only CEO can post jobs
   },
@@ -672,7 +692,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/talent-search",
     element: (
       <RecruiterRoute>
-        <TalentSearch />
+        <AppShell title="Talent search"><TalentSearch /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -680,7 +700,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/jobs/:id/applicants",
     element: (
       <RecruiterRoute>
-        <Applicants />
+        <AppShell title="Applicants"><JobApplicants /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -688,7 +708,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/jobs/:id/report",
     element: (
       <RecruiterRoute>
-        <CompanyReport />
+        <AppShell title="Job report"><CompanyReport /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -696,7 +716,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/applications",
     element: (
       <RecruiterRoute>
-        <AdminApplications />
+        <AppShell title="Applications"><ApplicantsList /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -704,7 +724,7 @@ const appRouter = createBrowserRouter([
     path: "/admin/interviews",
     element: (
       <RecruiterRoute>
-        <AdminInterviews />
+        <AppShell title="Interviews"><InterviewsList /></AppShell>
       </RecruiterRoute>
     ),
   },
@@ -713,7 +733,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <AnalyticsDashboard />
+          <AppShell title="Analytics"><AnalyticsDashboard /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -724,7 +744,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <CandidatePipeline />
+          <AppShell title="Pipeline"><CandidatePipeline /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -734,7 +754,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <EmailTemplates />
+          <AppShell title="Email templates"><EmailTemplates /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -744,7 +764,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <OfferLetterTemplates />
+          <AppShell title="Offer templates"><OfferLetterTemplates /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -758,7 +778,7 @@ const appRouter = createBrowserRouter([
     element: (
       <RecruiterRoute>
         <LazyWrapper>
-          <InterviewFeedbackForm />
+          <AppShell title="Interview feedback"><InterviewFeedbackForm /></AppShell>
         </LazyWrapper>
       </RecruiterRoute>
     ),
@@ -779,7 +799,7 @@ const appRouter = createBrowserRouter([
     path: "/ceo/reports/:id",
     element: (
       <CompanyAdminRoute>
-        <CEOReportReview />
+        <AppShell title="Interview report"><CEOReportReview /></AppShell>
       </CompanyAdminRoute>
     ),
   },
@@ -792,7 +812,7 @@ const appRouter = createBrowserRouter([
     element: (
       <CompanyAdminRoute>
         <LazyWrapper>
-          <RecruiterMessagesPage />
+          <AppShell title="Messages"><RecruiterMessagesPage /></AppShell>
         </LazyWrapper>
       </CompanyAdminRoute>
     ),
@@ -803,7 +823,9 @@ const appRouter = createBrowserRouter([
       <CompanyAdminRoute>
         <LazyWrapper>
           <React.Suspense fallback={<PageLoader />}>
-            <CompanyAdminSettingsPage />
+            <AppShell title="Settings">
+              <CompanyAdminSettingsPage />
+            </AppShell>
           </React.Suspense>
         </LazyWrapper>
       </CompanyAdminRoute>
@@ -827,7 +849,7 @@ const appRouter = createBrowserRouter([
     path: "/company/billing",
     element: (
       <CompanyAdminRoute>
-        <BillingPage />
+        <AppShell title="Billing"><BillingPage /></AppShell>
       </CompanyAdminRoute>
     ),
   },

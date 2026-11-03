@@ -123,13 +123,13 @@ const SalaryInsights = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="bg-[#111111] border border-white/10 rounded-2xl p-8">
+        <div className="bg-card border border-white/10 rounded-2xl p-8">
           <div className="flex flex-col items-center justify-center py-12">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-[#FFD700]/20 rounded-full animate-pulse" />
-              <DollarSign className="absolute inset-0 m-auto w-8 h-8 text-[#FFD700] animate-pulse" />
+              <div className="w-16 h-16 border-4 border-primary/20 rounded-full animate-pulse" />
+              <DollarSign className="absolute inset-0 m-auto w-8 h-8 text-primary animate-pulse" />
             </div>
-            <p className="text-gray-400 mt-4 font-mono text-sm">
+            <p className="text-gray-400 mt-4 text-sm">
               ANALYZING SALARY DATA...
             </p>
             <p className="text-gray-600 text-xs mt-2">
@@ -147,14 +147,14 @@ const SalaryInsights = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <DollarSign className="text-[#FFD700]" /> Salary Insights
+            <DollarSign className="text-primary" /> Salary Insights
           </h2>
           <p className="text-gray-400 text-sm mt-1 flex items-center gap-2">
             AI-powered salary analysis based on your skills
             {(userLocation || insights?.locationInsight) && (
               <Badge
                 variant="outline"
-                className="border-[#FFD700]/30 text-[#FFD700] ml-2"
+                className="border-primary/30 text-primary ml-2"
               >
                 <MapPin className="w-3 h-3 mr-1" />
                 {userLocation || "Your Region"} • {currency}
@@ -164,7 +164,7 @@ const SalaryInsights = () => {
         </div>
         <Button
           variant="outline"
-          className="border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700]/10"
+          className="border-primary/30 text-primary hover:bg-primary/10"
           onClick={() => fetchSalaryInsights(true)}
           disabled={refreshing}
         >
@@ -180,7 +180,7 @@ const SalaryInsights = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-2 bg-gradient-to-br from-[#111111] to-[#0a0a0a] border border-white/10 rounded-2xl p-6"
+          className="lg:col-span-2 border border-white/10 rounded-2xl p-6 bg-card"
         >
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-white">
@@ -197,10 +197,10 @@ const SalaryInsights = () => {
               {/* Min */}
               <div className="flex flex-col items-center">
                 <div
-                  className="w-16 bg-gradient-to-t from-[#FFD700]/20 to-[#FFD700]/60 rounded-t-lg mb-2"
+                  className="w-16 rounded-t-lg mb-2 bg-primary"
                   style={{ height: "60%" }}
                 />
-                <p className="text-2xl font-bold text-[#FFD700]">
+                <p className="text-2xl font-bold text-primary">
                   {formatSalary(insights?.expectedSalaryRange?.min)}
                 </p>
                 <p className="text-xs text-gray-500 uppercase">Min</p>
@@ -208,13 +208,13 @@ const SalaryInsights = () => {
 
               {/* Arrow */}
               <div className="flex-1 flex items-center justify-center pb-12">
-                <ArrowUpRight className="w-8 h-8 text-[#FFD700]/50" />
+                <ArrowUpRight className="w-8 h-8 text-primary/50" />
               </div>
 
               {/* Max */}
               <div className="flex flex-col items-center">
                 <div
-                  className="w-16 bg-gradient-to-t from-emerald-500/20 to-emerald-500/60 rounded-t-lg mb-2"
+                  className="w-16 rounded-t-lg mb-2 bg-card"
                   style={{ height: "100%" }}
                 />
                 <p className="text-2xl font-bold text-emerald-400">
@@ -247,7 +247,7 @@ const SalaryInsights = () => {
           {/* Experience-based Ranges */}
           {insights?.byExperience && (
             <div>
-              <h4 className="text-sm font-medium text-gray-400 mb-4 uppercase tracking-wider">
+              <h4 className="text-sm font-medium text-gray-400 mb-4">
                 By Experience Level
               </h4>
               <div className="grid grid-cols-3 gap-4">
@@ -274,10 +274,10 @@ const SalaryInsights = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-[#111111] border border-white/10 rounded-2xl p-5"
+            className="bg-card border border-white/10 rounded-2xl p-5"
           >
             <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-              <Target className="w-4 h-4 text-[#FFD700]" /> High-Paying Roles
+              <Target className="w-4 h-4 text-primary" /> High-Paying Roles
             </h4>
             <div className="space-y-3">
               {(insights?.topPayingRoles || []).map((role, idx) => (
@@ -285,8 +285,8 @@ const SalaryInsights = () => {
                   key={idx}
                   className="flex items-center gap-3 p-3 bg-white/5 rounded-lg"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-[#FFD700]/10 flex items-center justify-center">
-                    <Briefcase className="w-4 h-4 text-[#FFD700]" />
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Briefcase className="w-4 h-4 text-primary" />
                   </div>
                   <span className="text-sm text-gray-300">{role}</span>
                 </div>
@@ -305,7 +305,7 @@ const SalaryInsights = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-[#111111] border border-white/10 rounded-2xl p-5"
+            className="bg-card border border-white/10 rounded-2xl p-5"
           >
             <h4 className="font-bold text-white mb-4 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-cyan-400" /> Negotiation Tips
@@ -334,14 +334,14 @@ const SalaryInsights = () => {
           </motion.div>
 
           {/* Your Skills */}
-          <div className="bg-[#111111] border border-white/10 rounded-2xl p-5">
+          <div className="bg-card border border-white/10 rounded-2xl p-5">
             <h4 className="font-bold text-white mb-3">Based on Your Skills</h4>
             <div className="flex flex-wrap gap-2">
               {userSkills.length > 0 ? (
                 userSkills.slice(0, 8).map((skill, idx) => (
                   <Badge
                     key={idx}
-                    className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20"
+                    className="bg-primary/10 text-primary border-primary/20"
                   >
                     {skill}
                   </Badge>

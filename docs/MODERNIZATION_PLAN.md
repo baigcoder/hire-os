@@ -332,7 +332,7 @@ sequenceDiagram
 | **2 — Resume Intelligence** ✅ done | Stages 0–8, `ResumeReport` model, SSE progress, new analyzer UI, golden-set evals. Embeddings + vector search moved to Phase 3 (see §12). | Candidate analyzer v2 |
 | **3 — Recruiter screening** ✅ done | Blind batch ranking via queue, per-requirement evidence in the applicant views, then the Resume Coach agent and embeddings-based job/candidate search. | Recruiter ranking v2 |
 | **4 — Integrity pipeline** ✅ done (§17; your Supabase/TURN setup still needed) | TURN + private channels. Candidate proctor worker (MediaPipe face + object + audio + environment). Recruiter-side verifier. Integrity module (ingest, risk engine, evidence, TTL). Consent UX. Recruiter meter and timeline. Post-interview report on Groq. | Robust anti-cheating |
-| **5 — Copilot & polish** (parts 1–3 done: copilot §18, report + CEO approval §19, one dashboard per role §20; design system and TS still open) | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
+| **5 — Copilot & polish** (parts 1–4 done: copilot §18, report + CEO approval §19, one dashboard per role §20, theme tokens §21; TS still open) | Whisper transcripts, recruiter copilot, scorecards, dashboard consolidation, design system, TS migration of new modules. | Modern product |
 
 ---
 
@@ -909,3 +909,177 @@ Backend suite: **300/300**.
 **Also:** the shared test setup now removes its temporary MongoDB folder even when files are locked. Leftovers from earlier runs had filled the system drive.
 
 **Still open in Phase 5:** a design system (one token-based theme instead of many CSS files) and TypeScript for the new modules.
+
+---
+
+## 21. Phase 5 (part 4): one token-based theme
+
+**What there was:** shadcn-style colour tokens in `index.css`, which most screens ignored. The four brand colours were hardcoded as Tailwind arbitrary values about 2,460 times in 121 files (`#FFD700` gold ~1,540×, `#00FF94` green ~350×, `#111111` card ~340×, `#0A0A0A` background ~240×). Changing the brand colour meant editing all of them. Of 9 stylesheets, 6 were imported nowhere, and the 2 live ones were loaded twice (from `main.jsx` and again from `index.css`).
+
+**Now:**
+- The tokens match the colours the screens actually use, exactly: `--primary` is `#FFD700`, `--accent` is `#00FF94`, `--card` is `#111111`, `--background` is `#0A0A0A`. Before, primary was `#FFCC00` and card `#121212`, so shadcn components were slightly off-brand.
+- Every hardcoded use became its token class (`text-[#FFD700]` → `text-primary`, `bg-[#111111]/50` → `bg-card/50`, and so on), opacity modifiers included. The theme now lives in one place: change a token in `index.css` and every screen follows.
+- Removed the 6 dead stylesheets (~1,700 lines) and the duplicate imports.
+
+**Rule from here:** use token classes (`primary`, `accent`, `card`, `background`, `muted`, `border`…), not hex values.
+
+**Verified:** the build passes. In a real browser, computed colours on the login and home pages are identical to before: `rgb(255, 215, 0)`, `rgb(0, 255, 148)`, `rgb(17, 17, 17)`, `rgb(10, 10, 10)`.
+
+**Not done:**
+- Less common colours (blue, pink, purple, orange…, ~300 uses) and inline `style={{…}}` / chart colours are still hardcoded. They're one-off accents, not the brand.
+- No lint rule enforcing the token rule yet.
+
+---
+
+## 22. Phase 5 (part 5): app screens rebuilt on one overview per role
+
+Built with the design-taste-frontend skill's app-screen rules, in the dealt style **true-black flat** kept to the brand's palette and type:
+- elevation by lightness, not borders or shadows;
+- the active nav item is its label brightening;
+- the primary control is a white pill;
+- the brand crimson is the one data hue.
+
+**Backend: `GET /api/v1/overview`** (`modules/overview/overview.js`). One role-aware endpoint, computed from the rows, so every figure on a screen agrees with the others (the old dashboards stitched up to five endpoints together in the browser).
+- **One stage map** (`STAGES`) puts every application status into a stage a person would name: new, shortlisted, interviewing, awaiting owner, offer, hired, closed. A test checks every status is mapped exactly once.
+- **Owner:**
+  - plan usage (open jobs and recruiter seats against the plan);
+  - how many candidates await their decision;
+  - the funnel on open jobs;
+  - open jobs with applicants per stage;
+  - hires this month.
+- **Recruiter:**
+  - upcoming interviews (counted as today's up to two hours after the start);
+  - finished interviews whose report hasn't been sent;
+  - new applicants, longest-waiting first;
+  - the funnel.
+- **Candidate:**
+  - their applications with stage and next step;
+  - upcoming interviews;
+  - trial days left.
+
+**Frontend:**
+- **Shell** (`components/app/AppShell.jsx`, `app.css`): a ruled T-frame.
+  - A 224px sidebar with the mark and each role's nav, and a 64px top bar with the scope, the screen name, notifications and the account.
+  - Below 1024px it folds into a menu sheet.
+  - Sign-out now always clears the stored session.
+- **Owner overview** (`CompanyAdminDashboard`): led by the decision queue, with KPIs, hiring flow, open jobs, team (invite, resend, remove with confirmation) and recruiter activity. The registration gate is kept; profile editing lives on Settings.
+- **Recruiter overview** (`RecruiterOverview`, `/recruiter/dashboard`): "What needs me today?"
+  - Interviews, with Join from 15 minutes before the start.
+  - Reports to send.
+  - Applicants waiting, flagged after a week.
+  - The funnel.
+  - It refreshes every minute.
+  - The old dashboard (bulk actions, Pass to CEO) moved, unchanged, to `/recruiter/applicants`.
+- **Candidate overview** (`CandidateOverview`, `/student/dashboard`):
+  - applications by stage, interviews with Join, matched jobs and the trial notice;
+  - the career tools moved to `/student/career`.
+- **Sign in and sign up:** rebuilt side panels (wordmark, Gambarino headline, an archival picture captioned below it) and plain words ("Create an account", "Sign in", "Keep me signed in", "Company owner") instead of "Initialize", "Authenticate" and "Access granted".
+
+**Logic fixed on the way:**
+- **Job matching was broken for every candidate with a structured location.** Profiles store `{ city, country }`, but the matcher called `.toLowerCase()` on it. That threw, and the error path returned a flat 50% with no matched skills. It now reads both shapes, and no longer suggests jobs the candidate has already applied to. Covered by a regression test.
+- **No way back to the report after a call.** The report modal only opened at the end of the live call, so closing it stranded the report. The scorecard page now has a Report action, which "Reports to send" links to.
+- **`StructuredReport`** no longer draws an empty summary box, and its recommendation colours follow the palette.
+
+**Local demo:** `npm run demo` in `backend/` runs the real API on a throwaway in-memory database, seeded with one company's hiring in progress:
+- three jobs and 14 applicants across every stage;
+- interviews today and tomorrow, one report not yet sent, and two candidates awaiting the owner.
+
+Sign in as `owner@demo.test`, `recruiter@demo.test` or `candidate@demo.test` (password `demo-password`). It refuses to run when `MONGO_URI` is set.
+
+**Verified:**
+- Signed in through the real login page and the real API as each role, at 1440px and on a phone.
+- Every figure checked against the seed; this caught the matcher bug and a seed date error.
+- Skill lint: 0 FAIL, 0 WARN.
+- Backend suite: **308/308** (6 new overview tests, 2 matcher tests).
+
+**Not done:**
+- The skill's rendered-page inspector can't sign in, so it hasn't been run on these screens.
+- Secondary screens are on the new theme but not rebuilt one by one: jobs, applicants, the interview list, settings, billing, analytics, messages, the career-tools tabs and the live interview room.
+
+---
+
+## 23. Phase 5 (part 6): every signed-in page in the shell; Applicants, Interviews and Jobs rebuilt
+
+**One shell for all signed-in pages.**
+- 40 routes now render inside `AppShell` at the route level: profile, settings, applications, career tools, messages, pipeline, talent pool, templates, analytics, billing and the rest.
+- The old top navbar and footer render nothing inside the shell (`ShellContext`), so no page lost any function.
+- The old fixed-navbar offset is neutralised inside the canvas.
+- One app-wide focus ring replaces each browser's default.
+
+**Rebuilt to the app rules:**
+- **Applicants** (`/recruiter/applicants`, `ApplicantsList`):
+  - search, a job filter, and stage tabs whose counts follow the filters;
+  - new applicants listed longest-waiting first;
+  - the blind-screening score, multi-select with a bulk bar (mark reviewed, shortlist, move to interview, reject), and per-row Open / Scorecard / Send to owner.
+  - It replaces the old recruiter dashboard (icon tiles with invented deltas, donuts, quick-access tiles), which is deleted.
+- **Interviews** (`/recruiter/interviews`, `InterviewsList`):
+  - each interview in words (Scheduled, Live now, Report to send, With owner, Approved, Not held, Cancelled);
+  - tabs for Upcoming, Needs report, Done and Cancelled;
+  - Join from 15 minutes before the start, and Finish report;
+  - scheduling with only the candidates who can still be interviewed, a future-only time and an optional message. The deep link from an application still opens it prefilled.
+  - The state logic is in `interviewState.js`, with tests.
+- **Jobs** (`/admin/jobs` and `/recruiter/jobs`, `JobsList`, backed by the new `GET /api/v1/overview/jobs`):
+  - open and closed jobs, each with applicants per stage;
+  - open jobs with no one past review after two weeks are flagged "Stuck";
+  - owners can post, close (with confirmation) and reopen.
+  - It replaces `AdminJobs`, `AdminJobsTable` (whose Edit pointed at a route that doesn't exist) and `RecruiterJobs`.
+
+**Logic and security fixed:**
+- **Password hashes leaked to recruiters.** `GET /application/company` populated whole user records, password hash included. It now returns only the fields screens need. The User model also strips secrets (password, reset token, failed-login count, 2FA secret) whenever a user is serialised, including when populated into another record. Login no longer logs part of the hash.
+- **Bulk actions never worked.** The page sent `{ applicationIds, status }`, the API wanted `{ jobId, action }`, so every call got a 400. Bulk update now:
+  - takes applications across several jobs, with every job checked against the user's company;
+  - accepts "review";
+  - refuses unknown actions instead of resetting to pending;
+  - skips candidates with the owner, at offer or hired, so a bulk action can't undo the owner's decision.
+- **Owners couldn't close their company's jobs.** Close, update and delete required the person who posted the job; they now use the shared `canManageJob` rule.
+- **Recruiters were sent to a page they can't open.** The recruiter overview offered "Post a job", which only owners can do; it now offers "Review applicants".
+- **CI never ran the frontend tests.** It does now (`npm test` in `frontend/`), and the new tests are in that script.
+
+**Verified** against the real API with the demo data, signed in as recruiter and owner:
+- marking reviewed (statuses became `under_review`);
+- send to owner, which moved the candidate to With owner;
+- scheduling an interview, which appeared under Upcoming;
+- closing a job, which moved it to Closed.
+
+Skill lint: 0 FAIL, 0 WARN. Backend **314/314**; frontend tests **13/13**.
+
+**Still themed only, not rebuilt:** the owner's Applications and Interviews pages (`/admin/applications`, `/admin/interviews`), a job's applicant page, pipeline, talent pool, messages, templates, analytics, settings, billing, career tools and the live interview room. There is still no job edit form.
+
+---
+
+## 24. Phase 5 (part 7): owner lists, a job's applicants, job editing
+
+**Screens:**
+- **Owner's Applications and Interviews** now use the rebuilt list screens.
+  - Applications is the same `ApplicantsList`, with links to the owner's job pages.
+  - Interviews loads the whole company (`GET /api/v1/interview/company/all`), adds an Interviewer column and drops scheduling. Reports waiting on the owner offer "Decide".
+  - The old `AdminApplications` and `AdminInterviews` are deleted.
+- **Recruiters can reschedule and cancel interviews** (dialogs with a reason shown to the candidate). The backend supported both, but no screen offered them.
+- **A job's applicants** (`JobApplicants`, at `/admin/jobs/:id/applicants` and `/recruiter/job/:id/applications`):
+  - a list ordered by stage, then screening score, then waiting time;
+  - a detail pane: contact details, stage, blind-screening score, skills, cover letter, flags, and View resume (authenticated resume links are fetched with the session);
+  - the actions allowed at each stage: mark reviewed, shortlist, move to interview, schedule interview, scorecard, reject.
+  - The blind-screening panel is restyled. The old `Applicants` page is deleted, along with four components nothing imported (`ApplicantsTable`, `ApplicantCard`, `KanbanPipeline`, `RecruiterApplications`).
+- **Job editing** (`/admin/jobs/:id/edit`): the post-job form in edit mode, prefilled. Jobs has an Edit action for owners. The form's labels are now tied to their fields (they were placeholders only).
+
+**Logic and security fixed:**
+- **Job edits could rewrite anything.** `PUT /job/update/:id` did `$set: req.body`, so an edit could move a job to another company, change who posted it or overwrite its applications. It now changes only an allow-list of fields. An empty edit is a 400.
+- **Every job's required experience was stored as 0.** The form sends "1-2 years", which `Number()` turned into NaN. `parseYears` reads "1-2 years" as 1, "6+" as 6 and "Senior" as 6.
+- **Salary ranges failed on edit.** `parseSalary` is now shared, so "200,000 - 250,000" works when editing as it did when posting.
+- **The single-applicant Accept and Reject buttons never worked.** They sent "Accepted"/"Rejected", which aren't statuses. The endpoint now:
+  - takes only the statuses a recruiter sets by hand, reading the legacy "accepted" as shortlisted;
+  - refuses to move candidates who are with the owner, at offer or hired (409);
+  - records each change in the status history.
+- **Recruiters could drag a candidate straight to Hired.** The pipeline board's Offer and Hired columns bypassed the owner's decision. Those drops now explain that hires go through the owner, and other failures show the server's reason.
+- **A job's applicant list drifted.** It came from the job's own list of application ids, which can fall out of step. It's now read from the applications, with stage, interview and screening score.
+- **Reschedule saved anything.** A missing or invalid date became "Invalid Date", past times were accepted, and finished or cancelled interviews could be moved. Now: a future time only, and a 409 for interviews that already happened or were cancelled. The same 409 applies to cancelling.
+
+**Verified** against the demo API, signed in as the owner:
+- the company-wide interviews list, and "Decide" linking to the report;
+- the job applicant page listing all 6 applicants (the job's own id list was empty, so the drift fix shows);
+- editing a job's title through the form, which saved and appeared in Jobs with its counts unchanged;
+- every job-form field announced by its label.
+
+Backend **324/324** (10 new tests); frontend **13/13**; skill lint 0 FAIL, 0 WARN.
+
+**Still themed only:** pipeline board, talent pool, messages, templates, analytics, settings, billing, career tools and the live interview room.

@@ -20,7 +20,7 @@ export const PageLoader = () => (
         <div className="w-16 h-16 border-4 border-amber-400/30 rounded-full" />
         <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-amber-400 rounded-full animate-spin" />
       </div>
-      <p className="text-amber-400/70 font-mono text-sm">Loading...</p>
+      <p className="text-amber-400/70 text-sm">Loading...</p>
     </div>
   </div>
 );
@@ -53,9 +53,7 @@ export const CardSkeleton = () => (
 // The company owner's one dashboard (the separate CEO dashboard was merged in)
 export const LazyCEODashboard = lazy(() => import("./company/CompanyAdminDashboard.jsx"));
 
-export const LazyRecruiterDashboard = lazy(
-  () => import("./admin/RecruiterDashboardNew.jsx"),
-);
+export const LazyRecruiterDashboard = lazy(() => import("./recruiter/RecruiterOverview.jsx"));
 
 export const LazyStudentDashboard = lazy(
   () => import("./student/DashboardNew.jsx"),
@@ -142,7 +140,7 @@ export const preloadForRole = (role) => {
       preloadComponent(() => import("./company/CompanyAdminDashboard.jsx"));
       break;
     case "recruiter":
-      preloadComponent(() => import("./admin/RecruiterDashboardNew.jsx"));
+      preloadComponent(() => import("./recruiter/RecruiterOverview.jsx"));
       break;
     case "student":
       preloadComponent(() => import("./student/DashboardNew.jsx"));

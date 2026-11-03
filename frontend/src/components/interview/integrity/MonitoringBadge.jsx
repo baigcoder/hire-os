@@ -11,7 +11,7 @@ const MonitoringBadge = ({ phase, engine }) => {
 
   let icon = <ShieldCheck className="w-3 h-3" />;
   let text = "Monitoring on";
-  let tone = "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30";
+  let tone = "bg-accent/10 text-accent border-accent/30";
   let title = "Automated monitoring is running in your browser. You'll be able to see the report after the interview.";
   if (phase === "declined" || phase === "needs_consent") {
     icon = <ShieldOff className="w-3 h-3" />;
@@ -21,7 +21,7 @@ const MonitoringBadge = ({ phase, engine }) => {
   } else if (failed) {
     icon = <ShieldOff className="w-3 h-3" />;
     text = "Detection unavailable";
-    tone = "bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30";
+    tone = "bg-primary/10 text-primary border-primary/30";
     title = "The face and object detector couldn't load in this browser. The interviewer will see this; other checks still run.";
   } else if (loading) {
     icon = <Loader2 className="w-3 h-3 animate-spin" />;
@@ -31,7 +31,7 @@ const MonitoringBadge = ({ phase, engine }) => {
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 text-[10px] uppercase tracking-wider font-mono ${tone}`}
+      className={`inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 text-xs ${tone}`}
     >
       {icon}
       {text}

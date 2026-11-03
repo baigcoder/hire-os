@@ -13,16 +13,16 @@ const Toaster = ({ ...props }) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast bg-[#111111] text-white border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)] rounded-sm font-['Space_Grotesk',sans-serif]",
+            "group toast bg-card text-white border border-white/10 rounded-sm",
           title: "text-white font-bold text-sm",
-          description: "text-gray-400 text-xs font-mono",
+          description: "text-gray-400 text-xs",
           actionButton:
-            "bg-[#FFD700] text-black font-bold text-xs uppercase tracking-wider rounded-sm hover:bg-[#FFE44D]",
+            "bg-primary text-black font-bold text-xs rounded-sm hover:bg-[#FFE44D]",
           cancelButton:
-            "bg-white/10 text-gray-400 font-medium text-xs uppercase tracking-wider rounded-sm hover:bg-white/20",
-          success: "border-[#00FF94]/30 bg-[#00FF94]/5",
+            "bg-white/10 text-gray-400 font-medium text-xs rounded-sm hover:bg-white/20",
+          success: "border-accent/30 bg-accent/5",
           error: "border-red-500/30 bg-red-500/5",
-          warning: "border-[#FFD700]/30 bg-[#FFD700]/5",
+          warning: "border-primary/30 bg-primary/5",
           info: "border-blue-500/30 bg-blue-500/5",
           closeButton:
             "bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10",

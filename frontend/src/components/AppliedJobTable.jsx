@@ -46,9 +46,9 @@ const statusConfig = {
     label: "SHORTLISTED",
   },
   interview: {
-    bg: "bg-[#FFD700]/10",
-    text: "text-[#FFD700]",
-    border: "border-[#FFD700]/30",
+    bg: "bg-primary/10",
+    text: "text-primary",
+    border: "border-primary/30",
     label: "INTERVIEW",
   },
   hired: {
@@ -89,17 +89,17 @@ const AppliedJobTable = () => {
 
   if (!allAppliedJobs || allAppliedJobs.length === 0) {
     return (
-      <div className="bg-[#111111] border border-white/10 rounded-sm p-12 text-center">
+      <div className="bg-card border border-white/10 rounded-sm p-12 text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-sm bg-white/5 flex items-center justify-center border border-white/10">
           <FileText className="w-7 h-7 text-gray-600" />
         </div>
         <h3 className="text-white font-bold mb-2">NO APPLICATIONS YET</h3>
-        <p className="text-gray-500 text-xs font-mono tracking-wider mb-6">
+        <p className="text-gray-500 text-xs tracking-wider mb-6">
           Start applying to jobs to track your progress
         </p>
         <button
           onClick={() => navigate("/jobs")}
-          className="px-6 py-2 bg-[#FFD700] text-black font-mono text-xs hover:bg-[#FFD700]/90 rounded-sm transition-colors"
+          className="px-6 py-2 bg-primary text-black text-xs hover:bg-primary/90 rounded-sm transition-colors"
         >
           BROWSE JOBS
         </button>
@@ -108,21 +108,21 @@ const AppliedJobTable = () => {
   }
 
   return (
-    <div className="bg-[#111111] border border-white/10 rounded-sm overflow-hidden">
+    <div className="bg-card border border-white/10 rounded-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#FFD700]/10 rounded-sm flex items-center justify-center border border-[#FFD700]/30">
-            <Briefcase className="w-4 h-4 text-[#FFD700]" />
+          <div className="w-8 h-8 bg-primary/10 rounded-sm flex items-center justify-center border border-primary/30">
+            <Briefcase className="w-4 h-4 text-primary" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white">YOUR APPLICATIONS</h3>
-            <p className="text-[10px] text-gray-500 font-mono tracking-wider">
+            <p className="text-xs text-gray-500 tracking-wider">
               TRACK YOUR JOB APPLICATIONS
             </p>
           </div>
         </div>
-        <Badge className="bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30 font-mono text-[10px]">
+        <Badge className="bg-primary/10 text-primary border border-primary/30 text-xs">
           {allAppliedJobs.length} TOTAL
         </Badge>
       </div>
@@ -132,16 +132,16 @@ const AppliedJobTable = () => {
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/5 bg-white/5">
-              <th className="text-left py-3 px-4 text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+              <th className="text-left py-3 px-4 text-xs text-gray-500">
                 DATE
               </th>
-              <th className="text-left py-3 px-4 text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+              <th className="text-left py-3 px-4 text-xs text-gray-500">
                 JOB ROLE
               </th>
-              <th className="text-left py-3 px-4 text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+              <th className="text-left py-3 px-4 text-xs text-gray-500">
                 COMPANY
               </th>
-              <th className="text-right py-3 px-4 text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+              <th className="text-right py-3 px-4 text-xs text-gray-500">
                 STATUS
               </th>
             </tr>
@@ -165,14 +165,14 @@ const AppliedJobTable = () => {
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
                       <Clock className="w-3 h-3 text-gray-600" />
-                      <span className="text-xs font-mono text-gray-400">
+                      <span className="text-xs text-gray-400">
                         {formatDate(appliedJob?.createdAt)}
                       </span>
                     </div>
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-white group-hover:text-[#FFD700] transition-colors font-medium">
+                      <span className="text-sm text-white group-hover:text-primary transition-colors font-medium">
                         {appliedJob?.job?.title || "Job no longer available"}
                       </span>
                       <ExternalLink className="w-3 h-3 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -191,14 +191,14 @@ const AppliedJobTable = () => {
                           <Building2 className="w-3 h-3 text-gray-600" />
                         )}
                       </div>
-                      <span className="text-xs text-gray-400 font-mono">
+                      <span className="text-xs text-gray-400">
                         {appliedJob?.job?.company?.name || "N/A"}
                       </span>
                     </div>
                   </td>
                   <td className="py-3 px-4 text-right">
                     <Badge
-                      className={`${statusStyle.bg} ${statusStyle.text} ${statusStyle.border} border font-mono text-[10px]`}
+                      className={`${statusStyle.bg} ${statusStyle.text} ${statusStyle.border} border text-xs`}
                     >
                       {statusStyle.label}
                     </Badge>

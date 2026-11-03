@@ -233,7 +233,7 @@ const OfferLetterModal = ({
 
           {step === "review" && createdOffer && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
+              <div className="border border-green-200 rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5" /> Offer Summary for{" "}
                   {candidateName}

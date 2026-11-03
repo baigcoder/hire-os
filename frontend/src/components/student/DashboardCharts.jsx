@@ -49,7 +49,7 @@ const PIE_COLORS = ["#FFD700", "#00FF94", "#F59E0B", "#EF4444", "#A855F7"];
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#0A0A0A] border border-white/10 rounded-lg p-3 shadow-xl">
+      <div className="bg-background border border-white/10 rounded-lg p-3 shadow-xl">
         <p className="text-gray-400 text-xs mb-1">{label}</p>
         {payload.map((entry, index) => (
           <p key={index} style={{ color: entry.color }} className="font-bold">
@@ -77,9 +77,9 @@ export const ApplicationStatusChart = ({ stats }) => {
 
   if (total === 0) {
     return (
-      <div className="bg-[#111111] border border-white/10 rounded-lg p-6 h-full">
+      <div className="bg-card border border-white/10 rounded-lg p-6 h-full">
         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <Target className="w-5 h-5 text-[#FFD700]" />
+          <Target className="w-5 h-5 text-primary" />
           Application Status
         </h3>
         <div className="flex items-center justify-center h-48 text-gray-500">
@@ -93,10 +93,10 @@ export const ApplicationStatusChart = ({ stats }) => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-[#111111] border border-white/10 rounded-lg p-6"
+      className="bg-card border border-white/10 rounded-lg p-6"
     >
       <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <Target className="w-5 h-5 text-[#FFD700]" />
+        <Target className="w-5 h-5 text-primary" />
         Application Status
       </h3>
 
@@ -188,10 +188,10 @@ export const WeeklyActivityChart = ({ applications = [], jobViews = [] }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="bg-[#111111] border border-white/10 rounded-lg p-6"
+      className="bg-card border border-white/10 rounded-lg p-6"
     >
       <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <Activity className="w-5 h-5 text-[#FFD700]" />
+        <Activity className="w-5 h-5 text-primary" />
         Weekly Activity
       </h3>
 
@@ -258,10 +258,10 @@ export const SkillsMatchChart = ({ skills = [] }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-[#111111] border border-white/10 rounded-lg p-6"
+        className="bg-card border border-white/10 rounded-lg p-6"
       >
         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 text-[#FFD700]" />
+          <CheckCircle className="w-5 h-5 text-primary" />
           Skills Match
         </h3>
         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
@@ -277,10 +277,10 @@ export const SkillsMatchChart = ({ skills = [] }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="bg-[#111111] border border-white/10 rounded-lg p-6"
+      className="bg-card border border-white/10 rounded-lg p-6"
     >
       <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <CheckCircle className="w-5 h-5 text-[#FFD700]" />
+        <CheckCircle className="w-5 h-5 text-primary" />
         Skills Match
       </h3>
 
@@ -351,8 +351,8 @@ export const AnimatedStatCard = ({
   }, [value]);
 
   const colorClasses = {
-    gold: "bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30",
-    green: "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30",
+    gold: "bg-primary/10 text-primary border-primary/30",
+    green: "bg-accent/10 text-accent border-accent/30",
     red: "bg-red-500/10 text-red-400 border-red-500/30",
     purple: "bg-purple-500/10 text-purple-400 border-purple-500/30",
   };
@@ -362,9 +362,8 @@ export const AnimatedStatCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
-      className="bg-[#111111] border border-white/10 rounded-lg p-6 relative overflow-hidden"
+      className="bg-card border border-white/10 rounded-lg p-6 relative overflow-hidden"
     >
-      <div className="absolute top-0 right-0 w-12 h-12 border-t border-r border-[#FFD700]/20" />
 
       <div className="flex items-center justify-between">
         <div className={`p-3 rounded-lg border ${colorClasses[color]}`}>
@@ -372,7 +371,7 @@ export const AnimatedStatCard = ({
         </div>
         {trend !== undefined && (
           <div
-            className={`flex items-center gap-1 text-sm ${trend >= 0 ? "text-[#00FF94]" : "text-red-400"}`}
+            className={`flex items-center gap-1 text-sm ${trend >= 0 ? "text-accent" : "text-red-400"}`}
           >
             {trend >= 0 ? (
               <TrendingUp className="w-4 h-4" />
@@ -385,10 +384,10 @@ export const AnimatedStatCard = ({
       </div>
 
       <div className="mt-4">
-        <p className="text-gray-500 text-sm uppercase tracking-wider">
+        <p className="text-gray-500 text-sm">
           {title}
         </p>
-        <p className="text-3xl font-bold text-white mt-1 font-mono">
+        <p className="text-3xl font-bold text-white mt-1">
           {displayValue}
         </p>
       </div>

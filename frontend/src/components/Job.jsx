@@ -39,10 +39,10 @@ const Job = ({ job, viewMode = "grid" }) => {
   if (viewMode === "list") {
     return (
       <article
-        className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-yellow-500/50 hover:shadow-[0_0_20px_rgba(234,179,8,0.1)] transition-all cursor-pointer group relative overflow-hidden"
+        className="bg-background border border-white/10 rounded-2xl p-6 hover:border-yellow-500/50 transition-all cursor-pointer group relative overflow-hidden"
         onClick={() => navigate(`/description/${job?._id}`)}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
 
         <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 relative z-10">
           {/* Company Logo */}
@@ -134,11 +134,11 @@ const Job = ({ job, viewMode = "grid" }) => {
   // Grid view layout (default)
   return (
     <article
-      className="group bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-yellow-500/50 hover:shadow-[0_0_25px_rgba(234,179,8,0.1)] transition-all duration-300 cursor-pointer relative overflow-hidden h-full flex flex-col"
+      className="group bg-background border border-white/10 rounded-2xl p-6 hover:border-yellow-500/50 transition-all duration-300 cursor-pointer relative overflow-hidden h-full flex flex-col"
       onClick={() => navigate(`/description/${job?._id}`)}
     >
       {/* Hover Glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
       {/* Header */}
       <div className="flex items-start justify-between mb-6 relative z-10">

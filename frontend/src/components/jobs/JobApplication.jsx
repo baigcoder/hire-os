@@ -64,7 +64,7 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
   };
 
   return (
-    <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 shadow-2xl relative animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="bg-background border border-white/10 rounded-2xl p-6 shadow-2xl relative animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Apply for Job</h2>
         {onCancel && (
@@ -94,7 +94,7 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
                   </h4>
                   <div className="mt-2 grid grid-cols-2 gap-4">
                     <div className="bg-black/20 p-2 rounded-lg">
-                      <p className="text-xs text-gray-400 uppercase tracking-wider">
+                      <p className="text-xs text-gray-400">
                         Overall Score
                       </p>
                       <p className="text-xl font-bold text-white">
@@ -102,7 +102,7 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
                       </p>
                     </div>
                     <div className="bg-black/20 p-2 rounded-lg">
-                      <p className="text-xs text-gray-400 uppercase tracking-wider">
+                      <p className="text-xs text-gray-400">
                         Match Rating
                       </p>
                       <p className="text-xl font-bold text-white capitalize">

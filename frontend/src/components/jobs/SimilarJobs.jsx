@@ -36,7 +36,7 @@ const SimilarJobs = ({ jobId, limit = 4 }) => {
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-5 h-5 text-[#FFD700] animate-spin" />
+        <Loader2 className="w-5 h-5 text-primary animate-spin" />
       </div>
     );
   }
@@ -44,17 +44,17 @@ const SimilarJobs = ({ jobId, limit = 4 }) => {
   if (jobs.length === 0) return null;
 
   return (
-    <div className="bg-[#0a0a0a] border border-white/10 rounded-sm p-5">
+    <div className="bg-background border border-white/10 rounded-sm p-5">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-8 h-8 bg-[#FFD700]/10 rounded-sm flex items-center justify-center border border-[#FFD700]/30">
-          <Sparkles className="w-4 h-4 text-[#FFD700]" />
+        <div className="w-8 h-8 bg-primary/10 rounded-sm flex items-center justify-center border border-primary/30">
+          <Sparkles className="w-4 h-4 text-primary" />
         </div>
         <div>
           <h3 className="text-sm font-bold text-white tracking-tight">
             SIMILAR JOBS
           </h3>
-          <p className="text-[10px] text-gray-500 font-mono tracking-wider">
+          <p className="text-xs text-gray-500 tracking-wider">
             BASED ON YOUR INTERESTS
           </p>
         </div>
@@ -68,7 +68,7 @@ const SimilarJobs = ({ jobId, limit = 4 }) => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-sm hover:border-[#FFD700]/30 transition-all cursor-pointer group"
+            className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-sm hover:border-primary/30 transition-all cursor-pointer group"
             onClick={() => navigate(`/description/${job._id}`)}
           >
             <div className="flex items-center gap-3">
@@ -84,12 +84,12 @@ const SimilarJobs = ({ jobId, limit = 4 }) => {
                 )}
               </div>
               <div>
-                <h4 className="text-sm font-medium text-white group-hover:text-[#FFD700] transition-colors">
+                <h4 className="text-sm font-medium text-white group-hover:text-primary transition-colors">
                   {job.title}
                 </h4>
-                <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
+                <div className="flex items-center gap-2 text-xs text-gray-500">
                   <span>{job.company?.name}</span>
-                  <span className="text-[#FFD700]">•</span>
+                  <span className="text-primary">•</span>
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
                     {job.location || "Remote"}
@@ -99,10 +99,10 @@ const SimilarJobs = ({ jobId, limit = 4 }) => {
             </div>
 
             <div className="flex items-center gap-3">
-              <Badge className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20 border text-[9px] font-mono">
+              <Badge className="bg-primary/10 text-primary border-primary/20 border text-xs">
                 {job.matchReason || "SIMILAR"}
               </Badge>
-              <ArrowRight className="w-4 h-4 text-gray-600 group-hover:text-[#FFD700] transition-colors" />
+              <ArrowRight className="w-4 h-4 text-gray-600 group-hover:text-primary transition-colors" />
             </div>
           </motion.div>
         ))}
@@ -111,7 +111,7 @@ const SimilarJobs = ({ jobId, limit = 4 }) => {
       {/* View All Button */}
       <Button
         onClick={() => navigate("/jobs")}
-        className="w-full mt-4 bg-white/5 border border-white/10 text-gray-400 hover:bg-[#FFD700]/10 hover:text-[#FFD700] hover:border-[#FFD700]/30 font-mono text-xs"
+        className="w-full mt-4 bg-white/5 border border-white/10 text-gray-400 hover:bg-primary/10 hover:text-primary hover:border-primary/30 text-xs"
       >
         BROWSE ALL JOBS
         <ArrowRight className="w-4 h-4 ml-2" />

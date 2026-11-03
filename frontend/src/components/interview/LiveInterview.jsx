@@ -333,22 +333,21 @@ const LiveInterview = () => {
   // Waiting Room
   if (isWaiting) {
     return (
-      <div className="h-screen bg-[#0A0A0A] text-white flex items-center justify-center font-['Space_Grotesk',sans-serif]">
+      <div className="h-screen bg-background text-white flex items-center justify-center">
         {consentOverlay}
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center max-w-md px-6 relative z-10"
         >
-          <div className="w-20 h-20 mx-auto mb-6 bg-[#FFD700] rounded-sm flex items-center justify-center border border-[#FFD700]/50 shadow-[0_0_30px_rgba(255,215,0,0.3)]">
+          <div className="w-20 h-20 mx-auto mb-6 bg-primary rounded-sm flex items-center justify-center border border-primary/50">
             <Video className="w-10 h-10 text-black" />
           </div>
 
           <h1 className="text-2xl font-bold mb-2 uppercase tracking-tight">
             Waiting Room
           </h1>
-          <div className="text-gray-500 mb-8 text-sm font-mono">
+          <div className="text-gray-500 mb-8 text-sm">
             {isRecruiter
               ? "Awaiting candidate connection..."
               : "Awaiting interviewer connection..."}
@@ -358,19 +357,19 @@ const LiveInterview = () => {
           <div className="flex items-center justify-center gap-2 mb-6">
             {!isRecruiter && <MonitoringBadge phase={proctor.phase} engine={proctor.engine} />}
             {isConnected ? (
-              <Badge className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30 rounded-sm text-xs uppercase tracking-wider font-mono">
+              <Badge className="bg-accent/10 text-accent border-accent/30 rounded-sm text-xs">
                 <Wifi className="w-3 h-3 mr-1" /> Connected
               </Badge>
             ) : (
-              <Badge className="bg-red-500/10 text-red-400 border-red-500/30 rounded-sm text-xs uppercase tracking-wider font-mono">
+              <Badge className="bg-red-500/10 text-red-400 border-red-500/30 rounded-sm text-xs">
                 <WifiOff className="w-3 h-3 mr-1" /> Connecting...
               </Badge>
             )}
           </div>
 
           {/* Participants */}
-          <div className="bg-[#111111] rounded-sm p-4 mb-6 text-left border border-white/10">
-            <div className="text-xs text-gray-500 mb-3 flex items-center gap-2 uppercase tracking-wider">
+          <div className="bg-card rounded-sm p-4 mb-6 text-left border border-white/10">
+            <div className="text-xs text-gray-500 mb-3 flex items-center gap-2">
               <Users size={14} /> In Room ({participants.length})
             </div>
             {participants.map((p, idx) => (
@@ -428,7 +427,7 @@ const LiveInterview = () => {
           <Button
             variant="outline"
             onClick={copyMeetingLink}
-            className="border-white/10 mt-4 rounded-sm text-xs uppercase tracking-wider"
+            className="border-white/10 mt-4 rounded-sm text-xs"
           >
             <Copy className="mr-2" size={14} /> Copy Link
           </Button>
@@ -437,7 +436,7 @@ const LiveInterview = () => {
           {isRecruiter && participants.length > 1 && (
             <Button
               onClick={createOffer}
-              className="w-full mt-4 bg-[#00FF94] hover:bg-[#00FF94]/80 text-black font-bold rounded-sm uppercase tracking-wider"
+              className="w-full mt-4 bg-accent hover:bg-accent/80 text-black font-bold rounded-sm"
             >
               Start Interview
             </Button>
@@ -449,9 +448,8 @@ const LiveInterview = () => {
 
   // Main Interview View
   return (
-    <div className="h-screen bg-[#0A0A0A] text-white flex flex-col font-['Space_Grotesk',sans-serif] overflow-hidden">
+    <div className="h-screen bg-background text-white flex flex-col overflow-hidden">
       {consentOverlay}
-      <div className="fixed inset-0 bg-grid opacity-20 pointer-events-none" />
       <ReportGenerationModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
@@ -460,17 +458,17 @@ const LiveInterview = () => {
       />
 
       {/* Header */}
-      <div className="h-14 border-b border-white/10 bg-[#111111] flex items-center justify-between px-6 shrink-0 relative z-20">
+      <div className="h-14 border-b border-white/10 bg-card flex items-center justify-between px-6 shrink-0 relative z-20">
         <div className="flex items-center gap-4">
-          <div className="bg-red-500/10 border border-red-500/30 text-red-500 px-2 py-0.5 rounded-sm text-[10px] font-bold flex items-center gap-2 animate-pulse uppercase tracking-wider">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-500 px-2 py-0.5 rounded-sm text-xs font-bold flex items-center gap-2 animate-pulse">
             <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div> Live
           </div>
           <div className="h-6 w-px bg-white/10"></div>
           <div>
-            <h2 className="font-bold text-xs text-gray-300 uppercase tracking-wider">
+            <h2 className="font-bold text-xs text-gray-300">
               Interview Session
             </h2>
-            <p className="text-[10px] text-gray-500 font-mono">
+            <p className="text-xs text-gray-500">
               {formatTime(timer)} • {participants.length} Connected
             </p>
           </div>
@@ -479,7 +477,7 @@ const LiveInterview = () => {
         <div className="flex items-center gap-4">
           {/* Connection Status */}
           <Badge
-            className={`rounded-sm text-[10px] uppercase tracking-wider font-mono ${isConnected ? "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30" : "bg-red-500/10 text-red-400 border-red-500/30"}`}
+            className={`rounded-sm text-xs ${isConnected ? "bg-accent/10 text-accent border-accent/30" : "bg-red-500/10 text-red-400 border-red-500/30"}`}
           >
             {isConnected ? (
               <Wifi size={10} className="mr-1" />
@@ -495,7 +493,7 @@ const LiveInterview = () => {
             <>
               <Button
                 variant="outline"
-                className="bg-[#FFD700]/10 hover:bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/50 hover:border-[#FFD700] font-bold uppercase tracking-wider animate-pulse"
+                className="bg-primary/10 hover:bg-primary/20 text-primary border-primary/50 hover:border-primary font-bold animate-pulse"
                 onClick={() => setIsReportModalOpen(true)}
               >
                 <FileText className="mr-2 h-4 w-4" /> Generate Report
@@ -568,11 +566,11 @@ const LiveInterview = () => {
             {/* MCQ Results Panel - Recruiter Only */}
             {isRecruiter && mcqResults && (
               <div className="absolute top-6 right-6 z-20 w-64">
-                <div className={`backdrop-blur-md border rounded-lg p-3 ${mcqResults.passed
+                <div className={`border rounded-lg p-3 ${mcqResults.passed
                   ? 'bg-green-500/10 border-green-500/30'
                   : 'bg-amber-500/10 border-amber-500/30'
                   }`}>
-                  <div className={`flex items-center gap-2 font-bold text-xs mb-2 uppercase tracking-wider ${mcqResults.passed ? 'text-green-400' : 'text-amber-400'
+                  <div className={`flex items-center gap-2 font-bold text-xs mb-2 ${mcqResults.passed ? 'text-green-400' : 'text-amber-400'
                     }`}>
                     <BrainCircuit size={14} />
                     MCQ Test Results
@@ -580,15 +578,15 @@ const LiveInterview = () => {
                   <div className="grid grid-cols-3 gap-2 text-center mb-2">
                     <div className="bg-black/30 rounded p-2">
                       <div className="text-xl font-bold text-white">{mcqResults.score}%</div>
-                      <div className="text-[9px] text-gray-500">SCORE</div>
+                      <div className="text-xs text-gray-500">SCORE</div>
                     </div>
                     <div className="bg-black/30 rounded p-2">
                       <div className="text-xl font-bold text-green-400">{mcqResults.correctAnswers}</div>
-                      <div className="text-[9px] text-gray-500">CORRECT</div>
+                      <div className="text-xs text-gray-500">CORRECT</div>
                     </div>
                     <div className="bg-black/30 rounded p-2">
                       <div className="text-xl font-bold text-red-400">{mcqResults.wrongAnswers}</div>
-                      <div className="text-[9px] text-gray-500">WRONG</div>
+                      <div className="text-xs text-gray-500">WRONG</div>
                     </div>
                   </div>
                   <div className={`text-center py-1 rounded text-xs font-bold ${mcqResults.passed
@@ -605,16 +603,16 @@ const LiveInterview = () => {
             {isRecruiter && (
               <div className="absolute bottom-6 left-6 z-20 w-80 space-y-3">
                 {/* Quick Rating */}
-                <div className="bg-[#111111]/95 backdrop-blur-md border border-white/10 rounded-lg p-3">
+                <div className="bg-card/95 border border-white/10 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Quick Rating</span>
+                    <span className="text-xs text-gray-400 font-bold">Quick Rating</span>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           onClick={() => setCandidateRating(star)}
                           className={`p-1 rounded transition-all ${candidateRating >= star
-                            ? 'text-[#FFD700]'
+                            ? 'text-primary'
                             : 'text-gray-600 hover:text-gray-400'
                             }`}
                         >
@@ -641,16 +639,16 @@ const LiveInterview = () => {
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="bg-[#111111]/95 backdrop-blur-md border border-white/10 rounded-lg p-3"
+                    className="bg-card/95 border border-white/10 rounded-lg p-3"
                   >
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold block mb-2">Interview Notes</span>
+                    <span className="text-xs text-gray-400 font-bold block mb-2">Interview Notes</span>
                     <textarea
                       value={interviewNotes}
                       onChange={(e) => setInterviewNotes(e.target.value)}
                       placeholder="Type your observations here..."
-                      className="w-full h-24 bg-black/30 border border-white/10 rounded text-xs text-gray-300 p-2 resize-none focus:outline-none focus:border-[#FFD700]/50"
+                      className="w-full h-24 bg-black/30 border border-white/10 rounded text-xs text-gray-300 p-2 resize-none focus:outline-none focus:border-primary/50"
                     />
-                    <div className="text-[10px] text-gray-500 mt-1">
+                    <div className="text-xs text-gray-500 mt-1">
                       {interviewNotes.length} characters
                     </div>
                   </motion.div>
@@ -673,7 +671,7 @@ const LiveInterview = () => {
                 <VideoOff className="text-gray-500" size={24} />
               </div>
             )}
-            <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 rounded text-[10px] font-bold">
+            <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 rounded text-xs font-bold">
               You
             </div>
           </div>
@@ -725,7 +723,7 @@ const LiveInterview = () => {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: isRecruiter ? 380 : 320, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="bg-[#0a0a0a] border-l border-white/10 flex flex-col overflow-hidden"
+              className="bg-background border-l border-white/10 flex flex-col overflow-hidden"
             >
               {isRecruiter ? (
                 <div className="flex border-b border-white/5" role="tablist">
@@ -739,8 +737,8 @@ const LiveInterview = () => {
                       role="tab"
                       aria-selected={sideTab === key}
                       onClick={() => setSideTab(key)}
-                      className={`flex-1 p-3 text-xs font-bold uppercase tracking-wider border-b-2 ${
-                        sideTab === key ? "border-[#FFD700] text-white" : "border-transparent text-gray-500 hover:text-gray-300"
+                      className={`flex-1 p-3 text-xs font-bold border-b-2 ${
+                        sideTab === key ? "border-primary text-white" : "border-transparent text-gray-500 hover:text-gray-300"
                       }`}
                     >
                       {label}
@@ -773,7 +771,7 @@ const LiveInterview = () => {
                     key={msg.id || idx}
                     className={`flex flex-col ${msg.senderId === user?._id || msg.senderName === user?.fullname ? "items-end" : "items-start"}`}
                   >
-                    <p className="text-[10px] text-gray-500 mb-1">
+                    <p className="text-xs text-gray-500 mb-1">
                       {msg.senderName}
                     </p>
                     <div
@@ -785,7 +783,7 @@ const LiveInterview = () => {
                     >
                       {msg.message}
                     </div>
-                    <span className="text-[10px] text-gray-600 mt-1 px-1">
+                    <span className="text-xs text-gray-600 mt-1 px-1">
                       {new Date(msg.timestamp).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",

@@ -186,8 +186,8 @@ const MockTestPrep = () => {
   };
 
   const getGradeColor = (grade) => {
-    if (grade.startsWith("A")) return "text-[#00FF94]";
-    if (grade === "B") return "text-[#FFD700]";
+    if (grade.startsWith("A")) return "text-accent";
+    if (grade === "B") return "text-primary";
     if (grade === "C") return "text-amber-400";
     return "text-red-400";
   };
@@ -230,8 +230,8 @@ const MockTestPrep = () => {
             className="space-y-6"
           >
             {/* Category Selection */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-6">
-              <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
+            <div className="bg-card border border-white/10 rounded-md p-6">
+              <label className="text-xs text-gray-500 mb-4 block">
                 Select Category
               </label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -243,7 +243,7 @@ const MockTestPrep = () => {
                       setSelectedTopic(null);
                     }}
                     className={`p-4 rounded-sm border transition-all text-left ${selectedCategory === cat.id
-                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
+                      ? "bg-primary/10 border-primary/50 text-white"
                       : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
                       }`}
                   >
@@ -258,15 +258,15 @@ const MockTestPrep = () => {
 
             {/* Topic Selection */}
             {selectedCategory && (
-              <div className="bg-[#111111] border border-white/10 rounded-md p-6">
-                <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
+              <div className="bg-card border border-white/10 rounded-md p-6">
+                <label className="text-xs text-gray-500 mb-4 block">
                   Select Topic (Optional)
                 </label>
                 <div className="flex flex-wrap gap-2">
                   <Badge
                     onClick={() => setSelectedTopic(null)}
                     className={`cursor-pointer ${!selectedTopic
-                      ? "bg-[#FFD700] text-black"
+                      ? "bg-primary text-black"
                       : "bg-white/5 text-gray-400 hover:bg-white/10"
                       }`}
                   >
@@ -279,7 +279,7 @@ const MockTestPrep = () => {
                         key={topic}
                         onClick={() => setSelectedTopic(topic)}
                         className={`cursor-pointer ${selectedTopic === topic
-                          ? "bg-[#FFD700] text-black"
+                          ? "bg-primary text-black"
                           : "bg-white/5 text-gray-400 hover:bg-white/10"
                           }`}
                       >
@@ -292,8 +292,8 @@ const MockTestPrep = () => {
 
             {/* Difficulty & Question Count */}
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-[#111111] border border-white/10 rounded-md p-6">
-                <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
+              <div className="bg-card border border-white/10 rounded-md p-6">
+                <label className="text-xs text-gray-500 mb-4 block">
                   Difficulty
                 </label>
                 <div className="flex gap-2">
@@ -305,7 +305,7 @@ const MockTestPrep = () => {
                         ? d === "easy"
                           ? "bg-green-500/10 border-green-500/50 text-green-400"
                           : d === "medium"
-                            ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                            ? "bg-primary/10 border-primary/50 text-primary"
                             : "bg-red-500/10 border-red-500/50 text-red-400"
                         : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
                         }`}
@@ -316,8 +316,8 @@ const MockTestPrep = () => {
                 </div>
               </div>
 
-              <div className="bg-[#111111] border border-white/10 rounded-md p-6">
-                <label className="text-xs text-gray-500 uppercase tracking-wider mb-4 block font-mono">
+              <div className="bg-card border border-white/10 rounded-md p-6">
+                <label className="text-xs text-gray-500 mb-4 block">
                   Questions: {questionCount}
                 </label>
                 <input
@@ -326,7 +326,7 @@ const MockTestPrep = () => {
                   max="20"
                   value={questionCount}
                   onChange={(e) => setQuestionCount(parseInt(e.target.value))}
-                  className="w-full accent-[#FFD700]"
+                  className="w-full accent-primary"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-2">
                   <span>5 (Quick)</span>
@@ -339,7 +339,7 @@ const MockTestPrep = () => {
             <Button
               onClick={generateTest}
               disabled={loading}
-              className="w-full py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold text-sm uppercase tracking-wider"
+              className="w-full py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold text-sm"
             >
               {loading ? (
                 <motion.div
@@ -370,7 +370,7 @@ const MockTestPrep = () => {
             className="space-y-6"
           >
             {/* Timer & Progress */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-4">
+            <div className="bg-card border border-white/10 rounded-md p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-4">
                   <Badge className="bg-cyan-500/10 text-cyan-400 border-cyan-500/30">
@@ -381,7 +381,7 @@ const MockTestPrep = () => {
                   </span>
                 </div>
                 <div
-                  className={`flex items-center gap-2 font-mono text-lg ${timeLeft < 60 ? "text-red-400" : "text-white"
+                  className={`flex items-center gap-2 text-lg ${timeLeft < 60 ? "text-red-400" : "text-white"
                     }`}
                 >
                   <Timer className="w-5 h-5" />
@@ -397,11 +397,10 @@ const MockTestPrep = () => {
             </div>
 
             {/* Question Card */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-12 h-12 border-t border-r border-[#FFD700]/30" />
+            <div className="bg-card border border-white/10 rounded-md p-8 relative overflow-hidden">
 
               <div className="mb-6">
-                <span className="text-[#FFD700] text-xs uppercase tracking-wider font-mono">
+                <span className="text-primary text-xs">
                   Question {currentQuestion + 1}
                 </span>
                 <h3 className="text-lg sm:text-xl text-white font-medium mt-2">
@@ -417,11 +416,11 @@ const MockTestPrep = () => {
                       handleAnswer(test.questions[currentQuestion].id, idx)
                     }
                     className={`w-full p-4 rounded-sm border text-left transition-all ${answers[test.questions[currentQuestion].id] === idx
-                      ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-white"
+                      ? "bg-primary/10 border-primary/50 text-white"
                       : "bg-white/5 border-white/10 text-gray-300 hover:border-white/20"
                       }`}
                   >
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-sm bg-white/10 text-xs mr-3 font-mono">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-sm bg-white/10 text-xs mr-3">
                       {String.fromCharCode(65 + idx)}
                     </span>
                     {option}
@@ -448,8 +447,8 @@ const MockTestPrep = () => {
                   <button
                     key={idx}
                     onClick={() => setCurrentQuestion(idx)}
-                    className={`w-8 h-8 rounded-sm text-xs font-mono transition-all ${currentQuestion === idx
-                      ? "bg-[#FFD700] text-black"
+                    className={`w-8 h-8 rounded-sm text-xs transition-all ${currentQuestion === idx
+                      ? "bg-primary text-black"
                       : answers[test.questions[idx]?.id] !== undefined
                         ? "bg-green-500/20 text-green-400 border border-green-500/30"
                         : "bg-white/5 text-gray-500 border border-white/10"
@@ -463,7 +462,7 @@ const MockTestPrep = () => {
               {currentQuestion < test.questions.length - 1 ? (
                 <Button
                   onClick={() => setCurrentQuestion((prev) => prev + 1)}
-                  className="bg-[#FFD700] text-black hover:bg-[#FFE44D]"
+                  className="bg-primary text-black hover:bg-[#FFE44D]"
                 >
                   Next
                   <ChevronRight className="w-4 h-4 ml-1" />
@@ -495,17 +494,15 @@ const MockTestPrep = () => {
             className="space-y-6"
           >
             {/* Score Card */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-8 text-center relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-[#FFD700]/30" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-[#FFD700]/30" />
+            <div className="bg-card border border-white/10 rounded-md p-8 text-center relative overflow-hidden">
 
               <Trophy
-                className={`w-16 h-16 mx-auto mb-4 ${result.passed ? "text-[#FFD700]" : "text-gray-500"
+                className={`w-16 h-16 mx-auto mb-4 ${result.passed ? "text-primary" : "text-gray-500"
                   }`}
               />
 
               <div
-                className={`text-6xl font-bold font-mono mb-2 ${getGradeColor(result.grade)}`}
+                className={`text-6xl font-bold mb-2 ${getGradeColor(result.grade)}`}
               >
                 {result.score}%
               </div>
@@ -522,7 +519,7 @@ const MockTestPrep = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
                 <div className="p-4 bg-white/5 rounded-sm">
-                  <div className="text-2xl font-bold text-[#00FF94]">
+                  <div className="text-2xl font-bold text-accent">
                     {result.correctAnswers}
                   </div>
                   <div className="text-xs text-gray-500">Correct</div>
@@ -534,7 +531,7 @@ const MockTestPrep = () => {
                   <div className="text-xs text-gray-500">Wrong</div>
                 </div>
                 <div className="p-4 bg-white/5 rounded-sm">
-                  <div className="text-2xl font-bold text-white font-mono">
+                  <div className="text-2xl font-bold text-white">
                     {formatTime(result.timeTaken)}
                   </div>
                   <div className="text-xs text-gray-500">Time Taken</div>
@@ -543,9 +540,9 @@ const MockTestPrep = () => {
             </div>
 
             {/* Detailed Results */}
-            <div className="bg-[#111111] border border-white/10 rounded-md p-6">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-[#FFD700]" />
+            <div className="bg-card border border-white/10 rounded-md p-6">
+              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-primary" />
                 Review Answers
               </h3>
               <div className="space-y-4 max-h-[400px] overflow-y-auto">
@@ -592,7 +589,7 @@ const MockTestPrep = () => {
             {/* Try Again */}
             <Button
               onClick={resetTest}
-              className="w-full py-6 bg-[#FFD700] text-black hover:bg-[#FFE44D] font-bold"
+              className="w-full py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold"
             >
               <RefreshCw className="w-5 h-5 mr-2" />
               Take Another Test

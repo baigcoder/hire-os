@@ -29,15 +29,15 @@ export const TAMPER_LABELS = {
 };
 
 export const BAND_STYLES = {
-  low: { text: "text-[#00FF94]", bar: "bg-[#00FF94]", label: "Low" },
-  elevated: { text: "text-[#FFD700]", bar: "bg-[#FFD700]", label: "Elevated" },
+  low: { text: "text-accent", bar: "bg-accent", label: "Low" },
+  elevated: { text: "text-primary", bar: "bg-primary", label: "Elevated" },
   high: { text: "text-orange-400", bar: "bg-orange-400", label: "High" },
   critical: { text: "text-red-400", bar: "bg-red-500", label: "Critical" },
 };
 
 export const PRIORITY_STYLES = {
-  routine: { label: "Routine", className: "bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30" },
-  review: { label: "Worth a review", className: "bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30" },
+  routine: { label: "Routine", className: "bg-accent/10 text-accent border-accent/30" },
+  review: { label: "Worth a review", className: "bg-primary/10 text-primary border-primary/30" },
   priority_review: { label: "Priority review", className: "bg-red-500/10 text-red-400 border-red-500/30" },
 };
 

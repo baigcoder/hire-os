@@ -58,10 +58,10 @@ const FraudAlert = ({ alert, onDismiss, onFlag, onReport }) => {
               <AlertTriangle className={`w-4 h-4 ${colors.icon}`} />
             </div>
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+              <h4 className="text-xs font-bold text-white">
                 Fraud Alert
               </h4>
-              <p className="text-[10px] text-gray-500 font-mono uppercase">
+              <p className="text-xs text-gray-500 uppercase">
                 Severity: {alert.severity}
               </p>
             </div>
@@ -79,18 +79,18 @@ const FraudAlert = ({ alert, onDismiss, onFlag, onReport }) => {
           <p className={`text-sm font-medium ${colors.text} mb-2`}>
             {alert.message}
           </p>
-          <p className="text-xs text-gray-500 font-mono">{alert.details}</p>
+          <p className="text-xs text-gray-500">{alert.details}</p>
         </div>
 
         {/* Confidence Score */}
         {alert.confidence && (
           <div className="mb-4">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">
+              <span className="text-xs text-gray-500">
                 AI Confidence
               </span>
               <span
-                className={`text-[10px] font-bold ${colors.text} font-mono`}
+                className={`text-xs font-bold ${colors.text} `}
               >
                 {alert.confidence}%
               </span>
@@ -112,7 +112,7 @@ const FraudAlert = ({ alert, onDismiss, onFlag, onReport }) => {
             onClick={onDismiss}
             variant="outline"
             size="sm"
-            className="flex-1 border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs uppercase tracking-wider"
+            className="flex-1 border-white/10 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
           >
             <CheckCircle className="w-3 h-3 mr-1" />
             Dismiss
@@ -121,7 +121,7 @@ const FraudAlert = ({ alert, onDismiss, onFlag, onReport }) => {
             onClick={onFlag}
             variant="outline"
             size="sm"
-            className={`flex-1 ${colors.border} ${colors.text} hover:${colors.bg} rounded-sm text-xs uppercase tracking-wider`}
+            className={`flex-1 ${colors.border} ${colors.text} hover:${colors.bg} rounded-sm text-xs`}
           >
             <Flag className="w-3 h-3 mr-1" />
             Flag
@@ -129,7 +129,7 @@ const FraudAlert = ({ alert, onDismiss, onFlag, onReport }) => {
           <Button
             onClick={onReport}
             size="sm"
-            className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-sm text-xs uppercase tracking-wider"
+            className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-sm text-xs"
           >
             <Shield className="w-3 h-3 mr-1" />
             Report
@@ -137,7 +137,7 @@ const FraudAlert = ({ alert, onDismiss, onFlag, onReport }) => {
         </div>
 
         {/* Timestamp */}
-        <div className="mt-3 text-[10px] text-gray-600 font-mono text-right">
+        <div className="mt-3 text-xs text-gray-600 text-right">
           {new Date(alert.timestamp || Date.now()).toLocaleTimeString()}
         </div>
       </motion.div>

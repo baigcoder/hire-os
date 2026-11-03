@@ -37,10 +37,10 @@ const LatestJobCards = ({ job = {} }) => {
   return (
     <article
       onClick={() => navigate(`/description/${job._id}`)}
-      className="group relative bg-[#0a0a0a] border border-white/10 rounded-xl p-5 hover:border-yellow-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(234,179,8,0.1)] hover:-translate-y-1 cursor-pointer overflow-hidden"
+      className="group relative bg-background border border-white/10 rounded-xl p-5 hover:border-yellow-500/50 transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden"
     >
       {/* Absolute gradient glow on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
       {/* Header */}
       <div className="flex justify-between items-start mb-4 relative z-10">

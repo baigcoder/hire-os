@@ -18,7 +18,8 @@ import {
 import axios from "axios";
 import { JOB_API_END_POINT, COMPANY_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "@/utils/api";
 import { setCompanies } from "@/redux/companySlice";
 import {
   Loader2,
@@ -84,7 +85,13 @@ const experienceLevels = [
   "Senior Level",
 ];
 
+// The option whose first number matches the saved years (the API stores a number)
+const experienceOption = (years) =>
+  experienceLevels.find((o) => (o.match(/\d+/)?.[0] ?? (/senior/i.test(o) ? "6" : "0")) === String(years ?? 0)) ?? experienceLevels[0];
+
 const PostJob = () => {
+  // With an id this is the edit form for an existing job
+  const { id: editId } = useParams();
   const [input, setInput] = useState({
     title: "",
     description: "",
@@ -106,6 +113,28 @@ const PostJob = () => {
   const dispatch = useDispatch();
 
   const { companies: reduxCompanies } = useSelector((store) => store.company);
+
+  useEffect(() => {
+    if (!editId) return;
+    api
+      .get(`/job/get/${editId}`)
+      .then(({ data }) => {
+        const j = data.job;
+        setInput((prev) => ({
+          ...prev,
+          title: j.title ?? "",
+          description: j.description ?? "",
+          requirements: (j.requirements ?? []).join(", "),
+          salary: j.salary ? String(j.salary) : "",
+          location: j.location ?? "",
+          jobType: j.jobType ?? "",
+          experience: experienceOption(j.experienceLevel),
+          position: j.position ?? 1,
+          companyId: j.company?._id ?? j.company ?? prev.companyId,
+        }));
+      })
+      .catch(() => toast.error("Couldn't load the job"));
+  }, [editId]);
 
   // Fetch companies directly from API
   useEffect(() => {
@@ -235,32 +264,31 @@ const PostJob = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(`${JOB_API_END_POINT}/post`, input, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      });
+      const res = editId
+        ? await api.put(`/job/update/${editId}`, input)
+        : await axios.post(`${JOB_API_END_POINT}/post`, input, {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          });
       if (res.data.success) {
         toast.success(res.data.message);
         navigate("/admin/jobs");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create job post");
+      toast.error(error.response?.data?.message || (editId ? "Couldn't save the job" : "Failed to create job post"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 pt-24 relative z-10">
+      <div className="max-w-4xl mx-auto py-2 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -268,19 +296,19 @@ const PostJob = () => {
           className="flex items-center justify-between mb-8"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#FFD700] rounded-sm flex items-center justify-center">
+            <div className="w-12 h-12 bg-primary rounded-sm flex items-center justify-center">
               <Briefcase className="w-6 h-6 text-black" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white uppercase tracking-tight">
-                Create Job Post
+              <h1 className="text-2xl font-semibold text-white">
+                {editId ? "Edit job" : "Post a job"}
               </h1>
-              <p className="text-gray-500 text-sm font-mono">
+              <p className="text-gray-500 text-sm">
                 AI-powered job creation
               </p>
             </div>
           </div>
-          <Badge className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30 rounded-sm text-xs uppercase">
+          <Badge className="bg-primary/10 text-primary border-primary/30 rounded-sm text-xs">
             <Sparkles className="w-3 h-3 mr-1" />
             AI Assist
           </Badge>
@@ -292,11 +320,10 @@ const PostJob = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-6 p-4 bg-[#111111] border border-[#00FF94]/30 rounded-sm relative"
+            className="mb-6 p-4 bg-card border border-accent/30 rounded-sm relative"
           >
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#00FF94]/30" />
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#00FF94] rounded-sm flex items-center justify-center">
+              <div className="w-12 h-12 bg-accent rounded-sm flex items-center justify-center">
                 {selectedCompany.logo ? (
                   <img
                     src={selectedCompany.logo}
@@ -314,12 +341,12 @@ const PostJob = () => {
                   <h3 className="text-white font-bold">
                     {selectedCompany.name}
                   </h3>
-                  <Badge className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30 rounded-sm text-[10px]">
+                  <Badge className="bg-accent/10 text-accent border-accent/30 rounded-sm text-xs">
                     <Check className="w-3 h-3 mr-1" />
                     Registered
                   </Badge>
                 </div>
-                <p className="text-gray-500 text-xs font-mono">
+                <p className="text-gray-500 text-xs">
                   Posting as company admin
                 </p>
               </div>
@@ -331,7 +358,7 @@ const PostJob = () => {
                   <SelectTrigger className="w-40 bg-transparent border-white/10 text-gray-400 rounded-sm">
                     <SelectValue placeholder="Switch company" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-white/10">
+                  <SelectContent className="bg-card border-white/10">
                     <SelectGroup>
                       {companies.map((company) => (
                         <SelectItem
@@ -354,11 +381,11 @@ const PostJob = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-[#111111] border border-[#FFD700]/30 rounded-sm"
+            className="mb-6 p-4 bg-card border border-primary/30 rounded-sm"
           >
             <div className="flex items-center gap-3">
-              <Loader2 className="w-5 h-5 text-[#FFD700] animate-spin" />
-              <p className="text-gray-400 font-mono text-sm">
+              <Loader2 className="w-5 h-5 text-primary animate-spin" />
+              <p className="text-gray-400 text-sm">
                 Loading company data...
               </p>
             </div>
@@ -370,21 +397,21 @@ const PostJob = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-sm"
+            className="mb-6 p-4 bg-primary/10 border border-primary/30 rounded-sm"
           >
             <div className="flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#FFD700]" />
+              <AlertTriangle className="w-5 h-5 text-primary" />
               <div>
-                <p className="text-[#FFD700] font-bold">
+                <p className="text-primary font-bold">
                   Complete Company Setup
                 </p>
-                <p className="text-[#FFD700]/70 text-sm">
+                <p className="text-primary/70 text-sm">
                   You need to register your company before posting jobs.
                 </p>
               </div>
               <Button
                 onClick={() => navigate("/company/pricing")}
-                className="ml-auto bg-[#FFD700] hover:bg-[#FFE44D] text-black rounded-sm"
+                className="ml-auto bg-primary hover:bg-[#FFE44D] text-black rounded-sm"
               >
                 Setup Company
               </Button>
@@ -398,38 +425,36 @@ const PostJob = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           onSubmit={submitHandler}
-          className="bg-[#111111] border border-white/10 rounded-sm p-6 relative"
+          className="bg-card border border-white/10 rounded-sm p-6 relative"
         >
-          <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#FFD700]/30" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#FFD700]/30" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Job Title */}
             <div className="md:col-span-2">
-              <Label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+              <Label htmlFor="job-title" className="text-xs text-gray-500 mb-2 block">
                 Job Title <span className="text-red-400">*</span>
               </Label>
-              <Input
+              <Input id="job-title"
                 type="text"
                 name="title"
                 value={input.title}
                 onChange={changeEventHandler}
                 placeholder="e.g. Senior React Developer"
-                className="bg-[#0A0A0A] border-white/10 text-white rounded-sm focus:border-[#FFD700]/50 placeholder:text-gray-600"
+                className="bg-background border-white/10 text-white rounded-sm focus:border-primary/50 placeholder:text-gray-600"
               />
             </div>
 
             {/* Description with AI */}
             <div className="md:col-span-2">
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-xs text-gray-500 uppercase tracking-wider">
+                <Label htmlFor="job-description" className="text-xs text-gray-500">
                   Job Description <span className="text-red-400">*</span>
                 </Label>
                 <Button
                   type="button"
                   onClick={() => generateAISuggestion("description")}
                   disabled={aiLoading || !input.title}
-                  className="bg-[#FFD700]/10 text-[#FFD700] hover:bg-[#FFD700]/20 border border-[#FFD700]/30 rounded-sm text-xs h-7 px-2"
+                  className="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/30 rounded-sm text-xs h-7 px-2"
                 >
                   {aiLoading && aiField === "description" ? (
                     <Loader2 className="w-3 h-3 animate-spin mr-1" />
@@ -439,13 +464,13 @@ const PostJob = () => {
                   AI Generate
                 </Button>
               </div>
-              <Textarea
+              <Textarea id="job-description"
                 name="description"
                 value={input.description}
                 onChange={changeEventHandler}
                 placeholder="Describe the role, responsibilities, and what you're looking for..."
                 rows={5}
-                className="bg-[#0A0A0A] border-white/10 text-white rounded-sm focus:border-[#FFD700]/50 placeholder:text-gray-600 resize-none"
+                className="bg-background border-white/10 text-white rounded-sm focus:border-primary/50 placeholder:text-gray-600 resize-none"
               />
               <AnimatePresence>
                 {aiSuggestions.description &&
@@ -454,17 +479,17 @@ const PostJob = () => {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-2 p-3 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-sm"
+                      className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-sm"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] text-[#FFD700] uppercase tracking-wider flex items-center">
+                        <span className="text-xs text-primary flex items-center">
                           <Sparkles className="w-3 h-3 mr-1" />
                           AI Suggestion
                         </span>
                         <Button
                           type="button"
                           onClick={() => applySuggestion("description")}
-                          className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm text-[10px] h-6 px-2"
+                          className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs h-6 px-2"
                         >
                           Apply
                         </Button>
@@ -480,14 +505,14 @@ const PostJob = () => {
             {/* Requirements with AI */}
             <div className="md:col-span-2">
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-xs text-gray-500 uppercase tracking-wider">
+                <Label htmlFor="job-requirements" className="text-xs text-gray-500">
                   Requirements
                 </Label>
                 <Button
                   type="button"
                   onClick={() => generateAISuggestion("requirements")}
                   disabled={aiLoading || !input.title}
-                  className="bg-[#FFD700]/10 text-[#FFD700] hover:bg-[#FFD700]/20 border border-[#FFD700]/30 rounded-sm text-xs h-7 px-2"
+                  className="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/30 rounded-sm text-xs h-7 px-2"
                 >
                   {aiLoading && aiField === "requirements" ? (
                     <Loader2 className="w-3 h-3 animate-spin mr-1" />
@@ -497,13 +522,13 @@ const PostJob = () => {
                   AI Suggest
                 </Button>
               </div>
-              <Input
+              <Input id="job-requirements"
                 type="text"
                 name="requirements"
                 value={input.requirements}
                 onChange={changeEventHandler}
                 placeholder="React, Node.js, MongoDB, 3+ years exp..."
-                className="bg-[#0A0A0A] border-white/10 text-white rounded-sm focus:border-[#FFD700]/50 placeholder:text-gray-600"
+                className="bg-background border-white/10 text-white rounded-sm focus:border-primary/50 placeholder:text-gray-600"
               />
               <AnimatePresence>
                 {aiSuggestions.requirements &&
@@ -512,17 +537,17 @@ const PostJob = () => {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-2 p-3 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-sm"
+                      className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-sm"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] text-[#FFD700] uppercase tracking-wider flex items-center">
+                        <span className="text-xs text-primary flex items-center">
                           <Sparkles className="w-3 h-3 mr-1" />
                           AI Suggestion
                         </span>
                         <Button
                           type="button"
                           onClick={() => applySuggestion("requirements")}
-                          className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm text-[10px] h-6 px-2"
+                          className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs h-6 px-2"
                         >
                           Apply
                         </Button>
@@ -538,7 +563,7 @@ const PostJob = () => {
             {/* Salary with AI */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-xs text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                <Label htmlFor="job-salary" className="text-xs text-gray-500 flex items-center gap-1">
                   <DollarSign className="w-3 h-3" />
                   Salary Range
                 </Label>
@@ -546,7 +571,7 @@ const PostJob = () => {
                   type="button"
                   onClick={() => generateAISuggestion("salary")}
                   disabled={aiLoading || !input.title}
-                  className="bg-[#FFD700]/10 text-[#FFD700] hover:bg-[#FFD700]/20 border border-[#FFD700]/30 rounded-sm text-[10px] h-6 px-2"
+                  className="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/30 rounded-sm text-xs h-6 px-2"
                 >
                   {aiLoading && aiField === "salary" ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -555,20 +580,20 @@ const PostJob = () => {
                   )}
                 </Button>
               </div>
-              <Input
+              <Input id="job-salary"
                 type="text"
                 name="salary"
                 value={input.salary}
                 onChange={changeEventHandler}
                 placeholder="80,000 - 120,000 PKR"
-                className="bg-[#0A0A0A] border-white/10 text-white rounded-sm focus:border-[#FFD700]/50 placeholder:text-gray-600"
+                className="bg-background border-white/10 text-white rounded-sm focus:border-primary/50 placeholder:text-gray-600"
               />
               {aiSuggestions.salary &&
                 input.salary !== aiSuggestions.salary && (
                   <button
                     type="button"
                     onClick={() => applySuggestion("salary")}
-                    className="mt-1 text-[10px] text-[#FFD700] hover:underline"
+                    className="mt-1 text-xs text-primary hover:underline"
                   >
                     Suggested: {aiSuggestions.salary}
                   </button>
@@ -577,7 +602,7 @@ const PostJob = () => {
 
             {/* Location */}
             <div>
-              <Label className="text-xs text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+              <Label htmlFor="job-location" className="text-xs text-gray-500 mb-2 flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
                 Location
               </Label>
@@ -587,10 +612,10 @@ const PostJob = () => {
                 }
                 value={input.location}
               >
-                <SelectTrigger className="bg-[#0A0A0A] border-white/10 text-white rounded-sm">
+                <SelectTrigger id="job-location" className="bg-background border-white/10 text-white rounded-sm">
                   <SelectValue placeholder="Select city" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111111] border-white/10">
+                <SelectContent className="bg-card border-white/10">
                   <SelectGroup>
                     {pakistanCities.map((city) => (
                       <SelectItem
@@ -608,7 +633,7 @@ const PostJob = () => {
 
             {/* Job Type */}
             <div>
-              <Label className="text-xs text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+              <Label htmlFor="job-jobType" className="text-xs text-gray-500 mb-2 flex items-center gap-1">
                 <Briefcase className="w-3 h-3" />
                 Job Type
               </Label>
@@ -618,10 +643,10 @@ const PostJob = () => {
                 }
                 value={input.jobType}
               >
-                <SelectTrigger className="bg-[#0A0A0A] border-white/10 text-white rounded-sm">
+                <SelectTrigger id="job-jobType" className="bg-background border-white/10 text-white rounded-sm">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111111] border-white/10">
+                <SelectContent className="bg-card border-white/10">
                   <SelectGroup>
                     {jobTypes.map((type) => (
                       <SelectItem
@@ -639,7 +664,7 @@ const PostJob = () => {
 
             {/* Experience */}
             <div>
-              <Label className="text-xs text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+              <Label htmlFor="job-experience" className="text-xs text-gray-500 mb-2 flex items-center gap-1">
                 <GraduationCap className="w-3 h-3" />
                 Experience Level
               </Label>
@@ -649,10 +674,10 @@ const PostJob = () => {
                 }
                 value={input.experience}
               >
-                <SelectTrigger className="bg-[#0A0A0A] border-white/10 text-white rounded-sm">
+                <SelectTrigger id="job-experience" className="bg-background border-white/10 text-white rounded-sm">
                   <SelectValue placeholder="Select level" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111111] border-white/10">
+                <SelectContent className="bg-card border-white/10">
                   <SelectGroup>
                     {experienceLevels.map((level) => (
                       <SelectItem
@@ -670,17 +695,17 @@ const PostJob = () => {
 
             {/* Positions */}
             <div>
-              <Label className="text-xs text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+              <Label htmlFor="job-position" className="text-xs text-gray-500 mb-2 flex items-center gap-1">
                 <Users className="w-3 h-3" />
                 No. of Positions
               </Label>
-              <Input
+              <Input id="job-position"
                 type="number"
                 name="position"
                 value={input.position}
                 onChange={changeEventHandler}
                 min={1}
-                className="bg-[#0A0A0A] border-white/10 text-white rounded-sm focus:border-[#FFD700]/50"
+                className="bg-background border-white/10 text-white rounded-sm focus:border-primary/50"
               />
             </div>
           </div>
@@ -690,17 +715,17 @@ const PostJob = () => {
             <Button
               type="submit"
               disabled={loading || companies.length === 0}
-              className="w-full bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm h-12 font-bold text-sm uppercase tracking-wider"
+              className="w-full bg-primary text-black hover:bg-[#FFE44D] rounded-sm h-12 font-bold text-sm"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Creating Job...
+                  {editId ? "Saving…" : "Posting…"}
                 </>
               ) : (
                 <>
                   <FileText className="w-4 h-4 mr-2" />
-                  Post New Job
+                  {editId ? "Save changes" : "Post job"}
                 </>
               )}
             </Button>

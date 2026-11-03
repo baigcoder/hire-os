@@ -103,12 +103,12 @@ const FilterCard = () => {
   }, [selectedFilters, dispatch]);
 
   return (
-    <div className="bg-[#111111] border border-white/10 rounded-sm overflow-hidden">
+    <div className="bg-card border border-white/10 rounded-sm overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-[#FFD700]" />
+            <Filter className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-bold text-white tracking-tight">
               FILTERS
             </h2>
@@ -116,7 +116,7 @@ const FilterCard = () => {
           {getTotalFiltersCount() > 0 && (
             <button
               onClick={clearFilters}
-              className="flex items-center gap-1 text-[10px] font-mono text-[#FFD700] hover:text-[#FFD700]/80 uppercase tracking-wider"
+              className="flex items-center gap-1 text-xs text-primary hover:text-primary/80"
             >
               <RotateCcw size={12} />
               CLEAR
@@ -137,7 +137,7 @@ const FilterCard = () => {
                 values.map((value) => (
                   <span
                     key={`${type}-${value}`}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30 rounded-sm"
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-primary/10 text-primary border border-primary/30 rounded-sm"
                   >
                     {value}
                     <button
@@ -171,13 +171,13 @@ const FilterCard = () => {
                 <div className="flex items-center gap-2">
                   <Icon
                     size={14}
-                    className="text-gray-500 group-hover:text-[#FFD700] transition-colors"
+                    className="text-gray-500 group-hover:text-primary transition-colors"
                   />
-                  <span className="text-xs font-mono text-gray-400 group-hover:text-white transition-colors uppercase tracking-wider">
+                  <span className="text-xs text-gray-400 group-hover:text-white transition-colors">
                     {data.filterType}
                   </span>
                   {selectedCount > 0 && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-mono bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30 rounded-sm">
+                    <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary border border-primary/30 rounded-sm">
                       {selectedCount}
                     </span>
                   )}
@@ -208,8 +208,8 @@ const FilterCard = () => {
                           <div
                             className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all ${
                               isSelected
-                                ? "bg-[#FFD700] border-[#FFD700]"
-                                : "border-white/20 group-hover:border-[#FFD700]/50"
+                                ? "bg-primary border-primary"
+                                : "border-white/20 group-hover:border-primary/50"
                             }`}
                           >
                             {isSelected && (
@@ -235,7 +235,7 @@ const FilterCard = () => {
                             className="sr-only"
                           />
                           <span
-                            className={`text-xs font-mono transition-colors ${
+                            className={`text-xs transition-colors ${
                               isSelected
                                 ? "text-white"
                                 : "text-gray-500 group-hover:text-gray-300"

@@ -108,21 +108,21 @@ const LiveInterview = () => {
       id: "behavioral",
       name: "Behavioral",
       icon: MessageSquare,
-      color: "from-[#FFD700] to-[#CC9900]",
+      color: "from-primary to-[#CC9900]",
       description: "STAR method & soft skills",
     },
     {
       id: "technical",
       name: "Technical",
       icon: Brain,
-      color: "from-[#FFD700] to-[#CC9900]",
+      color: "from-primary to-[#CC9900]",
       description: "Coding & problem solving",
     },
     {
       id: "hr",
       name: "HR Round",
       icon: User,
-      color: "from-[#FFD700] to-[#CC9900]",
+      color: "from-primary to-[#CC9900]",
       description: "Career goals & culture fit",
     },
   ];
@@ -844,10 +844,10 @@ const LiveInterview = () => {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/40"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/40"
           >
-            <Sparkles className="w-4 h-4 text-[#FFD700]" />
-            <span className="text-[#FFD700] text-sm font-semibold tracking-wide">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-primary text-sm font-semibold tracking-wide">
               HIRE.OS POWERED
             </span>
           </motion.div>
@@ -861,7 +861,7 @@ const LiveInterview = () => {
           className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-3"
         >
           <span className="text-white">AI Interview </span>
-          <span className="text-[#FFD700]">Coach</span>
+          <span className="text-primary">Coach</span>
         </motion.h1>
 
         <motion.p
@@ -881,9 +881,9 @@ const LiveInterview = () => {
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="rounded-sm border border-white/10 bg-[#0A0A0A] p-5 relative overflow-hidden"
+          className="rounded-sm border border-white/10 bg-background p-5 relative overflow-hidden"
         >
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">
             SELECT INTERVIEW TYPE
           </h3>
 
@@ -896,8 +896,8 @@ const LiveInterview = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.6 + idx * 0.1 }}
                 className={`w-full flex items-center gap-4 p-4 rounded-sm transition-all duration-200 ${interviewType === type.id
-                  ? "bg-[#FFD700] border-2 border-[#FFD700]"
-                  : "bg-transparent border-2 border-white/10 hover:border-[#FFD700]/30"
+                  ? "bg-primary border-2 border-primary"
+                  : "bg-transparent border-2 border-white/10 hover:border-primary/30"
                   }`}
               >
                 <div className="flex-1 text-left">
@@ -922,10 +922,10 @@ const LiveInterview = () => {
           initial={{ x: 20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="rounded-sm border border-white/10 bg-[#0A0A0A] p-5 relative overflow-hidden"
+          className="rounded-sm border border-white/10 bg-background p-5 relative overflow-hidden"
         >
           {/* Call Type */}
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">
             CALL TYPE
           </h3>
 
@@ -935,8 +935,8 @@ const LiveInterview = () => {
               <button
                 onClick={() => setCallType("video")}
                 className={`flex items-center justify-center gap-2 p-4 rounded-sm transition-all duration-200 ${callType === "video"
-                  ? "bg-[#FFD700] text-black font-bold"
-                  : "border-2 border-white/10 text-gray-400 hover:border-[#FFD700]/30"
+                  ? "bg-primary text-black font-bold"
+                  : "border-2 border-white/10 text-gray-400 hover:border-primary/30"
                   }`}
               >
                 <Video className="w-5 h-5" />
@@ -945,8 +945,8 @@ const LiveInterview = () => {
               <button
                 onClick={() => setCallType("audio")}
                 className={`flex items-center justify-center gap-2 p-4 rounded-sm transition-all duration-200 ${callType === "audio"
-                  ? "bg-[#FFD700] text-black font-bold"
-                  : "border-2 border-white/10 text-gray-400 hover:border-[#FFD700]/30"
+                  ? "bg-primary text-black font-bold"
+                  : "border-2 border-white/10 text-gray-400 hover:border-primary/30"
                   }`}
               >
                 <Phone className="w-5 h-5" />
@@ -957,12 +957,12 @@ const LiveInterview = () => {
 
           {/* Voice Selection */}
           <div className="relative">
-            <label className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 block">
+            <label className="text-sm font-semibold text-gray-400 mb-3 block">
               AI VOICE
             </label>
             <button
               onClick={() => setShowVoiceDropdown(!showVoiceDropdown)}
-              className="w-full flex items-center justify-between p-4 rounded-sm border-2 border-white/10 hover:border-[#FFD700]/30 transition-all"
+              className="w-full flex items-center justify-between p-4 rounded-sm border-2 border-white/10 hover:border-primary/30 transition-all"
             >
               <div className="flex items-center gap-3">
                 <div
@@ -970,7 +970,7 @@ const LiveInterview = () => {
                     ? "bg-gradient-to-br from-[#FF69B4] to-[#FF1493]"
                     : selectedVoice?.gender === "male"
                       ? "bg-gradient-to-br from-[#00BFFF] to-[#0080FF]"
-                      : "bg-gradient-to-br from-[#FFD700] to-[#FFA500]"
+                      : "bg-gradient-to-br from-primary to-[#FFA500]"
                     }`}
                 >
                   <Volume2 className="w-5 h-5 text-white" />
@@ -999,7 +999,7 @@ const LiveInterview = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setShowVoiceDropdown(false)}
-                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[90] flex items-center justify-center"
+                    className="fixed inset-0 bg-black/70 z-[90] flex items-center justify-center"
                   >
                     {/* Modal - Stop propagation so clicking modal doesn't close it */}
                     <motion.div
@@ -1007,11 +1007,11 @@ const LiveInterview = () => {
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: 20 }}
                       onClick={(e) => e.stopPropagation()}
-                      className="w-[90%] max-w-md bg-[#111111] border border-white/20 rounded-sm shadow-2xl"
+                      className="w-[90%] max-w-md bg-card border border-white/20 rounded-sm shadow-2xl"
                     >
                       {/* Modal Header */}
                       <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                        <h3 className="text-white font-bold uppercase tracking-wider text-sm">
+                        <h3 className="text-white font-bold text-sm">
                           🎤 Select AI Voice
                         </h3>
                         <button
@@ -1028,9 +1028,9 @@ const LiveInterview = () => {
                           setSelectedVoice(null);
                           setShowVoiceDropdown(false);
                         }}
-                        className={`w-full px-4 py-4 flex items-center gap-4 hover:bg-white/5 transition-colors text-left border-b border-white/10 ${!selectedVoice ? "bg-[#FFD700]/10 border-l-4 border-l-[#FFD700]" : ""}`}
+                        className={`w-full px-4 py-4 flex items-center gap-4 hover:bg-white/5 transition-colors text-left border-b border-white/10 ${!selectedVoice ? "bg-primary/10 border-l-4 border-l-primary" : ""}`}
                       >
-                        <div className="w-10 h-10 rounded-sm bg-[#FFD700] flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-sm bg-primary flex items-center justify-center flex-shrink-0">
                           <Settings className="w-5 h-5 text-black" />
                         </div>
                         <div className="flex-1">
@@ -1042,7 +1042,7 @@ const LiveInterview = () => {
                           </p>
                         </div>
                         {!selectedVoice && (
-                          <span className="text-[#FFD700] text-xl">✓</span>
+                          <span className="text-primary text-xl">✓</span>
                         )}
                       </button>
 
@@ -1058,7 +1058,7 @@ const LiveInterview = () => {
                                 `🎤 [LiveInterview] Selected voice: ${voice.name}`,
                               );
                             }}
-                            className={`w-full px-4 py-4 flex items-center gap-4 hover:bg-white/5 transition-colors text-left border-b border-white/5 ${selectedVoice?.id === voice.id ? "bg-[#FFD700]/10 border-l-4 border-l-[#FFD700]" : ""}`}
+                            className={`w-full px-4 py-4 flex items-center gap-4 hover:bg-white/5 transition-colors text-left border-b border-white/5 ${selectedVoice?.id === voice.id ? "bg-primary/10 border-l-4 border-l-primary" : ""}`}
                           >
                             <div
                               className={`w-10 h-10 rounded-sm flex items-center justify-center flex-shrink-0 ${voice.gender === "female" ? "bg-[#FF69B4]" : "bg-[#00D4FF]"}`}
@@ -1074,12 +1074,12 @@ const LiveInterview = () => {
                               </p>
                             </div>
                             <Badge
-                              className={`text-[10px] uppercase rounded-sm ${voice.gender === "female" ? "bg-[#FF69B4]/20 text-[#FF69B4] border-[#FF69B4]/30" : "bg-[#00D4FF]/20 text-[#00D4FF] border-[#00D4FF]/30"}`}
+                              className={`text-xs uppercase rounded-sm ${voice.gender === "female" ? "bg-[#FF69B4]/20 text-[#FF69B4] border-[#FF69B4]/30" : "bg-[#00D4FF]/20 text-[#00D4FF] border-[#00D4FF]/30"}`}
                             >
                               {voice.gender}
                             </Badge>
                             {selectedVoice?.id === voice.id && (
-                              <span className="text-[#FFD700] text-xl">✓</span>
+                              <span className="text-primary text-xl">✓</span>
                             )}
                           </button>
                         ))}
@@ -1102,12 +1102,12 @@ const LiveInterview = () => {
       >
         {/* Language Selection */}
         <div className="rounded-sm border border-[#2a2a2a] bg-transparent p-4">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 block">
+          <label className="text-xs font-semibold text-gray-400 mb-3 block">
             🌐 LANGUAGE
           </label>
           <button
             onClick={() => setShowLanguageModal(true)}
-            className="w-full flex items-center justify-between p-3 rounded-sm border border-[#2a2a2a] hover:border-[#FFD700]/50 bg-[#111111] transition-all"
+            className="w-full flex items-center justify-between p-3 rounded-sm border border-[#2a2a2a] hover:border-primary/50 bg-card transition-all"
           >
             <div className="flex items-center gap-2">
               <span className="text-2xl">{selectedLanguage.flag}</span>
@@ -1121,7 +1121,7 @@ const LiveInterview = () => {
 
         {/* Speed Preset */}
         <div className="rounded-sm border border-[#2a2a2a] bg-transparent p-4">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 block">
+          <label className="text-xs font-semibold text-gray-400 mb-3 block">
             ⚡ SPEAKING SPEED
           </label>
           <div className="flex gap-2">
@@ -1130,8 +1130,8 @@ const LiveInterview = () => {
                 key={speed}
                 onClick={() => setSpeedPreset(speed)}
                 className={`flex-1 py-2 px-3 rounded-sm text-sm font-medium transition-all capitalize ${speedPreset === speed
-                  ? "bg-[#FFD700] text-black"
-                  : "border border-[#2a2a2a] bg-[#111111] text-gray-400 hover:border-[#FFD700]/50"
+                  ? "bg-primary text-black"
+                  : "border border-[#2a2a2a] bg-card text-gray-400 hover:border-primary/50"
                   }`}
               >
                 {speed}
@@ -1142,7 +1142,7 @@ const LiveInterview = () => {
 
         {/* Style Preset */}
         <div className="rounded-sm border border-[#2a2a2a] bg-transparent p-4">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 block">
+          <label className="text-xs font-semibold text-gray-400 mb-3 block">
             🎭 VOICE STYLE
           </label>
           <div className="flex gap-2">
@@ -1151,8 +1151,8 @@ const LiveInterview = () => {
                 key={style}
                 onClick={() => setStylePreset(style)}
                 className={`flex-1 py-2 px-3 rounded-sm text-xs font-medium transition-all capitalize ${stylePreset === style
-                  ? "bg-[#FFD700] text-black"
-                  : "border border-[#2a2a2a] bg-[#111111] text-gray-400 hover:border-[#FFD700]/50"
+                  ? "bg-primary text-black"
+                  : "border border-[#2a2a2a] bg-card text-gray-400 hover:border-primary/50"
                   }`}
               >
                 {style}
@@ -1172,7 +1172,7 @@ const LiveInterview = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowLanguageModal(false)}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[90] flex items-center justify-center"
+              className="fixed inset-0 bg-black/70 z-[90] flex items-center justify-center"
             >
               {/* Modal */}
               <motion.div
@@ -1180,10 +1180,10 @@ const LiveInterview = () => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-[90%] max-w-md bg-[#111111] border border-[#2a2a2a] rounded-sm shadow-2xl"
+                className="w-[90%] max-w-md bg-card border border-[#2a2a2a] rounded-sm shadow-2xl"
               >
                 <div className="p-4 border-b border-[#2a2a2a] flex items-center justify-between">
-                  <h3 className="text-white font-bold uppercase tracking-wider text-sm">
+                  <h3 className="text-white font-bold text-sm">
                     🌐 Select Interview Language
                   </h3>
                   <button
@@ -1204,14 +1204,14 @@ const LiveInterview = () => {
                           `🌐 [LiveInterview] Selected language: ${lang.name}`,
                         );
                       }}
-                      className={`w-full px-4 py-4 flex items-center gap-4 hover:bg-white/5 transition-colors text-left border-b border-[#2a2a2a] ${selectedLanguage.id === lang.id ? "bg-[#FFD700]/10 border-l-4 border-l-[#FFD700]" : ""}`}
+                      className={`w-full px-4 py-4 flex items-center gap-4 hover:bg-white/5 transition-colors text-left border-b border-[#2a2a2a] ${selectedLanguage.id === lang.id ? "bg-primary/10 border-l-4 border-l-primary" : ""}`}
                     >
                       <span className="text-3xl">{lang.flag}</span>
                       <span className="text-white font-bold flex-1">
                         {lang.name}
                       </span>
                       {selectedLanguage.id === lang.id && (
-                        <span className="text-[#FFD700] text-xl">✓</span>
+                        <span className="text-primary text-xl">✓</span>
                       )}
                     </button>
                   ))}
@@ -1235,10 +1235,10 @@ const LiveInterview = () => {
             boxShadow: "0 10px 30px rgba(255, 215, 0, 0.3)",
           }}
           whileTap={{ scale: 0.99 }}
-          className="w-full py-4 bg-[#FFD700] hover:bg-[#E6C200] rounded-sm font-bold text-black text-lg flex items-center justify-center gap-3 transition-all duration-200 uppercase tracking-wider"
+          className="w-full py-4 bg-primary hover:bg-[#E6C200] rounded-sm font-bold text-black text-lg flex items-center justify-center gap-3 transition-all duration-200"
         >
           <Play className="w-5 h-5" />
-          <span className="uppercase tracking-wider">
+          <span className="">
             Start {callType === "video" ? "Video" : "Voice"} Interview
           </span>
         </motion.button>
@@ -1272,7 +1272,7 @@ const LiveInterview = () => {
       className="flex flex-col items-center justify-center py-20"
     >
       <div className="relative">
-        <div className="w-24 h-24 rounded-full bg-[#FFD700] animate-pulse" />
+        <div className="w-24 h-24 rounded-full bg-primary animate-pulse" />
         <div className="absolute inset-0 flex items-center justify-center">
           <Loader2 className="w-10 h-10 text-black animate-spin" />
         </div>
@@ -1296,10 +1296,10 @@ const LiveInterview = () => {
             animate={{
               borderColor: isAISpeaking ? "#FFD700" : "#2a2a2a",
             }}
-            className="relative aspect-video bg-[#0a0a0a] rounded-xl border-2 border-[#2a2a2a] flex items-center justify-center overflow-hidden"
+            className="relative aspect-video bg-background rounded-xl border-2 border-[#2a2a2a] flex items-center justify-center overflow-hidden"
           >
             <div
-              className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#FFD700] flex items-center justify-center ${isAISpeaking ? "animate-pulse" : ""}`}
+              className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-primary flex items-center justify-center ${isAISpeaking ? "animate-pulse" : ""}`}
             >
               <Bot className="w-7 h-7 sm:w-10 sm:h-10 text-black" />
             </div>
@@ -1307,7 +1307,7 @@ const LiveInterview = () => {
             {/* AI name badge */}
             <div className="absolute bottom-3 left-3 px-3 py-1.5 bg-black/80 rounded-lg flex items-center gap-2 border border-[#2a2a2a]">
               <span
-                className={`w-2 h-2 rounded-full ${isAISpeaking ? "bg-[#FFD700] animate-pulse" : "bg-gray-500"}`}
+                className={`w-2 h-2 rounded-full ${isAISpeaking ? "bg-primary animate-pulse" : "bg-gray-500"}`}
               />
               <span className="text-white text-sm font-medium">
                 {interviewer.name}
@@ -1316,9 +1316,9 @@ const LiveInterview = () => {
 
             {/* Speaking indicator */}
             {isAISpeaking && (
-              <div className="absolute top-3 right-3 px-3 py-1.5 bg-[#FFD700]/20 rounded-lg flex items-center gap-2 border border-[#FFD700]/40">
-                <Volume2 className="w-4 h-4 text-[#FFD700] animate-pulse" />
-                <span className="text-[#FFD700] text-sm font-medium">
+              <div className="absolute top-3 right-3 px-3 py-1.5 bg-primary/20 rounded-lg flex items-center gap-2 border border-primary/40">
+                <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+                <span className="text-primary text-sm font-medium">
                   Speaking
                 </span>
               </div>
@@ -1330,7 +1330,7 @@ const LiveInterview = () => {
             animate={{
               borderColor: isRecording ? "#FFD700" : "#2a2a2a",
             }}
-            className="relative aspect-video bg-[#0a0a0a] rounded-xl border-2 border-[#2a2a2a] overflow-hidden flex items-center justify-center"
+            className="relative aspect-video bg-background rounded-xl border-2 border-[#2a2a2a] overflow-hidden flex items-center justify-center"
           >
             {callType === "video" ? (
               <video
@@ -1342,7 +1342,7 @@ const LiveInterview = () => {
               />
             ) : (
               <div
-                className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#333] flex items-center justify-center ${isRecording ? "ring-4 ring-[#FFD700]/50" : ""}`}
+                className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#333] flex items-center justify-center ${isRecording ? "ring-4 ring-primary/50" : ""}`}
               >
                 <User className="w-7 h-7 sm:w-10 sm:h-10 text-gray-400" />
               </div>
@@ -1369,9 +1369,9 @@ const LiveInterview = () => {
         </div>
 
         {/* Live transcript */}
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-[#2a2a2a] space-y-3">
+        <div className="bg-background rounded-xl p-4 border border-[#2a2a2a] space-y-3">
           <div>
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            <h3 className="text-sm font-semibold text-gray-400 mb-3">
               YOUR SPEECH
             </h3>
             <div className="min-h-[60px]">
@@ -1391,13 +1391,13 @@ const LiveInterview = () => {
               value={typedAnswer}
               onChange={(e) => setTypedAnswer(e.target.value)}
               rows={3}
-              className="w-full bg-[#050505] border border-[#2a2a2a] rounded-md px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#FFD700]/60"
+              className="w-full bg-[#050505] border border-[#2a2a2a] rounded-md px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/60"
               placeholder="Type your answer here if the microphone is not working"
             />
             <Button
               onClick={handleSendTypedAnswer}
               disabled={!typedAnswer.trim() || isProcessing}
-              className="w-full bg-[#FFD700] text-black hover:bg-[#FFE44D] text-xs font-semibold uppercase tracking-wider"
+              className="w-full bg-primary text-black hover:bg-[#FFE44D] text-xs font-semibold"
             >
               Send Typed Answer
             </Button>
@@ -1405,7 +1405,7 @@ const LiveInterview = () => {
         </div>
 
         {/* Controls - Larger on mobile */}
-        <div className="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[#0a0a0a] rounded-xl border border-[#2a2a2a]">
+        <div className="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-background rounded-xl border border-[#2a2a2a]">
           <button
             onClick={toggleMic}
             className={`rounded-full w-14 h-14 sm:w-12 sm:h-12 flex items-center justify-center transition-all ${isRecording ? "bg-red-500 hover:bg-red-600 text-white" : "bg-[#1a1a1a] border border-[#2a2a2a] text-gray-400 hover:border-[#444]"}`}
@@ -1441,9 +1441,9 @@ const LiveInterview = () => {
           {/* Status indicator instead of send button - auto-sends on silence */}
           <div className="rounded-full px-6 h-12 flex items-center gap-2 transition-all">
             {isProcessing ? (
-              <div className="flex items-center gap-2 bg-[#FFD700]/20 px-4 py-2 rounded-lg border border-[#FFD700]/40">
-                <Loader2 className="w-5 h-5 text-[#FFD700] animate-spin" />
-                <span className="text-[#FFD700] font-medium">
+              <div className="flex items-center gap-2 bg-primary/20 px-4 py-2 rounded-lg border border-primary/40">
+                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                <span className="text-primary font-medium">
                   Processing...
                 </span>
               </div>
@@ -1469,12 +1469,12 @@ const LiveInterview = () => {
       {/* Sidebar */}
       <div className="space-y-4">
         {/* Progress */}
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-[#2a2a2a]">
+        <div className="bg-background rounded-xl p-4 border border-[#2a2a2a]">
           <div className="flex justify-between text-sm mb-3">
-            <span className="text-gray-400 font-semibold uppercase tracking-wider">
+            <span className="text-gray-400 font-semibold">
               Progress
             </span>
-            <span className="text-[#FFD700] font-bold">
+            <span className="text-primary font-bold">
               {progress.current}/{progress.total}
             </span>
           </div>
@@ -1486,8 +1486,8 @@ const LiveInterview = () => {
 
         {/* Current question */}
         {currentQuestion && (
-          <div className="bg-[#0a0a0a] rounded-xl p-4 border border-[#FFD700]/30">
-            <span className="inline-block px-3 py-1 bg-[#FFD700]/10 text-[#FFD700] text-xs font-semibold uppercase tracking-wider rounded-full mb-3">
+          <div className="bg-background rounded-xl p-4 border border-primary/30">
+            <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-3">
               {currentQuestion.category}
             </span>
             <p className="text-white text-sm leading-relaxed">
@@ -1495,7 +1495,7 @@ const LiveInterview = () => {
             </p>
             {currentQuestion.tips && (
               <p className="text-gray-500 text-xs mt-3 flex items-start gap-2">
-                <span className="text-[#FFD700]">💡</span>
+                <span className="text-primary">💡</span>
                 <span>{currentQuestion.tips}</span>
               </p>
             )}
@@ -1503,8 +1503,8 @@ const LiveInterview = () => {
         )}
 
         {/* Conversation history */}
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-[#2a2a2a] max-h-[350px] overflow-y-auto">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+        <div className="bg-background rounded-xl p-4 border border-[#2a2a2a] max-h-[350px] overflow-y-auto">
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">
             CONVERSATION
           </h3>
           <div className="space-y-3">
@@ -1514,7 +1514,7 @@ const LiveInterview = () => {
                 className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
               >
                 {msg.role === "ai" && (
-                  <div className="w-7 h-7 rounded-full bg-[#FFD700] flex-shrink-0 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-full bg-primary flex-shrink-0 flex items-center justify-center">
                     <Bot className="w-4 h-4 text-black" />
                   </div>
                 )}
@@ -1555,17 +1555,17 @@ const LiveInterview = () => {
       <div className="text-center mb-8">
         <div
           className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-4 ${summary.overallScore >= 80
-            ? "bg-[#00FF94]/20 border-2 border-[#00FF94]/40"
+            ? "bg-accent/20 border-2 border-accent/40"
             : summary.overallScore >= 60
-              ? "bg-[#FFD700]/20 border-2 border-[#FFD700]/40"
+              ? "bg-primary/20 border-2 border-primary/40"
               : "bg-red-500/20 border-2 border-red-500/40"
             }`}
         >
           <span
             className={`text-4xl font-bold ${summary.overallScore >= 80
-              ? "text-[#00FF94]"
+              ? "text-accent"
               : summary.overallScore >= 60
-                ? "text-[#FFD700]"
+                ? "text-primary"
                 : "text-red-400"
               }`}
           >
@@ -1575,14 +1575,14 @@ const LiveInterview = () => {
         <h2 className="text-2xl font-bold text-white mb-2">
           Interview Complete!
         </h2>
-        <span className="inline-block px-4 py-1 bg-[#FFD700]/10 text-[#FFD700] rounded-full text-sm font-semibold border border-[#FFD700]/30">
+        <span className="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-semibold border border-primary/30">
           {summary.grade}
         </span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-[#00FF94]/30">
-          <h3 className="text-[#00FF94] font-semibold mb-2">✓ Strengths</h3>
+        <div className="bg-background rounded-xl p-4 border border-accent/30">
+          <h3 className="text-accent font-semibold mb-2">✓ Strengths</h3>
           <ul className="space-y-1">
             {summary.strengths?.map((s, i) => (
               <li key={i} className="text-gray-300 text-sm">
@@ -1591,8 +1591,8 @@ const LiveInterview = () => {
             ))}
           </ul>
         </div>
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-[#FFD700]/30">
-          <h3 className="text-[#FFD700] font-semibold mb-2">↗ Improvements</h3>
+        <div className="bg-background rounded-xl p-4 border border-primary/30">
+          <h3 className="text-primary font-semibold mb-2">↗ Improvements</h3>
           <ul className="space-y-1">
             {summary.improvements?.map((s, i) => (
               <li key={i} className="text-gray-300 text-sm">
@@ -1612,7 +1612,7 @@ const LiveInterview = () => {
           setMessages([]);
           setSessionId(null);
         }}
-        className="w-full py-4 bg-[#FFD700] hover:bg-[#E6C200] text-black font-bold rounded-xl transition-all"
+        className="w-full py-4 bg-primary hover:bg-[#E6C200] text-black font-bold rounded-xl transition-all"
       >
         Start New Interview
       </button>

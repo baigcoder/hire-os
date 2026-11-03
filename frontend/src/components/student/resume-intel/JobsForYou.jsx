@@ -38,7 +38,7 @@ const JobsForYou = () => {
               <div className="min-w-0">
                 <Link
                   to={`/description/${job._id}`}
-                  className="text-sm font-semibold text-gray-100 hover:text-[#FFD700]"
+                  className="text-sm font-semibold text-gray-100 hover:text-primary"
                 >
                   {job.title}
                 </Link>
@@ -57,7 +57,7 @@ const JobsForYou = () => {
                 </p>
               </div>
               <span
-                className="shrink-0 text-xs font-mono text-[#FFD700]"
+                className="shrink-0 text-xs text-primary"
                 title="How closely the job's description matches your resume"
               >
                 {Math.round(job.similarity * 100)}% similar
@@ -69,7 +69,7 @@ const JobsForYou = () => {
                 {job.matchedSkills?.slice(0, 6).map((s) => (
                   <span
                     key={`m-${s}`}
-                    className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[11px] text-emerald-300"
+                    className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-xs text-emerald-300"
                   >
                     {s}
                   </span>
@@ -77,7 +77,7 @@ const JobsForYou = () => {
                 {job.missingSkills?.slice(0, 4).map((s) => (
                   <span
                     key={`x-${s}`}
-                    className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-gray-500"
+                    className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs text-gray-500"
                     title="Asked for by the job, not on your resume"
                   >
                     {s}
@@ -88,7 +88,7 @@ const JobsForYou = () => {
           </li>
         ))}
       </ul>
-      <p className="text-[11px] text-gray-600 mt-3">
+      <p className="text-xs text-gray-600 mt-3">
         Ranked by meaning, not just keywords. Green skills you already have;
         grey ones the job also asks for.
       </p>

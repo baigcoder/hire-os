@@ -131,9 +131,7 @@ const PricingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero Section */}
@@ -144,15 +142,15 @@ const PricingPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto mb-12"
           >
-            <Badge className="mb-6 px-3 py-1 bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30 rounded-sm text-[10px] uppercase tracking-wider font-mono">
+            <Badge className="mb-6 px-3 py-1 bg-primary/10 text-primary border-primary/30 rounded-sm text-xs">
               <Crown className="w-3 h-3 mr-1" />
               Subscription Plans
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-4 uppercase tracking-tight">
               Select Your
-              <span className="text-[#FFD700]"> Plan</span>
+              <span className="text-primary"> Plan</span>
             </h1>
-            <p className="text-gray-500 text-sm font-mono">
+            <p className="text-gray-500 text-sm">
               Industrial-grade recruitment tools for every scale
             </p>
           </motion.div>
@@ -166,26 +164,26 @@ const PricingPage = () => {
           >
             <button
               onClick={() => setBillingCycle("monthly")}
-              className={`px-4 py-2 rounded-sm font-medium text-xs uppercase tracking-wider transition-all ${
+              className={`px-4 py-2 rounded-sm font-medium text-xs transition-all ${
                 billingCycle === "monthly"
-                  ? "bg-[#FFD700] text-black"
-                  : "bg-[#111111] text-gray-500 hover:bg-white/10 border border-white/10"
+                  ? "bg-primary text-black"
+                  : "bg-card text-gray-500 hover:bg-white/10 border border-white/10"
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
-              className={`px-4 py-2 rounded-sm font-medium text-xs uppercase tracking-wider transition-all ${
+              className={`px-4 py-2 rounded-sm font-medium text-xs transition-all ${
                 billingCycle === "yearly"
-                  ? "bg-[#FFD700] text-black"
-                  : "bg-[#111111] text-gray-500 hover:bg-white/10 border border-white/10"
+                  ? "bg-primary text-black"
+                  : "bg-card text-gray-500 hover:bg-white/10 border border-white/10"
               }`}
             >
               Yearly
             </button>
             {billingCycle === "yearly" && (
-              <Badge className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30 rounded-sm text-[10px] uppercase tracking-wider font-mono">
+              <Badge className="bg-accent/10 text-accent border-accent/30 rounded-sm text-xs">
                 Save 20%
               </Badge>
             )}
@@ -203,7 +201,7 @@ const PricingPage = () => {
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                    <Badge className="bg-[#FFD700] text-black px-3 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold">
+                    <Badge className="bg-primary text-black px-3 py-0.5 rounded-sm text-xs font-bold">
                       <Star className="w-3 h-3 mr-1" /> Recommended
                     </Badge>
                   </div>
@@ -212,16 +210,16 @@ const PricingPage = () => {
                 <div
                   className={`h-full transition-all duration-300 rounded-sm border overflow-hidden ${
                     plan.popular
-                      ? "bg-[#111111] border-[#FFD700]/50 shadow-[0_0_30px_rgba(255,215,0,0.1)]"
-                      : "bg-[#111111] border-white/10 hover:border-[#FFD700]/30"
+                      ? "bg-card border-primary/50 shadow-[0_0_30px_rgba(255,215,0,0.1)]"
+                      : "bg-card border-white/10 hover:border-primary/30"
                   }`}
                 >
                   {/* HUD Corner Accents */}
                   <div
-                    className={`absolute top-0 right-0 w-4 h-4 border-t border-r ${plan.popular ? "border-[#FFD700]/50" : "border-white/10"}`}
+                    className={`absolute top-0 right-0 w-4 h-4 border-t border-r ${plan.popular ? "border-primary/50" : "border-white/10"}`}
                   />
                   <div
-                    className={`absolute bottom-0 left-0 w-4 h-4 border-b border-l ${plan.popular ? "border-[#FFD700]/50" : "border-white/10"}`}
+                    className={`absolute bottom-0 left-0 w-4 h-4 border-b border-l ${plan.popular ? "border-primary/50" : "border-white/10"}`}
                   />
 
                   {/* Header */}
@@ -229,44 +227,44 @@ const PricingPage = () => {
                     <div
                       className={`w-12 h-12 mx-auto mb-3 rounded-sm flex items-center justify-center ${
                         plan.popular
-                          ? "bg-[#FFD700]"
+                          ? "bg-primary"
                           : "bg-white/5 border border-white/10"
                       }`}
                     >
                       {plan.id === "basic" && (
                         <Building2
-                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-[#FFD700]"}`}
+                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-primary"}`}
                         />
                       )}
                       {plan.id === "professional" && (
                         <Crown
-                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-[#FFD700]"}`}
+                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-primary"}`}
                         />
                       )}
                       {plan.id === "enterprise" && (
                         <Zap
-                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-[#FFD700]"}`}
+                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-primary"}`}
                         />
                       )}
                     </div>
-                    <h3 className="text-lg font-bold text-white uppercase tracking-wider">
+                    <h3 className="text-lg font-bold text-white">
                       {plan.name}
                     </h3>
-                    <p className="text-gray-600 text-xs font-mono uppercase">
+                    <p className="text-gray-600 text-xs uppercase">
                       {plan.description}
                     </p>
 
                     <div className="mt-4">
                       <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-3xl font-bold text-white font-mono">
+                        <span className="text-3xl font-bold text-white">
                           {formatPrice(plan.prices[billingCycle])}
                         </span>
                       </div>
-                      <span className="text-gray-600 text-xs font-mono">
+                      <span className="text-gray-600 text-xs">
                         /{billingCycle === "yearly" ? "year" : "month"}
                       </span>
                       {billingCycle === "yearly" && (
-                        <p className="text-[10px] text-[#00FF94] mt-1 font-mono">
+                        <p className="text-xs text-accent mt-1">
                           SAVE{" "}
                           {calculateDiscount(
                             plan.prices.monthly,
@@ -293,8 +291,8 @@ const PricingPage = () => {
                           className={`flex items-center gap-2 ${hasFeature ? "text-gray-400" : "text-gray-700"}`}
                         >
                           {hasFeature ? (
-                            <div className="w-4 h-4 rounded-sm bg-[#00FF94]/10 flex items-center justify-center">
-                              <Check className="w-2.5 h-2.5 text-[#00FF94]" />
+                            <div className="w-4 h-4 rounded-sm bg-accent/10 flex items-center justify-center">
+                              <Check className="w-2.5 h-2.5 text-accent" />
                             </div>
                           ) : (
                             <div className="w-4 h-4 rounded-sm bg-white/5 flex items-center justify-center">
@@ -313,9 +311,9 @@ const PricingPage = () => {
 
                     <Button
                       onClick={() => handleSelectPlan(plan)}
-                      className={`w-full mt-6 py-5 font-bold text-xs uppercase tracking-wider rounded-sm transition-all ${
+                      className={`w-full mt-6 py-5 font-bold text-xs rounded-sm transition-all ${
                         plan.popular
-                          ? "bg-[#FFD700] hover:bg-[#FFE44D] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+                          ? "bg-primary hover:bg-[#FFE44D] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)]"
                           : "bg-white/5 hover:bg-white/10 text-white border border-white/10"
                       }`}
                     >
@@ -335,9 +333,9 @@ const PricingPage = () => {
             transition={{ delay: 0.6 }}
             className="mt-16 text-center"
           >
-            <div className="flex items-center justify-center gap-6 text-gray-600 text-xs font-mono uppercase tracking-wider">
+            <div className="flex items-center justify-center gap-6 text-gray-600 text-xs">
               <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#00FF94]" />
+                <Shield className="w-4 h-4 text-accent" />
                 <span>Secure</span>
               </div>
               <span className="text-gray-800">|</span>

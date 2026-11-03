@@ -159,7 +159,7 @@ const CompanyReport = () => {
                 <Building size={40} className="text-yellow-500" />
               </div>
             </div>
-            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+            <h1 className="text-4xl font-extrabold">
               Hiring Performance Report
             </h1>
             <p className="text-gray-400 text-lg">
@@ -203,7 +203,7 @@ const CompanyReport = () => {
             ].map((stat, i) => (
               <Card
                 key={i}
-                className="bg-[#0a0a0a] border-white/10 print:border-gray-200"
+                className="bg-background border-white/10 print:border-gray-200"
               >
                 <CardContent className="p-6 text-center">
                   <stat.icon
@@ -213,7 +213,7 @@ const CompanyReport = () => {
                   <div className="text-3xl font-bold text-white print:text-black">
                     {stat.value}
                   </div>
-                  <div className="text-xs text-gray-500 uppercase tracking-widest mt-1">
+                  <div className="text-xs text-gray-500 mt-1">
                     {stat.label}
                   </div>
                 </CardContent>
@@ -224,7 +224,7 @@ const CompanyReport = () => {
           {/* Deep Dive & Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Funnel Chart */}
-            <Card className="bg-[#0a0a0a] border-white/10 print:border-gray-200">
+            <Card className="bg-background border-white/10 print:border-gray-200">
               <CardHeader>
                 <CardTitle className="text-white print:text-black">
                   Conversion Funnel
@@ -260,7 +260,7 @@ const CompanyReport = () => {
             </Card>
 
             {/* Top Candidates Table */}
-            <Card className="bg-[#0a0a0a] border-white/10 print:border-gray-200">
+            <Card className="bg-background border-white/10 print:border-gray-200">
               <CardHeader>
                 <CardTitle className="text-white print:text-black text-lg">
                   Top Selected Talent
@@ -297,7 +297,7 @@ const CompanyReport = () => {
                           </div>
                           <Badge
                             variant="secondary"
-                            className="text-[10px] bg-white/10 text-gray-400 print:bg-gray-200 print:text-black"
+                            className="text-xs bg-white/10 text-gray-400 print:bg-gray-200 print:text-black"
                           >
                             {c.status}
                           </Badge>
@@ -311,7 +311,7 @@ const CompanyReport = () => {
           </div>
 
           {/* AI Insights Footer */}
-          <div className="bg-gradient-to-r from-yellow-900/20 to-black border border-yellow-500/20 rounded-2xl p-6 print:border-black">
+          <div className="border border-yellow-500/20 rounded-2xl p-6 print:border-black bg-primary">
             <h3 className="font-bold text-yellow-500 mb-2 flex items-center gap-2">
               <TrendingUp size={20} /> AI Strategic Insight
             </h3>

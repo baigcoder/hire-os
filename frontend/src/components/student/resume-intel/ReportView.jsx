@@ -22,10 +22,10 @@ import JobsForYou from "./JobsForYou";
 const ScoreHeader = ({ report }) => {
   const { score } = report;
   return (
-    <div className="bg-[#111111] border border-white/10 rounded-md p-6">
+    <div className="bg-card border border-white/10 rounded-md p-6">
       <div className="flex flex-col md:flex-row md:items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="text-5xl font-bold font-mono text-white">
+          <div className="text-5xl font-bold text-white">
             {score.overall}
             <span className="text-lg text-gray-500">/100</span>
           </div>
@@ -44,17 +44,17 @@ const ScoreHeader = ({ report }) => {
           {score.components.map((c) => (
             <div
               key={c.id}
-              className="bg-[#0A0A0A] border border-white/5 rounded p-3"
+              className="bg-background border border-white/5 rounded p-3"
             >
               <div className="flex justify-between text-xs text-gray-400 mb-2">
                 <span>{c.label}</span>
-                <span className="font-mono text-gray-300">
+                <span className="text-gray-300">
                   {c.points}/{c.weight}
                 </span>
               </div>
               <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#FFD700]"
+                  className="h-full bg-primary"
                   style={{ width: `${Math.round(c.value * 100)}%` }}
                 />
               </div>
@@ -133,18 +133,18 @@ const Rewrites = ({ rewrites }) => {
             key={r.itemId}
             className="grid md:grid-cols-[1fr_auto_1fr] gap-3 items-start"
           >
-            <p className="text-sm text-gray-500 bg-[#0A0A0A] border border-white/5 rounded p-3 line-through decoration-white/20">
+            <p className="text-sm text-gray-500 bg-background border border-white/5 rounded p-3 line-through decoration-white/20">
               {r.before}
             </p>
             <ArrowRight className="hidden md:block w-4 h-4 text-gray-600 mt-3" />
-            <div className="text-sm text-gray-200 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded p-3">
+            <div className="text-sm text-gray-200 bg-primary/5 border border-primary/20 rounded p-3">
               <p>{r.after}</p>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs text-gray-500">{r.why}</span>
                 <button
                   type="button"
                   onClick={() => copy(r.after)}
-                  className="text-xs text-[#FFD700] flex items-center gap-1 hover:underline"
+                  className="text-xs text-primary flex items-center gap-1 hover:underline"
                 >
                   <Copy className="w-3 h-3" /> Copy
                 </button>
@@ -166,7 +166,7 @@ const AtsChecklist = ({ signals }) => (
     icon={CheckCircle2}
     title="ATS checklist"
     aside={
-      <span className="text-xs font-mono text-gray-400">
+      <span className="text-xs text-gray-400">
         {signals.ats.passed}/{signals.ats.total}
       </span>
     }
@@ -198,9 +198,9 @@ const AtsChecklist = ({ signals }) => (
 );
 
 const Stat = ({ label, value }) => (
-  <div className="bg-[#0A0A0A] border border-white/5 rounded p-3">
-    <div className="text-lg font-mono text-white">{value}</div>
-    <div className="text-[11px] text-gray-500">{label}</div>
+  <div className="bg-background border border-white/5 rounded p-3">
+    <div className="text-lg text-white">{value}</div>
+    <div className="text-xs text-gray-500">{label}</div>
   </div>
 );
 
@@ -298,7 +298,7 @@ const ReportView = ({ report }) => {
           {skills.length > 18 && (
             <button
               type="button"
-              className="text-xs text-[#FFD700] mt-3 hover:underline"
+              className="text-xs text-primary mt-3 hover:underline"
               onClick={() => setShowAllSkills((v) => !v)}
             >
               {showAllSkills ? "Show fewer" : `Show all ${skills.length}`}
@@ -318,7 +318,7 @@ const ReportView = ({ report }) => {
               <li key={i} className="text-sm">
                 <span className="text-gray-200 font-medium">{l.skill}</span>
                 <span className="text-gray-500"> — {l.why}</span>
-                <p className="text-xs text-[#FFD700]/80 mt-1">{l.resource}</p>
+                <p className="text-xs text-primary/80 mt-1">{l.resource}</p>
               </li>
             ))}
           </ul>
@@ -329,7 +329,7 @@ const ReportView = ({ report }) => {
 
       {report._id && <CoachPanel reportId={report._id} />}
 
-      <p className="text-[11px] text-gray-600 text-center">
+      <p className="text-xs text-gray-600 text-center">
         The score ({report.score?.version}) is calculated from your
         resume&apos;s content, not by the AI.
         {report.grounding?.dropped > 0 &&

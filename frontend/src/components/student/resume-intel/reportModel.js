@@ -4,7 +4,7 @@ import { CheckCircle2, CircleDashed, XCircle } from "lucide-react";
 
 export const BAND_STYLES = {
   Excellent: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
-  Good: "text-[#FFD700] border-[#FFD700]/30 bg-[#FFD700]/10",
+  Good: "text-primary border-primary/30 bg-primary/10",
   Fair: "text-orange-400 border-orange-500/30 bg-orange-500/10",
   Poor: "text-red-400 border-red-500/30 bg-red-500/10",
 };
@@ -14,7 +14,7 @@ export const STATUS = {
   partial: {
     icon: CircleDashed,
     label: "Partial",
-    className: "text-[#FFD700]",
+    className: "text-primary",
   },
   missing: { icon: XCircle, label: "Missing", className: "text-red-400" },
 };

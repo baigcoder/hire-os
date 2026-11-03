@@ -22,7 +22,7 @@ const fmtSilence = (ms) => (ms == null ? "never reported" : ms < 60_000 ? `${Mat
 const Dot = ({ ok, warn }) => (
   <span
     aria-hidden="true"
-    className={`inline-block w-1.5 h-1.5 rounded-full ${ok ? "bg-[#00FF94]" : warn ? "bg-[#FFD700]" : "bg-red-500"}`}
+    className={`inline-block w-1.5 h-1.5 rounded-full ${ok ? "bg-accent" : warn ? "bg-primary" : "bg-red-500"}`}
   />
 );
 
@@ -43,7 +43,7 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
 
   if (!snapshot) {
     return (
-      <div className="bg-[#111111]/95 backdrop-blur-md border border-white/10 rounded-md p-3 text-xs text-gray-400 flex items-center gap-2">
+      <div className="bg-card/95 border border-white/10 rounded-md p-3 text-xs text-gray-400 flex items-center gap-2">
         <Loader2 className="w-3 h-3 animate-spin" /> Loading integrity monitor…
       </div>
     );
@@ -89,7 +89,7 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
   return (
     <section
       aria-label="Interview integrity"
-      className="bg-[#111111]/95 backdrop-blur-md border border-white/10 rounded-md text-white text-xs"
+      className="bg-card/95 border border-white/10 rounded-md text-white text-xs"
     >
       <button
         type="button"
@@ -97,22 +97,22 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
         aria-expanded={open}
         className="w-full flex items-center justify-between gap-2 p-3"
       >
-        <span className="flex items-center gap-2 font-bold uppercase tracking-wider text-[10px] text-gray-300">
+        <span className="flex items-center gap-2 font-bold text-xs text-gray-300">
           {tamper.length ? (
             <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
           ) : (
-            <ShieldCheck className="w-3.5 h-3.5 text-[#FFD700]" />
+            <ShieldCheck className="w-3.5 h-3.5 text-primary" />
           )}
           Integrity
           {streaming && (
-            <span className="flex items-center gap-1 text-[#00FF94] font-mono normal-case tracking-normal">
+            <span className="flex items-center gap-1 text-accent normal-case tracking-normal">
               <Radio className="w-3 h-3" /> live
             </span>
           )}
         </span>
         <span className="flex items-center gap-2">
           {active && (
-            <span className={`font-mono font-bold ${band.text}`}>
+            <span className={`font-bold ${band.text}`}>
               {risk.score}
               <span className="text-gray-500 font-normal">/100</span>
             </span>
@@ -128,8 +128,8 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
           {active && (
             <div>
               <div className="flex items-baseline justify-between mb-1">
-                <span className={`font-bold uppercase tracking-wider text-[10px] ${band.text}`}>{band.label}</span>
-                <span className="text-gray-500 font-mono text-[10px]">peak {risk.peak ?? 0}</span>
+                <span className={`font-bold text-xs ${band.text}`}>{band.label}</span>
+                <span className="text-gray-500 text-xs">peak {risk.peak ?? 0}</span>
               </div>
               <div
                 className="h-1.5 bg-white/5 rounded-sm overflow-hidden"
@@ -141,15 +141,15 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
               >
                 <div className={`h-full ${band.bar} transition-all duration-700`} style={{ width: `${risk.score}%` }} />
               </div>
-              <p className="text-[10px] text-gray-500 mt-1">Recent signals, fading over ~90s. Observations for review, not verdicts.</p>
+              <p className="text-xs text-gray-500 mt-1">Recent signals, fading over ~90s. Observations for review, not verdicts.</p>
             </div>
           )}
 
-          {snapshot.status !== "ended" && <div className="space-y-1 text-[11px]">
+          {snapshot.status !== "ended" && <div className="space-y-1 text-xs">
             <div className="flex items-center gap-2">
               <Dot ok={cand.alive && cand.modelLoaded !== false} warn={cand.alive && cand.modelLoaded == null} />
               <span className="text-gray-300">Candidate detector</span>
-              <span className="ml-auto text-gray-500 font-mono">
+              <span className="ml-auto text-gray-500">
                 {cand.alive
                   ? cand.modelLoaded === false
                     ? "no model"
@@ -160,7 +160,7 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
             <div className="flex items-center gap-2">
               <Dot ok={verifier?.engine.status === "ready"} warn={verifier?.engine.status === "loading"} />
               <span className="text-gray-300">Your detector</span>
-              <span className="ml-auto text-gray-500 font-mono">
+              <span className="ml-auto text-gray-500">
                 {verifier?.engine.status === "ready" ? `${verifier.sent} sent` : verifier?.engine.status ?? "off"}
               </span>
             </div>
@@ -168,11 +168,11 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
 
           {tamper.length > 0 && (
             <div className="rounded-sm border border-red-500/30 bg-red-500/10 p-2 space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-red-400">Monitoring reliability</div>
+              <div className="text-xs font-bold text-red-400">Monitoring reliability</div>
               {tamper.map((t) => (
                 <div key={t.type} className="flex justify-between gap-2 text-red-300">
                   <span>{signalLabel(t.type)}</span>
-                  <span className="font-mono text-red-400/80">×{t.count}</span>
+                  <span className="text-red-400/80">×{t.count}</span>
                 </div>
               ))}
             </div>
@@ -180,7 +180,7 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
 
           {snapshot.recent?.length > 0 && (
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Recent</div>
+              <div className="text-xs font-bold text-gray-400 mb-1">Recent</div>
               <ul className="space-y-1">
                 {snapshot.recent.slice(0, 8).map((e) => (
                   <li
@@ -193,17 +193,17 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
                       {signalLabel(e.type)}
                     </span>
                     {e.source === "recruiter" && (
-                      <span className="text-[9px] px-1 rounded-sm bg-blue-500/20 text-blue-300 shrink-0">your side</span>
+                      <span className="text-xs px-1 rounded-sm bg-blue-500/20 text-blue-300 shrink-0">your side</span>
                     )}
                     {e.mismatch && (
-                      <span className="text-[9px] px-1 rounded-sm bg-red-500/20 text-red-300 shrink-0">unmatched</span>
+                      <span className="text-xs px-1 rounded-sm bg-red-500/20 text-red-300 shrink-0">unmatched</span>
                     )}
-                    <span className="ml-auto font-mono text-[10px] text-gray-500 shrink-0">{fmtClock(e.at)}</span>
+                    <span className="ml-auto text-xs text-gray-500 shrink-0">{fmtClock(e.at)}</span>
                     {e.evidenceId && (
                       <button
                         type="button"
                         onClick={() => openEvidence(e.evidenceId)}
-                        className="text-[#FFD700] hover:text-[#FFD700]/80 shrink-0"
+                        className="text-primary hover:text-primary/80 shrink-0"
                         aria-label="View evidence frame"
                       >
                         <ImageIcon className="w-3.5 h-3.5" />
@@ -217,21 +217,21 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
 
           {totals.length > 0 && (
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Totals</div>
+              <div className="text-xs font-bold text-gray-400 mb-1">Totals</div>
               <ul className="space-y-1">
                 {totals.map(([type, a]) => (
                   <li key={type} className="flex items-center gap-2">
                     <span className={expected.has(type) ? "text-gray-500 line-through" : "text-gray-300"}>
                       {SIGNAL_LABELS[type]}
                     </span>
-                    <span className="font-mono text-gray-500">
+                    <span className="text-gray-500">
                       ×{a.counted} · {Math.round((a.totalMs ?? 0) / 1000)}s
                     </span>
                     <button
                       type="button"
                       disabled={busy === type}
                       onClick={() => toggleExpected(type)}
-                      className="ml-auto text-[10px] text-gray-400 hover:text-white underline-offset-2 hover:underline disabled:opacity-50"
+                      className="ml-auto text-xs text-gray-400 hover:text-white underline-offset-2 hover:underline disabled:opacity-50"
                       title="An accommodation: the signal is recorded but no longer raises the score"
                     >
                       {expected.has(type) ? "Count it" : "Expected"}
@@ -245,7 +245,7 @@ const IntegrityMeter = ({ interviewId, snapshot, streaming, verifier }) => {
           {snapshot.status === "ended" && (
             <Link
               to={`/interview/${interviewId}/integrity`}
-              className="flex items-center gap-2 text-[#FFD700] hover:underline"
+              className="flex items-center gap-2 text-primary hover:underline"
             >
               <FileText className="w-3.5 h-3.5" /> Integrity report
               <span className="text-gray-500">({snapshot.report?.status ?? "none"})</span>

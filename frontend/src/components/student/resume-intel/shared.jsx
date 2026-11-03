@@ -3,9 +3,9 @@ import { STATUS } from "./reportModel";
 /** Shared pieces of the candidate report and the recruiter screening view. */
 
 export const Section = ({ icon: Icon, title, children, aside }) => (
-  <section className="bg-[#111111] border border-white/10 rounded-md p-5">
+  <section className="bg-card border border-white/10 rounded-md p-5">
     <div className="flex items-center justify-between mb-4">
-      <h3 className="flex items-center gap-2 text-sm font-mono uppercase tracking-wider text-[#FFD700]">
+      <h3 className="flex items-center gap-2 text-sm text-primary">
         <Icon className="w-4 h-4" />
         {title}
       </h3>
@@ -43,7 +43,7 @@ export const RequirementList = ({ requirements, matches, labels }) => {
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm text-gray-200">{req.text}</span>
-                <span className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] text-gray-400">
+                <span className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs text-gray-400">
                   {req.kind === "must" ? "Required" : "Nice to have"}
                 </span>
                 <span className={`text-xs ${className}`}>{label}</span>

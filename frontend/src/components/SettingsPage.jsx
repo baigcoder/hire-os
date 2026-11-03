@@ -186,9 +186,7 @@ const SettingsPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif] selection:bg-[#FFD700]/30">
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white selection:bg-primary/30">
       <div className="fixed inset-0 pointer-events-none">
         <div
           className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[200px]"
@@ -217,7 +215,7 @@ const SettingsPage = () => {
             </div>
             Settings
           </h1>
-          <p className="text-gray-500 text-sm mt-2 font-mono">
+          <p className="text-gray-500 text-sm mt-2">
             Manage your account preferences and security
           </p>
         </motion.div>
@@ -229,7 +227,7 @@ const SettingsPage = () => {
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-1"
           >
-            <div className="bg-[#111111] border border-white/10 rounded-md p-2 space-y-1">
+            <div className="bg-card border border-white/10 rounded-md p-2 space-y-1">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -270,7 +268,7 @@ const SettingsPage = () => {
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-3"
           >
-            <div className="bg-[#111111] border border-white/10 rounded-md p-6 relative overflow-hidden">
+            <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden">
               {/* Corner Accent */}
               <div
                 className="absolute top-0 right-0 w-8 h-8 border-t border-r"
@@ -289,7 +287,7 @@ const SettingsPage = () => {
                   >
                     <div>
                       <h2
-                        className="text-sm font-bold uppercase tracking-wider mb-4"
+                        className="text-sm font-bold mb-4"
                         style={{ color: accentColor }}
                       >
                         Account Information
@@ -297,7 +295,7 @@ const SettingsPage = () => {
 
                       <div className="space-y-4">
                         <div>
-                          <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+                          <label className="text-xs text-gray-500 mb-2 block">
                             Email Address
                           </label>
                           <div className="flex gap-2">
@@ -305,7 +303,7 @@ const SettingsPage = () => {
                               type="email"
                               value={settings.email}
                               disabled
-                              className="flex-1 px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-gray-400 font-mono text-sm"
+                              className="flex-1 px-4 py-3 bg-background border border-white/10 rounded-sm text-gray-400 text-sm"
                             />
                             <Button
                               variant="outline"
@@ -317,12 +315,12 @@ const SettingsPage = () => {
                         </div>
 
                         <div>
-                          <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+                          <label className="text-xs text-gray-500 mb-2 block">
                             Account Type
                           </label>
-                          <div className="flex items-center gap-3 p-4 bg-[#0A0A0A] border border-white/10 rounded-sm">
+                          <div className="flex items-center gap-3 p-4 bg-background border border-white/10 rounded-sm">
                             <Badge
-                              className="px-3 py-1 text-xs uppercase tracking-wider"
+                              className="px-3 py-1 text-xs"
                               style={{
                                 backgroundColor: `${accentColor}20`,
                                 color: accentColor,
@@ -342,7 +340,7 @@ const SettingsPage = () => {
                     </div>
 
                     <div className="pt-6 border-t border-white/5">
-                      <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                      <h3 className="text-sm font-bold text-white mb-4">
                         Change Password
                       </h3>
                       <div className="space-y-3">
@@ -356,7 +354,7 @@ const SettingsPage = () => {
                               e.target.value,
                             )
                           }
-                          className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white font-mono text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
+                          className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
                         />
                         <input
                           type={showPassword ? "text" : "password"}
@@ -365,7 +363,7 @@ const SettingsPage = () => {
                           onChange={(e) =>
                             handleSettingChange("newPassword", e.target.value)
                           }
-                          className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white font-mono text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
+                          className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
                         />
                         <input
                           type={showPassword ? "text" : "password"}
@@ -377,7 +375,7 @@ const SettingsPage = () => {
                               e.target.value,
                             )
                           }
-                          className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white font-mono text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
+                          className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
                         />
                         <div className="flex items-center justify-between">
                           <button
@@ -394,7 +392,7 @@ const SettingsPage = () => {
                           <Button
                             onClick={handlePasswordChange}
                             disabled={loading || !settings.newPassword}
-                            className="rounded-sm font-bold text-xs uppercase tracking-wider"
+                            className="rounded-sm font-bold text-xs"
                             style={{
                               backgroundColor: accentColor,
                               color: "#000",
@@ -411,7 +409,7 @@ const SettingsPage = () => {
 
                     {/* Share Your Experience */}
                     <div className="pt-6 border-t border-white/5">
-                      <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                      <h3 className="text-sm font-bold text-white mb-4">
                         Share Your Experience
                       </h3>
                       <p className="text-xs text-gray-500 mb-4">
@@ -431,7 +429,7 @@ const SettingsPage = () => {
                     exit={{ opacity: 0, y: -10 }}
                   >
                     <h2
-                      className="text-sm font-bold uppercase tracking-wider mb-6"
+                      className="text-sm font-bold mb-6"
                       style={{ color: accentColor }}
                     >
                       Notification Preferences
@@ -505,7 +503,7 @@ const SettingsPage = () => {
                     <div className="mt-6 flex justify-end">
                       <Button
                         onClick={handleSaveNotifications}
-                        className="rounded-sm font-bold text-xs uppercase tracking-wider"
+                        className="rounded-sm font-bold text-xs"
                         style={{ backgroundColor: accentColor, color: "#000" }}
                       >
                         Save Preferences
@@ -523,7 +521,7 @@ const SettingsPage = () => {
                     exit={{ opacity: 0, y: -10 }}
                   >
                     <h2
-                      className="text-sm font-bold uppercase tracking-wider mb-6"
+                      className="text-sm font-bold mb-6"
                       style={{ color: accentColor }}
                     >
                       Privacy Settings
@@ -582,20 +580,20 @@ const SettingsPage = () => {
                     </SettingRow>
 
                     <div className="mt-6 pt-6 border-t border-white/5">
-                      <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                      <h3 className="text-sm font-bold text-white mb-4">
                         Data & Privacy
                       </h3>
                       <div className="flex gap-3">
                         <Button
                           variant="outline"
-                          className="border-white/10 text-gray-400 rounded-sm text-xs uppercase tracking-wider"
+                          className="border-white/10 text-gray-400 rounded-sm text-xs"
                         >
                           <Download size={14} className="mr-2" />
                           Download Data
                         </Button>
                         <Button
                           variant="outline"
-                          className="border-red-500/30 text-red-400 rounded-sm text-xs uppercase tracking-wider hover:bg-red-500/10"
+                          className="border-red-500/30 text-red-400 rounded-sm text-xs hover:bg-red-500/10"
                         >
                           <Trash2 size={14} className="mr-2" />
                           Request Deletion
@@ -614,7 +612,7 @@ const SettingsPage = () => {
                     exit={{ opacity: 0, y: -10 }}
                   >
                     <h2
-                      className="text-sm font-bold uppercase tracking-wider mb-6"
+                      className="text-sm font-bold mb-6"
                       style={{ color: accentColor }}
                     >
                       Appearance Settings
@@ -622,7 +620,7 @@ const SettingsPage = () => {
 
                     <div className="space-y-6">
                       <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider mb-3 block">
+                        <label className="text-xs text-gray-500 mb-3 block">
                           Theme
                         </label>
                         <div className="grid grid-cols-2 gap-3">
@@ -634,7 +632,7 @@ const SettingsPage = () => {
                               }
                               className={`p-4 rounded-sm border transition-all flex items-center gap-3 ${settings.theme === theme
                                 ? "bg-white/10 border-white/30"
-                                : "bg-[#0A0A0A] border-white/10 hover:border-white/20"
+                                : "bg-background border-white/10 hover:border-white/20"
                                 }`}
                             >
                               {theme === "dark" ? (
@@ -674,7 +672,7 @@ const SettingsPage = () => {
                       </div>
 
                       <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider mb-3 block">
+                        <label className="text-xs text-gray-500 mb-3 block">
                           Language
                         </label>
                         <select
@@ -682,7 +680,7 @@ const SettingsPage = () => {
                           onChange={(e) =>
                             handleSettingChange("language", e.target.value)
                           }
-                          className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30"
+                          className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white focus:outline-none focus:border-white/30"
                         >
                           <option value="en">English</option>
                           <option value="es">Español</option>
@@ -703,14 +701,14 @@ const SettingsPage = () => {
                     exit={{ opacity: 0, y: -10 }}
                   >
                     <h2
-                      className="text-sm font-bold uppercase tracking-wider mb-6"
+                      className="text-sm font-bold mb-6"
                       style={{ color: accentColor }}
                     >
                       Security Settings
                     </h2>
 
                     <div className="space-y-4">
-                      <div className="p-4 bg-[#0A0A0A] border border-white/10 rounded-sm">
+                      <div className="p-4 bg-background border border-white/10 rounded-sm">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-sm bg-green-500/10 flex items-center justify-center">
@@ -731,7 +729,7 @@ const SettingsPage = () => {
                         </div>
                       </div>
 
-                      <div className="p-4 bg-[#0A0A0A] border border-white/10 rounded-sm">
+                      <div className="p-4 bg-background border border-white/10 rounded-sm">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center">
                             <Monitor size={18} className="text-gray-400" />
@@ -752,7 +750,7 @@ const SettingsPage = () => {
                               Current session
                             </span>
                           </div>
-                          <Badge className="bg-green-500/20 text-green-400 text-[10px]">
+                          <Badge className="bg-green-500/20 text-green-400 text-xs">
                             Active
                           </Badge>
                         </div>
@@ -761,7 +759,7 @@ const SettingsPage = () => {
 
                     {/* Danger Zone */}
                     <div className="mt-8 pt-6 border-t border-red-500/20">
-                      <h3 className="text-sm font-bold text-red-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-red-400 mb-4 flex items-center gap-2">
                         <AlertTriangle size={14} />
                         Danger Zone
                       </h3>
@@ -773,7 +771,7 @@ const SettingsPage = () => {
                         <Button
                           onClick={handleDeleteAccount}
                           variant="outline"
-                          className="border-red-500/50 text-red-400 hover:bg-red-500/10 rounded-sm text-xs uppercase tracking-wider"
+                          className="border-red-500/50 text-red-400 hover:bg-red-500/10 rounded-sm text-xs"
                         >
                           <Trash2 size={14} className="mr-2" />
                           Delete Account

@@ -74,7 +74,7 @@ const CareerTimeline = () => {
       case "experience":
         return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
       case "achievement":
-        return "text-[#FFD700] bg-[#FFD700]/10 border-[#FFD700]/20";
+        return "text-primary bg-primary/10 border-primary/20";
       case "milestone":
         return "text-purple-400 bg-purple-500/10 border-purple-500/20";
       case "certification":
@@ -95,9 +95,9 @@ const CareerTimeline = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="bg-[#111111] border border-white/10 rounded-2xl p-8">
+        <div className="bg-card border border-white/10 rounded-2xl p-8">
           <div className="flex flex-col items-center justify-center py-12">
-            <div className="w-12 h-12 border-4 border-[#FFD700]/20 rounded-full animate-spin border-t-[#FFD700]" />
+            <div className="w-12 h-12 border-4 border-primary/20 rounded-full animate-spin border-t-primary" />
             <p className="text-gray-400 mt-4">Loading your career journey...</p>
           </div>
         </div>
@@ -111,7 +111,7 @@ const CareerTimeline = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Rocket className="text-[#FFD700]" /> Career Timeline
+            <Rocket className="text-primary" /> Career Timeline
           </h2>
           <p className="text-gray-400 text-sm mt-1">
             Your professional journey at a glance
@@ -153,7 +153,7 @@ const CareerTimeline = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
-              className="bg-[#111111] border border-white/10 rounded-xl p-4 hover:border-[#FFD700]/30 transition-colors"
+              className="bg-card border border-white/10 rounded-xl p-4 hover:border-primary/30 transition-colors"
             >
               <div
                 className={`w-10 h-10 rounded-lg bg-${stat.color}-500/10 flex items-center justify-center mb-3`}
@@ -161,7 +161,7 @@ const CareerTimeline = () => {
                 <stat.icon className={`w-5 h-5 text-${stat.color}-400`} />
               </div>
               <p className="text-2xl font-bold text-white">{stat.value}</p>
-              <p className="text-xs text-gray-500 uppercase tracking-wider">
+              <p className="text-xs text-gray-500">
                 {stat.label}
               </p>
             </motion.div>
@@ -170,7 +170,7 @@ const CareerTimeline = () => {
 
         {/* Timeline */}
         <div className="lg:col-span-3">
-          <div className="bg-[#111111] border border-white/10 rounded-2xl p-6">
+          <div className="bg-card border border-white/10 rounded-2xl p-6">
             {timeline.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -187,14 +187,14 @@ const CareerTimeline = () => {
                   Add your education and experience to build your career
                   timeline
                 </p>
-                <Button className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90">
+                <Button className="bg-primary text-black hover:bg-primary/90">
                   <Plus className="w-4 h-4 mr-2" /> Add to Profile
                 </Button>
               </motion.div>
             ) : (
               <div className="relative">
                 {/* Timeline Line */}
-                <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#FFD700] via-cyan-500 to-emerald-500" />
+                <div className="absolute left-8 top-0 bottom-0 w-0.5" />
 
                 {/* Timeline Items */}
                 <div className="space-y-8">
@@ -221,7 +221,7 @@ const CareerTimeline = () => {
                         <div className="flex-1 bg-white/5 rounded-xl p-5 border border-white/5 hover:border-white/10 transition-colors">
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div>
-                              <h3 className="text-lg font-semibold text-white group-hover:text-[#FFD700] transition-colors">
+                              <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">
                                 {item.title}
                               </h3>
                               {item.subtitle && (
@@ -247,7 +247,7 @@ const CareerTimeline = () => {
                               {formatDate(item.date)}
                               {item.endDate && ` - ${formatDate(item.endDate)}`}
                               {item.isCurrent && (
-                                <Badge className="ml-2 bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
+                                <Badge className="ml-2 bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
                                   CURRENT
                                 </Badge>
                               )}
@@ -261,7 +261,7 @@ const CareerTimeline = () => {
 
                 {/* Start Point */}
                 <div className="flex items-center gap-4 mt-8 pl-4">
-                  <div className="relative z-10 w-8 h-8 rounded-full bg-[#FFD700] flex items-center justify-center">
+                  <div className="relative z-10 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                     <Star className="w-4 h-4 text-black" />
                   </div>
                   <p className="text-sm text-gray-500">

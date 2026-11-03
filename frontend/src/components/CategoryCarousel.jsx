@@ -53,7 +53,7 @@ const CategoryCarousel = () => {
                   onClick={() => searchJobHandler(cat.name)}
                   className="w-full group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 p-6 hover:border-yellow-500/50 transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/0 to-yellow-500/0 group-hover:from-yellow-500/5 group-hover:to-transparent transition-all duration-500"></div>
+                  <div className="absolute inset-0 transition-all duration-500"></div>
                   <div className="flex flex-col items-center gap-4 relative z-10">
                     <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-yellow-500 group-hover:bg-yellow-500/10 transition-colors duration-300">
                       <cat.icon size={24} />

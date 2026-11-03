@@ -83,13 +83,13 @@ const SkillGapAnalysis = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="bg-[#111111] border border-white/10 rounded-2xl p-8">
+        <div className="bg-card border border-white/10 rounded-2xl p-8">
           <div className="flex flex-col items-center justify-center py-12">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-[#FFD700]/20 rounded-full animate-pulse" />
-              <Brain className="absolute inset-0 m-auto w-8 h-8 text-[#FFD700] animate-pulse" />
+              <div className="w-16 h-16 border-4 border-primary/20 rounded-full animate-pulse" />
+              <Brain className="absolute inset-0 m-auto w-8 h-8 text-primary animate-pulse" />
             </div>
-            <p className="text-gray-400 mt-4 font-mono text-sm">
+            <p className="text-gray-400 mt-4 text-sm">
               ANALYZING YOUR SKILLS...
             </p>
             <p className="text-gray-600 text-xs mt-2">
@@ -107,7 +107,7 @@ const SkillGapAnalysis = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-            <Target className="text-[#FFD700] w-5 h-5 sm:w-6 sm:h-6" /> Skill Gap Analysis
+            <Target className="text-primary w-5 h-5 sm:w-6 sm:h-6" /> Skill Gap Analysis
           </h2>
           <p className="text-gray-400 text-sm mt-1">
             AI-powered insights to boost your career
@@ -116,7 +116,7 @@ const SkillGapAnalysis = () => {
         <Button
           variant="outline"
           size="sm"
-          className="border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700]/10 w-full sm:w-auto"
+          className="border-primary/30 text-primary hover:bg-primary/10 w-full sm:w-auto"
           onClick={() => fetchSkillGap(true)}
           disabled={refreshing}
         >
@@ -134,13 +134,13 @@ const SkillGapAnalysis = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-[#111111] to-[#0a0a0a] border border-white/10 rounded-2xl p-6"
+            className="border border-white/10 rounded-2xl p-6 bg-card"
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Zap className="text-[#FFD700]" /> Career Readiness
+                <Zap className="text-primary" /> Career Readiness
               </h3>
-              <Badge className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20">
+              <Badge className="bg-primary/10 text-primary border-primary/20">
                 AI Analyzed
               </Badge>
             </div>
@@ -186,7 +186,7 @@ const SkillGapAnalysis = () => {
             {/* Recommendations */}
             {analysis?.recommendations?.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+                <h4 className="text-sm font-medium text-gray-400">
                   Action Items
                 </h4>
                 {analysis.recommendations.map((rec, idx) => (
@@ -194,8 +194,8 @@ const SkillGapAnalysis = () => {
                     key={idx}
                     className="flex items-start gap-3 p-3 bg-white/5 rounded-lg"
                   >
-                    <div className="w-6 h-6 rounded-full bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-xs font-bold text-[#FFD700]">
+                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-primary">
                         {idx + 1}
                       </span>
                     </div>
@@ -211,7 +211,7 @@ const SkillGapAnalysis = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-[#111111] border border-white/10 rounded-2xl p-6"
+            className="bg-card border border-white/10 rounded-2xl p-6"
           >
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <TrendingUp className="text-cyan-400" /> Market Demand Analysis
@@ -278,10 +278,10 @@ const SkillGapAnalysis = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-[#111111] border border-white/10 rounded-2xl p-6"
+              className="bg-card border border-white/10 rounded-2xl p-6"
             >
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Lightbulb className="text-[#FFD700]" /> Priority Skills to
+                <Lightbulb className="text-primary" /> Priority Skills to
                 Develop
               </h3>
               <div className="space-y-3">
@@ -313,7 +313,7 @@ const SkillGapAnalysis = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Your Skills */}
-          <div className="bg-[#111111] border border-white/10 rounded-2xl p-5">
+          <div className="bg-card border border-white/10 rounded-2xl p-5">
             <h4 className="font-bold text-white mb-4">
               Your Skills ({userSkills.length})
             </h4>
@@ -322,7 +322,7 @@ const SkillGapAnalysis = () => {
                 userSkills.map((skill, idx) => (
                   <Badge
                     key={idx}
-                    className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20"
+                    className="bg-primary/10 text-primary border-primary/20"
                   >
                     {skill}
                   </Badge>
@@ -334,7 +334,7 @@ const SkillGapAnalysis = () => {
           </div>
 
           {/* Trending Skills */}
-          <div className="bg-[#111111] border border-white/10 rounded-2xl p-5">
+          <div className="bg-card border border-white/10 rounded-2xl p-5">
             <h4 className="font-bold text-white mb-4 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-cyan-400" /> Trending in Market
             </h4>

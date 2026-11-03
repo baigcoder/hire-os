@@ -120,8 +120,7 @@ const PaymentSuccess = () => {
   // Verifying State
   if (status === "verifying") {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-16 relative z-10">
           <motion.div
@@ -129,13 +128,13 @@ const PaymentSuccess = () => {
             animate={{ opacity: 1 }}
             className="max-w-md mx-auto text-center"
           >
-            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-[#FFD700]/10 border border-[#FFD700]/30 flex items-center justify-center">
-              <Loader2 className="w-10 h-10 text-[#FFD700] animate-spin" />
+            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-primary/10 border border-primary/30 flex items-center justify-center">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
-            <h1 className="text-2xl font-bold text-white uppercase tracking-wider mb-4">
+            <h1 className="text-2xl font-bold text-white mb-4">
               Verifying Payment
             </h1>
-            <p className="text-gray-600 font-mono text-xs">
+            <p className="text-gray-600 text-xs">
               Processing transaction and initializing account...
             </p>
           </motion.div>
@@ -147,8 +146,7 @@ const PaymentSuccess = () => {
   // Failed State
   if (status === "failed") {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-16 relative z-10">
           <motion.div
@@ -159,14 +157,14 @@ const PaymentSuccess = () => {
             <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-red-500/10 border border-red-500/30 flex items-center justify-center">
               <XCircle className="w-10 h-10 text-red-400" />
             </div>
-            <h1 className="text-2xl font-bold text-white uppercase tracking-wider mb-4">
+            <h1 className="text-2xl font-bold text-white mb-4">
               Payment Failed
             </h1>
-            <p className="text-gray-600 font-mono text-xs mb-4">
+            <p className="text-gray-600 text-xs mb-4">
               {error || "Verification unsuccessful. Please retry."}
             </p>
             <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-sm mb-8">
-              <p className="text-red-400 text-xs font-mono flex items-center justify-center gap-2">
+              <p className="text-red-400 text-xs flex items-center justify-center gap-2">
                 <AlertCircle className="w-4 h-4" /> Contact support if funds
                 were deducted
               </p>
@@ -175,13 +173,13 @@ const PaymentSuccess = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate("/company/register")}
-                className="border-white/20 text-gray-400 hover:bg-white/5 rounded-sm uppercase tracking-wider text-xs"
+                className="border-white/20 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
               >
                 Retry
               </Button>
               <Button
                 onClick={() => navigate("/")}
-                className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider text-xs font-bold"
+                className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold"
               >
                 Home
               </Button>
@@ -194,8 +192,7 @@ const PaymentSuccess = () => {
 
   // Success State
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white">
       <Navbar />
       <div className="container mx-auto px-4 py-16 relative z-10">
         <motion.div
@@ -203,76 +200,74 @@ const PaymentSuccess = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-2xl mx-auto text-center"
         >
-          <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-[#00FF94]/10 border border-[#00FF94]/30 flex items-center justify-center">
-            <CheckCircle className="w-10 h-10 text-[#00FF94]" />
+          <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-accent/10 border border-accent/30 flex items-center justify-center">
+            <CheckCircle className="w-10 h-10 text-accent" />
           </div>
 
-          <h1 className="text-3xl font-bold uppercase tracking-wider mb-4">
-            Payment <span className="text-[#00FF94]">Successful</span>
+          <h1 className="text-3xl font-bold mb-4">
+            Payment <span className="text-accent">Successful</span>
           </h1>
-          <p className="text-gray-600 font-mono text-sm mb-8">
+          <p className="text-gray-600 text-sm mb-8">
             Company registered. System initialized and ready.
           </p>
 
-          <div className="bg-[#111111] border border-white/10 rounded-sm p-6 text-left mb-8 relative">
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#00FF94]/30" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#00FF94]/30" />
+          <div className="bg-card border border-white/10 rounded-sm p-6 text-left mb-8 relative">
 
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[#FFD700]" /> Account Details
+            <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-primary" /> Account Details
             </h2>
             <div className="space-y-3">
               {registrationResult?.company && (
                 <div className="p-3 bg-white/5 rounded-sm">
-                  <p className="text-[10px] text-gray-600 uppercase font-mono mb-1">
+                  <p className="text-xs text-gray-600 uppercase mb-1">
                     Company
                   </p>
-                  <p className="text-white font-mono">
+                  <p className="text-white">
                     {registrationResult.company.name}
                   </p>
                 </div>
               )}
               {registrationResult?.admin && (
                 <div className="p-3 bg-white/5 rounded-sm">
-                  <p className="text-[10px] text-gray-600 uppercase font-mono mb-1">
+                  <p className="text-xs text-gray-600 uppercase mb-1">
                     Admin Email
                   </p>
-                  <p className="text-white font-mono">
+                  <p className="text-white">
                     {registrationResult.admin.email}
                   </p>
                 </div>
               )}
               {registrationResult?.plan && (
                 <div className="p-3 bg-white/5 rounded-sm">
-                  <p className="text-[10px] text-gray-600 uppercase font-mono mb-1">
+                  <p className="text-xs text-gray-600 uppercase mb-1">
                     Subscription
                   </p>
-                  <p className="text-[#FFD700] font-mono">
+                  <p className="text-primary">
                     {registrationResult.plan.name} - Rs{" "}
                     {registrationResult.plan.price}/mo
                   </p>
                 </div>
               )}
-              <div className="p-3 bg-[#00FF94]/5 border border-[#00FF94]/20 rounded-sm flex items-center gap-3">
-                <CreditCard className="w-4 h-4 text-[#00FF94]" />
+              <div className="p-3 bg-accent/5 border border-accent/20 rounded-sm flex items-center gap-3">
+                <CreditCard className="w-4 h-4 text-accent" />
                 <div>
-                  <p className="text-[10px] text-gray-600 uppercase font-mono">
+                  <p className="text-xs text-gray-600 uppercase">
                     Payment
                   </p>
-                  <p className="text-[#00FF94] font-bold text-sm uppercase">
+                  <p className="text-accent font-bold text-sm uppercase">
                     Confirmed
                   </p>
                 </div>
               </div>
 
               {registrationResult?.invitedRecruiters?.length > 0 && (
-                <div className="p-4 bg-[#00FF94]/5 border border-[#00FF94]/20 rounded-sm">
-                  <p className="text-xs text-[#00FF94] mb-2 flex items-center gap-2 font-mono uppercase">
+                <div className="p-4 bg-accent/5 border border-accent/20 rounded-sm">
+                  <p className="text-xs text-accent mb-2 flex items-center gap-2 uppercase">
                     <Mail className="w-4 h-4" /> Invitations Dispatched
                   </p>
                   <ul className="space-y-1">
                     {registrationResult.invitedRecruiters.map((r, idx) => (
-                      <li key={idx} className="text-white text-xs font-mono">
+                      <li key={idx} className="text-white text-xs">
                         • {r.name} ({r.email})
                       </li>
                     ))}
@@ -284,7 +279,7 @@ const PaymentSuccess = () => {
 
           <Button
             onClick={() => navigate("/company/admin/dashboard")}
-            className="px-8 py-5 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+            className="px-8 py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
           >
             Access Dashboard <ArrowRight className="w-4 h-4 ml-2" />
           </Button>

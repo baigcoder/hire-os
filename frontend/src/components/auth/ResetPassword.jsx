@@ -142,7 +142,6 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black font-['Outfit',sans-serif] relative overflow-hidden">
-      {/* Background Effects */}
       <div className="absolute top-[-20%] left-[-20%] w-[600px] h-[600px] bg-yellow-900/10 rounded-full blur-[120px] animate-pulse-slow"></div>
       <div className="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-yellow-800/10 rounded-full blur-[100px]"></div>
 
@@ -152,7 +151,7 @@ const ResetPassword = () => {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md p-8"
       >
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl">
           {/* Invalid Token State */}
           {!tokenValid && !success && (
             <div className="text-center">
@@ -199,7 +198,7 @@ const ResetPassword = () => {
           {tokenValid && !success && (
             <>
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-primary">
                   <ShieldCheck className="w-8 h-8 text-black" />
                 </div>
                 <h1 className="text-2xl font-bold text-white mb-2">
@@ -325,7 +324,7 @@ const ResetPassword = () => {
                     !confirmPassword ||
                     password !== confirmPassword
                   }
-                  className="w-full py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-bold rounded-xl hover:from-yellow-400 hover:to-yellow-500 transition-all shadow-lg shadow-yellow-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full py-3 text-black font-bold rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-primary"
                 >
                   {loading ? (
                     <>

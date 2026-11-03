@@ -191,8 +191,7 @@ const PaddleCheckout = () => {
   // Success State
   if (paymentSuccess && registrationResult) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-16 relative z-10">
           <motion.div
@@ -200,43 +199,42 @@ const PaddleCheckout = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="max-w-2xl mx-auto text-center"
           >
-            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-[#00FF94]/10 border border-[#00FF94]/30 flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-[#00FF94]" />
+            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-accent/10 border border-accent/30 flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-accent" />
             </div>
-            <h1 className="text-3xl font-bold text-white uppercase tracking-wider mb-4">
-              Registration <span className="text-[#00FF94]">Complete</span>
+            <h1 className="text-3xl font-bold text-white mb-4">
+              Registration <span className="text-accent">Complete</span>
             </h1>
-            <p className="text-gray-600 font-mono text-sm mb-8">
+            <p className="text-gray-600 text-sm mb-8">
               Company initialized. Invitations dispatched.
             </p>
 
-            <div className="bg-[#111111] border border-white/10 rounded-sm p-6 text-left mb-8 relative">
-              <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#00FF94]/30" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#FFD700]" /> Account Details
+            <div className="bg-card border border-white/10 rounded-sm p-6 text-left mb-8 relative">
+              <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-primary" /> Account Details
               </h2>
               <div className="space-y-3">
                 <div className="p-3 bg-white/5 rounded-sm">
-                  <p className="text-[10px] text-gray-600 font-mono uppercase mb-1">
+                  <p className="text-xs text-gray-600 uppercase mb-1">
                     Company
                   </p>
-                  <p className="text-white font-mono">
+                  <p className="text-white">
                     {registrationResult.company?.name}
                   </p>
                 </div>
                 <div className="p-3 bg-white/5 rounded-sm">
-                  <p className="text-[10px] text-gray-600 font-mono uppercase mb-1">
+                  <p className="text-xs text-gray-600 uppercase mb-1">
                     Admin
                   </p>
-                  <p className="text-white font-mono">
+                  <p className="text-white">
                     {registrationResult.admin?.email}
                   </p>
                 </div>
                 <div className="p-3 bg-white/5 rounded-sm">
-                  <p className="text-[10px] text-gray-600 font-mono uppercase mb-1">
+                  <p className="text-xs text-gray-600 uppercase mb-1">
                     Plan
                   </p>
-                  <p className="text-[#FFD700] font-mono">
+                  <p className="text-primary">
                     {registrationResult.plan?.name}
                   </p>
                 </div>
@@ -244,7 +242,7 @@ const PaddleCheckout = () => {
             </div>
             <Button
               onClick={() => navigate("/company/admin/dashboard")}
-              className="px-8 py-5 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+              className="px-8 py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
             >
               Access Dashboard →
             </Button>
@@ -257,9 +255,8 @@ const PaddleCheckout = () => {
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
-        <Loader2 className="w-12 h-12 text-[#FFD700] animate-spin relative z-10" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-primary animate-spin relative z-10" />
       </div>
     );
   }
@@ -267,22 +264,21 @@ const PaddleCheckout = () => {
   // Error State
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-16 relative z-10">
           <div className="max-w-md mx-auto text-center">
             <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-red-500/10 border border-red-500/30 flex items-center justify-center">
               <XCircle className="w-10 h-10 text-red-400" />
             </div>
-            <h1 className="text-2xl font-bold text-white uppercase tracking-wider mb-4">
+            <h1 className="text-2xl font-bold text-white mb-4">
               Payment Error
             </h1>
-            <p className="text-gray-600 font-mono text-xs mb-8">{error}</p>
+            <p className="text-gray-600 text-xs mb-8">{error}</p>
             <Button
               variant="outline"
               onClick={() => navigate("/company/register")}
-              className="border-white/20 text-gray-400 hover:bg-white/5 rounded-sm uppercase tracking-wider text-xs"
+              className="border-white/20 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
             >
               <ArrowLeft className="w-4 h-4 mr-2" /> Back
             </Button>
@@ -294,8 +290,7 @@ const PaddleCheckout = () => {
 
   // Checkout Ready State
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white">
       <Navbar />
       <div className="container mx-auto px-4 py-16 relative z-10">
         <motion.div
@@ -305,35 +300,33 @@ const PaddleCheckout = () => {
         >
           <button
             onClick={() => navigate("/company/register")}
-            className="flex items-center gap-2 text-gray-600 hover:text-white text-xs font-mono uppercase tracking-wider mb-6"
+            className="flex items-center gap-2 text-gray-600 hover:text-white text-xs mb-6"
           >
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
 
-          <div className="bg-[#111111] border border-white/10 rounded-sm p-8 relative">
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
+          <div className="bg-card border border-white/10 rounded-sm p-8 relative">
 
             <div className="text-center mb-6">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-sm bg-[#FFD700]/10 border border-[#FFD700]/30 flex items-center justify-center">
-                <CreditCard className="w-7 h-7 text-[#FFD700]" />
+              <div className="w-14 h-14 mx-auto mb-4 rounded-sm bg-primary/10 border border-primary/30 flex items-center justify-center">
+                <CreditCard className="w-7 h-7 text-primary" />
               </div>
-              <h1 className="text-xl font-bold uppercase tracking-wider mb-2">
+              <h1 className="text-xl font-bold mb-2">
                 Complete Payment
               </h1>
-              <p className="text-gray-600 font-mono text-xs">
+              <p className="text-gray-600 text-xs">
                 Secure payment via Paddle
               </p>
             </div>
 
-            <div className="text-center p-5 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-sm mb-6">
-              <p className="text-gray-500 text-xs font-mono uppercase tracking-wider mb-1">
+            <div className="text-center p-5 bg-primary/5 border border-primary/20 rounded-sm mb-6">
+              <p className="text-gray-500 text-xs mb-1">
                 Total Amount
               </p>
-              <p className="text-4xl font-bold text-white font-mono">
+              <p className="text-4xl font-bold text-white">
                 Rs {parseInt(amount).toLocaleString()}
               </p>
-              <p className="text-[#FFD700] text-xs font-mono mt-1 uppercase">
+              <p className="text-primary text-xs mt-1 uppercase">
                 {planName} Plan - Monthly
               </p>
             </div>
@@ -341,13 +334,13 @@ const PaddleCheckout = () => {
             <Button
               onClick={openPaddleCheckout}
               disabled={!paddleReady}
-              className="w-full py-5 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+              className="w-full py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
             >
               {paddleReady ? "Proceed to Payment" : "Loading..."}
             </Button>
 
-            <div className="flex items-center justify-center gap-2 text-gray-600 text-[10px] font-mono uppercase tracking-wider mt-4">
-              <Shield className="w-3 h-3 text-[#00FF94]" />
+            <div className="flex items-center justify-center gap-2 text-gray-600 text-xs mt-4">
+              <Shield className="w-3 h-3 text-accent" />
               <span>Paddle Payment Protection</span>
             </div>
           </div>

@@ -49,11 +49,11 @@ const StepIndicator = ({ currentStep, steps }) => (
       <React.Fragment key={index}>
         <div className="flex flex-col items-center">
           <div
-            className={`w-12 h-12 rounded-sm flex items-center justify-center font-mono font-bold text-sm transition-all border ${
+            className={`w-12 h-12 rounded-sm flex items-center justify-center font-bold text-sm transition-all border ${
               index < currentStep
-                ? "bg-[#00FF94]/20 border-[#00FF94]/50 text-[#00FF94]"
+                ? "bg-accent/20 border-accent/50 text-accent"
                 : index === currentStep
-                  ? "bg-[#FFD700] border-[#FFD700] text-black"
+                  ? "bg-primary border-primary text-black"
                   : "bg-white/5 border-white/10 text-gray-600"
             }`}
           >
@@ -64,14 +64,14 @@ const StepIndicator = ({ currentStep, steps }) => (
             )}
           </div>
           <span
-            className={`mt-2 text-xs font-mono uppercase tracking-wider ${index <= currentStep ? "text-white" : "text-gray-600"}`}
+            className={`mt-2 text-xs ${index <= currentStep ? "text-white" : "text-gray-600"}`}
           >
             {step}
           </span>
         </div>
         {index < steps.length - 1 && (
           <div
-            className={`w-16 md:w-24 h-px mx-2 ${index < currentStep ? "bg-[#00FF94]" : "bg-white/10"}`}
+            className={`w-16 md:w-24 h-px mx-2 ${index < currentStep ? "bg-accent" : "bg-white/10"}`}
           />
         )}
       </React.Fragment>
@@ -85,40 +85,40 @@ const PlanCard = ({ plan, selected, onSelect }) => (
     onClick={() => onSelect(plan)}
     className={`relative p-6 rounded-sm cursor-pointer transition-all border ${
       selected
-        ? "border-[#FFD700] bg-[#FFD700]/5 shadow-[0_0_30px_rgba(255,215,0,0.1)]"
-        : "border-white/10 bg-[#111111] hover:border-white/20"
+        ? "border-primary bg-primary/5 shadow-[0_0_30px_rgba(255,215,0,0.1)]"
+        : "border-white/10 bg-card hover:border-white/20"
     }`}
   >
     {/* HUD corners */}
     <div
-      className={`absolute top-0 right-0 w-6 h-6 border-t border-r ${selected ? "border-[#FFD700]/50" : "border-white/10"}`}
+      className={`absolute top-0 right-0 w-6 h-6 border-t border-r ${selected ? "border-primary/50" : "border-white/10"}`}
     />
     <div
-      className={`absolute bottom-0 left-0 w-6 h-6 border-b border-l ${selected ? "border-[#FFD700]/50" : "border-white/10"}`}
+      className={`absolute bottom-0 left-0 w-6 h-6 border-b border-l ${selected ? "border-primary/50" : "border-white/10"}`}
     />
 
     {plan.popular && (
-      <Badge className="absolute -top-px right-4 bg-[#FFD700] text-black text-[10px] font-bold px-2 py-0.5 rounded-b-sm rounded-t-none uppercase tracking-wider">
+      <Badge className="absolute -top-px right-4 bg-primary text-black text-xs font-bold px-2 py-0.5 rounded-b-sm rounded-t-none">
         Popular
       </Badge>
     )}
-    <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2">
+    <h3 className="text-lg font-bold text-white mb-2">
       {plan.name}
     </h3>
-    <p className="text-gray-600 text-xs font-mono mb-4">{plan.description}</p>
+    <p className="text-gray-600 text-xs mb-4">{plan.description}</p>
     <div className="flex items-baseline gap-1 mb-4">
-      <span className="text-3xl font-bold text-white font-mono">
+      <span className="text-3xl font-bold text-white">
         Rs {plan.price.toLocaleString()}
       </span>
-      <span className="text-gray-600 text-xs font-mono">/month</span>
+      <span className="text-gray-600 text-xs">/month</span>
     </div>
     <ul className="space-y-2">
       {plan.features.slice(0, 4).map((feature, idx) => (
         <li
           key={idx}
-          className="flex items-center gap-2 text-gray-500 text-xs font-mono"
+          className="flex items-center gap-2 text-gray-500 text-xs"
         >
-          <Check className="w-3 h-3 text-[#00FF94]" />
+          <Check className="w-3 h-3 text-accent" />
           {feature}
         </li>
       ))}
@@ -129,7 +129,6 @@ const PlanCard = ({ plan, selected, onSelect }) => (
 // ========== INDUSTRIAL RECRUITER FORM ==========
 const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
   <div className="p-5 bg-white/5 border border-white/10 rounded-sm relative">
-    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10" />
     {canRemove && (
       <button
         onClick={() => onRemove(index)}
@@ -140,18 +139,18 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
     )}
     <div className="grid md:grid-cols-2 gap-4">
       <div>
-        <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+        <Label className="text-xs text-gray-500 mb-1.5 block">
           Full Name *
         </Label>
         <Input
           placeholder="John Doe"
           value={recruiter.name}
           onChange={(e) => onChange(index, "name", e.target.value)}
-          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
         />
       </div>
       <div>
-        <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+        <Label className="text-xs text-gray-500 mb-1.5 block">
           Email *
         </Label>
         <Input
@@ -159,11 +158,11 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
           placeholder="john@company.com"
           value={recruiter.email}
           onChange={(e) => onChange(index, "email", e.target.value)}
-          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
         />
       </div>
       <div>
-        <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+        <Label className="text-xs text-gray-500 mb-1.5 block">
           Phone
         </Label>
         <Input
@@ -171,18 +170,18 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
           placeholder="+92 300 1234567"
           value={recruiter.phone}
           onChange={(e) => onChange(index, "phone", e.target.value)}
-          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
         />
       </div>
       <div>
-        <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+        <Label className="text-xs text-gray-500 mb-1.5 block">
           Job Title
         </Label>
         <Input
           placeholder="HR Manager"
           value={recruiter.role}
           onChange={(e) => onChange(index, "role", e.target.value)}
-          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+          className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
         />
       </div>
     </div>
@@ -376,8 +375,7 @@ const CompanyRegistration = () => {
   // Success Screen
   if (registrationComplete && registrationResult) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-        <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-16 relative z-10">
           <motion.div
@@ -385,18 +383,18 @@ const CompanyRegistration = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="max-w-2xl mx-auto text-center"
           >
-            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-[#00FF94]/10 border border-[#00FF94]/30 flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-[#00FF94]" />
+            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-accent/10 border border-accent/30 flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-accent" />
             </div>
-            <h1 className="text-3xl font-bold text-white uppercase tracking-wider mb-4">
+            <h1 className="text-3xl font-bold text-white mb-4">
               Registration Complete
             </h1>
-            <p className="text-gray-500 font-mono mb-8">
+            <p className="text-gray-500 mb-8">
               Company successfully initialized in the system.
             </p>
             <Button
               onClick={() => navigate("/login")}
-              className="px-8 py-5 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider"
+              className="px-8 py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
             >
               Access Dashboard <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
@@ -407,8 +405,7 @@ const CompanyRegistration = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white">
       <Navbar />
 
       <div className="container mx-auto px-4 py-12 relative z-10">
@@ -419,13 +416,13 @@ const CompanyRegistration = () => {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <Badge className="mb-4 px-4 py-1.5 bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20 text-xs font-mono uppercase tracking-widest">
+            <Badge className="mb-4 px-4 py-1.5 bg-primary/10 text-primary border-primary/20 text-xs">
               <Building2 className="w-3 h-3 mr-2" /> Company Registration
             </Badge>
             <h1 className="text-4xl font-bold uppercase tracking-tight mb-4">
-              Register <span className="text-[#FFD700]">Organization</span>
+              Register <span className="text-primary">Organization</span>
             </h1>
-            <p className="text-gray-600 font-mono text-sm">
+            <p className="text-gray-600 text-sm">
               Complete setup to deploy your recruitment infrastructure
             </p>
           </div>
@@ -443,7 +440,7 @@ const CompanyRegistration = () => {
               {/* Step 1: Plan Selection */}
               {currentStep === 0 && (
                 <div>
-                  <h2 className="text-xl font-bold text-white uppercase tracking-wider mb-6 text-center">
+                  <h2 className="text-xl font-bold text-white mb-6 text-center">
                     Select Subscription Tier
                   </h2>
                   <div className="grid md:grid-cols-3 gap-6">
@@ -461,15 +458,13 @@ const CompanyRegistration = () => {
 
               {/* Step 2: Company Info */}
               {currentStep === 1 && (
-                <div className="bg-[#111111] border border-white/10 rounded-sm p-8 relative">
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
-                  <h2 className="text-lg font-bold text-white uppercase tracking-wider mb-6">
+                <div className="bg-card border border-white/10 rounded-sm p-8 relative">
+                  <h2 className="text-lg font-bold text-white mb-6">
                     Company Information
                   </h2>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Company Name *
                       </Label>
                       <Input
@@ -478,11 +473,11 @@ const CompanyRegistration = () => {
                         onChange={(e) =>
                           handleCompanyChange("name", e.target.value)
                         }
-                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
                       />
                     </div>
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Website
                       </Label>
                       <Input
@@ -491,11 +486,11 @@ const CompanyRegistration = () => {
                         onChange={(e) =>
                           handleCompanyChange("website", e.target.value)
                         }
-                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
                       />
                     </div>
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Location *
                       </Label>
                       <Input
@@ -504,11 +499,11 @@ const CompanyRegistration = () => {
                         onChange={(e) =>
                           handleCompanyChange("location", e.target.value)
                         }
-                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
                       />
                     </div>
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Industry
                       </Label>
                       <Input
@@ -517,11 +512,11 @@ const CompanyRegistration = () => {
                         onChange={(e) =>
                           handleCompanyChange("industry", e.target.value)
                         }
-                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono"
+                        className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm"
                       />
                     </div>
                     <div>
-                      <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                      <Label className="text-xs text-gray-500 mb-1.5 block">
                         Company Size
                       </Label>
                       <select
@@ -529,7 +524,7 @@ const CompanyRegistration = () => {
                         onChange={(e) =>
                           handleCompanyChange("size", e.target.value)
                         }
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-sm px-4 py-2.5 text-sm font-mono focus:border-[#FFD700]/50 focus:outline-none"
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-sm px-4 py-2.5 text-sm focus:border-primary/50 focus:outline-none"
                       >
                         <option value="" className="bg-[#111]">
                           Select size
@@ -553,7 +548,7 @@ const CompanyRegistration = () => {
                     </div>
                   </div>
                   <div className="mt-6">
-                    <Label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                    <Label className="text-xs text-gray-500 mb-1.5 block">
                       Description
                     </Label>
                     <Textarea
@@ -562,7 +557,7 @@ const CompanyRegistration = () => {
                       onChange={(e) =>
                         handleCompanyChange("description", e.target.value)
                       }
-                      className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-[#FFD700]/50 rounded-sm font-mono min-h-[100px]"
+                      className="bg-white/5 border-white/10 text-white text-sm placeholder-gray-600 focus:border-primary/50 rounded-sm min-h-[100px]"
                     />
                   </div>
                 </div>
@@ -572,33 +567,32 @@ const CompanyRegistration = () => {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   {/* Admin Info (Read-only) */}
-                  <div className="bg-[#111111] border border-white/10 rounded-sm p-6 relative">
-                    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#FFD700]/30" />
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                      <Crown className="w-4 h-4 text-[#FFD700]" /> Admin Account
+                  <div className="bg-card border border-white/10 rounded-sm p-6 relative">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-primary" /> Admin Account
                     </h3>
                     <div className="grid md:grid-cols-3 gap-4">
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-[10px] text-gray-600 uppercase font-mono mb-1">
+                        <p className="text-xs text-gray-600 uppercase mb-1">
                           Name
                         </p>
-                        <p className="text-white text-sm font-mono">
+                        <p className="text-white text-sm">
                           {adminInfo.fullname || "Not set"}
                         </p>
                       </div>
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-[10px] text-gray-600 uppercase font-mono mb-1">
+                        <p className="text-xs text-gray-600 uppercase mb-1">
                           Email
                         </p>
-                        <p className="text-white text-sm font-mono">
+                        <p className="text-white text-sm">
                           {adminInfo.email || "Not set"}
                         </p>
                       </div>
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-[10px] text-gray-600 uppercase font-mono mb-1">
+                        <p className="text-xs text-gray-600 uppercase mb-1">
                           Phone
                         </p>
-                        <p className="text-white text-sm font-mono">
+                        <p className="text-white text-sm">
                           {adminInfo.phoneNumber || "Not set"}
                         </p>
                       </div>
@@ -606,13 +600,12 @@ const CompanyRegistration = () => {
                   </div>
 
                   {/* Recruiters */}
-                  <div className="bg-[#111111] border border-white/10 rounded-sm p-6 relative">
-                    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10" />
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                      <Users className="w-4 h-4 text-[#FFD700]" /> Invite
+                  <div className="bg-card border border-white/10 rounded-sm p-6 relative">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                      <Users className="w-4 h-4 text-primary" /> Invite
                       Recruiters
                     </h3>
-                    <p className="text-gray-600 text-xs font-mono mb-4">
+                    <p className="text-gray-600 text-xs mb-4">
                       Add team members. They'll receive email invitations with
                       login credentials.
                     </p>
@@ -636,7 +629,7 @@ const CompanyRegistration = () => {
                     >
                       <Plus className="w-4 h-4 mr-2" /> Add Recruiter
                     </Button>
-                    <p className="text-xs text-gray-600 font-mono mt-3">
+                    <p className="text-xs text-gray-600 mt-3">
                       💡 You can skip this and add recruiters later from
                       dashboard.
                     </p>
@@ -646,68 +639,66 @@ const CompanyRegistration = () => {
 
               {/* Step 4: Payment */}
               {currentStep === 3 && (
-                <div className="bg-[#111111] border border-white/10 rounded-sm p-8 relative">
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
-                  <h2 className="text-lg font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-[#FFD700]" /> Payment
+                <div className="bg-card border border-white/10 rounded-sm p-8 relative">
+                  <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-primary" /> Payment
                     Summary
                   </h2>
 
                   <div className="p-6 bg-white/5 rounded-sm mb-6">
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-500 font-mono">Plan</span>
-                        <span className="text-white font-mono">
+                        <span className="text-gray-500">Plan</span>
+                        <span className="text-white">
                           {selectedPlan?.name}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500 font-mono">Billing</span>
-                        <span className="text-white font-mono">Monthly</span>
+                        <span className="text-gray-500">Billing</span>
+                        <span className="text-white">Monthly</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500 font-mono">Company</span>
-                        <span className="text-white font-mono">
+                        <span className="text-gray-500">Company</span>
+                        <span className="text-white">
                           {companyInfo.name}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500 font-mono">
+                        <span className="text-gray-500">
                           Recruiters
                         </span>
-                        <span className="text-white font-mono">
+                        <span className="text-white">
                           {recruiters.filter((r) => r.name && r.email).length}
                         </span>
                       </div>
                       <div className="border-t border-white/10 my-4" />
                       <div className="flex justify-between text-lg font-bold">
                         <span className="text-white">Total</span>
-                        <span className="text-[#FFD700] font-mono">
+                        <span className="text-primary">
                           Rs {selectedPlan?.price.toLocaleString()}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-sm mb-6">
+                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-sm mb-6">
                     <div className="flex items-center gap-3 mb-3">
-                      <Shield className="w-5 h-5 text-[#FFD700]" />
+                      <Shield className="w-5 h-5 text-primary" />
                       <span className="text-white font-bold text-sm">
                         Secure Payment via Paddle
                       </span>
                     </div>
-                    <ul className="space-y-1 text-xs text-gray-500 font-mono">
+                    <ul className="space-y-1 text-xs text-gray-500">
                       <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-[#00FF94]" />{" "}
+                        <Check className="w-3 h-3 text-accent" />{" "}
                         Credit/Debit Cards
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-[#00FF94]" /> Bank
+                        <Check className="w-3 h-3 text-accent" /> Bank
                         Transfer
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-[#00FF94]" /> Mobile
+                        <Check className="w-3 h-3 text-accent" /> Mobile
                         Wallets
                       </li>
                     </ul>
@@ -716,7 +707,7 @@ const CompanyRegistration = () => {
                   <Button
                     onClick={handlePayment}
                     disabled={loading}
-                    className="w-full py-5 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+                    className="w-full py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
                   >
                     {loading ? (
                       <>
@@ -730,7 +721,7 @@ const CompanyRegistration = () => {
                       </>
                     )}
                   </Button>
-                  <p className="text-center text-gray-600 text-[10px] font-mono mt-4 uppercase tracking-wider">
+                  <p className="text-center text-gray-600 text-xs mt-4">
                     By completing purchase, you agree to our Terms of Service
                   </p>
                 </div>
@@ -745,13 +736,13 @@ const CompanyRegistration = () => {
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 0}
-                className="border-white/20 text-gray-400 hover:bg-white/5 rounded-sm uppercase tracking-wider text-xs"
+                className="border-white/20 text-gray-400 hover:bg-white/5 rounded-sm text-xs"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" /> Previous
               </Button>
               <Button
                 onClick={nextStep}
-                className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider text-xs font-bold"
+                className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold"
               >
                 {currentStep === 3 ? "Continue to Payment" : "Next Step"}{" "}
                 <ArrowRight className="w-4 h-4 ml-2" />

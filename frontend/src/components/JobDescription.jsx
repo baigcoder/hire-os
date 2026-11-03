@@ -103,7 +103,7 @@ const JobDescription = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="max-w-6xl mx-auto py-20 px-4 pt-32">
           <div className="animate-pulse space-y-6">
@@ -123,11 +123,11 @@ const JobDescription = () => {
 
   if (error || !job) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="max-w-6xl mx-auto py-20 px-4 pt-32 text-center">
           <div className="bg-red-900/10 border border-red-500/20 p-8 rounded-lg">
-            <p className="text-red-400 text-lg font-medium font-mono">
+            <p className="text-red-400 text-lg font-medium">
               [ERROR] {error || "POSITION_NOT_FOUND"}
             </p>
             <Button
@@ -143,11 +143,10 @@ const JobDescription = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-300 selection:bg-yellow-500/30 selection:text-yellow-200">
+    <div className="min-h-screen bg-background text-gray-300 selection:bg-yellow-500/30 selection:text-yellow-200">
       <Navbar />
 
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none"></div>
+      <div className="fixed inset-0 opacity-30 pointer-events-none"></div>
 
       {/* Top Glow */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-yellow-500/5 blur-[120px] rounded-full pointer-events-none"></div>
@@ -162,7 +161,7 @@ const JobDescription = () => {
           <Button
             onClick={() => navigate(-1)}
             variant="ghost"
-            className="mb-6 text-gray-500 hover:text-yellow-500 pl-0 hover:bg-transparent font-mono text-sm group"
+            className="mb-6 text-gray-500 hover:text-yellow-500 pl-0 hover:bg-transparent text-sm group"
           >
             <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
             BACK_TO_SEARCH
@@ -183,7 +182,7 @@ const JobDescription = () => {
           <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-yellow-500/30 rounded-br-lg"></div>
 
           {/* Status Badge - Hidden on mobile to avoid overlap */}
-          <div className="hidden sm:flex absolute top-6 right-6 items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded font-mono text-xs text-green-400">
+          <div className="hidden sm:flex absolute top-6 right-6 items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded text-xs text-green-400">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             STATUS: ACTIVE
           </div>
@@ -210,7 +209,7 @@ const JobDescription = () => {
             {/* Job Info */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <span className="font-mono text-xs text-gray-500 tracking-wider">
+                <span className="text-xs text-gray-500 tracking-wider">
                   POSITION_ID: {job._id?.slice(-8).toUpperCase()}
                 </span>
               </div>
@@ -226,15 +225,15 @@ const JobDescription = () => {
 
               {/* Tags Grid - Horizontal scroll on mobile */}
               <div className="flex flex-wrap gap-2 sm:gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
+                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded text-sm">
                   <MapPin size={16} className="text-yellow-500" />
                   <span className="text-gray-300">{job.location}</span>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
+                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded text-sm">
                   <Briefcase size={16} className="text-yellow-500" />
                   <span className="text-gray-300">{job.jobType}</span>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded font-mono text-sm">
+                <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded text-sm">
                   <DollarSign size={16} className="text-yellow-500" />
                   <span className="text-yellow-500 font-bold">
                     ${typeof job.salary === "number"
@@ -243,30 +242,30 @@ const JobDescription = () => {
                     /year
                   </span>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
+                <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded text-sm">
                   <Calendar size={16} className="text-yellow-500" />
                   <span className="text-gray-300">Posted {formatDate(job.createdAt)}</span>
                 </div>
                 {job.position && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-white/10 rounded text-sm">
                     <Users size={16} className="text-yellow-500" />
                     <span className="text-gray-300">{job.position} Openings</span>
                   </div>
                 )}
                 {job.experienceLevel !== undefined && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded font-mono text-sm">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded text-sm">
                     <GraduationCap size={16} className="text-purple-400" />
                     <span className="text-purple-400">{job.experienceLevel}+ yrs exp</span>
                   </div>
                 )}
                 {job.isRemote && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded font-mono text-sm">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded text-sm">
                     <Globe size={16} className="text-emerald-400" />
                     <span className="text-emerald-400">Remote OK</span>
                   </div>
                 )}
                 {job.urgentHiring && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded font-mono text-sm animate-pulse">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded text-sm animate-pulse">
                     <Zap size={16} className="text-red-400" />
                     <span className="text-red-400">Urgent Hiring</span>
                   </div>
@@ -291,10 +290,10 @@ const JobDescription = () => {
                 <div className="w-10 h-10 rounded bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
                   <Target size={20} className="text-yellow-500" />
                 </div>
-                <h2 className="text-xl font-bold text-white font-mono tracking-wide">
+                <h2 className="text-xl font-bold text-white tracking-wide">
                   MISSION_BRIEF
                 </h2>
-                <div className="h-px flex-1 bg-gradient-to-r from-yellow-500/30 to-transparent"></div>
+                <div className="h-px flex-1 bg-primary"></div>
               </div>
 
               <div className="prose prose-invert max-w-none text-gray-400 leading-relaxed whitespace-pre-line text-[15px]">
@@ -313,10 +312,10 @@ const JobDescription = () => {
                 <div className="w-10 h-10 rounded bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
                   <Shield size={20} className="text-yellow-500" />
                 </div>
-                <h2 className="text-xl font-bold text-white font-mono tracking-wide">
+                <h2 className="text-xl font-bold text-white tracking-wide">
                   REQUIREMENTS
                 </h2>
-                <div className="h-px flex-1 bg-gradient-to-r from-yellow-500/30 to-transparent"></div>
+                <div className="h-px flex-1 bg-primary"></div>
               </div>
 
               <ul className="space-y-4">
@@ -325,7 +324,7 @@ const JobDescription = () => {
                     key={index}
                     className="flex items-start gap-4 text-gray-400 group"
                   >
-                    <div className="mt-2 w-2 h-2 rounded-full bg-yellow-500 group-hover:shadow-[0_0_10px_rgba(255,215,0,0.5)] transition-shadow"></div>
+                    <div className="mt-2 w-2 h-2 rounded-full bg-yellow-500 transition-shadow"></div>
                     <span className="leading-relaxed text-[15px]">{req}</span>
                   </li>
                 ))}
@@ -344,17 +343,17 @@ const JobDescription = () => {
                   <div className="w-10 h-10 rounded bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
                     <Zap size={20} className="text-yellow-500" />
                   </div>
-                  <h2 className="text-xl font-bold text-white font-mono tracking-wide">
+                  <h2 className="text-xl font-bold text-white tracking-wide">
                     SKILL_MATRIX
                   </h2>
-                  <div className="h-px flex-1 bg-gradient-to-r from-yellow-500/30 to-transparent"></div>
+                  <div className="h-px flex-1 bg-primary"></div>
                 </div>
 
                 <div className="flex flex-wrap gap-3">
                   {job.skills.map((skill, index) => (
                     <span
                       key={index}
-                      className="px-4 py-2 bg-[#111] border border-white/10 rounded font-mono text-sm text-gray-300 hover:border-yellow-500/40 hover:text-yellow-500 transition-all cursor-default"
+                      className="px-4 py-2 bg-[#111] border border-white/10 rounded text-sm text-gray-300 hover:border-yellow-500/40 hover:text-yellow-500 transition-all cursor-default"
                     >
                       {skill}
                     </span>
@@ -375,10 +374,10 @@ const JobDescription = () => {
                   <div className="w-10 h-10 rounded bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
                     <Gift size={20} className="text-emerald-500" />
                   </div>
-                  <h2 className="text-xl font-bold text-white font-mono tracking-wide">
+                  <h2 className="text-xl font-bold text-white tracking-wide">
                     BENEFITS_PACKAGE
                   </h2>
-                  <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/30 to-transparent"></div>
+                  <div className="h-px flex-1 bg-card"></div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -408,11 +407,11 @@ const JobDescription = () => {
                 hasApplied ? (
                   /* Already Applied State */
                   <div className="card-industrial p-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-green-500/10 to-transparent"></div>
+                    <div className="absolute top-0 right-0 w-20 h-20"></div>
 
                     <div className="flex items-center gap-2 mb-6">
                       <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="font-mono text-xs text-green-400">APPLICATION_SUBMITTED</span>
+                      <span className="text-xs text-green-400">APPLICATION_SUBMITTED</span>
                     </div>
 
                     <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-lg bg-green-500/10 border border-green-500/30">
@@ -437,12 +436,12 @@ const JobDescription = () => {
                 ) : !showApplication ? (
                   <div className="card-industrial p-6 relative overflow-hidden">
                     {/* Corner Accent */}
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-yellow-500/10 to-transparent"></div>
+                    <div className="absolute top-0 right-0 w-20 h-20"></div>
 
                     {/* Status Indicator */}
                     <div className="flex items-center gap-2 mb-6">
                       <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                      <span className="font-mono text-xs text-green-400">SYSTEMS_READY</span>
+                      <span className="text-xs text-green-400">SYSTEMS_READY</span>
                     </div>
 
                     <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
@@ -457,11 +456,11 @@ const JobDescription = () => {
                     {/* Stats Preview */}
                     <div className="grid grid-cols-2 gap-3 mb-6">
                       <div className="bg-[#111] border border-white/10 rounded p-3 text-center">
-                        <p className="font-mono text-xs text-gray-500 mb-1">MATCH_RATE</p>
+                        <p className="text-xs text-gray-500 mb-1">MATCH_RATE</p>
                         <p className="text-lg font-bold text-yellow-500">AI</p>
                       </div>
                       <div className="bg-[#111] border border-white/10 rounded p-3 text-center">
-                        <p className="font-mono text-xs text-gray-500 mb-1">OPTIMIZE</p>
+                        <p className="text-xs text-gray-500 mb-1">OPTIMIZE</p>
                         <p className="text-lg font-bold text-green-400">CV</p>
                       </div>
                     </div>
@@ -476,7 +475,7 @@ const JobDescription = () => {
                       </span>
                     </Button>
 
-                    <p className="text-xs text-center text-gray-600 mt-4 font-mono">
+                    <p className="text-xs text-center text-gray-600 mt-4">
                       // RESUME_ANALYSIS_BEFORE_SUBMIT
                     </p>
                   </div>
@@ -508,7 +507,7 @@ const JobDescription = () => {
               <div className="card-industrial p-6 mt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <TrendingUp size={18} className="text-yellow-500" />
-                  <span className="font-mono text-xs text-gray-500">COMPANY_INTEL</span>
+                  <span className="text-xs text-gray-500">COMPANY_INTEL</span>
                 </div>
 
                 <div className="space-y-3">
@@ -547,7 +546,7 @@ const JobDescription = () => {
                     href={job.company.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-white/5 border border-white/10 rounded text-sm text-gray-400 hover:text-yellow-500 hover:border-yellow-500/30 transition-all font-mono"
+                    className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-white/5 border border-white/10 rounded text-sm text-gray-400 hover:text-yellow-500 hover:border-yellow-500/30 transition-all"
                   >
                     <Globe size={14} />
                     VISIT WEBSITE

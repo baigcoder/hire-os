@@ -152,10 +152,10 @@ const InterviewCalendar = () => {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/40"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/40"
           >
-            <Sparkles className="w-4 h-4 text-[#FFD700]" />
-            <span className="text-[#FFD700] text-sm font-semibold tracking-wide">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-primary text-sm font-semibold tracking-wide">
               HIRE.OS POWERED
             </span>
           </motion.div>
@@ -169,7 +169,7 @@ const InterviewCalendar = () => {
           className="text-4xl md:text-5xl font-bold text-center mb-3"
         >
           <span className="text-white">Interview </span>
-          <span className="text-[#FFD700]">Calendar</span>
+          <span className="text-primary">Calendar</span>
         </motion.h1>
 
         <motion.p
@@ -191,7 +191,7 @@ const InterviewCalendar = () => {
           transition={{ delay: 0.5 }}
           className="rounded-sm border border-[#2a2a2a] p-5"
         >
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">
             SELECT VIEW TYPE
           </h3>
 
@@ -203,7 +203,7 @@ const InterviewCalendar = () => {
               transition={{ delay: 0.6 }}
               className={`w-full flex items-center gap-4 p-4 rounded-sm transition-all duration-200 ${
                 view === "calendar"
-                  ? "bg-[#FFD700] border-2 border-[#FFD700]"
+                  ? "bg-primary border-2 border-primary"
                   : "bg-transparent border-2 border-[#2a2a2a] hover:border-[#444]"
               }`}
             >
@@ -228,7 +228,7 @@ const InterviewCalendar = () => {
               transition={{ delay: 0.7 }}
               className={`w-full flex items-center gap-4 p-4 rounded-sm transition-all duration-200 ${
                 view === "list"
-                  ? "bg-[#FFD700] border-2 border-[#FFD700]"
+                  ? "bg-primary border-2 border-primary"
                   : "bg-transparent border-2 border-[#2a2a2a] hover:border-[#444]"
               }`}
             >
@@ -253,7 +253,7 @@ const InterviewCalendar = () => {
               transition={{ delay: 0.8 }}
               className={`w-full flex items-center gap-4 p-4 rounded-sm transition-all duration-200 ${
                 view === "upcoming"
-                  ? "bg-[#FFD700] border-2 border-[#FFD700]"
+                  ? "bg-primary border-2 border-primary"
                   : "bg-transparent border-2 border-[#2a2a2a] hover:border-[#444]"
               }`}
             >
@@ -281,12 +281,12 @@ const InterviewCalendar = () => {
           className="rounded-sm border border-[#2a2a2a] p-5"
         >
           {/* Quick Stats */}
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">
             STATS
           </h3>
 
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <button className="flex items-center justify-center gap-2 p-4 rounded-sm bg-[#FFD700] text-black font-bold">
+            <button className="flex items-center justify-center gap-2 p-4 rounded-sm bg-primary text-black font-bold">
               <CalendarDays className="w-5 h-5" />
               <span>{interviews.length} Total</span>
             </button>
@@ -298,7 +298,7 @@ const InterviewCalendar = () => {
 
           {/* Quick Navigation */}
           <div className="relative">
-            <label className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 block">
+            <label className="text-sm font-semibold text-gray-400 mb-3 block">
               QUICK NAV
             </label>
             <button
@@ -306,7 +306,7 @@ const InterviewCalendar = () => {
               className="w-full flex items-center justify-between p-4 rounded-sm border-2 border-[#2a2a2a] hover:border-[#444] transition-all"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-[#FFD700] to-[#FFA500]">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-left">
@@ -340,14 +340,14 @@ const InterviewCalendar = () => {
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={() => navigateMonth(-1)}
-                className="p-3 rounded-sm border-2 border-[#2a2a2a] hover:border-[#FFD700]/50 transition-colors"
+                className="p-3 rounded-sm border-2 border-[#2a2a2a] hover:border-primary/50 transition-colors"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-400" />
               </button>
               <h3 className="text-lg font-bold text-white">{monthName}</h3>
               <button
                 onClick={() => navigateMonth(1)}
-                className="p-3 rounded-sm border-2 border-[#2a2a2a] hover:border-[#FFD700]/50 transition-colors"
+                className="p-3 rounded-sm border-2 border-[#2a2a2a] hover:border-primary/50 transition-colors"
               >
                 <ChevronRight className="w-5 h-5 text-gray-400" />
               </button>
@@ -382,9 +382,9 @@ const InterviewCalendar = () => {
                     className={`
                                             aspect-square p-1 rounded-sm relative transition-all border-2
                                             ${!day.isCurrentMonth ? "opacity-30" : ""}
-                                            ${isToday(day.date) ? "border-[#FFD700]/50 bg-[#FFD700]/10" : "border-transparent"}
-                                            ${isSelected ? "bg-[#FFD700] border-[#FFD700]" : "hover:border-[#444]"}
-                                            ${hasInterviews && !isSelected ? "bg-[#00FF94]/10 border-[#00FF94]/30" : ""}
+                                            ${isToday(day.date) ? "border-primary/50 bg-primary/10" : "border-transparent"}
+                                            ${isSelected ? "bg-primary border-primary" : "hover:border-[#444]"}
+                                            ${hasInterviews && !isSelected ? "bg-accent/10 border-accent/30" : ""}
                                         `}
                   >
                     <span
@@ -397,7 +397,7 @@ const InterviewCalendar = () => {
                         {dayInterviews.slice(0, 3).map((_, i) => (
                           <div
                             key={i}
-                            className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-black" : "bg-[#00FF94]"}`}
+                            className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-black" : "bg-accent"}`}
                           />
                         ))}
                       </div>
@@ -433,10 +433,10 @@ const InterviewCalendar = () => {
                             interview.jobId &&
                             navigate(`/description/${interview.jobId}`)
                           }
-                          className="flex items-center gap-4 p-3 rounded-sm bg-[#00FF94]/10 border border-[#00FF94]/30 cursor-pointer hover:border-[#00FF94]/50 transition-colors"
+                          className="flex items-center gap-4 p-3 rounded-sm bg-accent/10 border border-accent/30 cursor-pointer hover:border-accent/50 transition-colors"
                         >
-                          <div className="w-10 h-10 rounded-sm bg-[#00FF94]/20 flex items-center justify-center">
-                            <Video className="w-5 h-5 text-[#00FF94]" />
+                          <div className="w-10 h-10 rounded-sm bg-accent/20 flex items-center justify-center">
+                            <Video className="w-5 h-5 text-accent" />
                           </div>
                           <div className="flex-1">
                             <h5 className="font-bold text-white text-sm">
@@ -447,7 +447,7 @@ const InterviewCalendar = () => {
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm text-[#00FF94] font-medium">
+                            <p className="text-sm text-accent font-medium">
                               {formatTime(interview.date)}
                             </p>
                           </div>
@@ -466,7 +466,7 @@ const InterviewCalendar = () => {
         ) : view === "list" || view === "upcoming" ? (
           /* List View */
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-gray-400 mb-4">
               {view === "upcoming" ? "UPCOMING INTERVIEWS" : "ALL INTERVIEWS"}
             </h3>
             {(view === "upcoming" ? upcomingInterviews : interviews).length ===
@@ -493,10 +493,10 @@ const InterviewCalendar = () => {
                       interview.jobId &&
                       navigate(`/description/${interview.jobId}`)
                     }
-                    className="flex items-center gap-4 p-4 rounded-sm border-2 border-[#2a2a2a] hover:border-[#FFD700]/50 transition-all cursor-pointer"
+                    className="flex items-center gap-4 p-4 rounded-sm border-2 border-[#2a2a2a] hover:border-primary/50 transition-all cursor-pointer"
                   >
-                    <div className="w-12 h-12 rounded-sm bg-[#00FF94]/10 flex items-center justify-center border border-[#00FF94]/30">
-                      <Video className="w-6 h-6 text-[#00FF94]" />
+                    <div className="w-12 h-12 rounded-sm bg-accent/10 flex items-center justify-center border border-accent/30">
+                      <Video className="w-6 h-6 text-accent" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-white truncate">
@@ -513,7 +513,7 @@ const InterviewCalendar = () => {
                           day: "numeric",
                         })}
                       </p>
-                      <p className="text-xs text-[#FFD700]">
+                      <p className="text-xs text-primary">
                         {formatTime(interview.date)}
                       </p>
                     </div>
@@ -538,10 +538,10 @@ const InterviewCalendar = () => {
             boxShadow: "0 10px 30px rgba(255, 215, 0, 0.3)",
           }}
           whileTap={{ scale: 0.99 }}
-          className="w-full py-4 bg-[#FFD700] hover:bg-[#E6C200] rounded-sm font-bold text-black text-lg flex items-center justify-center gap-3 transition-all duration-200"
+          className="w-full py-4 bg-primary hover:bg-[#E6C200] rounded-sm font-bold text-black text-lg flex items-center justify-center gap-3 transition-all duration-200"
         >
           <Play className="w-5 h-5" />
-          <span className="uppercase tracking-wider">Browse Jobs</span>
+          <span className="">Browse Jobs</span>
         </motion.button>
 
         {/* Helper Text */}

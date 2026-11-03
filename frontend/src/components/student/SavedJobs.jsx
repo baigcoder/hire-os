@@ -100,7 +100,7 @@ const SavedJobs = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Bookmark className="text-[#FFD700]" /> Saved Jobs
+            <Bookmark className="text-primary" /> Saved Jobs
           </h2>
           <p className="text-gray-400 text-sm mt-1">
             {savedJobs.length} jobs bookmarked for later
@@ -162,7 +162,7 @@ const SavedJobs = () => {
               : "Start exploring and save jobs you're interested in"}
           </p>
           <Button
-            className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90"
+            className="bg-primary text-black hover:bg-primary/90"
             onClick={() => navigate("/jobs")}
           >
             Browse Jobs
@@ -178,10 +178,9 @@ const SavedJobs = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ delay: idx * 0.05 }}
-                className="group bg-[#111111] border border-white/10 rounded-xl p-5 hover:border-[#FFD700]/30 transition-all relative overflow-hidden"
+                className="group bg-card border border-white/10 rounded-xl p-5 hover:border-primary/30 transition-all relative overflow-hidden"
               >
                 {/* Gradient accent */}
-                <div className="absolute top-0 right-0 w-20 h-20 bg-[#FFD700]/5 blur-2xl rounded-full" />
 
                 <div className="relative z-10">
                   {/* Header */}
@@ -199,7 +198,7 @@ const SavedJobs = () => {
                         )}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-white group-hover:text-[#FFD700] transition-colors">
+                        <h3 className="font-semibold text-white group-hover:text-primary transition-colors">
                           {job.title}
                         </h3>
                         <p className="text-sm text-gray-500">
@@ -224,7 +223,7 @@ const SavedJobs = () => {
                       {job.location || "Remote"}
                     </span>
                     <span className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4 text-[#FFD700]" />
+                      <DollarSign className="w-4 h-4 text-primary" />
                       {job.salary || "Competitive"}
                     </span>
                     <span className="flex items-center gap-1">
@@ -239,7 +238,7 @@ const SavedJobs = () => {
                       {job.jobType || "Full-time"}
                     </Badge>
                     {job.experienceLevel && (
-                      <Badge className="bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20">
+                      <Badge className="bg-primary/10 text-primary border-primary/20">
                         {job.experienceLevel}
                       </Badge>
                     )}
@@ -248,7 +247,7 @@ const SavedJobs = () => {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <Button
-                      className="flex-1 bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-semibold"
+                      className="flex-1 bg-primary text-black hover:bg-primary/90 font-semibold"
                       onClick={() => navigate(`/description/${job._id}`)}
                     >
                       View Details <ArrowUpRight className="w-4 h-4 ml-1" />

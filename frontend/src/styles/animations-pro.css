@@ -785,11 +785,11 @@
 
   0%,
   100% {
-    box-shadow: 0 0 5px rgba(255, 215, 0, 0.2), inset 0 0 5px rgba(255, 215, 0, 0.1);
+    box-shadow: none;
   }
 
   50% {
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2);
+    box-shadow: none;
   }
 }
 

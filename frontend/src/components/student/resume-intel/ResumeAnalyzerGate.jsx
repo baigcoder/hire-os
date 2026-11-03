@@ -44,7 +44,7 @@ const ResumeAnalyzerGate = () => {
   if (available === null) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 text-[#FFD700] animate-spin" />
+        <Loader2 className="w-6 h-6 text-primary animate-spin" />
       </div>
     );
   }
@@ -57,7 +57,7 @@ const ResumeAnalyzerGate = () => {
             <button
               type="button"
               onClick={() => choose(false)}
-              className="text-xs text-[#FFD700] hover:underline"
+              className="text-xs text-primary hover:underline"
             >
               Try the new Resume Intelligence
             </button>

@@ -104,7 +104,7 @@ const LazyImage = ({
                     style={{ backgroundColor: placeholderColor }}
                 >
                     {/* Shimmer effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite]" />
                 </div>
             )}
 
@@ -178,7 +178,7 @@ export const LazyAvatar = ({
         return (
             <div
                 className={cn(
-                    "flex items-center justify-center rounded-full bg-gradient-to-br from-yellow-500/20 to-green-500/20 text-white font-semibold",
+                    "flex items-center justify-center rounded-full text-white font-semibold bg-primary",
                     className
                 )}
                 style={{ width: size, height: size, fontSize: size * 0.4 }}

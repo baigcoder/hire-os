@@ -57,9 +57,9 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
 
   const getFitBadge = (fit) => {
     const styles = {
-      Excellent: "bg-[#00FF94]/20 text-[#00FF94] border-[#00FF94]/30",
+      Excellent: "bg-accent/20 text-accent border-accent/30",
       Strong: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-      Good: "bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30",
+      Good: "bg-primary/20 text-primary border-primary/30",
       Fair: "bg-amber-500/20 text-amber-400 border-amber-500/30",
       "Needs Improvement": "bg-red-500/20 text-red-400 border-red-500/30",
     };
@@ -156,9 +156,8 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
   };
 
   return (
-    <div className="bg-[#111111] rounded-md border border-white/10 p-6 mb-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-      <h3 className="text-sm font-bold mb-4 text-white uppercase tracking-wider">
+    <div className="bg-card rounded-md border border-white/10 p-6 mb-6 relative overflow-hidden">
+      <h3 className="text-sm font-bold mb-4 text-white">
         Upload Resume
       </h3>
 
@@ -174,12 +173,12 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
           >
             {/* Animated Loader */}
             <div className="relative mb-6">
-              <div className="w-20 h-20 rounded-full border-4 border-[#FFD700]/20 animate-pulse" />
+              <div className="w-20 h-20 rounded-full border-4 border-primary/20 animate-pulse" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="w-14 h-14 rounded-full border-t-4 border-[#FFD700]"
+                  className="w-14 h-14 rounded-full border-t-4 border-primary"
                 />
               </div>
               <motion.span
@@ -207,7 +206,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
               {loadingSteps.map((step, idx) => (
                 <motion.div
                   key={idx}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${idx <= loadingStep ? "bg-[#FFD700]" : "bg-white/20"
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${idx <= loadingStep ? "bg-primary" : "bg-white/20"
                     }`}
                   animate={{ scale: idx === loadingStep ? [1, 1.2, 1] : 1 }}
                   transition={{ duration: 0.5, repeat: idx === loadingStep ? Infinity : 0 }}
@@ -217,7 +216,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
 
             {/* File info */}
             {file && (
-              <p className="text-gray-500 text-xs mt-4 font-mono">
+              <p className="text-gray-500 text-xs mt-4">
                 Analyzing: {file.name}
               </p>
             )}
@@ -231,7 +230,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
             className="space-y-4"
           >
             {/* Score Display */}
-            <div className="flex items-center gap-6 p-4 bg-[#0A0A0A] rounded-md border border-white/10">
+            <div className="flex items-center gap-6 p-4 bg-background rounded-md border border-white/10">
               {/* Score Circle */}
               <div className="relative flex-shrink-0">
                 <svg className="w-24 h-24 transform -rotate-90">
@@ -249,8 +248,8 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-bold text-white font-mono">{analysis.score}</span>
-                  <span className="text-[10px] text-gray-500 uppercase">Score</span>
+                  <span className="text-2xl font-bold text-white">{analysis.score}</span>
+                  <span className="text-xs text-gray-500 uppercase">Score</span>
                 </div>
               </div>
 
@@ -268,7 +267,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="p-2 bg-white/5 rounded">
                     <span className="text-gray-500 block">Skills Found</span>
-                    <span className="text-white font-bold font-mono">
+                    <span className="text-white font-bold">
                       {analysis.skills?.matched?.length ||
                         analysis.skills?.technical?.length ||
                         analysis.keySkillsMatch?.length ||
@@ -279,7 +278,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
                   </div>
                   <div className="p-2 bg-white/5 rounded">
                     <span className="text-gray-500 block">Experience</span>
-                    <span className="text-white font-bold font-mono">
+                    <span className="text-white font-bold">
                       {analysis.experience?.yearsEstimate
                         ? `${analysis.experience.yearsEstimate} yrs`
                         : analysis.experienceYears
@@ -301,19 +300,19 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
                 analysis.skills?.all ||
                 [];
               return matchedSkills.length > 0 && (
-                <div className="p-3 bg-[#0A0A0A] rounded-md border border-[#00FF94]/20">
-                  <h4 className="text-xs font-bold text-[#00FF94] uppercase tracking-wider mb-2 flex items-center gap-1">
+                <div className="p-3 bg-background rounded-md border border-accent/20">
+                  <h4 className="text-xs font-bold text-accent mb-2 flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
                     Skills Matched ({matchedSkills.length})
                   </h4>
                   <div className="flex flex-wrap gap-1">
                     {matchedSkills.slice(0, 10).map((skill, idx) => (
-                      <Badge key={idx} className="bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/30 text-[10px]">
+                      <Badge key={idx} className="bg-accent/10 text-accent border-accent/30 text-xs">
                         {typeof skill === 'string' ? skill : skill?.name || skill?.skill || JSON.stringify(skill)}
                       </Badge>
                     ))}
                     {matchedSkills.length > 10 && (
-                      <Badge className="bg-white/5 text-gray-400 border-white/10 text-[10px]">
+                      <Badge className="bg-white/5 text-gray-400 border-white/10 text-xs">
                         +{matchedSkills.length - 10} more
                       </Badge>
                     )}
@@ -329,14 +328,14 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
                 analysis.suggestions?.filter(s => typeof s === 'string' && s.length < 50) ||
                 [];
               return missingSkills.length > 0 && (
-                <div className="p-3 bg-[#0A0A0A] rounded-md border border-amber-500/20">
-                  <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <div className="p-3 bg-background rounded-md border border-amber-500/20">
+                  <h4 className="text-xs font-bold text-amber-400 mb-2 flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" />
                     Consider Adding
                   </h4>
                   <div className="flex flex-wrap gap-1">
                     {missingSkills.slice(0, 6).map((skill, idx) => (
-                      <Badge key={idx} className="bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]">
+                      <Badge key={idx} className="bg-amber-500/10 text-amber-400 border-amber-500/30 text-xs">
                         + {typeof skill === 'string' ? skill : skill?.skill || skill?.name || 'Skill'}
                       </Badge>
                     ))}
@@ -347,8 +346,8 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
 
             {/* Quick Summary */}
             {(analysis.candidate?.name || analysis.onePageSummary?.headline) && (
-              <div className="p-3 bg-[#0A0A0A] rounded-md border border-white/10 text-xs text-gray-400">
-                <span className="text-[#FFD700] font-medium">{analysis.candidate?.name || 'Profile'}:</span>{' '}
+              <div className="p-3 bg-background rounded-md border border-white/10 text-xs text-gray-400">
+                <span className="text-primary font-medium">{analysis.candidate?.name || 'Profile'}:</span>{' '}
                 {analysis.onePageSummary?.headline || analysis.candidate?.summary || 'Resume analyzed successfully'}
               </div>
             )}
@@ -356,7 +355,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
             {/* Proceed Button */}
             <Button
               onClick={handleProceed}
-              className="w-full h-10 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold rounded-sm text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+              className="w-full h-10 bg-primary hover:bg-[#FFE44D] text-black font-bold rounded-sm text-xs"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Proceed with Application
@@ -374,26 +373,26 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
             <div className="mb-6">
               <label
                 htmlFor="resume"
-                className="block text-[10px] font-medium text-gray-500 mb-3 uppercase tracking-wider"
+                className="block text-xs font-medium text-gray-500 mb-3"
               >
                 Resume (PDF only)
               </label>
               <div className="flex items-center justify-center w-full">
                 <label
                   htmlFor="resume"
-                  className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-sm cursor-pointer transition-all bg-[#0A0A0A] border-white/10 hover:border-[#FFD700]/50 hover:bg-white/5 group"
+                  className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-sm cursor-pointer transition-all bg-background border-white/10 hover:border-primary/50 hover:bg-white/5 group"
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <div className="p-3 bg-white/5 rounded-sm mb-3 group-hover:bg-[#FFD700]/10 transition-colors border border-white/5 group-hover:border-[#FFD700]/30">
-                      <Upload className="w-6 h-6 text-gray-500 group-hover:text-[#FFD700] transition-colors" />
+                    <div className="p-3 bg-white/5 rounded-sm mb-3 group-hover:bg-primary/10 transition-colors border border-white/5 group-hover:border-primary/30">
+                      <Upload className="w-6 h-6 text-gray-500 group-hover:text-primary transition-colors" />
                     </div>
                     <p className="mb-2 text-xs text-gray-500">
-                      <span className="font-bold text-gray-400 group-hover:text-[#FFD700] transition-colors">
+                      <span className="font-bold text-gray-400 group-hover:text-primary transition-colors">
                         Click to upload
                       </span>{" "}
                       or drag
                     </p>
-                    <p className="text-[10px] text-gray-600 font-mono">
+                    <p className="text-xs text-gray-600">
                       PDF (MAX. 5MB)
                     </p>
                   </div>
@@ -407,9 +406,9 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
                 </label>
               </div>
               {file && (
-                <div className="mt-4 p-3 bg-[#00FF94]/10 border border-[#00FF94]/30 rounded-sm flex items-center gap-3">
-                  <FileText className="text-[#00FF94]" size={18} />
-                  <p className="text-xs text-[#00FF94] font-mono truncate">
+                <div className="mt-4 p-3 bg-accent/10 border border-accent/30 rounded-sm flex items-center gap-3">
+                  <FileText className="text-accent" size={18} />
+                  <p className="text-xs text-accent truncate">
                     {file.name}
                   </p>
                 </div>
@@ -425,7 +424,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
 
             <Button
               type="submit"
-              className="w-full h-10 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold rounded-sm border-none text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,215,0,0.2)]"
+              className="w-full h-10 bg-primary hover:bg-[#FFE44D] text-black font-bold rounded-sm border-none text-xs"
             >
               Upload & Analyze
             </Button>

@@ -1,816 +1,295 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { motion } from "framer-motion";
-import {
-  Building2,
-  Users,
-  Briefcase,
-  TrendingUp,
-  Crown,
-  Plus,
-  Settings,
-  CreditCard,
-  ChevronRight,
-  Calendar,
-  Clock,
-  Eye,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Mail,
-  Phone,
-  BarChart3,
-  Zap,
-  Video,
-  UserPlus,
-  MoreVertical,
-  RefreshCw,
-  Trash2,
-  Edit2,
-  Upload,
-  FileText,
-  Terminal,
-  Activity,
-} from "lucide-react";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Progress } from "../ui/progress";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "../ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { toast } from "sonner";
-import axios from "axios";
-import { COMPANY_API_END_POINT } from "@/utils/constant";
-import Navbar from "../shared/Navbar";
-import { WriteReviewButton } from "../shared/AddReviewModal";
+import api from "@/utils/api";
+import AppShell from "../app/AppShell";
+import { Funnel, Kpis, Skeleton, ErrorBlock, plural, daysAgo } from "../app/blocks";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
 import DecisionQueue from "./DecisionQueue";
 import RecruiterPerformance from "./RecruiterPerformance";
 
-// Industrial Live Status Indicator
-const LiveIndicator = () => (
-  <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00FF94]/10 border border-[#00FF94]/20 rounded-sm">
-    <span className="relative flex h-2 w-2">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF94] opacity-75"></span>
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00FF94]"></span>
-    </span>
-    <span className="text-[#00FF94] text-xs font-mono uppercase tracking-wider">
-      System Online
-    </span>
-  </div>
-);
+const capacity = (used, max) => (max == null ? `${used}` : `${used} of ${max}`);
 
-// Industrial Stat Card
-const IndustrialStatCard = ({
-  label,
-  value,
-  subtext,
-  icon: Icon,
-  delay = 0,
-  progress = 0,
-  color = "#FFD700",
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay }}
-    className="relative p-6 bg-[#111111] border border-white/10 rounded-sm group hover:border-[#FFD700]/30 transition-all duration-300"
-  >
-    {/* Corner accents */}
-    <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
-    <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
-
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-xs text-gray-500 uppercase tracking-wider font-mono mb-2">
-          {label}
-        </p>
-        <p className="text-3xl font-bold text-white font-mono">{value}</p>
-        {subtext && (
-          <p
-            className={`text-xs mt-1 font-mono ${subtext.startsWith("+") ? "text-[#00FF94]" : subtext.startsWith("-") ? "text-red-400" : "text-gray-600"}`}
-          >
-            {subtext}
-          </p>
-        )}
-      </div>
-      <div
-        className="w-12 h-12 rounded-sm flex items-center justify-center border"
-        style={{ backgroundColor: `${color}10`, borderColor: `${color}30` }}
-      >
-        <Icon className="w-6 h-6" style={{ color }} />
-      </div>
-    </div>
-    <Progress
-      value={Math.min(progress, 100)}
-      className="mt-4 h-1 bg-white/5"
-      indicatorClassName="bg-[#FFD700]"
-    />
-  </motion.div>
-);
-
+/**
+ * The company owner's overview. Its question: who is waiting on my decision?
+ * The queue leads; hiring flow, open jobs and the team answer the next ones.
+ */
 const CompanyAdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const [dashboardData, setDashboardData] = useState(null);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(false);
   const [recruiters, setRecruiters] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteName, setInviteName] = useState("");
-  const [inviting, setInviting] = useState(false);
-  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-  const [companyProfile, setCompanyProfile] = useState({});
-  const [updatingProfile, setUpdatingProfile] = useState(false);
-  const [registrationIncomplete, setRegistrationIncomplete] = useState(false);
+  const [invite, setInvite] = useState({ open: false, email: "", name: "", sending: false });
 
-  // Security guard: Check if company_admin has completed registration
+  // Owners who never finished registration go back to pricing
   useEffect(() => {
-    const checkRegistrationStatus = async () => {
-      // Check if user has companyId (indicates completed registration)
-      if (user?.role === "company_admin" && !user?.companyId) {
-        // Check for pending registration in sessionStorage (from either flow)
-        const pendingCompanyReg = sessionStorage.getItem("pendingCompanyRegistration");
-        const pendingReg = sessionStorage.getItem("pendingRegistration");
-
-        if (pendingCompanyReg || pendingReg) {
-          // Registration is in progress - wait for it to complete
-          console.log("⏳ Registration in progress, waiting for completion...");
-          return;
-        }
-
-        // Wait a brief moment for Redux state to settle (e.g., after payment redirect)
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Re-check after delay - the state might have been updated
-        if (!user?.companyId) {
-          // No company and no pending registration - redirect to pricing
-          console.log("⚠️ Company admin without company - redirecting to pricing");
-          setRegistrationIncomplete(true);
-          toast.error("Please complete your company registration first");
-          navigate("/company/pricing", {
-            replace: true,
-            state: { fromIncompleteRegistration: true }
-          });
-        }
-      }
-    };
-
-    if (user) {
-      checkRegistrationStatus();
-    }
+    if (user?.role !== "company_admin" || user?.companyId) return;
+    if (sessionStorage.getItem("pendingCompanyRegistration") || sessionStorage.getItem("pendingRegistration")) return;
+    const t = setTimeout(() => {
+      toast.error("Please complete your company registration first");
+      navigate("/company/pricing", { replace: true, state: { fromIncompleteRegistration: true } });
+    }, 500);
+    return () => clearTimeout(t);
   }, [user, navigate]);
 
+  const load = useCallback(async () => {
+    setError(false);
+    try {
+      const [overview, team] = await Promise.all([api.get("/overview"), api.get("/company/recruiters").catch(() => ({ data: {} }))]);
+      setData(overview.data);
+      setRecruiters(team.data.recruiters ?? []);
+    } catch {
+      setError(true);
+    }
+  }, []);
+
   useEffect(() => {
-    // Only fetch data if registration is complete
-    if (!registrationIncomplete && user?.companyId) {
-      fetchDashboardData();
-      fetchRecruiters();
-    } else if (!user?.companyId && user?.role === "company_admin") {
-      // Don't fetch, will redirect
-      setLoading(false);
-    } else {
-      fetchDashboardData();
-      fetchRecruiters();
-    }
-  }, [registrationIncomplete, user]);
+    if (user?.companyId || user?.role !== "company_admin") load();
+  }, [user, load]);
 
-  const fetchDashboardData = async () => {
+  const sendInvite = async (e) => {
+    e.preventDefault();
+    setInvite((s) => ({ ...s, sending: true }));
     try {
-      const response = await axios.get(`${COMPANY_API_END_POINT}/dashboard`, {
-        withCredentials: true,
-      });
-      if (response.data.success) {
-        setDashboardData(response.data);
-      }
-    } catch (error) {
-      console.error("Dashboard fetch error:", error);
-      toast.error("Failed to load dashboard data");
-    } finally {
-      setLoading(false);
+      await api.post("/company/recruiters/invite", { email: invite.email, name: invite.name });
+      toast.success(`Invitation sent to ${invite.email}`);
+      setInvite({ open: false, email: "", name: "", sending: false });
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Couldn't send the invitation");
+      setInvite((s) => ({ ...s, sending: false }));
     }
   };
 
-  const fetchRecruiters = async () => {
+  const removeRecruiter = async (r) => {
+    if (!window.confirm(`Remove ${r.name || r.email} from the team? They lose access to your jobs and candidates.`)) return;
     try {
-      const response = await axios.get(`${COMPANY_API_END_POINT}/recruiters`, {
-        withCredentials: true,
-      });
-      if (response.data.success) {
-        setRecruiters(response.data.recruiters);
-      }
-    } catch (error) {
-      console.error("Recruiters fetch error:", error);
+      await api.delete(`/company/recruiters/${r._id}`);
+      toast.success("Recruiter removed");
+      load();
+    } catch {
+      toast.error("Couldn't remove the recruiter");
     }
   };
 
-  const updateCompanyProfile = async () => {
-    setUpdatingProfile(true);
+  const resendInvite = async (r) => {
     try {
-      const response = await axios.put(
-        `${COMPANY_API_END_POINT}/profile`,
-        companyProfile,
-        { withCredentials: true },
-      );
-      if (response.data.success) {
-        toast.success("Company profile updated");
-        setProfileDialogOpen(false);
-        fetchDashboardData();
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update profile");
-    } finally {
-      setUpdatingProfile(false);
+      await api.post(`/company/recruiters/${r._id}/resend-invite`, {});
+      toast.success("Invitation resent");
+    } catch {
+      toast.error("Couldn't resend the invitation");
     }
   };
 
-  const handleInviteRecruiter = async () => {
-    if (!inviteEmail) {
-      toast.error("Email is required");
-      return;
-    }
-
-    setInviting(true);
-    try {
-      const response = await axios.post(
-        `${COMPANY_API_END_POINT}/recruiters/invite`,
-        {
-          email: inviteEmail,
-          name: inviteName,
-        },
-        { withCredentials: true },
-      );
-
-      if (response.data.success) {
-        toast.success(`Invitation sent to ${inviteEmail}`);
-        setInviteDialogOpen(false);
-        setInviteEmail("");
-        setInviteName("");
-        fetchRecruiters();
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to send invitation");
-    } finally {
-      setInviting(false);
-    }
-  };
-
-  const handleRemoveRecruiter = async (recruiterId) => {
-    try {
-      const response = await axios.delete(
-        `${COMPANY_API_END_POINT}/recruiters/${recruiterId}`,
-        {
-          withCredentials: true,
-        },
-      );
-      if (response.data.success) {
-        toast.success("Recruiter removed");
-        fetchRecruiters();
-      }
-    } catch (error) {
-      toast.error("Failed to remove recruiter");
-    }
-  };
-
-  const handleResendInvite = async (recruiterId) => {
-    try {
-      const response = await axios.post(
-        `${COMPANY_API_END_POINT}/recruiters/${recruiterId}/resend-invite`,
-        {},
-        {
-          withCredentials: true,
-        },
-      );
-      if (response.data.success) {
-        toast.success("Invitation resent");
-      }
-    } catch (error) {
-      toast.error("Failed to resend invitation");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="w-16 h-16 border-2 border-[#FFD700]/30 rounded-sm" />
-            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#FFD700] rounded-sm animate-spin" />
-          </div>
-          <p className="text-[#FFD700]/70 font-mono text-sm uppercase tracking-wider">
-            Loading...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const company = dashboardData?.company;
-  const subscription = company?.subscription;
-  const usage = company?.usage || {};
-  const features = company?.features || {};
-
-  const usagePercentage =
-    features.maxJobPostings === "Unlimited" || features.maxJobPostings === -1
-      ? 10
-      : (usage.activeJobs / features.maxJobPostings) * 100;
-
-  const recruiterPercentage =
-    features.maxRecruiters === "Unlimited" || features.maxRecruiters === -1
-      ? 10
-      : (company?.recruitersCount / features.maxRecruiters) * 100;
+  const company = data?.company;
+  const waiting = data?.awaitingDecision ?? 0;
+  const seatsFull = data && data.usage.maxRecruiters != null && data.usage.recruiters >= data.usage.maxRecruiters;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-      <Navbar />
-
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
+    <AppShell title="Overview" scope={company?.name}>
+      <div className="app-title-row">
+        <div>
+          <h1 className="app-h1">Overview</h1>
+          <p className="app-finding">
+            {!data ? (
+              <Skeleton w={260} h={14} />
+            ) : waiting ? (
+              <>
+                <strong>{plural(waiting, "candidate")}</strong> {waiting === 1 ? "is" : "are"} waiting on your decision.
+              </>
+            ) : (
+              "Nothing is waiting on your decision."
+            )}
+          </p>
+        </div>
+        <Link to="/admin/jobs/create" className="app-btn app-btn-primary">
+          Post a job
+        </Link>
       </div>
 
-      <div className="container mx-auto px-4 py-8 pt-24 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-10 gap-6"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#FFD700] rounded-sm flex items-center justify-center">
-              {company?.logo ? (
-                <img
-                  src={company.logo}
-                  alt={company.name}
-                  className="w-full h-full object-cover rounded-sm"
+      {error ? (
+        <ErrorBlock what="your overview" onRetry={load} />
+      ) : (
+        <div className="app-grid">
+          <div className="span-12">
+            <Kpis
+              loading={!data}
+              items={
+                data && [
+                  { label: "Open jobs", value: capacity(data.usage.activeJobs, data.usage.maxJobs), sub: data.usage.maxJobs == null ? "Unlimited on your plan" : `${company.plan} plan` },
+                  { label: "In interview", value: data.pipeline.stages.find((s) => s.key === "interviewing").count, sub: "on open jobs" },
+                  { label: "Recruiter seats", value: capacity(data.usage.recruiters, data.usage.maxRecruiters), sub: seatsFull ? "All seats used" : "Active recruiters" },
+                  { label: "Hired this month", value: data.hiredThisMonth, sub: "Hired or offer accepted" },
+                ]
+              }
+            />
+          </div>
+
+          {/* Two stacked columns, so their bottoms land near each other */}
+          <div className="span-7 app-col">
+            <DecisionQueue onDecided={load} />
+
+          <section className="app-panel" aria-labelledby="jobs-h">
+            <div className="app-panel-head">
+              <h2 className="app-h2" id="jobs-h">
+                Open jobs
+              </h2>
+              <Link to="/admin/jobs" className="app-link">
+                {data ? `View all ${data.openJobs.total}` : "View all"}
+              </Link>
+            </div>
+            {!data ? (
+              <Skeleton rows={4} />
+            ) : data.openJobs.total === 0 ? (
+              <p className="app-empty">
+                No open jobs. <Link to="/admin/jobs/create">Post the first one</Link> and applicants will appear here.
+              </p>
+            ) : (
+              <table className="app-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Job</th>
+                    <th scope="col" className="num">
+                      Applicants
+                    </th>
+                    <th scope="col" className="num">
+                      Interviewing
+                    </th>
+                    <th scope="col" className="num">
+                      Awaiting you
+                    </th>
+                    <th scope="col" className="num">
+                      Open for
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.openJobs.rows.map((j) => (
+                    <tr key={j.id}>
+                      <td>
+                        <Link to={`/admin/jobs/${j.id}/applicants`} className="app-row-title" style={{ display: "block", color: "inherit", textDecoration: "none" }}>
+                          {j.title}
+                        </Link>
+                        <div className="app-row-sub">{j.location}</div>
+                      </td>
+                      <td className="num">{j.applicants}</td>
+                      <td className="num">{j.interviewing}</td>
+                      <td className="num">{j.decision || <span className="app-meta">—</span>}</td>
+                      <td className="num app-meta">{daysAgo(j.daysOpen)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          </div>
+
+          <div className="span-5 app-col">
+          <section className="app-panel" aria-labelledby="flow-h">
+            <div className="app-panel-head">
+              <h2 className="app-h2" id="flow-h">
+                Hiring flow
+              </h2>
+              <span className="app-meta">{data ? `${plural(data.pipeline.total, "applicant")} on open jobs` : ""}</span>
+            </div>
+            <Funnel pipeline={data?.pipeline} hue="decision" />
+          </section>
+
+          <section className="app-panel" aria-labelledby="team-h">
+            <div className="app-panel-head">
+              <h2 className="app-h2" id="team-h">
+                Team
+              </h2>
+              <button type="button" className="app-btn app-btn-sm" onClick={() => setInvite((s) => ({ ...s, open: true }))} disabled={seatsFull} title={seatsFull ? "All recruiter seats on your plan are used" : undefined}>
+                Invite recruiter
+              </button>
+            </div>
+            {!data ? (
+              <Skeleton rows={3} />
+            ) : recruiters.length === 0 ? (
+              <p className="app-empty">No recruiters yet. Invite one to share interviews and reports.</p>
+            ) : (
+              <ul className="app-list">
+                {recruiters.map((r) => (
+                  <li className="app-row" key={r._id}>
+                    <div className="app-row-main">
+                      <div className="app-row-title">{r.name || r.email}</div>
+                      <div className="app-row-sub">{r.email}</div>
+                    </div>
+                    <div className="app-row-end">
+                      {r.status === "pending" ? (
+                        <>
+                          <span className="app-pill app-pill-warning">Invited</span>
+                          <button type="button" className="app-link" style={{ background: "none", border: 0, cursor: "pointer" }} onClick={() => resendInvite(r)}>
+                            Resend
+                          </button>
+                        </>
+                      ) : (
+                        <span className="app-pill">Active</span>
+                      )}
+                      <button type="button" className="app-link" style={{ background: "none", border: 0, cursor: "pointer" }} onClick={() => removeRecruiter(r)}>
+                        Remove
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {seatsFull && (
+              <p className="app-meta" style={{ marginTop: 12 }}>
+                All {data.usage.maxRecruiters} seats on the {company.plan} plan are used. <Link to="/company/billing">Change plan</Link>
+              </p>
+            )}
+          </section>
+
+          </div>
+
+          <div className="span-12">
+            <RecruiterPerformance />
+          </div>
+        </div>
+      )}
+
+      <Dialog open={invite.open} onOpenChange={(open) => setInvite((s) => ({ ...s, open }))}>
+        <DialogContent className="bg-[#141414] border-0 text-white">
+          <form onSubmit={sendInvite}>
+            <DialogHeader>
+              <DialogTitle>Invite a recruiter</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-4 py-4">
+              <label className="flex flex-col gap-2 text-sm font-medium">
+                Email
+                <input
+                  type="email"
+                  required
+                  value={invite.email}
+                  onChange={(e) => setInvite((s) => ({ ...s, email: e.target.value }))}
+                  className="h-10 rounded-lg bg-[#0a0a0a] border border-[#444] px-3 font-normal"
+                  autoComplete="email"
                 />
-              ) : (
-                <Building2 className="w-8 h-8 text-black" />
-              )}
+              </label>
+              <label className="flex flex-col gap-2 text-sm font-medium">
+                Name <span className="font-normal text-[#949494]">Optional</span>
+                <input
+                  value={invite.name}
+                  onChange={(e) => setInvite((s) => ({ ...s, name: e.target.value }))}
+                  className="h-10 rounded-lg bg-[#0a0a0a] border border-[#444] px-3 font-normal"
+                  autoComplete="name"
+                />
+              </label>
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                {company?.name || "Company Dashboard"}
-              </h1>
-              <div className="flex items-center gap-3 mt-2">
-                <Badge
-                  className={`rounded-sm text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 ${subscription?.isActive
-                    ? "bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30"
-                    : "bg-red-500/10 text-red-400 border border-red-500/30"
-                    }`}
-                >
-                  {subscription?.isActive ? "Active" : "Inactive"}
-                </Badge>
-                <Badge className="rounded-sm text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30">
-                  <Crown className="w-3 h-3 mr-1" />
-                  {subscription?.planDetails?.name || "Basic"} Plan
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <LiveIndicator />
-            <Button
-              variant="outline"
-              onClick={() => navigate("/company/settings")}
-              className="border-white/10 text-gray-400 hover:bg-white/5 hover:border-[#FFD700]/30 rounded-sm font-mono text-xs uppercase tracking-wider"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
-            <Button
-              onClick={() => navigate("/admin/jobs/create")}
-              className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs uppercase tracking-wider"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Post Job
-            </Button>
-            <WriteReviewButton className="rounded-sm text-xs" />
-          </div>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          <IndustrialStatCard
-            label="Active Jobs"
-            value={usage.activeJobs || 0}
-            subtext={`of ${features.maxJobPostings === -1 ? "∞" : features.maxJobPostings}`}
-            icon={Briefcase}
-            delay={0.1}
-            progress={
-              features.maxJobPostings > 0
-                ? ((usage.activeJobs || 0) / features.maxJobPostings) * 100
-                : 30
-            }
-          />
-          <IndustrialStatCard
-            label="Team Members"
-            value={company?.recruitersCount || 0}
-            subtext={`of ${features.maxRecruiters === -1 ? "∞" : features.maxRecruiters}`}
-            icon={Users}
-            delay={0.15}
-            progress={
-              features.maxRecruiters > 0
-                ? ((company?.recruitersCount || 0) / features.maxRecruiters) *
-                100
-                : 20
-            }
-            color="#3B82F6"
-          />
-          <IndustrialStatCard
-            label="Total Applications"
-            value={usage.totalApplications || 0}
-            subtext={
-              usage.applicationGrowth
-                ? `${usage.applicationGrowth > 0 ? "+" : ""}${usage.applicationGrowth}% this month`
-                : "No growth data"
-            }
-            icon={TrendingUp}
-            delay={0.2}
-            progress={Math.min((usage.totalApplications || 0) / 10, 100)}
-            color="#8B5CF6"
-          />
-          <IndustrialStatCard
-            label="Interviews Conducted"
-            value={usage.interviewsConducted || 0}
-            subtext={`${usage.hiresThisMonth || 0} hires this month`}
-            icon={Video}
-            delay={0.25}
-            progress={Math.min((usage.interviewsConducted || 0) / 5, 100)}
-            color="#00FF94"
-          />
-        </div>
-
-        {/* Quick Actions Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-10"
-        >
-          <div className="flex items-center gap-2 mb-6">
-            <Terminal className="w-4 h-4 text-[#FFD700]" />
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-              Quick Actions
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              {
-                icon: Briefcase,
-                label: "View Jobs",
-                path: "/admin/jobs",
-                color: "#FFD700",
-              },
-              {
-                icon: FileText,
-                label: "Applications",
-                path: "/admin/applications",
-                color: "#FFD700",
-              },
-              {
-                icon: Video,
-                label: "Interviews",
-                path: "/admin/interviews",
-                color: "#FFD700",
-              },
-              {
-                icon: BarChart3,
-                label: "Analytics",
-                path: "/admin/analytics",
-                color: "#FFD700",
-              },
-            ].map((action, idx) => (
-              <motion.button
-                key={idx}
-                onClick={() => navigate(action.path)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 + idx * 0.05 }}
-                className="relative p-6 bg-[#111111] border border-white/10 rounded-sm group hover:border-[#FFD700]/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 min-h-[120px]"
-              >
-                {/* Corner accents */}
-                <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#FFD700]/50 transition-colors" />
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-white/10 group-hover:border-[#FFD700]/50 transition-colors" />
-
-                <div className="w-10 h-10 flex items-center justify-center">
-                  <action.icon className="w-6 h-6 text-[#FFD700] group-hover:scale-110 transition-transform" />
-                </div>
-                <span className="text-xs font-mono uppercase tracking-wider text-gray-400 group-hover:text-[#FFD700] transition-colors">
-                  {action.label}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
-
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Subscription Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="relative p-6 bg-[#111111] border border-[#FFD700]/20 rounded-sm"
-          >
-            {/* Corner accents */}
-            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#FFD700]/30" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#FFD700]/30" />
-
-            <div className="flex items-center gap-2 mb-6">
-              <Crown className="w-5 h-5 text-[#FFD700]" />
-              <h3 className="text-lg font-bold text-white">Subscription</h3>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-sm font-mono">
-                  Current Plan
-                </span>
-                <Badge className="bg-[#FFD700] text-black text-xs font-bold rounded-sm px-2">
-                  {subscription?.planDetails?.name || "Basic"}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-sm font-mono">Status</span>
-                <span
-                  className={`text-sm font-mono ${subscription?.isActive ? "text-[#00FF94]" : "text-red-400"}`}
-                >
-                  {subscription?.isActive ? "Active" : "Expired"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-sm font-mono">
-                  Days Remaining
-                </span>
-                <span className="text-white font-bold font-mono">
-                  {subscription?.daysRemaining || 0} days
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-6 space-y-2">
-              <Button
-                onClick={() => navigate("/company/pricing")}
-                className="w-full bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs uppercase tracking-wider"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Upgrade Plan
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full border-white/10 text-gray-400 hover:bg-white/5 rounded-sm font-mono text-xs uppercase tracking-wider"
-                onClick={() => navigate("/company/billing")}
-              >
-                <CreditCard className="w-4 h-4 mr-2" />
-                View Billing
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Team Management */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="lg:col-span-2 relative p-6 bg-[#111111] border border-white/10 rounded-sm"
-          >
-            {/* Corner accents */}
-            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-white/10" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-white/10" />
-
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold text-white">Team Members</h3>
-                <p className="text-gray-500 text-sm">
-                  Manage your recruiters and their permissions
-                </p>
-              </div>
-              <Dialog
-                open={inviteDialogOpen}
-                onOpenChange={setInviteDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs uppercase tracking-wider">
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Invite
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-[#111111] border-white/10 rounded-sm">
-                  <DialogHeader>
-                    <DialogTitle className="text-white font-bold">
-                      Invite Recruiter
-                    </DialogTitle>
-                    <DialogDescription className="text-gray-500">
-                      Send an invitation to add a new team member
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div>
-                      <Label
-                        htmlFor="email"
-                        className="text-gray-400 text-xs uppercase tracking-wider font-mono"
-                      >
-                        Email Address
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="recruiter@company.com"
-                        value={inviteEmail}
-                        onChange={(e) => setInviteEmail(e.target.value)}
-                        className="bg-white/5 border-white/10 text-white mt-2 rounded-sm font-mono"
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="name"
-                        className="text-gray-400 text-xs uppercase tracking-wider font-mono"
-                      >
-                        Name (Optional)
-                      </Label>
-                      <Input
-                        id="name"
-                        placeholder="John Doe"
-                        value={inviteName}
-                        onChange={(e) => setInviteName(e.target.value)}
-                        className="bg-white/5 border-white/10 text-white mt-2 rounded-sm font-mono"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setInviteDialogOpen(false)}
-                      className="border-white/10 text-gray-400 rounded-sm"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleInviteRecruiter}
-                      disabled={inviting}
-                      className="bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm font-bold"
-                    >
-                      {inviting ? "Sending..." : "Send Invitation"}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="space-y-3">
-              {recruiters.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="w-12 h-12 mx-auto mb-4 text-gray-700" />
-                  <p className="text-gray-500 font-mono">No team members yet</p>
-                  <p className="text-gray-600 text-sm">
-                    Invite recruiters to help manage applications
-                  </p>
-                </div>
-              ) : (
-                recruiters.map((recruiter) => (
-                  <div
-                    key={recruiter._id}
-                    className="flex items-center justify-between p-4 bg-white/5 rounded-sm border border-white/5 hover:border-[#FFD700]/20 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="w-10 h-10 rounded-sm">
-                        <AvatarImage
-                          src={recruiter.userId?.profile?.profilePhoto}
-                        />
-                        <AvatarFallback className="bg-[#FFD700]/10 text-[#FFD700] rounded-sm font-bold">
-                          {(recruiter.name || recruiter.email)[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-white font-medium">
-                          {recruiter.name || recruiter.email.split("@")[0]}
-                        </p>
-                        <p className="text-sm text-gray-500 font-mono">
-                          {recruiter.email}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge
-                        className={`rounded-sm text-[10px] font-mono uppercase ${recruiter.status === "active"
-                          ? "bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30"
-                          : "bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30"
-                          }`}
-                      >
-                        {recruiter.status}
-                      </Badge>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-gray-500 hover:text-white"
-                          >
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-[#111111] border-white/10 rounded-sm">
-                          {recruiter.status === "invited" && (
-                            <DropdownMenuItem
-                              onClick={() => handleResendInvite(recruiter._id)}
-                              className="text-gray-300 focus:bg-white/5"
-                            >
-                              <RefreshCw className="w-4 h-4 mr-2" />
-                              Resend Invite
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem
-                            onClick={() => handleRemoveRecruiter(recruiter._id)}
-                            className="text-red-400 focus:bg-red-500/10"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Remove
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Final hiring decisions: interview reports and directly passed
-            candidates in one queue (replaces the separate CEO dashboard) */}
-        <div className="mt-8 space-y-8">
-          <DecisionQueue onDecided={fetchDashboardData} />
-          <RecruiterPerformance />
-        </div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45 }}
-          className="mt-10"
-        >
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Terminal className="w-5 h-5 text-[#FFD700]" />
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { icon: Briefcase, label: "View Jobs", route: "/admin/jobs" },
-              {
-                icon: Eye,
-                label: "Applications",
-                route: "/admin/applications",
-              },
-              { icon: Video, label: "Interviews", route: "/admin/interviews" },
-              {
-                icon: BarChart3,
-                label: "Analytics",
-                route: "/admin/analytics",
-              },
-            ].map((action, idx) => (
-              <Button
-                key={idx}
-                variant="outline"
-                className="h-24 flex flex-col items-center justify-center gap-3 bg-[#111111] border-white/10 hover:bg-white/5 hover:border-[#FFD700]/30 rounded-sm transition-all group"
-                onClick={() => navigate(action.route)}
-              >
-                <action.icon className="w-6 h-6 text-[#FFD700] group-hover:scale-110 transition-transform" />
-                <span className="text-gray-400 text-xs font-mono uppercase tracking-wider">
-                  {action.label}
-                </span>
-              </Button>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </div>
+            <DialogFooter>
+              <button type="submit" className="h-9 px-4 rounded-full bg-white text-black font-medium disabled:opacity-60" disabled={invite.sending}>
+                {invite.sending ? "Sending…" : "Send invitation"}
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </AppShell>
   );
 };
 

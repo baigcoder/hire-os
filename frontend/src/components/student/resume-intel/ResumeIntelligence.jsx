@@ -30,7 +30,7 @@ const StageIcon = ({ status }) => {
   if (status === "done")
     return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
   if (status === "running")
-    return <Loader2 className="w-4 h-4 text-[#FFD700] animate-spin" />;
+    return <Loader2 className="w-4 h-4 text-primary animate-spin" />;
   if (status === "failed") return <XCircle className="w-4 h-4 text-red-400" />;
   if (status === "skipped")
     return <CircleDashed className="w-4 h-4 text-gray-700" />;
@@ -43,7 +43,7 @@ const Progress = ({ stages, status, error }) => (
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0 }}
-    className="bg-[#111111] border border-white/10 rounded-md p-8 max-w-xl mx-auto"
+    className="bg-card border border-white/10 rounded-md p-8 max-w-xl mx-auto"
   >
     <h3 className="text-white font-semibold mb-1">Analyzing your resume</h3>
     <p className="text-xs text-gray-500 mb-6">
@@ -62,7 +62,7 @@ const Progress = ({ stages, status, error }) => (
           <StageIcon status={s.status} />
           <span className="flex-1">{s.label}</span>
           {s.ms != null && s.status === "done" && (
-            <span className="text-xs font-mono text-gray-600">
+            <span className="text-xs text-gray-600">
               {(s.ms / 1000).toFixed(1)}s
             </span>
           )}
@@ -103,7 +103,7 @@ const InputForm = ({ onSubmit, submitting }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      className="bg-[#111111] border border-white/10 rounded-md p-6 space-y-6"
+      className="bg-card border border-white/10 rounded-md p-6 space-y-6"
     >
       <div>
         <div className="flex gap-2 mb-3">
@@ -115,9 +115,9 @@ const InputForm = ({ onSubmit, submitting }) => {
               key={value}
               type="button"
               onClick={() => setMode(value)}
-              className={`px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider border ${
+              className={`px-3 py-1.5 rounded text-xs border ${
                 mode === value
-                  ? "border-[#FFD700]/50 text-[#FFD700] bg-[#FFD700]/10"
+                  ? "border-primary/50 text-primary bg-primary/10"
                   : "border-white/10 text-gray-400 hover:text-gray-200"
               }`}
             >
@@ -127,11 +127,11 @@ const InputForm = ({ onSubmit, submitting }) => {
         </div>
 
         {mode === "file" ? (
-          <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-[#FFD700]/30 rounded-md cursor-pointer bg-[#0A0A0A] hover:bg-[#FFD700]/5 hover:border-[#FFD700]/50 transition-all">
+          <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-primary/30 rounded-md cursor-pointer bg-background hover:bg-primary/5 hover:border-primary/50 transition-all">
             {file ? (
               <>
-                <FileText className="w-8 h-8 mb-2 text-[#FFD700]" />
-                <p className="text-sm text-[#FFD700]">{file.name}</p>
+                <FileText className="w-8 h-8 mb-2 text-primary" />
+                <p className="text-sm text-primary">{file.name}</p>
                 <p className="text-xs text-gray-500">Click to replace</p>
               </>
             ) : (
@@ -156,7 +156,7 @@ const InputForm = ({ onSubmit, submitting }) => {
             onChange={(e) => setResumeText(e.target.value)}
             rows={10}
             placeholder="Paste the full text of your resume…"
-            className="w-full bg-[#0A0A0A] border border-white/10 rounded-md p-3 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-[#FFD700]/50"
+            className="w-full bg-background border border-white/10 rounded-md p-3 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-primary/50"
           />
         )}
       </div>
@@ -167,7 +167,7 @@ const InputForm = ({ onSubmit, submitting }) => {
         </p>
       ) : (
         <div>
-          <label className="text-xs text-[#FFD700] uppercase tracking-wider mb-2 block font-mono">
+          <label className="text-xs text-primary mb-2 block">
             Target job description (optional)
           </label>
           <textarea
@@ -176,7 +176,7 @@ const InputForm = ({ onSubmit, submitting }) => {
             rows={5}
             maxLength={8000}
             placeholder="Paste a job posting to see how well you match each requirement. Leave empty for a general review."
-            className="w-full bg-[#0A0A0A] border border-white/10 rounded-md p-3 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-[#FFD700]/50"
+            className="w-full bg-background border border-white/10 rounded-md p-3 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-primary/50"
           />
         </div>
       )}
@@ -184,7 +184,7 @@ const InputForm = ({ onSubmit, submitting }) => {
       <Button
         type="submit"
         disabled={!canSubmit}
-        className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-semibold"
+        className="w-full bg-primary text-black hover:bg-primary/90 font-semibold"
       >
         {submitting ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -192,7 +192,7 @@ const InputForm = ({ onSubmit, submitting }) => {
           "Analyze resume"
         )}
       </Button>
-      <p className="text-[11px] text-gray-600 text-center">
+      <p className="text-xs text-gray-600 text-center">
         Your resume text is stored with the report so you can revisit it. Delete
         a report anytime from history.
       </p>
@@ -202,8 +202,8 @@ const InputForm = ({ onSubmit, submitting }) => {
 
 const HistoryList = ({ items, onOpen, onDelete, activeId }) =>
   items.length === 0 ? null : (
-    <div className="bg-[#111111] border border-white/10 rounded-md p-4">
-      <h3 className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-gray-400 mb-3">
+    <div className="bg-card border border-white/10 rounded-md p-4">
+      <h3 className="flex items-center gap-2 text-xs text-gray-400 mb-3">
         <History className="w-4 h-4" /> Recent analyses
       </h3>
       <ul className="divide-y divide-white/5">
@@ -214,7 +214,7 @@ const HistoryList = ({ items, onOpen, onDelete, activeId }) =>
               onClick={() => onOpen(a._id)}
               className={`flex-1 text-left text-sm truncate ${
                 a._id === activeId
-                  ? "text-[#FFD700]"
+                  ? "text-primary"
                   : "text-gray-300 hover:text-white"
               }`}
             >
@@ -224,7 +224,7 @@ const HistoryList = ({ items, onOpen, onDelete, activeId }) =>
               </span>
             </button>
             {a.status === "completed" ? (
-              <Badge className="border border-white/10 bg-white/5 text-gray-300 font-mono">
+              <Badge className="border border-white/10 bg-white/5 text-gray-300">
                 {a.score?.overall}
               </Badge>
             ) : (
@@ -332,7 +332,7 @@ const ResumeIntelligence = ({ onUseClassic }) => {
             key="failed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-[#111111] border border-red-500/30 rounded-md p-6 text-center"
+            className="bg-card border border-red-500/30 rounded-md p-6 text-center"
           >
             <XCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
             <p className="text-gray-200">{error || "The analysis failed."}</p>

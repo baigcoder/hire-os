@@ -7,15 +7,15 @@ import { integrityApi } from "@/integrity/api";
 import { PRIORITY_STYLES, signalLabel } from "@/integrity/labels";
 
 const RELIABILITY = {
-  reliable: { label: "Reliable", className: "text-[#00FF94]" },
-  partially_reliable: { label: "Partially reliable", className: "text-[#FFD700]" },
+  reliable: { label: "Reliable", className: "text-accent" },
+  partially_reliable: { label: "Partially reliable", className: "text-primary" },
   unreliable: { label: "Unreliable", className: "text-red-400" },
 };
-const STRENGTH = { weak: "text-gray-400", moderate: "text-[#FFD700]", strong: "text-orange-400" };
+const STRENGTH = { weak: "text-gray-400", moderate: "text-primary", strong: "text-orange-400" };
 
 const Card = ({ title, children }) => (
-  <section className="bg-[#111111] border border-white/10 rounded-md p-5">
-    <h2 className="text-xs font-mono uppercase tracking-wider text-[#FFD700] mb-3">{title}</h2>
+  <section className="bg-card border border-white/10 rounded-md p-5">
+    <h2 className="text-xs text-primary mb-3">{title}</h2>
     {children}
   </section>
 );
@@ -86,17 +86,17 @@ const IntegrityReportPage = () => {
   const reliability = report && RELIABILITY[report.monitoringReliability?.level];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
+    <div className="min-h-screen bg-background text-white">
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-4">
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-[#FFD700]" /> Interview integrity report
+            <ShieldCheck className="w-6 h-6 text-primary" /> Interview integrity report
           </h1>
           {role === "recruiter" && state.status && state.status !== "queued" && (
-            <Button variant="outline" onClick={regenerate} className="border-white/10 rounded-sm text-xs uppercase tracking-wider">
+            <Button variant="outline" onClick={regenerate} className="border-white/10 rounded-sm text-xs">
               <RefreshCw className="w-3.5 h-3.5 mr-2" /> {report ? "Regenerate" : "Generate"}
             </Button>
           )}
@@ -123,7 +123,7 @@ const IntegrityReportPage = () => {
             <Card title="Summary">
               <div className="flex flex-wrap items-center gap-3 mb-3">
                 {priority && (
-                  <span className={`text-xs px-2 py-1 rounded-sm border font-bold uppercase tracking-wider ${priority.className}`}>
+                  <span className={`text-xs px-2 py-1 rounded-sm border font-bold ${priority.className}`}>
                     {priority.label}
                   </span>
                 )}
@@ -132,7 +132,7 @@ const IntegrityReportPage = () => {
                     Monitoring: <span className={reliability.className}>{reliability.label}</span>
                   </span>
                 )}
-                <span className="text-xs text-gray-500 font-mono">
+                <span className="text-xs text-gray-500">
                   {report.facts?.durationMinutes} min · peak {report.facts?.risk?.peak}/100
                 </span>
               </div>
@@ -153,7 +153,7 @@ const IntegrityReportPage = () => {
                     <li key={o.signal}>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm">{signalLabel(o.signal)}</span>
-                        <span className={`text-[10px] uppercase tracking-wider font-mono ${STRENGTH[o.strength]}`}>{o.strength}</span>
+                        <span className={`text-xs ${STRENGTH[o.strength]}`}>{o.strength}</span>
                       </div>
                       <p className="text-sm text-gray-300 mt-1">{o.observed}</p>
                       {o.possibleBenignExplanations?.length > 0 && (
@@ -171,7 +171,7 @@ const IntegrityReportPage = () => {
                   {report.facts.tamper.map((t) => (
                     <li key={t.flag} className="flex items-center gap-2 text-red-300">
                       <AlertTriangle className="w-4 h-4" /> {t.label}
-                      <span className="text-gray-500 font-mono text-xs">×{t.count}{t.at ? ` from ${t.at}` : ""}</span>
+                      <span className="text-gray-500 text-xs">×{t.count}{t.at ? ` from ${t.at}` : ""}</span>
                     </li>
                   ))}
                 </ul>
@@ -183,7 +183,7 @@ const IntegrityReportPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="text-left text-[10px] uppercase tracking-wider text-gray-500">
+                      <tr className="text-left text-xs text-gray-500">
                         <th className="py-1 pr-3 font-normal">Signal</th>
                         <th className="py-1 pr-3 font-normal">Counted</th>
                         <th className="py-1 pr-3 font-normal">Time</th>
@@ -195,12 +195,12 @@ const IntegrityReportPage = () => {
                         <tr key={s.signal} className="border-t border-white/5">
                           <td className="py-1.5 pr-3">
                             {s.label}
-                            {s.expected && <span className="ml-2 text-[10px] text-gray-500">(expected)</span>}
-                            {s.confirmedByRecruiterSide && <span className="ml-2 text-[10px] text-blue-300">both sides</span>}
+                            {s.expected && <span className="ml-2 text-xs text-gray-500">(expected)</span>}
+                            {s.confirmedByRecruiterSide && <span className="ml-2 text-xs text-blue-300">both sides</span>}
                           </td>
-                          <td className="py-1.5 pr-3 font-mono text-gray-300">{s.counted}</td>
-                          <td className="py-1.5 pr-3 font-mono text-gray-300">{s.totalSeconds}s</td>
-                          <td className="py-1.5 font-mono text-xs text-gray-500">{s.at.join(", ")}</td>
+                          <td className="py-1.5 pr-3 text-gray-300">{s.counted}</td>
+                          <td className="py-1.5 pr-3 text-gray-300">{s.totalSeconds}s</td>
+                          <td className="py-1.5 text-xs text-gray-500">{s.at.join(", ")}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -226,15 +226,15 @@ const IntegrityReportPage = () => {
         {(state.disputes?.length > 0 || role === "candidate") && !state.loading && !state.error && (
           <Card title="Candidate's explanation">
             {state.disputes?.map((d) => (
-              <blockquote key={d.at} className="border-l-2 border-[#FFD700]/40 pl-3 text-sm text-gray-300 mb-3">
+              <blockquote key={d.at} className="border-l-2 border-primary/40 pl-3 text-sm text-gray-300 mb-3">
                 {d.text}
-                <div className="text-[10px] text-gray-500 mt-1">{new Date(d.at).toLocaleString()}</div>
+                <div className="text-xs text-gray-500 mt-1">{new Date(d.at).toLocaleString()}</div>
               </blockquote>
             ))}
             {role === "candidate" && (state.disputes?.length ?? 0) < 5 && (
               <form onSubmit={submitDispute} className="space-y-2">
                 <label htmlFor="dispute" className="flex items-center gap-2 text-sm text-gray-300">
-                  <MessageSquareWarning className="w-4 h-4 text-[#FFD700]" /> Something here wrong or missing context?
+                  <MessageSquareWarning className="w-4 h-4 text-primary" /> Something here wrong or missing context?
                 </label>
                 <textarea
                   id="dispute"
@@ -242,13 +242,13 @@ const IntegrityReportPage = () => {
                   onChange={(e) => setDispute(e.target.value)}
                   rows={4}
                   maxLength={2000}
-                  className="w-full rounded-sm bg-black/40 border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-[#FFD700]/50"
+                  className="w-full rounded-sm bg-black/40 border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-primary/50"
                   placeholder="For example: I looked down at my notes because the interviewer asked me to check a number."
                 />
                 <Button
                   type="submit"
                   disabled={sending || dispute.trim().length < 10}
-                  className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black font-bold rounded-sm uppercase tracking-wider text-xs"
+                  className="bg-primary hover:bg-primary/90 text-black font-bold rounded-sm text-xs"
                 >
                   {sending && <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />} Add my explanation
                 </Button>

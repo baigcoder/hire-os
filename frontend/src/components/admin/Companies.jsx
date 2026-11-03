@@ -21,12 +21,12 @@ import {
 
 // Live Indicator Component
 const LiveIndicator = () => (
-  <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00FF94]/10 border border-[#00FF94]/20 rounded-sm">
+  <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 border border-accent/20 rounded-sm">
     <span className="relative flex h-2 w-2">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF94] opacity-75"></span>
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00FF94]"></span>
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
     </span>
-    <span className="text-[#00FF94] text-xs font-mono uppercase tracking-wider">
+    <span className="text-accent text-xs">
       Active
     </span>
   </div>
@@ -34,13 +34,11 @@ const LiveIndicator = () => (
 
 // Stats Card
 const StatCard = ({ label, value, icon: Icon, color = "#FFD700" }) => (
-  <div className="relative p-4 bg-[#111111] border border-white/10 rounded-sm group hover:border-[#FFD700]/30 transition-all">
-    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
-    <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
+  <div className="relative p-4 bg-card border border-white/10 rounded-sm group hover:border-primary/30 transition-all">
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-[10px] text-gray-500 uppercase tracking-wider font-mono">{label}</p>
-        <p className="text-2xl font-bold text-white font-mono mt-1">{value}</p>
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className="text-2xl font-bold text-white mt-1">{value}</p>
       </div>
       <div
         className="w-10 h-10 rounded-sm flex items-center justify-center border"
@@ -74,7 +72,7 @@ const Companies = () => {
   const activeCompanies = companies?.filter(c => c.status !== 'inactive')?.length || totalCompanies;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
+    <div className="min-h-screen bg-background text-white">
       <Navbar />
 
       {/* Background Pattern */}
@@ -88,8 +86,6 @@ const Companies = () => {
 
       {/* Ambient Glow */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFD700]/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#FFD700]/3 rounded-full blur-[150px]" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 pt-24 relative z-10">
@@ -100,14 +96,14 @@ const Companies = () => {
           className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#FFD700] rounded-sm flex items-center justify-center shadow-[0_0_20px_rgba(255,215,0,0.3)]">
+            <div className="w-12 h-12 bg-primary rounded-sm flex items-center justify-center">
               <Building2 className="w-6 h-6 text-black" />
             </div>
             <div>
               <h1 className="text-2xl font-bold uppercase tracking-tight">
                 Companies
               </h1>
-              <p className="text-gray-500 text-sm font-mono flex items-center gap-2">
+              <p className="text-gray-500 text-sm flex items-center gap-2">
                 <Terminal className="w-3 h-3" />
                 Registered Organizations
               </p>
@@ -125,7 +121,7 @@ const Companies = () => {
             </Button>
             <Button
               onClick={() => navigate("/admin/companies/create")}
-              className="bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold h-10 px-6 rounded-sm shadow-[0_0_20px_rgba(255,215,0,0.3)] uppercase tracking-wider text-xs"
+              className="bg-primary hover:bg-[#FFE44D] text-black font-bold h-10 px-6 rounded-sm text-xs"
             >
               <Plus className="mr-2 h-4 w-4" /> Add Company
             </Button>
@@ -170,21 +166,21 @@ const Companies = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-[#111111] border border-white/10 rounded-sm p-4 mb-6"
+          className="bg-card border border-white/10 rounded-sm p-4 mb-6"
         >
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
               <Input
-                className="pl-10 bg-white/5 border-white/10 text-white h-10 rounded-sm placeholder:text-gray-600 focus:border-[#FFD700]/50 focus:ring-[#FFD700]/20"
+                className="pl-10 bg-white/5 border-white/10 text-white h-10 rounded-sm placeholder:text-gray-600 focus:border-primary/50 focus:ring-primary/20"
                 placeholder="Search companies..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
+            <div className="flex items-center gap-2 text-xs text-gray-500">
               <span className="uppercase">Showing</span>
-              <span className="text-[#FFD700] font-bold">{totalCompanies}</span>
+              <span className="text-primary font-bold">{totalCompanies}</span>
               <span className="uppercase">companies</span>
             </div>
           </div>
@@ -195,7 +191,7 @@ const Companies = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-[#111111] border border-white/10 rounded-sm overflow-hidden"
+          className="bg-card border border-white/10 rounded-sm overflow-hidden"
         >
           <CompaniesTable />
         </motion.div>

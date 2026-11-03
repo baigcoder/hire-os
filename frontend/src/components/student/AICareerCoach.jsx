@@ -166,7 +166,7 @@ const AICareerCoach = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 flex-shrink-0">
                 <div>
                     <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-card">
                             <Bot className="h-4 w-4 text-white" />
                         </div>
                         AI Career Coach
@@ -209,10 +209,10 @@ const AICareerCoach = () => {
                                         className="h-auto py-2 px-2 flex flex-col items-center gap-1 hover:border-primary/50 transition-all"
                                         onClick={() => startNewSession(topic.id)}
                                     >
-                                        <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${topic.color} flex items-center justify-center`}>
+                                        <div className={`w-6 h-6 rounded-md bg-card ${topic.color} flex items-center justify-center`}>
                                             <Icon className="w-3 h-3 text-white" />
                                         </div>
-                                        <span className="text-[10px] text-center leading-tight">{topic.label}</span>
+                                        <span className="text-xs text-center leading-tight">{topic.label}</span>
                                     </Button>
                                 );
                             })}
@@ -248,14 +248,14 @@ const AICareerCoach = () => {
                                                         : "border-border hover:border-primary/50 hover:bg-muted/50"
                                                         }`}
                                                 >
-                                                    <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${topicInfo.color} flex items-center justify-center flex-shrink-0`}>
+                                                    <div className={`w-9 h-9 rounded-lg bg-card ${topicInfo.color} flex items-center justify-center flex-shrink-0`}>
                                                         <Icon className="w-4 h-4 text-white" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-sm font-medium truncate">
                                                             {session.title || session.topic.replace(/_/g, ' ')}
                                                         </p>
-                                                        <p className="text-[10px] text-muted-foreground">
+                                                        <p className="text-xs text-muted-foreground">
                                                             {new Date(session.updatedAt).toLocaleDateString()}
                                                         </p>
                                                     </div>
@@ -291,7 +291,7 @@ const AICareerCoach = () => {
                             >
                                 {/* AI Avatar */}
                                 <div className="relative w-20 h-20 mx-auto mb-6">
-                                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 animate-pulse" />
+                                    <div className="absolute inset-0 rounded-2xl animate-pulse" />
                                     <div className="absolute inset-1 rounded-xl bg-background flex items-center justify-center">
                                         <Sparkles className="w-8 h-8 text-primary" />
                                     </div>
@@ -315,17 +315,17 @@ const AICareerCoach = () => {
                                                 className="h-auto py-3 sm:py-4 flex flex-col gap-1 sm:gap-2 hover:border-primary/50 group"
                                                 onClick={() => startNewSession(topic.id)}
                                             >
-                                                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br ${topic.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                                                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-card ${topic.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                                                     <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                                 </div>
-                                                <span className="text-[10px] sm:text-xs font-medium text-center leading-tight">{topic.label}</span>
+                                                <span className="text-xs sm:text-xs font-medium text-center leading-tight">{topic.label}</span>
                                             </Button>
                                         );
                                     })}
                                 </div>
 
                                 {/* Quick Prompts */}
-                                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Or try asking...</p>
+                                <p className="text-xs text-muted-foreground mb-3">Or try asking...</p>
                                 <div className="flex flex-wrap justify-center gap-2">
                                     {QUICK_PROMPTS.map((prompt, idx) => (
                                         <Badge
@@ -350,7 +350,7 @@ const AICareerCoach = () => {
                             <CardHeader className="border-b pb-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${getTopicInfo(activeSession.topic).color} flex items-center justify-center`}>
+                                        <div className={`w-10 h-10 rounded-lg bg-card ${getTopicInfo(activeSession.topic).color} flex items-center justify-center`}>
                                             {React.createElement(getTopicInfo(activeSession.topic).icon, { className: "w-5 h-5 text-white" })}
                                         </div>
                                         <div>
@@ -379,7 +379,7 @@ const AICareerCoach = () => {
                                                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                                             >
                                                 {msg.role === "assistant" && (
-                                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mr-3 flex-shrink-0 mt-1 shadow-md">
+                                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 mt-1 shadow-md bg-card">
                                                         <Brain className="w-4 h-4 text-white" />
                                                     </div>
                                                 )}
@@ -402,7 +402,7 @@ const AICareerCoach = () => {
                                             animate={{ opacity: 1 }}
                                             className="flex items-start gap-3"
                                         >
-                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-card">
                                                 <Brain className="w-4 h-4 text-white animate-pulse" />
                                             </div>
                                             <div className="bg-muted px-4 py-3 rounded-2xl rounded-bl-md">

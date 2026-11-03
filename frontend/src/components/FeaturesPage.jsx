@@ -48,29 +48,26 @@ const FeatureCard = ({
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ delay: index * 0.1 }}
-    className="group relative p-6 bg-[#111111] border border-white/10 hover:border-[#FFD700]/30 rounded-sm transition-all"
+    className="group relative p-6 bg-card border border-white/10 hover:border-primary/30 rounded-sm transition-all"
   >
-    {/* Corner accents */}
-    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
-    <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-white/10 group-hover:border-[#FFD700]/30 transition-colors" />
 
     {/* Icon */}
-    <div className="w-12 h-12 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-sm flex items-center justify-center mb-4 group-hover:bg-[#FFD700]/20 transition-colors">
-      <Icon className="w-6 h-6 text-[#FFD700]" />
+    <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-sm flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+      <Icon className="w-6 h-6 text-primary" />
     </div>
 
     {/* Pro badge */}
     {isPro && (
-      <Badge className="absolute top-4 right-4 bg-[#FFD700]/10 text-[#FFD700] text-[10px] px-2 py-0.5 font-mono">
+      <Badge className="absolute top-4 right-4 bg-primary/10 text-primary text-xs px-2 py-0.5">
         PRO
       </Badge>
     )}
 
     {/* Content */}
-    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[#FFD700] transition-colors">
+    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-primary transition-colors">
       {title}
     </h3>
-    <p className="text-gray-500 text-sm mb-4 font-mono leading-relaxed">
+    <p className="text-gray-500 text-sm mb-4 leading-relaxed">
       {description}
     </p>
 
@@ -79,7 +76,7 @@ const FeatureCard = ({
       <ul className="space-y-2">
         {benefits.map((benefit, i) => (
           <li key={i} className="flex items-start gap-2 text-xs text-gray-400">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#00FF94] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-accent flex-shrink-0 mt-0.5" />
             <span>{benefit}</span>
           </li>
         ))}
@@ -90,8 +87,8 @@ const FeatureCard = ({
 
 // Category Section Component
 const CategorySection = ({ title, subtitle, badge, features, gradient }) => (
-  <section className={`py-20 relative ${gradient || "bg-[#0A0A0A]"}`}>
-    <div className="absolute inset-0 bg-grid opacity-20" />
+  <section className={`py-20 relative ${gradient || "bg-background"}`}>
+    <div className="absolute inset-0 opacity-20" />
 
     <div className="container mx-auto px-4 relative z-10">
       <motion.div
@@ -100,13 +97,13 @@ const CategorySection = ({ title, subtitle, badge, features, gradient }) => (
         viewport={{ once: true }}
         className="text-center max-w-3xl mx-auto mb-14"
       >
-        <Badge className="mb-4 px-4 py-1.5 bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20 text-xs font-mono uppercase tracking-widest">
+        <Badge className="mb-4 px-4 py-1.5 bg-primary/10 text-primary border-primary/20 text-xs">
           {badge}
         </Badge>
         <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight text-white">
           {title}
         </h2>
-        <p className="text-gray-500 font-mono text-sm">{subtitle}</p>
+        <p className="text-gray-500 text-sm">{subtitle}</p>
       </motion.div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -317,21 +314,19 @@ const FeaturesPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-background text-white">
       <Navbar />
 
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-30" />
-        <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
-        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-[#00FF94]/5 rounded-full blur-[150px]" />
+        <div className="absolute inset-0 opacity-30" />
 
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Badge className="mb-6 px-4 py-1.5 bg-[#00FF94]/10 text-[#00FF94] border-[#00FF94]/20 text-xs font-mono uppercase tracking-widest">
+            <Badge className="mb-6 px-4 py-1.5 bg-accent/10 text-accent border-accent/20 text-xs">
               <Sparkles className="w-3 h-3 mr-2" />
               Full Platform Features
             </Badge>
@@ -339,17 +334,17 @@ const FeaturesPage = () => {
             <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight">
               Powerful Features for
               <br />
-              <span className="text-[#FFD700]">Modern Hiring</span>
+              <span className="text-primary">Modern Hiring</span>
             </h1>
 
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10 font-mono">
+            <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
               Everything you need to find, assess, and hire top talent. Built
               for speed, designed for scale.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/signup">
-                <Button className="px-8 py-5 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider">
+                <Button className="px-8 py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm">
                   <Rocket className="w-4 h-4 mr-2" />
                   Get Started Free
                 </Button>
@@ -357,7 +352,7 @@ const FeaturesPage = () => {
               <Link to="/company/pricing">
                 <Button
                   variant="outline"
-                  className="px-8 py-5 text-sm font-bold border-white/20 text-white hover:bg-white/5 rounded-sm uppercase tracking-wider"
+                  className="px-8 py-5 text-sm font-bold border-white/20 text-white hover:bg-white/5 rounded-sm"
                 >
                   <Crown className="w-4 h-4 mr-2" />
                   View Pricing
@@ -382,7 +377,7 @@ const FeaturesPage = () => {
         title="Enterprise Hiring Tools"
         subtitle="Powerful features to streamline your recruitment workflow"
         features={recruiterFeatures}
-        gradient="bg-gradient-to-b from-[#0A0A0A] to-[#111111]"
+        gradient="bg-card"
       />
 
       {/* Platform Features */}
@@ -395,7 +390,7 @@ const FeaturesPage = () => {
 
       {/* CTA Section */}
       <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#FFD700]/5 to-transparent" />
+        <div className="absolute inset-0" />
 
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.div
@@ -405,16 +400,16 @@ const FeaturesPage = () => {
             className="max-w-3xl mx-auto"
           >
             <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
-              Ready to <span className="text-[#FFD700]">Get Started?</span>
+              Ready to <span className="text-primary">Get Started?</span>
             </h2>
-            <p className="text-gray-400 mb-10 font-mono">
+            <p className="text-gray-400 mb-10">
               Join thousands of companies using HIRE.OS to build exceptional
               teams
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/signup">
-                <Button className="px-10 py-6 text-sm font-bold bg-[#FFD700] text-black hover:bg-[#FFE44D] rounded-sm uppercase tracking-wider">
+                <Button className="px-10 py-6 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm">
                   Start Free Trial
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -422,7 +417,7 @@ const FeaturesPage = () => {
               <Link to="/browse">
                 <Button
                   variant="outline"
-                  className="px-10 py-6 text-sm font-bold border-white/20 text-gray-400 hover:text-white hover:bg-white/5 rounded-sm uppercase tracking-wider"
+                  className="px-10 py-6 text-sm font-bold border-white/20 text-gray-400 hover:text-white hover:bg-white/5 rounded-sm"
                 >
                   Browse Jobs
                   <ChevronRight className="w-4 h-4 ml-2" />

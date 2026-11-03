@@ -197,9 +197,7 @@ const CompanyAdminSettingsPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif] selection:bg-[#00BFFF]/30">
-            {/* Industrial Grid Background */}
-            <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+        <div className="min-h-screen bg-background text-white selection:bg-[#00BFFF]/30">
             <div className="fixed inset-0 pointer-events-none">
                 <div
                     className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[200px]"
@@ -228,7 +226,7 @@ const CompanyAdminSettingsPage = () => {
                         </div>
                         Settings
                     </h1>
-                    <p className="text-gray-500 text-sm mt-2 font-mono">
+                    <p className="text-gray-500 text-sm mt-2">
                         Manage your company profile and account settings
                     </p>
                 </motion.div>
@@ -240,7 +238,7 @@ const CompanyAdminSettingsPage = () => {
                         animate={{ opacity: 1, x: 0 }}
                         className="lg:col-span-1"
                     >
-                        <div className="bg-[#111111] border border-white/10 rounded-md p-2 space-y-1">
+                        <div className="bg-card border border-white/10 rounded-md p-2 space-y-1">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
@@ -281,7 +279,7 @@ const CompanyAdminSettingsPage = () => {
                         animate={{ opacity: 1, x: 0 }}
                         className="lg:col-span-3"
                     >
-                        <div className="bg-[#111111] border border-white/10 rounded-md p-6 relative overflow-hidden">
+                        <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden">
                             {/* Corner Accent */}
                             <div
                                 className="absolute top-0 right-0 w-8 h-8 border-t border-r"
@@ -299,7 +297,7 @@ const CompanyAdminSettingsPage = () => {
                                         className="space-y-6"
                                     >
                                         <h2
-                                            className="text-sm font-bold uppercase tracking-wider mb-6"
+                                            className="text-sm font-bold mb-6"
                                             style={{ color: accentColor }}
                                         >
                                             Company Profile
@@ -307,7 +305,7 @@ const CompanyAdminSettingsPage = () => {
 
                                         <div className="space-y-4">
                                             <div className="grid gap-2">
-                                                <Label htmlFor="c_name" className="text-gray-400 text-xs uppercase tracking-wider font-mono">
+                                                <Label htmlFor="c_name" className="text-gray-400 text-xs">
                                                     Company Name
                                                 </Label>
                                                 <Input
@@ -316,12 +314,12 @@ const CompanyAdminSettingsPage = () => {
                                                     onChange={(e) =>
                                                         setCompanyProfile({ ...companyProfile, name: e.target.value })
                                                     }
-                                                    className="bg-[#0A0A0A] border-white/10 text-white rounded-sm font-mono"
+                                                    className="bg-background border-white/10 text-white rounded-sm"
                                                 />
                                             </div>
 
                                             <div className="grid gap-2">
-                                                <Label htmlFor="c_desc" className="text-gray-400 text-xs uppercase tracking-wider font-mono">
+                                                <Label htmlFor="c_desc" className="text-gray-400 text-xs">
                                                     Description
                                                 </Label>
                                                 <Textarea
@@ -333,13 +331,13 @@ const CompanyAdminSettingsPage = () => {
                                                             description: e.target.value,
                                                         })
                                                     }
-                                                    className="bg-[#0A0A0A] border-white/10 text-white rounded-sm font-mono min-h-[120px]"
+                                                    className="bg-background border-white/10 text-white rounded-sm min-h-[120px]"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="grid gap-2">
-                                                    <Label htmlFor="c_web" className="text-gray-400 text-xs uppercase tracking-wider font-mono">
+                                                    <Label htmlFor="c_web" className="text-gray-400 text-xs">
                                                         Website
                                                     </Label>
                                                     <div className="relative">
@@ -353,13 +351,13 @@ const CompanyAdminSettingsPage = () => {
                                                                     website: e.target.value,
                                                                 })
                                                             }
-                                                            className="bg-[#0A0A0A] border-white/10 text-white rounded-sm font-mono pl-10"
+                                                            className="bg-background border-white/10 text-white rounded-sm pl-10"
                                                         />
                                                     </div>
                                                 </div>
 
                                                 <div className="grid gap-2">
-                                                    <Label htmlFor="c_loc" className="text-gray-400 text-xs uppercase tracking-wider font-mono">
+                                                    <Label htmlFor="c_loc" className="text-gray-400 text-xs">
                                                         Location
                                                     </Label>
                                                     <div className="relative">
@@ -373,7 +371,7 @@ const CompanyAdminSettingsPage = () => {
                                                                     location: e.target.value,
                                                                 })
                                                             }
-                                                            className="bg-[#0A0A0A] border-white/10 text-white rounded-sm font-mono pl-10"
+                                                            className="bg-background border-white/10 text-white rounded-sm pl-10"
                                                         />
                                                     </div>
                                                 </div>
@@ -384,7 +382,7 @@ const CompanyAdminSettingsPage = () => {
                                             <Button
                                                 onClick={updateCompanyProfile}
                                                 disabled={updatingProfile}
-                                                className="rounded-sm font-bold text-xs uppercase tracking-wider"
+                                                className="rounded-sm font-bold text-xs"
                                                 style={{ backgroundColor: accentColor, color: "#000" }}
                                             >
                                                 {updatingProfile ? (
@@ -411,7 +409,7 @@ const CompanyAdminSettingsPage = () => {
                                     >
                                         <div>
                                             <h2
-                                                className="text-sm font-bold uppercase tracking-wider mb-4"
+                                                className="text-sm font-bold mb-4"
                                                 style={{ color: accentColor }}
                                             >
                                                 Account Information
@@ -419,7 +417,7 @@ const CompanyAdminSettingsPage = () => {
 
                                             <div className="space-y-4">
                                                 <div>
-                                                    <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
+                                                    <label className="text-xs text-gray-500 mb-2 block">
                                                         Email Address
                                                     </label>
                                                     <div className="flex gap-2">
@@ -427,7 +425,7 @@ const CompanyAdminSettingsPage = () => {
                                                             type="email"
                                                             value={settings.email}
                                                             disabled
-                                                            className="flex-1 px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-gray-400 font-mono text-sm"
+                                                            className="flex-1 px-4 py-3 bg-background border border-white/10 rounded-sm text-gray-400 text-sm"
                                                         />
                                                     </div>
                                                 </div>
@@ -435,7 +433,7 @@ const CompanyAdminSettingsPage = () => {
                                         </div>
 
                                         <div className="pt-6 border-t border-white/5">
-                                            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                                            <h3 className="text-sm font-bold text-white mb-4">
                                                 Change Password
                                             </h3>
                                             <div className="space-y-3">
@@ -449,7 +447,7 @@ const CompanyAdminSettingsPage = () => {
                                                             e.target.value,
                                                         )
                                                     }
-                                                    className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white font-mono text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
+                                                    className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
                                                 />
                                                 <input
                                                     type={showPassword ? "text" : "password"}
@@ -458,7 +456,7 @@ const CompanyAdminSettingsPage = () => {
                                                     onChange={(e) =>
                                                         handleSettingChange("newPassword", e.target.value)
                                                     }
-                                                    className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white font-mono text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
+                                                    className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
                                                 />
                                                 <input
                                                     type={showPassword ? "text" : "password"}
@@ -470,7 +468,7 @@ const CompanyAdminSettingsPage = () => {
                                                             e.target.value,
                                                         )
                                                     }
-                                                    className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-white font-mono text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
+                                                    className="w-full px-4 py-3 bg-background border border-white/10 rounded-sm text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30"
                                                 />
                                                 <div className="flex items-center justify-between">
                                                     <button
@@ -487,7 +485,7 @@ const CompanyAdminSettingsPage = () => {
                                                     <Button
                                                         onClick={handlePasswordChange}
                                                         disabled={loading || !settings.newPassword}
-                                                        className="rounded-sm font-bold text-xs uppercase tracking-wider"
+                                                        className="rounded-sm font-bold text-xs"
                                                         style={{
                                                             backgroundColor: accentColor,
                                                             color: "#000",
@@ -513,7 +511,7 @@ const CompanyAdminSettingsPage = () => {
                                         exit={{ opacity: 0, y: -10 }}
                                     >
                                         <h2
-                                            className="text-sm font-bold uppercase tracking-wider mb-6"
+                                            className="text-sm font-bold mb-6"
                                             style={{ color: accentColor }}
                                         >
                                             Notification Preferences
@@ -569,7 +567,7 @@ const CompanyAdminSettingsPage = () => {
                                         exit={{ opacity: 0, y: -10 }}
                                     >
                                         <h2
-                                            className="text-sm font-bold uppercase tracking-wider mb-6"
+                                            className="text-sm font-bold mb-6"
                                             style={{ color: accentColor }}
                                         >
                                             Appearance Settings
@@ -577,7 +575,7 @@ const CompanyAdminSettingsPage = () => {
 
                                         <div className="space-y-6">
                                             <div>
-                                                <label className="text-xs text-gray-500 uppercase tracking-wider mb-3 block">
+                                                <label className="text-xs text-gray-500 mb-3 block">
                                                     Theme
                                                 </label>
                                                 <div className="grid grid-cols-2 gap-3">
@@ -589,7 +587,7 @@ const CompanyAdminSettingsPage = () => {
                                                             }
                                                             className={`p-4 rounded-sm border transition-all flex items-center gap-3 ${settings.theme === theme
                                                                     ? "bg-white/10 border-white/30"
-                                                                    : "bg-[#0A0A0A] border-white/10 hover:border-white/20"
+                                                                    : "bg-background border-white/10 hover:border-white/20"
                                                                 }`}
                                                         >
                                                             {theme === "dark" ? (
@@ -641,12 +639,12 @@ const CompanyAdminSettingsPage = () => {
                                         exit={{ opacity: 0, y: -10 }}
                                     >
                                         <h2
-                                            className="text-sm font-bold uppercase tracking-wider mb-6"
+                                            className="text-sm font-bold mb-6"
                                             style={{ color: accentColor }}
                                         >
                                             Security Settings
                                         </h2>
-                                        <div className="p-4 bg-[#0A0A0A] border border-white/10 rounded-sm">
+                                        <div className="p-4 bg-background border border-white/10 rounded-sm">
                                             <div className="flex items-center gap-3 mb-3">
                                                 <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center">
                                                     <Shield size={18} className="text-gray-400" />

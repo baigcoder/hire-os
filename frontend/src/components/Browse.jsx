@@ -19,9 +19,7 @@ const Browse = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif]">
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white">
       <Navbar />
 
       {/* Header Section */}
@@ -30,17 +28,17 @@ const Browse = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-[#FFD700]/30 bg-[#FFD700]/10 text-[#FFD700] text-[10px] font-bold tracking-widest uppercase mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-primary/30 bg-primary/10 text-primary text-xs font-bold mb-6"
           >
             <Terminal size={12} />
             <span>Browse Jobs</span>
           </motion.div>
 
           <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4 uppercase tracking-tight">
-            Available <span className="text-[#FFD700]">Positions</span>
+            Available <span className="text-primary">Positions</span>
           </h1>
 
-          <p className="text-sm text-gray-500 font-mono max-w-xl">
+          <p className="text-sm text-gray-500 max-w-xl">
             Explore curated opportunities. AI-matched positions for precision
             career moves.
           </p>
@@ -49,10 +47,10 @@ const Browse = () => {
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 my-8 sm:my-12">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 sm:mb-8">
-          <h2 className="font-bold text-sm text-gray-400 flex items-center gap-3 uppercase tracking-wider">
+          <h2 className="font-bold text-sm text-gray-400 flex items-center gap-3">
             <Grid3x3 size={14} />
             Search Results
-            <span className="px-2 py-0.5 bg-[#FFD700]/10 text-[#FFD700] text-xs rounded-sm border border-[#FFD700]/30 font-mono">
+            <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-sm border border-primary/30">
               {allJobs.length}
             </span>
           </h2>
@@ -73,12 +71,12 @@ const Browse = () => {
           })}
 
           {allJobs.length === 0 && (
-            <div className="col-span-full py-16 text-center text-gray-600 bg-[#111111] rounded-sm border border-white/10">
+            <div className="col-span-full py-16 text-center text-gray-600 bg-card rounded-sm border border-white/10">
               <Search className="mx-auto mb-4 opacity-30" size={48} />
-              <p className="text-sm font-medium uppercase tracking-wider">
+              <p className="text-sm font-medium">
                 No results found
               </p>
-              <p className="text-xs text-gray-500 font-mono mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 Try different search parameters
               </p>
             </div>

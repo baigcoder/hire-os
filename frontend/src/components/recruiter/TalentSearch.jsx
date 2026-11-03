@@ -50,7 +50,7 @@ const TalentSearch = () => {
       <div className="max-w-5xl mx-auto px-4 pt-24 pb-8 space-y-6">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Users className="w-6 h-6 text-[#FFD700]" /> Talent search
+            <Users className="w-6 h-6 text-primary" /> Talent search
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Describe who you&apos;re looking for. Searches every screened
@@ -70,7 +70,7 @@ const TalentSearch = () => {
             onChange={(e) => setQuery(e.target.value)}
             maxLength={300}
             placeholder="e.g. senior backend engineer who has scaled PostgreSQL"
-            className="flex-1 bg-[#111111] border border-white/10 rounded-md px-4 py-2.5 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-[#FFD700]/50"
+            className="flex-1 bg-card border border-white/10 rounded-md px-4 py-2.5 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-primary/50"
           />
           <Button
             type="submit"
@@ -92,7 +92,7 @@ const TalentSearch = () => {
                 key={e}
                 type="button"
                 onClick={() => search(e)}
-                className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:border-[#FFD700]/40"
+                className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:border-primary/40"
               >
                 {e}
               </button>
@@ -108,13 +108,13 @@ const TalentSearch = () => {
         )}
 
         {results?.length > 0 && (
-          <ul className="bg-[#0a0a0a] border border-white/10 rounded-2xl divide-y divide-white/5">
+          <ul className="bg-background border border-white/10 rounded-2xl divide-y divide-white/5">
             {results.map((c, index) => (
               <li
                 key={c.applicationId}
                 className="flex items-center gap-4 px-5 py-4"
               >
-                <span className="w-6 text-xs font-mono text-gray-600">
+                <span className="w-6 text-xs text-gray-600">
                   #{index + 1}
                 </span>
                 <div className="flex-1 min-w-0">
@@ -129,7 +129,7 @@ const TalentSearch = () => {
                       )}
                     </span>
                     {c.flagged && (
-                      <Badge className="border border-red-500/30 bg-red-500/10 text-red-300 text-[10px]">
+                      <Badge className="border border-red-500/30 bg-red-500/10 text-red-300 text-xs">
                         <ShieldAlert className="w-3 h-3 mr-1" /> Flagged
                       </Badge>
                     )}
@@ -138,7 +138,7 @@ const TalentSearch = () => {
                     Applied to{" "}
                     <Link
                       to={`/admin/jobs/${c.jobId}/applicants`}
-                      className="text-gray-300 hover:text-[#FFD700]"
+                      className="text-gray-300 hover:text-primary"
                     >
                       {c.jobTitle || "a job"}
                     </Link>
@@ -148,7 +148,7 @@ const TalentSearch = () => {
                     {c.topSkills.map((s) => (
                       <span
                         key={s}
-                        className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-gray-400"
+                        className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs text-gray-400"
                       >
                         {s}
                       </span>
@@ -156,12 +156,12 @@ const TalentSearch = () => {
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-xs font-mono text-[#FFD700]">
+                  <div className="text-xs text-primary">
                     {Math.round(c.similarity * 100)}% similar
                   </div>
                   {c.score !== null && (
                     <Badge
-                      className={`mt-1 border font-mono ${BAND_STYLES[c.band]}`}
+                      className={`mt-1 border ${BAND_STYLES[c.band]}`}
                     >
                       job fit {c.score}
                     </Badge>

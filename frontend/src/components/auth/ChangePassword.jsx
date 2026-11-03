@@ -93,10 +93,10 @@ const ChangePassword = () => {
 
   const CheckItem = ({ valid, text }) => (
     <div
-      className={`flex items-center gap-2 text-xs font-mono ${valid ? "text-[#00FF94]" : "text-gray-600"}`}
+      className={`flex items-center gap-2 text-xs ${valid ? "text-accent" : "text-gray-600"}`}
     >
       {valid ? (
-        <CheckCircle size={12} className="text-[#00FF94]" />
+        <CheckCircle size={12} className="text-accent" />
       ) : (
         <XCircle size={12} className="text-gray-600" />
       )}
@@ -105,13 +105,10 @@ const ChangePassword = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4 py-16 relative overflow-hidden font-['Space_Grotesk',sans-serif]">
-      {/* Industrial Grid Background */}
-      <div className="absolute inset-0 bg-grid opacity-30" />
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-16 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30" />
 
       {/* Gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-[#FFD700]/5 rounded-full blur-[150px]" />
-      <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-[#00FF94]/5 rounded-full blur-[120px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -119,20 +116,17 @@ const ChangePassword = () => {
         transition={{ duration: 0.4 }}
         className="relative z-10 w-full max-w-md"
       >
-        <div className="relative bg-[#111111] border border-white/10 rounded-sm p-8">
-          {/* Corner accents */}
-          <div className="absolute top-0 right-0 w-10 h-10 border-t border-r border-[#FFD700]/30" />
-          <div className="absolute bottom-0 left-0 w-10 h-10 border-b border-l border-[#FFD700]/30" />
+        <div className="relative bg-card border border-white/10 rounded-sm p-8">
 
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-sm bg-[#FFD700] mb-4">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-sm bg-primary mb-4">
               <ShieldCheck className="w-7 h-7 text-black" />
             </div>
             <h1 className="text-2xl font-bold text-white tracking-tight mb-2">
               Set New Password
             </h1>
-            <p className="text-gray-500 text-sm font-mono">
+            <p className="text-gray-500 text-sm">
               Create a secure password for your account
             </p>
           </div>
@@ -144,7 +138,7 @@ const ChangePassword = () => {
               animate={{ opacity: 1, y: 0 }}
               className="mb-6 p-3 rounded-sm bg-red-500/10 border border-red-500/30"
             >
-              <p className="text-red-400 text-xs text-center font-mono uppercase tracking-wider">
+              <p className="text-red-400 text-xs text-center">
                 {error}
               </p>
             </motion.div>
@@ -153,20 +147,20 @@ const ChangePassword = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email (read-only) */}
             <div>
-              <label className="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs text-gray-500 mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 value={email}
                 disabled
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-gray-500 cursor-not-allowed font-mono text-sm"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-gray-500 cursor-not-allowed text-sm"
               />
             </div>
 
             {/* New Password */}
             <div>
-              <label className="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs text-gray-500 mb-2">
                 New Password
               </label>
               <div className="relative">
@@ -179,7 +173,7 @@ const ChangePassword = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Enter new password"
-                  className="w-full pl-11 pr-11 py-3 bg-white/5 border border-white/10 rounded-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 transition-all font-mono text-sm"
+                  className="w-full pl-11 pr-11 py-3 bg-white/5 border border-white/10 rounded-sm text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 transition-all text-sm"
                 />
                 <button
                   type="button"
@@ -193,7 +187,7 @@ const ChangePassword = () => {
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs text-gray-500 mb-2">
                 Confirm Password
               </label>
               <div className="relative">
@@ -206,7 +200,7 @@ const ChangePassword = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm new password"
-                  className="w-full pl-11 pr-11 py-3 bg-white/5 border border-white/10 rounded-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 transition-all font-mono text-sm"
+                  className="w-full pl-11 pr-11 py-3 bg-white/5 border border-white/10 rounded-sm text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 transition-all text-sm"
                 />
                 <button
                   type="button"
@@ -224,7 +218,7 @@ const ChangePassword = () => {
 
             {/* Password requirements */}
             <div className="p-4 rounded-sm bg-white/5 border border-white/10 space-y-2">
-              <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-3">
+              <p className="text-xs text-gray-500 mb-3">
                 Password Requirements
               </p>
               <CheckItem
@@ -247,8 +241,8 @@ const ChangePassword = () => {
             <Button
               type="submit"
               disabled={!isPasswordValid || loading}
-              className={`w-full py-4 rounded-sm font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${isPasswordValid
-                  ? "bg-[#FFD700] text-black hover:bg-[#FFE44D] hover:shadow-[0_0_30px_rgba(255,215,0,0.2)]"
+              className={`w-full py-4 rounded-sm font-bold text-sm transition-all flex items-center justify-center gap-2 ${isPasswordValid
+                  ? "bg-primary text-black hover:bg-[#FFE44D] hover:shadow-[0_0_30px_rgba(255,215,0,0.2)]"
                   : "bg-gray-800 text-gray-600 cursor-not-allowed"
                 }`}
             >

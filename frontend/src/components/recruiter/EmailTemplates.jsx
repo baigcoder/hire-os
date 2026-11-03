@@ -59,7 +59,7 @@ const TYPE_COLORS = {
     text: "text-blue-400",
     label: "Interview Invite",
   },
-  offer: { bg: "bg-[#00FF94]/10", text: "text-[#00FF94]", label: "Offer" },
+  offer: { bg: "bg-accent/10", text: "text-accent", label: "Offer" },
   follow_up: {
     bg: "bg-purple-500/10",
     text: "text-purple-400",
@@ -87,9 +87,8 @@ const TemplateCard = ({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative p-5 bg-[#111111] border border-white/10 rounded-sm group hover:border-[#22D3EE]/30 transition-all"
+      className="relative p-5 bg-card border border-white/10 rounded-sm group hover:border-[#22D3EE]/30 transition-all"
     >
-      <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-white/10 group-hover:border-[#22D3EE]/30 transition-colors" />
 
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
@@ -99,12 +98,12 @@ const TemplateCard = ({
               {template.name}
             </h3>
             {template.isDefault && (
-              <Badge className="text-[10px] bg-white/10 text-gray-400">
+              <Badge className="text-xs bg-white/10 text-gray-400">
                 Default
               </Badge>
             )}
           </div>
-          <Badge className={`text-[10px] ${typeStyle.bg} ${typeStyle.text}`}>
+          <Badge className={`text-xs ${typeStyle.bg} ${typeStyle.text}`}>
             {typeStyle.label}
           </Badge>
         </div>
@@ -163,13 +162,13 @@ const TemplateCard = ({
           {template.variables.slice(0, 3).map((variable, idx) => (
             <code
               key={idx}
-              className="text-[10px] bg-[#22D3EE]/10 text-[#22D3EE] px-1.5 py-0.5 rounded"
+              className="text-xs bg-[#22D3EE]/10 text-[#22D3EE] px-1.5 py-0.5 rounded"
             >
               {`{{${variable}}}`}
             </code>
           ))}
           {template.variables.length > 3 && (
-            <span className="text-[10px] text-gray-600">
+            <span className="text-xs text-gray-600">
               +{template.variables.length - 3} more
             </span>
           )}
@@ -178,11 +177,11 @@ const TemplateCard = ({
 
       {/* Usage Stats */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
-        <span className="text-[10px] text-gray-600 font-mono">
+        <span className="text-xs text-gray-600">
           Used {template.usageCount || 0} times
         </span>
         {template.lastUsedAt && (
-          <span className="text-[10px] text-gray-600 font-mono">
+          <span className="text-xs text-gray-600">
             Last used: {new Date(template.lastUsedAt).toLocaleDateString()}
           </span>
         )}
@@ -263,7 +262,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-[#111111] border-white/10 text-white">
+      <DialogContent className="max-w-2xl bg-card border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mail className="w-5 h-5 text-[#22D3EE]" />
@@ -284,7 +283,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
                 placeholder="e.g., Interview Confirmation"
-                className="bg-[#0A0A0A] border-white/10 text-white mt-1.5"
+                className="bg-background border-white/10 text-white mt-1.5"
               />
             </div>
             <div>
@@ -295,10 +294,10 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
                   setFormData((prev) => ({ ...prev, type: val }))
                 }
               >
-                <SelectTrigger className="bg-[#0A0A0A] border-white/10 text-white mt-1.5">
+                <SelectTrigger className="bg-background border-white/10 text-white mt-1.5">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111111] border-white/10">
+                <SelectContent className="bg-card border-white/10">
                   {Object.entries(TYPE_COLORS).map(([key, value]) => (
                     <SelectItem key={key} value={key} className="text-gray-300">
                       {value.label}
@@ -317,7 +316,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
                 setFormData((prev) => ({ ...prev, subject: e.target.value }))
               }
               placeholder="e.g., Interview Invitation - {{jobTitle}} at {{companyName}}"
-              className="bg-[#0A0A0A] border-white/10 text-white mt-1.5"
+              className="bg-background border-white/10 text-white mt-1.5"
             />
           </div>
 
@@ -329,7 +328,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
                 setFormData((prev) => ({ ...prev, body: e.target.value }))
               }
               placeholder="Write your email content here..."
-              className="bg-[#0A0A0A] border-white/10 text-white mt-1.5 min-h-[200px] font-mono text-sm"
+              className="bg-background border-white/10 text-white mt-1.5 min-h-[200px] text-sm"
             />
           </div>
 
@@ -345,7 +344,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
                   variant="outline"
                   size="sm"
                   onClick={() => insertVariable(variable)}
-                  className="h-7 text-xs bg-[#0A0A0A] border-white/10 text-gray-400 hover:text-[#22D3EE] hover:border-[#22D3EE]/30"
+                  className="h-7 text-xs bg-background border-white/10 text-gray-400 hover:text-[#22D3EE] hover:border-[#22D3EE]/30"
                 >
                   {`{{${variable}}}`}
                 </Button>
@@ -407,7 +406,7 @@ const PreviewModal = ({ isOpen, template, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-[#111111] border-white/10 text-white">
+      <DialogContent className="max-w-2xl bg-card border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="w-5 h-5 text-[#22D3EE]" />
@@ -422,11 +421,11 @@ const PreviewModal = ({ isOpen, template, onClose }) => {
           </div>
         ) : previewData ? (
           <div className="py-4">
-            <div className="p-4 bg-[#0A0A0A] rounded-sm mb-4">
+            <div className="p-4 bg-background rounded-sm mb-4">
               <p className="text-xs text-gray-500 mb-1">Subject:</p>
               <p className="text-white font-medium">{previewData.subject}</p>
             </div>
-            <div className="p-4 bg-[#0A0A0A] rounded-sm">
+            <div className="p-4 bg-background rounded-sm">
               <p className="text-xs text-gray-500 mb-2">Body:</p>
               <div className="text-gray-300 whitespace-pre-wrap text-sm leading-relaxed">
                 {previewData.body}
@@ -553,13 +552,13 @@ const EmailTemplates = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             <div className="w-16 h-16 border-2 border-[#22D3EE]/30 rounded-sm" />
             <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#22D3EE] rounded-sm animate-spin" />
           </div>
-          <p className="text-[#22D3EE]/70 font-mono text-sm uppercase tracking-wider">
+          <p className="text-[#22D3EE]/70 text-sm">
             Loading Templates...
           </p>
         </div>
@@ -568,8 +567,7 @@ const EmailTemplates = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] font-['Space_Grotesk',sans-serif]">
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background">
 
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
@@ -602,7 +600,7 @@ const EmailTemplates = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-[#111111] border border-white/10 rounded-sm"
+          className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-card border border-white/10 rounded-sm"
         >
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -610,15 +608,15 @@ const EmailTemplates = () => {
               placeholder="Search templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-[#0A0A0A] border-white/10 text-white"
+              className="pl-10 bg-background border-white/10 text-white"
             />
           </div>
 
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[150px] bg-[#0A0A0A] border-white/10 text-white">
+            <SelectTrigger className="w-[150px] bg-background border-white/10 text-white">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111111] border-white/10">
+            <SelectContent className="bg-card border-white/10">
               <SelectItem value="all" className="text-gray-300">
                 All Types
               </SelectItem>

@@ -210,7 +210,7 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto p-0 gap-0 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-2xl">
         {/* Header */}
-        <DialogHeader className="sticky top-0 z-10 bg-gradient-to-r from-emerald-600 to-emerald-500 p-5 rounded-t-2xl">
+        <DialogHeader className="sticky top-0 z-10 p-5 rounded-t-2xl bg-card">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
               <FileEdit className="w-5 h-5 text-white" />
@@ -231,7 +231,7 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
           <div className="flex flex-col items-center mb-6">
             <div className="relative group">
               {/* Avatar Display with Loading Overlay */}
-              <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-zinc-700 dark:to-zinc-800 border-4 border-white dark:border-zinc-700 shadow-lg relative">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-zinc-700 shadow-lg relative bg-card">
                 {photoPreview || profilePhoto ? (
                   <img
                     src={photoPreview || profilePhoto}
@@ -458,7 +458,7 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold shadow-lg shadow-emerald-500/25 disabled:opacity-50"
+              className="flex-1 h-12 rounded-xl text-white font-semibold shadow-lg disabled:opacity-50 bg-card"
             >
               {loading ? (
                 <>

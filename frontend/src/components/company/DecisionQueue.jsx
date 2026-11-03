@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { UserCheck, Loader2, ChevronDown, ChevronUp, FileText, AlertTriangle } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import api from "@/utils/api";
+import { Skeleton, plural } from "../app/blocks";
 import StructuredReport from "../interview/report/StructuredReport";
 
 const RECOMMENDATION = {
@@ -41,6 +40,8 @@ const DecisionQueue = ({ onDecided }) => {
   }, []);
 
   const decide = async (item, decision) => {
+    // Decisions are final; a rejection tells the candidate
+    if (decision === "rejected" && !window.confirm(`Reject ${item.candidate.name} for ${item.job}? The candidate will be told, and this can't be undone.`)) return;
     setBusy(true);
     try {
       const res = await api.post(`/company/candidates/${item.applicationId}/approve`, { decision, comments: notes });
@@ -64,105 +65,95 @@ const DecisionQueue = ({ onDecided }) => {
     }
   };
 
-  if (items === null) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-gray-500 p-6">
-        <Loader2 className="w-4 h-4 animate-spin" /> Loading decisions…
-      </div>
-    );
-  }
-
   return (
-    <section className="relative p-6 bg-[#111111] border border-orange-500/30 rounded-sm" aria-label="Awaiting your decision">
-      <div className="flex items-center gap-3 mb-1">
-        <UserCheck className="w-5 h-5 text-orange-500" />
-        <h3 className="text-lg font-bold text-white">Awaiting your decision</h3>
-        <span className="bg-orange-500 text-black text-xs font-bold rounded-sm px-2">{items.length}</span>
+    <section className="app-panel" aria-labelledby="queue-h">
+      <div className="app-panel-head">
+        <h2 className="app-h2" id="queue-h">
+          Awaiting your decision
+        </h2>
+        <span className="app-meta">{items ? plural(items.length, "candidate") : ""}</span>
       </div>
-      <p className="text-gray-500 text-sm mb-5">Final hiring decisions sent to you by your recruiters.</p>
 
-      {items.length === 0 && <p className="text-sm text-gray-500">Nothing waiting. You&apos;re all caught up.</p>}
-
-      <ul className="space-y-3">
-        {items.map((item) => {
-          const expanded = open === item.applicationId;
-          const viaReport = item.source === "interview_report";
-          return (
-            <li key={item.applicationId} className="bg-white/5 rounded-sm border border-white/5">
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(expanded ? null : item.applicationId);
-                  setNotes("");
-                }}
-                aria-expanded={expanded}
-                className="w-full flex items-center gap-4 p-4 text-left"
-              >
-                <Avatar className="w-10 h-10 rounded-sm">
-                  <AvatarImage src={item.candidate.photo} />
-                  <AvatarFallback className="bg-orange-500/10 text-orange-400 rounded-sm font-bold">
-                    {item.candidate.name?.[0]?.toUpperCase() ?? "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-white font-semibold">{item.candidate.name}</span>
-                    {item.onHold && <span className="text-[10px] font-mono uppercase text-amber-400 border border-amber-500/30 rounded-sm px-1">on hold</span>}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {item.job} · {item.recruiter ? `from ${item.recruiter}` : "from a recruiter"}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  {viaReport ? (
-                    <>
-                      <div className="text-sm text-white">{RECOMMENDATION[item.report.recommendation] ?? item.report.recommendation}</div>
-                      <div className="text-[11px] font-mono text-gray-500">
-                        scorecard {item.report.overallScore ?? "—"}
-                        {item.report.overallScore != null && "/100"}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-[11px] font-mono uppercase text-gray-500">no interview report</div>
-                  )}
-                </div>
-                {expanded ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
-              </button>
-
-              {expanded && (
-                <div className="px-4 pb-4 space-y-4 border-t border-white/5 pt-4">
-                  {viaReport ? (
-                    <>
-                      {item.report.structured ? (
-                        <StructuredReport report={item.report.structured} variant="dark" interviewId={item.interviewId} />
+      {items === null ? (
+        <Skeleton rows={4} />
+      ) : items.length === 0 ? (
+        <p className="app-empty">Nothing is waiting on you. Reports your recruiters send will appear here.</p>
+      ) : (
+        <ul className="app-list">
+          {items.map((item) => {
+            const expanded = open === item.applicationId;
+            const viaReport = item.source === "interview_report";
+            return (
+              <li key={item.applicationId} className="app-queue-item">
+                <button
+                  type="button"
+                  className="app-row app-queue-row"
+                  onClick={() => {
+                    setOpen(expanded ? null : item.applicationId);
+                    setNotes("");
+                  }}
+                  aria-expanded={expanded}
+                >
+                  <span className="app-row-main">
+                    <span className="app-row-title" style={{ display: "block" }}>
+                      {item.candidate.name}
+                      {item.onHold && (
+                        <span className="app-pill app-pill-warning" style={{ marginLeft: 8 }}>
+                          On hold
+                        </span>
+                      )}
+                    </span>
+                    <span className="app-row-sub" style={{ display: "block" }}>
+                      {item.job} · {item.recruiter ? `from ${item.recruiter}` : "from a recruiter"}
+                    </span>
+                  </span>
+                  <span className="app-row-end">
+                    <span style={{ display: "block", textAlign: "right" }}>
+                      {viaReport ? (
+                        <>
+                          <span style={{ display: "block" }}>{RECOMMENDATION[item.report.recommendation] ?? item.report.recommendation}</span>
+                          <span className="app-meta num">{item.report.overallScore != null ? `scorecard ${item.report.overallScore}/100` : "scorecard —"}</span>
+                        </>
                       ) : (
-                        <p className="text-sm text-gray-300">{item.report.summary}</p>
+                        <span className="app-meta">No interview report</span>
                       )}
-                      <Link to={`/ceo/reports/${item.interviewId}`} className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:underline">
-                        <FileText className="w-3.5 h-3.5" /> Open the full report
-                      </Link>
-                    </>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="flex gap-2 rounded-sm border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
-                        <AlertTriangle className="w-4 h-4 shrink-0" />
-                        Passed to you without a structured interview, so there&apos;s no scorecard or interview evidence.
-                      </div>
-                      {item.recruiterNotes && (
-                        <div>
-                          <div className="text-[10px] font-mono uppercase tracking-wider text-gray-500 mb-1">Recruiter notes</div>
-                          <p className="text-sm text-gray-300">{item.recruiterNotes}</p>
-                        </div>
-                      )}
-                      {item.candidate.skills?.length > 0 && (
-                        <p className="text-xs text-gray-500">Skills: {item.candidate.skills.slice(0, 12).join(", ")}</p>
-                      )}
-                    </div>
-                  )}
+                    </span>
+                    {expanded ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
+                  </span>
+                </button>
 
-                  <div className="space-y-2">
-                    <label htmlFor={`notes-${item.applicationId}`} className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
-                      Note for the recruiter (optional)
+                {expanded && (
+                  <div className="app-queue-detail">
+                    {viaReport ? (
+                      <>
+                        {item.report.structured ? (
+                          <StructuredReport report={item.report.structured} variant="dark" interviewId={item.interviewId} />
+                        ) : (
+                          <p>{item.report.summary}</p>
+                        )}
+                        <Link to={`/ceo/reports/${item.interviewId}`} className="app-link">
+                          Open the full report
+                        </Link>
+                      </>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <p className="app-empty">Passed to you without a structured interview, so there&apos;s no scorecard or interview evidence.</p>
+                        {item.recruiterNotes && (
+                          <p style={{ margin: 0 }}>
+                            <span className="app-meta">Recruiter&apos;s notes · </span>
+                            {item.recruiterNotes}
+                          </p>
+                        )}
+                        {item.candidate.skills?.length > 0 && (
+                          <p className="app-meta" style={{ margin: 0 }}>
+                            Skills: {item.candidate.skills.slice(0, 12).join(", ")}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <label htmlFor={`notes-${item.applicationId}`} className="app-field-label">
+                      Note for the recruiter <span className="app-meta">Optional</span>
                     </label>
                     <textarea
                       id={`notes-${item.applicationId}`}
@@ -170,29 +161,28 @@ const DecisionQueue = ({ onDecided }) => {
                       onChange={(e) => setNotes(e.target.value)}
                       rows={2}
                       maxLength={2000}
-                      className="w-full rounded-sm bg-black/30 border border-white/10 p-2 text-sm text-white focus:outline-none focus:border-orange-500/50"
+                      className="app-textarea"
                     />
-                    <div className="flex flex-wrap gap-2">
-                      <Button size="sm" disabled={busy} onClick={() => decide(item, "approved")} className="bg-[#00FF94] hover:bg-[#00FF94]/80 text-black rounded-sm font-bold text-xs uppercase tracking-wider">
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      <button type="button" className="app-btn app-btn-primary" disabled={busy} onClick={() => decide(item, "approved")}>
                         {viaReport ? "Approve" : "Hire"}
-                      </Button>
+                      </button>
                       {!item.onHold && (
-                        <Button size="sm" variant="outline" disabled={busy} onClick={() => decide(item, "on_hold")} className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 rounded-sm text-xs uppercase tracking-wider">
+                        <button type="button" className="app-btn" disabled={busy} onClick={() => decide(item, "on_hold")}>
                           Hold
-                        </Button>
+                        </button>
                       )}
-                      <Button size="sm" variant="outline" disabled={busy} onClick={() => decide(item, "rejected")} className="border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-sm text-xs uppercase tracking-wider">
+                      <button type="button" className="app-btn app-btn-danger" disabled={busy} onClick={() => decide(item, "rejected")}>
                         Reject
-                      </Button>
-                      {busy && <Loader2 className="w-4 h-4 animate-spin text-gray-500 self-center" />}
+                      </button>
                     </div>
                   </div>
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 };

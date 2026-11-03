@@ -86,18 +86,18 @@ const LegalPage = ({ type }) => {
     <IndustrialPageLayout title={content.title} subtitle={content.subtitle}>
       <div className="flex gap-8 items-start">
         <div className="hidden lg:block w-64 flex-shrink-0 sticky top-32">
-          <div className="bg-[#111111] p-6 border border-white/10 rounded-sm">
-            <div className="w-12 h-12 bg-[#FFD700]/10 rounded-sm flex items-center justify-center text-[#FFD700] mb-4">
+          <div className="bg-card p-6 border border-white/10 rounded-sm">
+            <div className="w-12 h-12 bg-primary/10 rounded-sm flex items-center justify-center text-primary mb-4">
               <content.icon size={24} />
             </div>
-            <h3 className="text-white font-bold mb-2 uppercase tracking-wide">
+            <h3 className="text-white font-bold mb-2">
               Document Status
             </h3>
-            <p className="text-xs font-mono text-[#00FF94] mb-4">
+            <p className="text-xs text-accent mb-4">
               ● EFFECTIVE: DEC 2024
             </p>
             <hr className="border-white/10 mb-4" />
-            <ul className="space-y-2 text-xs font-mono text-gray-500">
+            <ul className="space-y-2 text-xs text-gray-500">
               <li>REF: LEG-2024-001</li>
               <li>VER: 2.1.0</li>
               <li>AUTH: LEGAL_OPS</li>
@@ -110,12 +110,12 @@ const LegalPage = ({ type }) => {
             {content.sections.map((section, idx) => (
               <div key={idx} className="group">
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-                  <span className="text-[#FFD700] font-mono text-sm opacity-50 group-hover:opacity-100 transition-opacity">
+                  <span className="text-primary text-sm opacity-50 group-hover:opacity-100 transition-opacity">
                     {(idx + 1).toString().padStart(2, "0")} //
                   </span>
                   {section.heading}
                 </h3>
-                <div className="bg-[#111111] p-6 md:p-8 border border-white/10 rounded-sm group-hover:border-[#FFD700]/20 transition-colors">
+                <div className="bg-card p-6 md:p-8 border border-white/10 rounded-sm group-hover:border-primary/20 transition-colors">
                   <p className="text-gray-400 leading-relaxed text-sm md:text-base">
                     {section.content}
                   </p>
@@ -124,8 +124,8 @@ const LegalPage = ({ type }) => {
             ))}
           </div>
 
-          <div className="mt-12 p-6 bg-[#FFD700]/5 border border-[#FFD700]/10 rounded-sm">
-            <p className="text-gray-400 text-xs font-mono text-center">
+          <div className="mt-12 p-6 bg-primary/5 border border-primary/10 rounded-sm">
+            <p className="text-gray-400 text-xs text-center">
               This document is legally binding. For specific inquiries, contact
               legal@hire.os.
             </p>

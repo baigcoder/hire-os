@@ -10,13 +10,11 @@ import {
   EyeOff,
   ArrowRight,
   Loader2,
-  Shield,
   KeyRound,
   AlertCircle,
   User,
   Building2,
   Briefcase,
-  Terminal,
 } from "lucide-react";
 
 // Google Icon Component
@@ -67,7 +65,7 @@ const Login = () => {
   const roleOptions = [
     { id: "student", label: "Candidate", icon: User },
     { id: "recruiter", label: "Recruiter", icon: Briefcase },
-    { id: "company_admin", label: "Admin", icon: Building2 },
+    { id: "company_admin", label: "Company owner", icon: Building2 },
   ];
 
   // OTP states
@@ -130,7 +128,7 @@ const Login = () => {
         return;
       }
 
-      toast.success("Access granted");
+      toast.success("Signed in");
       const user = data?.user;
       if (user) {
         const nameSlug =
@@ -234,71 +232,23 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white font-['Space_Grotesk',sans-serif] flex">
-      {/* Industrial Grid Background */}
-      <div className="fixed inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background text-white flex">
 
-      {/* Left Panel - Branding */}
-      <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
-        className="hidden lg:flex lg:w-1/2 bg-[#050505] p-12 flex-col justify-between relative border-r border-white/5"
-      >
-        {/* HUD Corners */}
-        <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-[#FFD700]/30" />
-        <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-[#FFD700]/30" />
-        <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-[#FFD700]/30" />
-        <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-[#FFD700]/30" />
-
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 relative z-10">
-          <div className="w-10 h-10 rounded-sm bg-[#FFD700] flex items-center justify-center text-black font-black text-sm shadow-[0_0_20px_rgba(255,215,0,0.3)]">
-            H.
-          </div>
-          <span className="text-xl font-bold tracking-tight">
-            HIRE<span className="text-[#FFD700]">.OS</span>
-          </span>
+      {/* Left panel: the brand and one picture of hiring's old world */}
+      <div className="hidden lg:flex lg:w-1/2 h-screen sticky top-0 flex-col gap-10 p-10 bg-[#0a0a0a]">
+        <Link to="/" className="inline-flex items-center gap-2.5 text-white">
+          <span className="w-3 h-3 bg-brand" aria-hidden="true" />
+          <span className="font-display text-2xl">HIRE.OS</span>
         </Link>
-
-        {/* Hero Content */}
-        <div className="relative z-10 space-y-8">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-[#FFD700] font-mono mb-3">
-              // System Access
-            </p>
-            <h1 className="text-4xl font-bold uppercase tracking-tight mb-4">
-              Authentication
-              <br />
-              <span className="text-[#FFD700]">Portal</span>
-            </h1>
-            <p className="text-gray-500 text-sm font-mono max-w-sm">
-              Secure access to industrial-grade talent acquisition system.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            {[
-              { icon: Shield, text: "Enterprise-grade security" },
-              { icon: Terminal, text: "Role-based access control" },
-              { icon: KeyRound, text: "Multi-factor authentication" },
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-gray-500">
-                <div className="w-8 h-8 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center">
-                  <item.icon size={14} className="text-[#FFD700]" />
-                </div>
-                <span className="text-xs uppercase tracking-wider">
-                  {item.text}
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-md">
+          <p className="font-display text-6xl leading-[0.95] tracking-tight">Welcome back.</p>
+          <p className="mt-6 text-lg text-[#d0d0d0]">Your interviews, reports and decisions are where you left them.</p>
         </div>
-
-        <p className="text-gray-700 text-[10px] font-mono uppercase tracking-wider relative z-10">
-          © {new Date().getFullYear()} HIRE.OS // Secure Authentication
-        </p>
-      </motion.div>
+        <figure className="flex-1 min-h-0 flex flex-col gap-2">
+          <img src="/landing/employment-office-1935.jpg" alt="Lithograph of three applicants waiting at a counter under a single lamp" className="flex-1 min-h-0 w-full object-cover grayscale" />
+          <figcaption className="text-xs text-[#a0a0a0]">Employment Office, Jolan Gross Bettelheim, 1935–36</figcaption>
+        </figure>
+      </div>
 
       {/* Right Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-6 relative z-10">
@@ -309,32 +259,26 @@ const Login = () => {
           className="w-full max-w-md"
         >
           {/* Form Container */}
-          <div className="bg-[#111111] border border-white/10 rounded-sm p-8 relative overflow-hidden">
+          <div className="bg-card rounded-xl p-8 relative overflow-hidden">
             {/* HUD Corners */}
-            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-[#FFD700]/30" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-[#FFD700]/30" />
 
             {/* Mobile Logo */}
             <div className="lg:hidden text-center mb-6">
-              <Link to="/" className="inline-flex items-center gap-2">
-                <div className="w-8 h-8 rounded-sm bg-[#FFD700] flex items-center justify-center text-black font-bold text-xs">
-                  H.
-                </div>
-                <span className="text-lg font-bold">
-                  HIRE<span className="text-[#FFD700]">.OS</span>
-                </span>
+              <Link to="/" className="inline-flex items-center gap-2.5">
+                <span className="w-3 h-3 bg-brand" aria-hidden="true" />
+                <span className="font-display text-2xl">HIRE.OS</span>
               </Link>
             </div>
 
             {/* Header */}
             <div className="text-center mb-6">
-              <h2 className="text-xl font-bold uppercase tracking-wider mb-2">
-                Sign In
-              </h2>
-              <p className="text-gray-600 text-xs font-mono">
-                No account?{" "}
-                <Link to="/signup" className="text-[#FFD700] hover:underline">
-                  Initialize
+              <h1 className="text-2xl font-semibold mb-2">
+                Sign in
+              </h1>
+              <p className="text-gray-600 text-xs">
+                New to HIRE.OS?{" "}
+                <Link to="/signup" className="text-white underline underline-offset-2">
+                  Create an account
                 </Link>
               </p>
             </div>
@@ -347,7 +291,7 @@ const Login = () => {
                 className="flex items-center gap-2 p-3 bg-red-900/20 border border-red-900/50 rounded-sm text-red-400 text-xs mb-4"
               >
                 <AlertCircle size={14} />
-                <span className="font-mono">{error}</span>
+                <span className="">{error}</span>
               </motion.div>
             )}
 
@@ -355,7 +299,7 @@ const Login = () => {
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-white/10 rounded-sm bg-white/5 hover:bg-white/10 text-xs font-medium uppercase tracking-wider transition-all mb-4"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-white/10 rounded-sm bg-white/5 hover:bg-white/10 text-xs font-medium transition-all mb-4"
             >
               <GoogleIcon />
               <span>Continue with Google</span>
@@ -367,7 +311,7 @@ const Login = () => {
                 <div className="w-full border-t border-white/10" />
               </div>
               <div className="relative flex justify-center">
-                <span className="px-3 bg-[#111111] text-gray-600 text-[10px] font-mono uppercase tracking-wider">
+                <span className="px-3 bg-card text-gray-600 text-xs">
                   or
                 </span>
               </div>
@@ -380,9 +324,9 @@ const Login = () => {
                   setAuthMode("password");
                   setOtpSent(false);
                 }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-sm text-xs font-medium uppercase tracking-wider transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-sm text-xs font-medium transition-all ${
                   authMode === "password"
-                    ? "bg-[#FFD700] text-black"
+                    ? "bg-primary text-black"
                     : "text-gray-500 hover:text-white"
                 }`}
               >
@@ -391,9 +335,9 @@ const Login = () => {
               </button>
               <button
                 onClick={() => setAuthMode("otp")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-sm text-xs font-medium uppercase tracking-wider transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-sm text-xs font-medium transition-all ${
                   authMode === "otp"
-                    ? "bg-[#FFD700] text-black"
+                    ? "bg-primary text-black"
                     : "text-gray-500 hover:text-white"
                 }`}
               >
@@ -407,8 +351,8 @@ const Login = () => {
               <form onSubmit={handlePasswordSignIn} className="space-y-4">
                 {/* Role Selector */}
                 <div>
-                  <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-2 block">
-                    Access Type
+                  <label className="text-xs text-gray-500 mb-2 block">
+                    I&apos;m signing in as
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {roleOptions.map((role) => (
@@ -418,12 +362,12 @@ const Login = () => {
                         onClick={() => setSelectedRole(role.id)}
                         className={`flex flex-col items-center gap-1 p-2.5 rounded-sm border transition-all ${
                           selectedRole === role.id
-                            ? "bg-[#FFD700]/10 border-[#FFD700]/50 text-[#FFD700]"
+                            ? "bg-primary/10 border-primary/50 text-primary"
                             : "bg-white/5 border-white/10 text-gray-500 hover:border-white/30"
                         }`}
                       >
                         <role.icon size={16} />
-                        <span className="text-[10px] font-mono uppercase">
+                        <span className="text-xs">
                           {role.label}
                         </span>
                       </button>
@@ -433,7 +377,7 @@ const Login = () => {
 
                 {/* Email */}
                 <div>
-                  <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-xs text-gray-500 mb-1.5 block">
                     Email
                   </label>
                   <div className="relative">
@@ -446,7 +390,7 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full pl-10 pr-4 py-3 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 transition-all font-mono"
+                      className="w-full pl-10 pr-4 py-3 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50 transition-all"
                     />
                   </div>
                 </div>
@@ -454,12 +398,12 @@ const Login = () => {
                 {/* Password */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                    <label className="text-xs text-gray-500">
                       Password
                     </label>
                     <Link
                       to="/forgot-password"
-                      className="text-[10px] text-[#FFD700] hover:underline font-mono"
+                      className="text-xs text-primary hover:underline"
                     >
                       Reset
                     </Link>
@@ -474,7 +418,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full pl-10 pr-10 py-3 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 transition-all font-mono"
+                      className="w-full pl-10 pr-10 py-3 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50 transition-all"
                     />
                     <button
                       type="button"
@@ -493,13 +437,13 @@ const Login = () => {
                     id="remember"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3 h-3 rounded-sm border-white/20 bg-white/5 text-[#FFD700] focus:ring-[#FFD700]/50 accent-[#FFD700]"
+                    className="w-3 h-3 rounded-sm border-white/20 bg-white/5 text-primary focus:ring-primary/50 accent-primary"
                   />
                   <label
                     htmlFor="remember"
-                    className="ml-2 text-xs text-gray-500 font-mono"
+                    className="ml-2 text-xs text-gray-500"
                   >
-                    Remember session
+                    Keep me signed in
                   </label>
                 </div>
 
@@ -507,13 +451,13 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold text-xs uppercase tracking-wider rounded-sm shadow-[0_0_20px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-[#FFE44D] text-black font-bold text-xs rounded-sm transition-all disabled:opacity-50"
                 >
                   {loading ? (
                     <Loader2 size={16} className="animate-spin" />
                   ) : (
                     <>
-                      Authenticate <ArrowRight size={14} />
+                      Sign in <ArrowRight size={14} />
                     </>
                   )}
                 </button>
@@ -524,7 +468,7 @@ const Login = () => {
             {authMode === "otp" && (
               <div className="space-y-4">
                 <div>
-                  <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-xs text-gray-500 mb-1.5 block">
                     Email
                   </label>
                   <div className="relative">
@@ -538,7 +482,7 @@ const Login = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       disabled={otpSent}
-                      className="w-full pl-10 pr-4 py-3 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#FFD700]/50 transition-all font-mono disabled:opacity-50"
+                      className="w-full pl-10 pr-4 py-3 rounded-sm border border-white/10 bg-white/5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-primary/50 transition-all disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -547,7 +491,7 @@ const Login = () => {
                   <button
                     onClick={handleSendOTP}
                     disabled={loading || !email}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold text-xs uppercase tracking-wider rounded-sm shadow-[0_0_20px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-[#FFE44D] text-black font-bold text-xs rounded-sm transition-all disabled:opacity-50"
                   >
                     {loading ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -560,7 +504,7 @@ const Login = () => {
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <label className="text-[10px] font-mono text-gray-500 uppercase tracking-wider mb-2 block text-center">
+                      <label className="text-xs text-gray-500 mb-2 block text-center">
                         Enter 6-digit code
                       </label>
                       <div className="flex gap-2 justify-center">
@@ -583,7 +527,7 @@ const Login = () => {
                                   ?.focus();
                               }
                             }}
-                            className="w-10 h-12 text-center text-lg font-mono font-bold rounded-sm border border-white/10 bg-white/5 text-[#FFD700] focus:outline-none focus:border-[#FFD700] transition-all"
+                            className="w-10 h-12 text-center text-lg font-bold rounded-sm border border-white/10 bg-white/5 text-primary focus:outline-none focus:border-primary transition-all"
                           />
                         ))}
                       </div>
@@ -591,15 +535,15 @@ const Login = () => {
 
                     <div className="text-center">
                       {otpTimer > 0 ? (
-                        <p className="text-xs text-gray-600 font-mono">
+                        <p className="text-xs text-gray-600">
                           Resend in{" "}
-                          <span className="text-[#FFD700]">{otpTimer}s</span>
+                          <span className="text-primary">{otpTimer}s</span>
                         </p>
                       ) : (
                         <button
                           onClick={handleSendOTP}
                           disabled={loading}
-                          className="text-xs text-[#FFD700] hover:underline font-mono"
+                          className="text-xs text-primary hover:underline"
                         >
                           Resend
                         </button>
@@ -609,7 +553,7 @@ const Login = () => {
                     <button
                       onClick={handleVerifyOTP}
                       disabled={loading || otpCode.join("").length !== 6}
-                      className="w-full flex items-center justify-center gap-2 py-3 bg-[#FFD700] hover:bg-[#FFE44D] text-black font-bold text-xs uppercase tracking-wider rounded-sm shadow-[0_0_20px_rgba(255,215,0,0.2)] transition-all disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-[#FFE44D] text-black font-bold text-xs rounded-sm transition-all disabled:opacity-50"
                     >
                       {loading ? (
                         <Loader2 size={16} className="animate-spin" />

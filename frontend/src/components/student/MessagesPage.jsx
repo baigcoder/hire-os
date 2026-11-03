@@ -179,7 +179,7 @@ const MessagesPage = () => {
     switch (role) {
       case "admin":
       case "ceo":
-        return <Crown className="w-4 h-4 text-[#FFD700]" />;
+        return <Crown className="w-4 h-4 text-primary" />;
       case "recruiter":
       case "company_admin":
         return <Building2 className="w-4 h-4 text-blue-400" />;
@@ -202,7 +202,7 @@ const MessagesPage = () => {
     const styles = {
       interview: "bg-purple-500/20 text-purple-400",
       application: "bg-cyan-500/20 text-cyan-400",
-      announcement: "bg-[#FFD700]/20 text-[#FFD700]",
+      announcement: "bg-primary/20 text-primary",
       offer: "bg-emerald-500/20 text-emerald-400",
       general: "bg-gray-500/20 text-gray-400",
     };
@@ -216,16 +216,16 @@ const MessagesPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
+    <div className="min-h-screen bg-background text-white p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#FFD700]/20 to-amber-500/10 rounded-sm flex items-center justify-center border border-[#FFD700]/30">
-            <Mail className="w-5 h-5 text-[#FFD700]" />
+          <div className="w-12 h-12 rounded-sm flex items-center justify-center border border-primary/30 bg-primary">
+            <Mail className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">MESSAGES</h1>
-            <p className="text-xs text-gray-500 font-mono">
+            <p className="text-xs text-gray-500">
               {unreadCount > 0 ? `${unreadCount} UNREAD` : "ALL CAUGHT UP"}
             </p>
           </div>
@@ -261,9 +261,9 @@ const MessagesPage = () => {
             setActiveTab("inbox");
             setPagination((prev) => ({ ...prev, page: 1 }));
           }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-mono transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm transition-all ${
             activeTab === "inbox"
-              ? "bg-[#FFD700] text-black"
+              ? "bg-primary text-black"
               : "bg-white/5 text-gray-400 hover:bg-white/10"
           }`}
         >
@@ -280,9 +280,9 @@ const MessagesPage = () => {
             setActiveTab("sent");
             setPagination((prev) => ({ ...prev, page: 1 }));
           }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm font-mono transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-sm text-sm transition-all ${
             activeTab === "sent"
-              ? "bg-[#FFD700] text-black"
+              ? "bg-primary text-black"
               : "bg-white/5 text-gray-400 hover:bg-white/10"
           }`}
         >
@@ -307,7 +307,7 @@ const MessagesPage = () => {
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
-            className="px-4 py-2 bg-white/5 border border-white/10 rounded-sm text-sm text-gray-300 focus:outline-none focus:border-[#FFD700]/50"
+            className="px-4 py-2 bg-white/5 border border-white/10 rounded-sm text-sm text-gray-300 focus:outline-none focus:border-primary/50"
           >
             <option value="">All Senders</option>
             <option value="admin">Admin</option>
@@ -323,12 +323,12 @@ const MessagesPage = () => {
         <div className="lg:col-span-1 space-y-2">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 text-[#FFD700] animate-spin" />
+              <Loader2 className="w-6 h-6 text-primary animate-spin" />
             </div>
           ) : filteredMessages.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30" />
-              <p className="font-mono text-sm">NO MESSAGES</p>
+              <p className="text-sm">NO MESSAGES</p>
             </div>
           ) : (
             <>
@@ -340,7 +340,7 @@ const MessagesPage = () => {
                   onClick={() => openMessage(message)}
                   className={`p-4 rounded-sm border cursor-pointer transition-all ${
                     selectedMessage?._id === message._id
-                      ? "bg-[#FFD700]/10 border-[#FFD700]/30"
+                      ? "bg-primary/10 border-primary/30"
                       : message.isRead
                         ? "bg-white/5 border-white/10 hover:bg-white/10"
                         : "bg-white/10 border-white/20 hover:bg-white/15"
@@ -350,7 +350,7 @@ const MessagesPage = () => {
                     {/* Unread indicator */}
                     <div
                       className={`w-2 h-2 rounded-full mt-2 ${
-                        message.isRead ? "bg-transparent" : "bg-[#FFD700]"
+                        message.isRead ? "bg-transparent" : "bg-primary"
                       }`}
                     />
 
@@ -384,7 +384,7 @@ const MessagesPage = () => {
                         </span>
                         {message.type !== "general" && (
                           <Badge
-                            className={`text-[10px] ${getTypeBadge(message.type)}`}
+                            className={`text-xs ${getTypeBadge(message.type)}`}
                           >
                             {message.type}
                           </Badge>
@@ -440,13 +440,13 @@ const MessagesPage = () => {
               key={selectedMessage._id}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-[#111111] border border-white/10 rounded-sm"
+              className="bg-card border border-white/10 rounded-sm"
             >
               {/* Header */}
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FFD700]/20 to-amber-500/10 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-primary">
                       {selectedMessage.senderId?.profile?.profilePhoto ? (
                         <img
                           src={selectedMessage.senderId.profile.profilePhoto}
@@ -477,7 +477,7 @@ const MessagesPage = () => {
                       <Button
                         onClick={() => setShowReplyModal(true)}
                         size="sm"
-                        className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90"
+                        className="bg-primary text-black hover:bg-primary/90"
                       >
                         <Reply className="w-4 h-4 mr-1" />
                         Reply
@@ -541,7 +541,7 @@ const MessagesPage = () => {
           ) : (
             <div className="flex flex-col items-center justify-center h-96 text-gray-500">
               <MailOpen className="w-16 h-16 mb-4 opacity-30" />
-              <p className="font-mono text-sm">SELECT A MESSAGE TO READ</p>
+              <p className="text-sm">SELECT A MESSAGE TO READ</p>
             </div>
           )}
         </div>
@@ -562,7 +562,7 @@ const MessagesPage = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-[#111111] border border-white/10 rounded-sm w-full max-w-lg"
+              className="bg-card border border-white/10 rounded-sm w-full max-w-lg"
             >
               <div className="p-4 border-b border-white/10 flex items-center justify-between">
                 <h3 className="font-bold text-white">
@@ -580,7 +580,7 @@ const MessagesPage = () => {
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Write your reply..."
-                  className="w-full h-40 px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#FFD700]/50 resize-none"
+                  className="w-full h-40 px-4 py-3 bg-white/5 border border-white/10 rounded-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 resize-none"
                 />
               </div>
               <div className="p-4 border-t border-white/10 flex justify-end gap-2">
@@ -594,7 +594,7 @@ const MessagesPage = () => {
                 <Button
                   onClick={sendReply}
                   disabled={sending || !replyContent.trim()}
-                  className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90"
+                  className="bg-primary text-black hover:bg-primary/90"
                 >
                   {sending ? (
                     <>

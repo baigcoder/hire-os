@@ -89,7 +89,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`w-3.5 h-3.5 ${i <= count ? "text-[#FFD700] fill-[#FFD700]" : "text-gray-700"}`}
+          className={`w-3.5 h-3.5 ${i <= count ? "text-primary fill-primary" : "text-gray-700"}`}
         />
       ))}
     </div>
@@ -101,27 +101,27 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
         text: "text-emerald-400",
         bg: "bg-emerald-500/10",
         border: "border-emerald-500/30",
-        glow: "shadow-emerald-500/20",
+        glow: "",
       };
     if (score >= 70)
       return {
-        text: "text-[#FFD700]",
-        bg: "bg-[#FFD700]/10",
-        border: "border-[#FFD700]/30",
-        glow: "shadow-[#FFD700]/20",
+        text: "text-primary",
+        bg: "bg-primary/10",
+        border: "border-primary/30",
+        glow: "",
       };
     if (score >= 55)
       return {
         text: "text-blue-400",
         bg: "bg-blue-500/10",
         border: "border-blue-500/30",
-        glow: "shadow-blue-500/20",
+        glow: "",
       };
     return {
       text: "text-red-400",
       bg: "bg-red-500/10",
       border: "border-red-500/30",
-      glow: "shadow-red-500/20",
+      glow: "",
     };
   };
 
@@ -139,10 +139,10 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <div className="relative">
-          <div className="w-16 h-16 border-2 border-[#FFD700]/20 rounded-full animate-pulse" />
-          <Brain className="absolute inset-0 m-auto w-6 h-6 text-[#FFD700] animate-pulse" />
+          <div className="w-16 h-16 border-2 border-primary/20 rounded-full animate-pulse" />
+          <Brain className="absolute inset-0 m-auto w-6 h-6 text-primary animate-pulse" />
         </div>
-        <p className="text-gray-400 mt-4 font-mono text-sm tracking-wider">
+        <p className="text-gray-400 mt-4 text-sm tracking-wider">
           ANALYZING CANDIDATES...
         </p>
       </div>
@@ -170,7 +170,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
             label: "INTERVIEW",
             value: recommendations.interview || 0,
             color: "[#FFD700]",
-            bg: "bg-[#FFD700]/10",
+            bg: "bg-primary/10",
           },
           {
             label: "REVIEW",
@@ -197,7 +197,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
             >
               {stat.value}
             </div>
-            <div className="text-[10px] text-gray-500 font-mono tracking-wider mt-1">
+            <div className="text-xs text-gray-500 tracking-wider mt-1">
               {stat.label}
             </div>
           </motion.div>
@@ -205,15 +205,15 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
       </div>
 
       {/* Controls Bar */}
-      <div className="flex items-center justify-between p-3 bg-[#0a0a0a] border border-white/10 rounded-sm">
+      <div className="flex items-center justify-between p-3 bg-background border border-white/10 rounded-sm">
         <div className="flex gap-2">
           {["all", "excellent", "strong", "good", "low"].map((f) => (
             <button
               key={f}
               onClick={() => setFilterBy(f)}
-              className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm transition-all ${
+              className={`px-3 py-1.5 text-xs rounded-sm transition-all ${
                 filterBy === f
-                  ? "bg-[#FFD700] text-black"
+                  ? "bg-primary text-black"
                   : "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10"
               }`}
             >
@@ -226,7 +226,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
           <Button
             onClick={() => handleBulkAction("interview")}
             size="sm"
-            className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 font-mono text-xs"
+            className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 text-xs"
           >
             <ThumbsUp className="w-3.5 h-3.5 mr-1.5" />
             INTERVIEW TOP {recommendations.fastTrack || 0}
@@ -234,7 +234,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
           <Button
             onClick={() => handleBulkAction("reject")}
             size="sm"
-            className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 font-mono text-xs"
+            className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 text-xs"
           >
             <X className="w-3.5 h-3.5 mr-1.5" />
             REJECT BELOW 50%
@@ -247,7 +247,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
         {filteredApplicants.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
             <Target className="w-12 h-12 mx-auto mb-4 opacity-30" />
-            <p className="font-mono text-sm">NO CANDIDATES MATCH FILTER</p>
+            <p className="text-sm">NO CANDIDATES MATCH FILTER</p>
           </div>
         ) : (
           filteredApplicants.map((app, index) => {
@@ -260,7 +260,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
-                className={`bg-[#0a0a0a] border rounded-sm overflow-hidden transition-all ${
+                className={`bg-background border rounded-sm overflow-hidden transition-all ${
                   isExpanded
                     ? `${style.border} shadow-lg ${style.glow}`
                     : "border-white/10"
@@ -277,7 +277,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                     <div className="flex items-center gap-4">
                       {/* Rank */}
                       <div
-                        className={`w-10 h-10 rounded-sm flex items-center justify-center font-bold font-mono ${style.bg} ${style.text} border ${style.border}`}
+                        className={`w-10 h-10 rounded-sm flex items-center justify-center font-bold ${style.bg} ${style.text} border ${style.border}`}
                       >
                         #{app.rank}
                       </div>
@@ -303,7 +303,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                           </h4>
                           {renderStars(app.score?.stars || 3)}
                         </div>
-                        <p className="text-sm text-gray-500 font-mono">
+                        <p className="text-sm text-gray-500">
                           {app.applicant?.email}
                         </p>
                       </div>
@@ -313,18 +313,18 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                       {/* Score */}
                       <div className="text-right">
                         <div
-                          className={`text-2xl font-bold font-mono ${style.text}`}
+                          className={`text-2xl font-bold ${style.text}`}
                         >
                           {app.score?.totalScore || 0}%
                         </div>
-                        <div className="text-[10px] text-gray-500 font-mono">
+                        <div className="text-xs text-gray-500">
                           ATS SCORE
                         </div>
                       </div>
 
                       {/* Rating Label */}
                       <Badge
-                        className={`${style.bg} ${style.text} ${style.border} border font-mono text-[10px] px-2`}
+                        className={`${style.bg} ${style.text} ${style.border} border text-xs px-2`}
                       >
                         {app.score?.rating || "PENDING"}
                       </Badge>
@@ -351,7 +351,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                       <div className="p-5 grid grid-cols-2 gap-6">
                         {/* Left: Score Breakdown */}
                         <div className="space-y-4">
-                          <h5 className="text-xs text-gray-500 font-mono tracking-wider">
+                          <h5 className="text-xs text-gray-500 tracking-wider">
                             SCORE BREAKDOWN
                           </h5>
 
@@ -359,7 +359,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                             Object.entries(app.score.breakdown).map(
                               ([key, data]) => (
                                 <div key={key} className="space-y-1">
-                                  <div className="flex justify-between text-sm font-mono">
+                                  <div className="flex justify-between text-sm">
                                     <span className="text-gray-400 uppercase text-xs">
                                       {key}
                                     </span>
@@ -373,7 +373,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                                       animate={{
                                         width: `${((data.points || data) / 40) * 100}%`,
                                       }}
-                                      className="h-full bg-[#FFD700]"
+                                      className="h-full bg-primary"
                                     />
                                   </div>
                                 </div>
@@ -383,7 +383,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
 
                         {/* Right: Skills & AI Insight */}
                         <div className="space-y-4">
-                          <h5 className="text-xs text-gray-500 font-mono tracking-wider">
+                          <h5 className="text-xs text-gray-500 tracking-wider">
                             SKILLS MATCH
                           </h5>
                           <div className="flex flex-wrap gap-2">
@@ -392,7 +392,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                               .map((skill, i) => (
                                 <Badge
                                   key={i}
-                                  className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 border font-mono text-[10px]"
+                                  className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 border text-xs"
                                 >
                                   <Check className="w-2.5 h-2.5 mr-1" />
                                   {skill}
@@ -403,7 +403,7 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                               .map((skill, i) => (
                                 <Badge
                                   key={`m-${i}`}
-                                  className="bg-red-500/10 text-red-400 border-red-500/20 border font-mono text-[10px]"
+                                  className="bg-red-500/10 text-red-400 border-red-500/20 border text-xs"
                                 >
                                   <X className="w-2.5 h-2.5 mr-1" />
                                   {skill}
@@ -413,10 +413,10 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
 
                           {/* AI Insight */}
                           {app.score?.aiInsight && (
-                            <div className="p-3 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-sm">
+                            <div className="p-3 bg-primary/5 border border-primary/20 rounded-sm">
                               <div className="flex items-center gap-2 mb-2">
-                                <Sparkles className="w-3.5 h-3.5 text-[#FFD700]" />
-                                <span className="text-[10px] text-[#FFD700] font-mono tracking-wider">
+                                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                                <span className="text-xs text-primary tracking-wider">
                                   AI INSIGHT
                                 </span>
                               </div>
@@ -433,14 +433,14 @@ const ApplicantRankingCard = ({ jobId, jobTitle }) => {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-white/10 text-gray-400 font-mono text-xs"
+                          className="border-white/10 text-gray-400 text-xs"
                         >
                           <Eye className="w-3.5 h-3.5 mr-1.5" />
                           VIEW RESUME
                         </Button>
                         <Button
                           size="sm"
-                          className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-mono text-xs"
+                          className="bg-primary text-black hover:bg-primary/90 text-xs"
                         >
                           SCHEDULE INTERVIEW
                         </Button>

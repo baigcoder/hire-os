@@ -55,7 +55,7 @@ const TrialBanner = () => {
             ? "bg-gradient-to-r from-red-500/10 to-orange-500/10 border-red-500/30"
             : isWarning
               ? "bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30"
-              : "bg-gradient-to-r from-[#FFD700]/10 to-emerald-500/10 border-[#FFD700]/30"
+              : "bg-gradient-to-r from-primary/10 to-emerald-500/10 border-primary/30"
           }`}
       >
         {/* Background Animation */}
@@ -69,7 +69,7 @@ const TrialBanner = () => {
               repeat: Infinity,
               ease: "linear",
             }}
-            className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+            className="absolute inset-y-0 w-1/2"
           />
         </div>
 
@@ -81,7 +81,7 @@ const TrialBanner = () => {
                   ? "bg-red-500/20 text-red-400"
                   : isWarning
                     ? "bg-amber-500/20 text-amber-400"
-                    : "bg-[#FFD700]/20 text-[#FFD700]"
+                    : "bg-primary/20 text-primary"
                 }`}
             >
               {isUrgent ? (
@@ -105,7 +105,7 @@ const TrialBanner = () => {
                       ? "bg-red-500/30 text-red-300"
                       : isWarning
                         ? "bg-amber-500/30 text-amber-300"
-                        : "bg-[#FFD700]/30 text-[#FFD700]"
+                        : "bg-primary/30 text-primary"
                     }`}
                 >
                   PRO ACCESS
@@ -120,7 +120,7 @@ const TrialBanner = () => {
                           ? "text-red-400"
                           : isWarning
                             ? "text-amber-400"
-                            : "text-[#FFD700]"
+                            : "text-primary"
                         }`}
                     >
                       {daysRemaining} day{daysRemaining !== 1 ? "s" : ""}
@@ -140,7 +140,7 @@ const TrialBanner = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate("/pricing")}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#FFD700] text-black font-bold rounded-lg hover:bg-[#FFE44D] transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-black font-bold rounded-lg hover:bg-[#FFE44D] transition-colors"
             >
               <Crown className="w-4 h-4" />
               Upgrade Now
@@ -169,7 +169,7 @@ const TrialBanner = () => {
                   ? "bg-gradient-to-r from-red-500 to-orange-500"
                   : isWarning
                     ? "bg-gradient-to-r from-amber-500 to-yellow-500"
-                    : "bg-gradient-to-r from-[#FFD700] to-emerald-500"
+                    : "bg-gradient-to-r from-primary to-emerald-500"
                 }`}
             />
           </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import Navbar from "../shared/Navbar";
 import { useSelector, useDispatch } from "react-redux";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -19,7 +19,6 @@ const AppliedJobs = () => {
   // Get applications from Redux store
   const { allAppliedJobs } = useSelector((store) => store.job);
   const applications = allAppliedJobs || [];
-  const { user } = useSelector((store) => store.auth);
   const loading = !allAppliedJobs;
 
   // Refetch applications function

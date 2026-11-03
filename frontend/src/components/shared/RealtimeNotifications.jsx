@@ -3,10 +3,16 @@
  * Works across Student, Recruiter, and Admin dashboards
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, X, Check, Briefcase, Users, AlertCircle, Clock } from "lucide-react";
+import {
+  Bell,
+  Briefcase,
+  Users,
+  AlertCircle,
+  Clock,
+} from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { formatDistanceToNow } from "date-fns";
 
@@ -68,7 +74,9 @@ const RealtimeNotifications = ({ onNotificationClick }) => {
                     const audio = new Audio("/notification.mp3");
                     audio.volume = 0.3;
                     audio.play().catch(() => { });
-                } catch { }
+                } catch {
+                  // a sound that can't play is not an error
+                }
             });
         });
 

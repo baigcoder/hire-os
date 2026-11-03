@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import {
-    FileText,
-    Plus,
-    Trash2,
-    Edit,
-    CheckCircle,
-    Loader2,
-    Copy,
-    Info,
-    ChevronLeft
+  FileText,
+  Plus,
+  Trash2,
+  Edit,
+  Loader2,
+  Copy,
+  Info,
+  ChevronLeft,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
@@ -15,27 +15,14 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Briefcase,
   Users,
-  Sparkles,
   Shield,
-  Video,
-  Brain,
-  BarChart3,
   Upload,
   Plus,
   Trash2,
-  Send,
   CheckCircle,
   Loader2,
-  Globe,
-  MapPin,
-  Terminal,
   Camera,
-  Image,
-  Linkedin,
-  Twitter,
-  Facebook,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -44,12 +31,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
-import {
-  COMPANY_API_END_POINT,
-  PAYMENT_API_END_POINT,
-  USER_API_END_POINT,
-} from "@/utils/constant";
-import { setUser } from "@/redux/authSlice";
+import { PAYMENT_API_END_POINT } from "@/utils/constant";
 import Navbar from "../shared/Navbar";
 
 // ========== STEP INDICATOR ==========
@@ -206,7 +188,6 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
 const AdminSignupFlow = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
   const preSelectedPlan = location.state?.plan;
 
   const { user } = useSelector((state) => state.auth);
@@ -314,7 +295,7 @@ const AdminSignupFlow = () => {
   });
 
   const [recruiters, setRecruiters] = useState([]);
-  const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [registrationComplete] = useState(false);
 
   // Handle admin info changes
   const handleAdminChange = (field, value) =>
@@ -543,8 +524,6 @@ const AdminSignupFlow = () => {
     );
   }
 
-  // Calculate step content index
-  const stepContentIndex = isLoggedIn ? currentStep + 1 : currentStep;
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -983,7 +962,7 @@ const AdminSignupFlow = () => {
                       </Badge>
                     </h3>
                     <p className="text-gray-600 text-xs mb-4">
-                      Add recruiters who'll help manage job postings and
+                      Add recruiters who&apos;ll help manage job postings and
                       candidates
                     </p>
 

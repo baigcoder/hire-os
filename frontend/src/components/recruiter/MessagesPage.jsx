@@ -10,12 +10,10 @@
  * - Real-time typing indicators and call signaling
  */
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
   MessageSquare,
@@ -49,13 +47,11 @@ import {
 import { useRealtime } from "@/context/SocketContext";
 
 const RecruiterMessagesPage = () => {
-  const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
   const messagesEndRef = useRef(null);
   const {
     isConnected,
     isUserOnline,
-    getUserPresence,
     getTypingUsers,
     startTyping,
     stopTyping,
@@ -85,8 +81,8 @@ const RecruiterMessagesPage = () => {
   const [ceoContact, setCeoContact] = useState(null);
 
   // Call state
-  const [isCallActive, setIsCallActive] = useState(false);
-  const [callType, setCallType] = useState(null); // 'audio' or 'video'
+  const [, setIsCallActive] = useState(false);
+  const [, setCallType] = useState(null); // 'audio' or 'video'
 
   // Filtered contacts based on search query
   const filteredTeamMembers = useMemo(() => {
@@ -387,12 +383,6 @@ const RecruiterMessagesPage = () => {
     toast.success("Messages refreshed");
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   const handleDeleteConversation = async () => {
     if (!activeContact?._id) return;

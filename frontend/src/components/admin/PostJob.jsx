@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../shared/Navbar";
 import { Label } from "../ui/label";
@@ -24,15 +24,11 @@ import { setCompanies } from "@/redux/companySlice";
 import {
   Loader2,
   MapPin,
-  Building,
   Briefcase,
   Sparkles,
   Wand2,
-  Terminal,
-  ChevronRight,
   Check,
   AlertTriangle,
-  Clock,
   DollarSign,
   Users,
   GraduationCap,

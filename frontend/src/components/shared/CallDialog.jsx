@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Phone,
@@ -30,7 +30,6 @@ const CallDialog = () => {
     endCall,
     callSignal,
     sendCallSignal,
-    user,
   } = useRealtime();
 
   // Call State

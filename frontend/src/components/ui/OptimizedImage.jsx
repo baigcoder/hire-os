@@ -3,7 +3,7 @@
  * Features: Lazy loading, WebP support, blur placeholder, responsive sizes
  */
 
-import React, { useState, useRef, useEffect, memo } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 
 /**
  * OptimizedImage - Lazy loading image with WebP and blur-up

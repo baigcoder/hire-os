@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Navbar from "./shared/Navbar";
 import { useInShell } from "./app/shellContext";
 import Footer from "./shared/Footer";
@@ -6,7 +6,6 @@ import FilterCard from "./FilterCard";
 import Job from "./Job";
 import { useSelector } from "react-redux";
 import useGetAllJobs from "@/hooks/useGetAllJobs";
-import { motion } from "framer-motion";
 import {
   Search,
   SlidersHorizontal,
@@ -17,7 +16,6 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
 
 const Jobs = () => {
   useGetAllJobs(); // Fetch job data when page loads
@@ -27,7 +25,7 @@ const Jobs = () => {
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const [isSearching, setIsSearching] = useState(false);
+  const [, setIsSearching] = useState(false);
 
   // Debounce search input to prevent excessive filtering
   useEffect(() => {
@@ -193,7 +191,7 @@ const Jobs = () => {
                   No jobs match
                 </h3>
                 <p className="text-gray-500 text-center max-w-md mb-6 text-sm">
-                  We couldn't find any jobs matching your criteria. Try
+                  We couldn&apos;t find any jobs matching your criteria. Try
                   adjusting your search or filters.
                 </p>
                 <Button

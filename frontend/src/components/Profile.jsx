@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Navbar from "./shared/Navbar";
 import Footer from "./shared/Footer";
 import { Avatar, AvatarImage } from "./ui/avatar";
@@ -11,7 +11,6 @@ import {
   Briefcase,
   GraduationCap,
   FileText,
-  ExternalLink,
   Plus,
   Shield,
   Calendar,
@@ -22,13 +21,7 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Loader2,
-  BookOpen,
   Code,
-  Globe,
-  Linkedin,
-  Github,
-  Twitter,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import AppliedJobTable from "./AppliedJobTable";
@@ -492,7 +485,7 @@ const Profile = () => {
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
                 Complete your profile to increase your chances of getting hired.
-                Add your skills, experience, and education. You'll upload your
+                Add your skills, experience, and education. You&apos;ll upload your
                 resume when applying to specific jobs.
               </p>
             </div>

@@ -6,7 +6,7 @@
 import io from "socket.io-client";
 
 // Determine Socket.io server URL
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:3001";
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
 
 console.log(`🔌 Connecting to Socket.io server: ${SOCKET_URL}`);
 

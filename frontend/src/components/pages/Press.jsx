@@ -1,7 +1,5 @@
-import React from "react";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
 import { Newspaper, Download, ExternalLink, Award } from "lucide-react";
-import { Button } from "../ui/button";
 
 const Press = () => {
   const pressMentions = [

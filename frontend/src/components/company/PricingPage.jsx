@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { toast } from "sonner";
 import axios from "axios";
 import { SUBSCRIPTION_API_END_POINT } from "@/utils/constant";
 import Navbar from "../shared/Navbar";
@@ -28,8 +27,8 @@ const PricingPage = () => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
   const [billingCycle, setBillingCycle] = useState("monthly");
-  const [loading, setLoading] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [, setLoading] = useState(true);
+  const [, setSelectedPlan] = useState(null);
 
   useEffect(() => {
     fetchPlans();

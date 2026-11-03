@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
@@ -10,22 +10,17 @@ import {
   Send,
   Trash2,
   Reply,
-  Star,
   ChevronLeft,
   ChevronRight,
   Search,
-  Filter,
   RefreshCw,
   User,
   Building2,
-  Shield,
   Crown,
   MessageSquare,
-  MailPlus,
   Loader2,
   CheckCircle,
   Clock,
-  AlertCircle,
   X,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -83,18 +78,6 @@ const MessagesPage = () => {
     }
   };
 
-  const fetchUnreadCount = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/message/unread-count`, {
-        withCredentials: true,
-      });
-      if (res.data.success) {
-        setUnreadCount(res.data.data.unreadCount);
-      }
-    } catch (error) {
-      console.log("Failed to fetch unread count");
-    }
-  };
 
   const openMessage = async (message) => {
     try {

@@ -1,4 +1,3 @@
-import React from "react";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
 import { Mail, Phone, MapPin, MessageSquare, Send } from "lucide-react";
 import { Button } from "../ui/button";

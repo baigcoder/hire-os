@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import api from "@/utils/api";
 import { toast } from "sonner";
 import {
-    Share2,
-    Copy,
-    Mail,
-    Users,
-    TrendingUp,
-    Gift,
-    Award,
-    ChevronRight,
-    MousePointerClick,
-    UserPlus,
-    Briefcase,
-    CheckCircle,
-    Clock,
-    Send,
-    Link2,
-    Trophy,
-    Sparkles,
+  Share2,
+  Copy,
+  Mail,
+  Users,
+  TrendingUp,
+  Gift,
+  MousePointerClick,
+  UserPlus,
+  Briefcase,
+  CheckCircle,
+  Clock,
+  Send,
+  Link2,
+  Trophy,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -391,7 +389,7 @@ const ReferralDashboard = () => {
                         <CardHeader>
                             <CardTitle>Your Referrals</CardTitle>
                             <CardDescription>
-                                Track the status of people you've referred
+                                Track the status of people you&apos;ve referred
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -464,7 +462,7 @@ const ReferralDashboard = () => {
                                 Top Referrers This Month
                             </CardTitle>
                             <CardDescription>
-                                See who's crushing it with referrals
+                                See who&apos;s crushing it with referrals
                             </CardDescription>
                         </CardHeader>
                         <CardContent>

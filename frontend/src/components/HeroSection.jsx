@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import {
   Search,
@@ -6,9 +6,6 @@ import {
   Users,
   Building2,
   MapPin,
-  ArrowRight,
-  Star,
-  Sparkles,
   Crown,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -114,7 +111,7 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed font-light"
           >
-            Access exclusive opportunities with the world's most prestigious
+            Access exclusive opportunities with the world&apos;s most prestigious
             companies.
             <span className="text-white font-medium block mt-2">
               Where elite talent meets premium careers.

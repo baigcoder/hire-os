@@ -1,4 +1,3 @@
-import React from "react";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
 import { Shield, FileText, Lock } from "lucide-react";
 
@@ -111,7 +110,7 @@ const LegalPage = ({ type }) => {
               <div key={idx} className="group">
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-primary text-sm opacity-50 group-hover:opacity-100 transition-opacity">
-                    {(idx + 1).toString().padStart(2, "0")} //
+                    {(idx + 1).toString().padStart(2, "0")}
                   </span>
                   {section.heading}
                 </h3>

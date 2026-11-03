@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -21,10 +20,6 @@ import {
   MessageSquare,
   Bell,
   Cpu,
-  Search,
-  Building,
-  Briefcase,
-  TrendingUp,
   Award,
   Rocket,
   ChevronRight,

@@ -9,7 +9,7 @@
  * - Call signaling (WebRTC via Supabase broadcast)
  */
 
-import React, {
+import {
   createContext,
   useContext,
   useEffect,

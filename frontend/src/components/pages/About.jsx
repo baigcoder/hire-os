@@ -1,4 +1,3 @@
-import React from "react";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
 import { Users, Target, Globe, Shield } from "lucide-react";
 
@@ -63,7 +62,7 @@ const About = () => {
           </h2>
           <p className="text-gray-400 leading-relaxed text-lg max-w-3xl">
             HIRE.OS was born from a simple observation: the hiring process is
-            broken. It's slow, biased, and inefficient. We set out to build an
+            broken. It&apos;s slow, biased, and inefficient. We set out to build an
             operating system for hiring—a platform that brings industrial-grade
             efficiency to the most important workflow in any company: building
             the team.

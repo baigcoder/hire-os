@@ -1,34 +1,21 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
 import {
   Star,
   User,
-  Mail,
-  Phone,
-  FileText,
-  Award,
   ThumbsUp,
-  ThumbsDown,
   ChevronDown,
-  ChevronUp,
-  Zap,
   Target,
-  GraduationCap,
-  Briefcase,
   Brain,
   Check,
   X,
-  Loader2,
-  Filter,
-  ArrowUpDown,
   Sparkles,
   Eye,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Progress } from "../ui/progress";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 

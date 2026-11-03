@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { AuthLayout, AuthError, CodeField, Field, GoogleButton, PasswordField, Submit, homeFor, useCountdown } from "./AuthLayout";
 

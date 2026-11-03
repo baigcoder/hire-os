@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { supabase, supabaseAuth } from "../lib/supabase";
 import { useDispatch } from "react-redux";
 import { setUser, logout as reduxLogout } from "../redux/authSlice";

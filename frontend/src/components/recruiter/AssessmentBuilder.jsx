@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import Navbar from "../shared/Navbar";
 import {
   Plus,
@@ -23,13 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
     Dialog,
     DialogContent,
@@ -49,7 +43,6 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -660,7 +653,7 @@ const AssessmentBuilder = () => {
                 )}
             </AnimatePresence>
 
-            <style jsx global>{`
+            <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 5px;
         }

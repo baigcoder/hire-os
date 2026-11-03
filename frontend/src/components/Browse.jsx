@@ -4,7 +4,7 @@ import Job from "./Job";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchedQuery } from "@/redux/jobSlice";
 import useGetAllJobs from "@/hooks/useGetAllJobs";
-import { Search, Sparkles, Terminal, Grid3x3 } from "lucide-react";
+import { Search, Terminal, Grid3x3 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Browse = () => {

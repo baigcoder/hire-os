@@ -3,9 +3,9 @@
  * Kanban-style candidate pipeline for recruiters
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import api from "@/utils/api";
 import { toast } from "sonner";
 import {
@@ -18,7 +18,6 @@ import {
   X,
   Search,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
@@ -71,7 +70,7 @@ const PIPELINE_STAGES = [
 
 // Candidate Card Component
 const CandidateCard = ({ application, onStatusChange, onSelect }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [, setIsHovered] = useState(false);
 
   return (
     <div

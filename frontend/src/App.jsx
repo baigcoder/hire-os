@@ -25,7 +25,6 @@ import CompanyCreate from "./components/admin/CompanyCreate";
 import CompanySetup from "./components/admin/CompanySetup";
 import PostJob from "./components/admin/PostJob";
 import TalentSearch from "./components/recruiter/TalentSearch";
-import AdminAnalytics from "./components/admin/AdminAnalytics";
 import ProtectedRoute, {
   RecruiterRoute,
   CompanyAdminRoute,

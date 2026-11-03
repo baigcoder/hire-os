@@ -17,9 +17,6 @@ export const useDashboardSocket = (options = {}) => {
   const [lastUpdate, setLastUpdate] = useState(null);
 
   // Callbacks for real-time updates
-  const [onStatsUpdate, setOnStatsUpdate] = useState(null);
-  const [onApplicationUpdate, setOnApplicationUpdate] = useState(null);
-  const [onNotification, setOnNotification] = useState(null);
 
   // Initialize socket connection
   useEffect(() => {

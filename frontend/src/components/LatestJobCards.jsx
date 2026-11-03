@@ -6,7 +6,6 @@ import {
   DollarSign,
   Bookmark,
   Building2,
-  Users,
 } from "lucide-react";
 
 const LatestJobCards = ({ job = {} }) => {

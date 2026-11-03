@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -18,8 +18,6 @@ import { Badge } from "../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ScrollArea } from "../ui/scroll-area";
 import {
-  CheckCircle,
-  XCircle,
   AlertTriangle,
   FileText,
   Code,
@@ -28,13 +26,14 @@ import {
   ArrowRight,
   BrainCircuit,
   ShieldAlert,
+  Copy,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const AnalysisResult = () => {
   const navigate = useNavigate();
   // Mock Data simulating AI Response
-  const [activeTab, setActiveTab] = useState("visual");
+  const [, setActiveTab] = useState("visual");
 
   const analysisData = {
     overallScore: 88,
@@ -66,7 +65,7 @@ const AnalysisResult = () => {
     },
   };
 
-  const COLORS = ["#EAB308", "#222"]; // Gold and Dark
+ // Gold and Dark
 
   return (
     <div className="min-h-screen bg-black text-white font-['Outfit',sans-serif] p-4 md:p-8">
@@ -290,7 +289,7 @@ const AnalysisResult = () => {
                         ))}
                       </div>
                       <p className="text-sm text-gray-400 mt-4 leading-relaxed">
-                        Adding these keywords to your "Skills" or "Experience"
+                        Adding these keywords to your &quot;Skills&quot; or &quot;Experience&quot;
                         section could increase your match probability by{" "}
                         <span className="text-white font-bold">12%</span>.
                       </p>

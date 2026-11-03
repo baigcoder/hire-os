@@ -3,9 +3,8 @@
  * HIRE.OS Industrial Theme - Gold accents, dark backgrounds, sharp corners
  */
 
-import React from "react";
 import { motion } from "framer-motion";
-import { Crown, Briefcase, GraduationCap, Loader2, Zap } from "lucide-react";
+import { Crown, Briefcase, GraduationCap, Zap } from "lucide-react";
 
 // Default loader icons by dashboard type
 const DASHBOARD_ICONS = {

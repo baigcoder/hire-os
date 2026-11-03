@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import {
@@ -10,7 +10,6 @@ import {
   BarChart3,
   Activity,
   RefreshCw,
-  Loader2,
   Sparkles,
 } from "lucide-react";
 import { Button } from "../ui/button";

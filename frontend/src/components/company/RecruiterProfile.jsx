@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
@@ -22,7 +22,6 @@ import {
   Phone,
   Building2,
   Briefcase,
-  Calendar,
   Crown,
   Shield,
   Camera,
@@ -31,7 +30,6 @@ import {
   Loader2,
   CheckCircle,
   X,
-  CreditCard,
   Users,
   Clock,
   Star,
@@ -516,7 +514,7 @@ const RecruiterProfile = () => {
                     Subscription Details
                   </CardTitle>
                   <CardDescription>
-                    Your company's subscription plan
+                    Your company&apos;s subscription plan
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

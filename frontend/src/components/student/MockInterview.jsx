@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
 import {
@@ -46,18 +46,17 @@ const MockInterview = () => {
   // AI Voice states
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const [aiModel, setAiModel] = useState("gpt-4o-mini"); // Track which model
-  const [autoContinue, setAutoContinue] = useState(true); // Auto-advance to next question
+  const [, setAiModel] = useState("gpt-4o-mini"); // Track which model
+  const [autoContinue] = useState(true); // Auto-advance to next question
   const [conversationMode, setConversationMode] = useState("live"); // 'live' or 'manual'
 
   // Feedback
-  const [feedback, setFeedback] = useState(null);
   const [overallScore, setOverallScore] = useState(null);
 
   // Mobile and speech recognition support detection
-  const [isMobile, setIsMobile] = useState(false);
-  const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState(true);
-  const [useFallbackInput, setUseFallbackInput] = useState(false);
+  const [, setIsMobile] = useState(false);
+  const [, setSpeechRecognitionSupported] = useState(true);
+  const [, setUseFallbackInput] = useState(false);
 
   const videoRef = useRef(null);
   const mediaStreamRef = useRef(null);

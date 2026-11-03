@@ -3,9 +3,9 @@
  * Provides Ctrl+K for command palette and other shortcuts
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Keyboard, Command, X } from "lucide-react";
+import { Keyboard, X } from "lucide-react";
 
 const SHORTCUTS = [
   {

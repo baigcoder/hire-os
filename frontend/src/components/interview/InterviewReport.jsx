@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
@@ -6,24 +6,18 @@ import axios from "axios";
 import { toast } from "sonner";
 import {
   FileText,
-  User,
-  Briefcase,
   CheckCircle,
   XCircle,
   AlertTriangle,
-  Clock,
   Brain,
   Video,
   Shield,
-  MessageSquare,
   ThumbsUp,
   ThumbsDown,
-  Send,
   Download,
   ArrowLeft,
   Star,
   TrendingUp,
-  Eye,
 } from "lucide-react";
 import {
   Card,
@@ -508,7 +502,7 @@ const InterviewReport = () => {
                     </p>
                     {report.adminDecision.comments && (
                       <p className="text-gray-400 mt-3 text-sm italic">
-                        "{report.adminDecision.comments}"
+                        &quot;{report.adminDecision.comments}&quot;
                       </p>
                     )}
                   </div>

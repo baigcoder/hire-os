@@ -10,12 +10,10 @@
  * - Video/Audio Calls
  */
 
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
   MessageSquare,
@@ -39,7 +37,6 @@ import {
 import { useRealtime } from "@/context/SocketContext";
 
 const StudentMessagesPage = () => {
-  const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
   const messagesEndRef = useRef(null);
   const {

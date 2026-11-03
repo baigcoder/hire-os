@@ -13,7 +13,6 @@ import {
 import {
   Edit2,
   MoreHorizontal,
-  ExternalLink,
   Users,
   Briefcase,
   Building2,

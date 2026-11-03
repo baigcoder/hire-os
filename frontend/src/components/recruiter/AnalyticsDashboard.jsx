@@ -3,8 +3,7 @@
  * Comprehensive analytics dashboard for recruiters
  */
 
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import {
@@ -16,13 +15,6 @@ import {
   ArrowDownRight,
   RefreshCw,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
@@ -38,7 +30,6 @@ import DashboardLoader from "../shared/DashboardLoader";
 
 // Chart-like Bar Component (simulating chart without external library)
 const BarChart = ({ data, maxHeight = 150 }) => {
-  const maxValue = Math.max(...data.map((d) => d.value), 1);
 
   return (
     <div className="flex items-end justify-between gap-2 h-[150px]">

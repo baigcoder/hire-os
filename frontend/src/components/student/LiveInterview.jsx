@@ -10,7 +10,7 @@
  * - Video/Audio call toggle
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/utils/api";  // Uses interceptor with JWT token
 import { toast } from "sonner";
@@ -20,12 +20,10 @@ import {
   MicOff,
   VideoOff,
   Play,
-  Square,
   MessageSquare,
   User,
   Bot,
   Loader2,
-  Clock,
   Volume2,
   VolumeX,
   Sparkles,
@@ -67,7 +65,6 @@ const LiveInterview = () => {
   const [speedPreset, setSpeedPreset] = useState("normal");
   const [stylePreset, setStylePreset] = useState("professional");
   const [showLanguageModal, setShowLanguageModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   // Conversation states
   const [messages, setMessages] = useState([]);
@@ -77,7 +74,6 @@ const LiveInterview = () => {
   // Media states
   const [isRecording, setIsRecording] = useState(false);
   const [videoEnabled, setVideoEnabled] = useState(true);
-  const [audioEnabled, setAudioEnabled] = useState(true);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [typedAnswer, setTypedAnswer] = useState("");

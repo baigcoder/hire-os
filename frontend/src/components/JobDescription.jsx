@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./shared/Navbar";
@@ -12,7 +12,6 @@ import {
   DollarSign,
   Calendar,
   Building2,
-  Clock,
   CheckCircle2,
   ArrowLeft,
   Users,
@@ -23,9 +22,7 @@ import {
   Sparkles,
   TrendingUp,
   Globe,
-  Star,
   Gift,
-  Award,
   GraduationCap,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -472,7 +469,7 @@ const JobDescription = () => {
                     </Button>
 
                     <p className="text-xs text-center text-gray-600 mt-4">
-                      // RESUME_ANALYSIS_BEFORE_SUBMIT
+                      Your resume is checked against this job before you apply.
                     </p>
                   </div>
                 ) : (

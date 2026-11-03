@@ -3,8 +3,8 @@
  * Email template management for recruiters
  */
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
 import {
@@ -17,13 +17,6 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";

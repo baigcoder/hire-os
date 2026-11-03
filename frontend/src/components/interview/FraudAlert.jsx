@@ -1,4 +1,3 @@
-import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Shield, X, Flag, CheckCircle } from "lucide-react";
 import { Button } from "../ui/button";

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Card,
   CardContent,
@@ -13,7 +12,6 @@ import { Calendar, Clock, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { APPLICATION_API_END_POINT } from "@/utils/constant";
-import { toast } from "sonner";
 
 const InterviewNotification = ({ application }) => {
   const navigate = useNavigate();

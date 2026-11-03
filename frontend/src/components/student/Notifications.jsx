@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Calendar, Clock, Building, AlertCircle } from "lucide-react";
@@ -108,7 +108,7 @@ const Notifications = () => {
         </CardHeader>
         <CardContent>
           <div className="text-center py-6 text-gray-500">
-            You don't have any upcoming interviews scheduled.
+            You don&apos;t have any upcoming interviews scheduled.
           </div>
         </CardContent>
       </Card>

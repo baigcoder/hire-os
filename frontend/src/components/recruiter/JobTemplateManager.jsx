@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import Navbar from "../shared/Navbar";
 import {
   LayoutTemplate,
@@ -22,22 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogFooter,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import {
     Select,
     SelectContent,
@@ -99,7 +85,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
 
     const [requirementInput, setRequirementInput] = useState("");
     const [skillInput, setSkillInput] = useState("");
-    const [benefitInput, setBenefitInput] = useState("");
+    const [, setBenefitInput] = useState("");
 
     useEffect(() => {
         fetchTemplates();
@@ -178,7 +164,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
             onSelectTemplate(template);
         } else {
             try {
-                const res = await axios.post(
+                await axios.post(
                     `${API_URL}/api/v1/job-templates/${template._id}/use`,
                     {},
                     { withCredentials: true }
@@ -731,7 +717,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                 )}
             </AnimatePresence>
 
-            <style jsx global>{`
+            <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 5px;
         }

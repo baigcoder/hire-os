@@ -1,18 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { RESUME_API_END_POINT, JOB_API_END_POINT } from "@/utils/constant";
 import {
-  Loader2,
   Upload,
   CheckCircle,
   AlertCircle,
   FileText,
-  Target,
-  Zap,
-  TrendingUp,
   AlertTriangle,
   Sparkles,
 } from "lucide-react";
@@ -26,7 +22,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
   const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState("");
   const [analysis, setAnalysis] = useState(null);
-  const [jobData, setJobData] = useState(null);
+  const [, setJobData] = useState(null);
 
   // Loading step messages for animation (same as dashboard)
   const loadingSteps = [

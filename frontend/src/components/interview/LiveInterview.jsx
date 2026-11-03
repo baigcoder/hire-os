@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Card } from "../ui/card";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Input } from "../ui/input";
 import {
   Mic,
@@ -19,7 +18,6 @@ import {
   Users,
   Settings,
   Send,
-  Loader2,
   WifiOff,
   Wifi,
   Copy,
@@ -53,9 +51,7 @@ const LiveInterview = () => {
 
   // Supabase Realtime hook for room management and chat (replaces Socket.io)
   const {
-    channel,
     isConnected,
-    connectionError,
     roomState,
     participants,
     messages,
@@ -108,7 +104,6 @@ const LiveInterview = () => {
     isVideoOn,
     isScreenSharing,
     connectionState,
-    callError,
     initializeMedia,
     createOffer,
     toggleAudio,

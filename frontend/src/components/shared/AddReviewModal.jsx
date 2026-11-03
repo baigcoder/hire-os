@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
@@ -14,7 +14,6 @@ import {
   Quote,
 } from "lucide-react";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 
 const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
   const [rating, setRating] = useState(5);

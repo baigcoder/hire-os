@@ -3,21 +3,17 @@
  * Display and manage bookmarked/saved jobs
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bookmark,
   BookmarkX,
-  Briefcase,
   MapPin,
   DollarSign,
   Clock,
   Building,
   ArrowUpRight,
   Search,
-  Filter,
-  Trash2,
-  ExternalLink,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";

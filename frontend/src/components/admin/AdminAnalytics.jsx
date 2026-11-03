@@ -1,35 +1,23 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../shared/Navbar";
-import { useSelector } from "react-redux";
 import axios from "axios";
 import { STATS_API_END_POINT } from "@/utils/constant";
-import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import {
   BarChart3,
   TrendingUp,
   TrendingDown,
-  Users,
   Briefcase,
-  Terminal,
   Loader2,
-  Calendar,
-  Clock,
   CheckCircle,
-  XCircle,
-  Eye,
   FileText,
-  ArrowUpRight,
   Activity,
   Target,
-  Zap,
   PieChart,
-  LineChart,
 } from "lucide-react";
 
 const AdminAnalytics = () => {
-  const { user } = useSelector((store) => store.auth);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("30d");
   const [analytics, setAnalytics] = useState({

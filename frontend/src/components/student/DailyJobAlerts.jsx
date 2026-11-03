@@ -3,11 +3,10 @@
  * Personalized daily job recommendations with preferences
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell,
-  BellOff,
   MapPin,
   DollarSign,
   Clock,
@@ -15,7 +14,6 @@ import {
   Bookmark,
   ArrowUpRight,
   Sparkles,
-  Filter,
   Settings,
   Check,
 } from "lucide-react";

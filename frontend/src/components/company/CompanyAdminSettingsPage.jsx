@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "@/utils/api";
@@ -9,7 +9,6 @@ import { setUser } from "@/redux/authSlice";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { Switch } from "../ui/switch";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";

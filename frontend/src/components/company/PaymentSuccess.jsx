@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { motion } from "framer-motion";
@@ -11,10 +11,8 @@ import {
   Building2,
   CreditCard,
   AlertCircle,
-  Terminal,
 } from "lucide-react";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { toast } from "sonner";
 import axios from "axios";
 import { COMPANY_API_END_POINT, PAYMENT_API_END_POINT } from "@/utils/constant";

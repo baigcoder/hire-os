@@ -3,20 +3,16 @@
  * Professional networking with connection requests and AI suggestions
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
   UserPlus,
-  UserCheck,
-  UserX,
   MessageSquare,
   Sparkles,
   Search,
-  Filter,
   Check,
   X,
-  Mail,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -387,7 +383,7 @@ const NetworkConnections = () => {
                       </p>
                       {request.message && (
                         <p className="text-xs text-cyan-400 mt-1">
-                          "{request.message}"
+                          &quot;{request.message}&quot;
                         </p>
                       )}
                     </div>

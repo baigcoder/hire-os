@@ -1,4 +1,3 @@
-import React from "react";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
 import {
   HelpCircle,

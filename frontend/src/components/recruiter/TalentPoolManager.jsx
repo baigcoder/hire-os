@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import Navbar from "../shared/Navbar";
 import {
   Users,
@@ -18,13 +18,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import {
     Dialog,
     DialogContent,
@@ -567,7 +560,7 @@ const TalentPoolManager = () => {
                 )}
             </AnimatePresence>
 
-            <style jsx global>{`
+            <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }

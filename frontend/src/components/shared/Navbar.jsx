@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { setSearchedQuery } from "@/redux/jobSlice";
 import { USER_API_END_POINT, MESSAGE_API_END_POINT } from "@/utils/constant";
 import api from "@/utils/api";
 import { toast } from "sonner";
-import { setUser, logout } from "@/redux/authSlice";
+import { logout } from "@/redux/authSlice";
 import { useAuth } from "../../context/AuthContext";
 import {
   Building,
@@ -15,7 +14,6 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronDown,
   Bell,
   Search,
   CreditCard,
@@ -76,7 +74,9 @@ const NavbarBar = () => {
       await signOut();
       try {
         await api.get(`${USER_API_END_POINT}/logout`);
-      } catch (e) { }
+      } catch {
+        // sign-out continues even if this step fails
+      }
       localStorage.removeItem("token");
       localStorage.removeItem("pendingSignupRole");
       toast.success("Signed out");
@@ -97,7 +97,6 @@ const NavbarBar = () => {
     : "dashboard";
 
   const isCompanyAdmin = user?.role === "company_admin";
-  const isRecruiter = user?.role === "recruiter";
 
   const navLinks = isStudent
     ? [

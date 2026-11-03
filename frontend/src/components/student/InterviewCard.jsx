@@ -1,12 +1,4 @@
-import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { useState, useEffect } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -20,11 +12,10 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { APPLICATION_API_END_POINT } from "@/utils/constant";
-import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 const InterviewCard = ({ application = {} }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState("");
   const navigate = useNavigate();
 
@@ -115,27 +106,6 @@ const InterviewCard = ({ application = {} }) => {
     };
   };
 
-  const completeInterview = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.post(
-        `${APPLICATION_API_END_POINT}/interview/${application._id}/complete`,
-        {},
-        { withCredentials: true },
-      );
-
-      if (res.data.success) {
-        toast.success(res.data.message);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to complete interview",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString(undefined, {
@@ -233,7 +203,7 @@ const InterviewCard = ({ application = {} }) => {
               Notes
             </div>
             <p className="text-xs text-gray-400 leading-relaxed italic">
-              "{application.interviewDetails.details}"
+              &quot;{application.interviewDetails.details}&quot;
             </p>
           </div>
         )}

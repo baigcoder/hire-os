@@ -3,27 +3,22 @@ import api from "@/utils/api";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    Bot,
-    Send,
-    Loader2,
-    MessageCircle,
-    Target,
-    Sparkles,
-    ChevronRight,
-    Plus,
-    Clock,
-    Star,
-    X,
-    Zap,
-    Brain,
-    TrendingUp,
-    Briefcase,
-    FileText,
-    Users,
-    Search,
-    GraduationCap,
-    Trash2,
-    ArrowRight,
+  Bot,
+  Send,
+  Loader2,
+  MessageCircle,
+  Target,
+  Sparkles,
+  Plus,
+  Clock,
+  Zap,
+  Brain,
+  TrendingUp,
+  Briefcase,
+  FileText,
+  Search,
+  GraduationCap,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,7 +47,7 @@ const AICareerCoach = () => {
     const [activeSession, setActiveSession] = useState(null);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
     const [deletingSession, setDeletingSession] = useState(null);
     const messagesEndRef = useRef(null);

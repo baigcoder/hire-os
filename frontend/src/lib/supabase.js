@@ -154,7 +154,7 @@ export const supabaseStorage = {
     const fileExt = file.name.split(".").pop();
     const fileName = `${userId}/avatar_${Date.now()}.${fileExt}`;
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("avatars")
       .upload(fileName, file, {
         cacheControl: "3600",

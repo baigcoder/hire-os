@@ -1,10 +1,8 @@
-import React from "react";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
 import {
   ArrowRight,
   Code,
   Terminal,
-  Database,
   Shield,
   Cpu,
 } from "lucide-react";
@@ -110,7 +108,7 @@ const Careers = () => {
             Why HIRE.OS?
           </h2>
           <p className="text-gray-400 leading-relaxed mb-8">
-            We are a team of builders, dreamers, and doers. We don't just write
+            We are a team of builders, dreamers, and doers. We don&apos;t just write
             code; we architect solutions to complex human problems. Join us and
             do the best work of your career.
           </p>

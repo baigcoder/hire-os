@@ -170,7 +170,6 @@ const PaymentSimulator = () => {
 
         // Store token and log user in
         if (registerResponse.data.token) {
-          localStorage.setItem("token", registerResponse.data.token);
           axios.defaults.headers.common["Authorization"] =
             `Bearer ${registerResponse.data.token}`;
         }

@@ -40,13 +40,11 @@ const JobDescription = () => {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  // Get token from localStorage (backend JWT)
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const headers = {};
         const response = await axios.get(`${JOB_API_END_POINT}/get/${id}`, { headers });
         setJob(response.data.job);
         setLoading(false);
@@ -59,11 +57,9 @@ const JobDescription = () => {
 
     // Check if user already applied to this job
     const checkApplicationStatus = async () => {
-      if (!user || !token) return;
+      if (!user) return;
       try {
-        const response = await axios.get(`${APPLICATION_API_END_POINT}/get`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(`${APPLICATION_API_END_POINT}/get`);
         const appliedJobs = response.data.application || [];
         const alreadyApplied = appliedJobs.some(app => app.job?._id === id || app.job === id);
         setHasApplied(alreadyApplied);
@@ -74,7 +70,7 @@ const JobDescription = () => {
 
     fetchJob();
     checkApplicationStatus();
-  }, [id, token, user]);
+  }, [id, user]);
 
   const handleApplyClick = () => {
     if (!user) {

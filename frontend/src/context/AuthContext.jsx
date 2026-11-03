@@ -101,6 +101,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // The API couldn't renew the session (signed out elsewhere, password changed, access ended)
+  useEffect(() => {
+    const ended = () => {
+      dispatch(reduxLogout());
+      setLocalUser(null);
+    };
+    window.addEventListener("session-ended", ended);
+    return () => window.removeEventListener("session-ended", ended);
+  }, [dispatch]);
+
   useEffect(() => {
     // Get initial session
     const initAuth = async () => {
@@ -164,89 +174,28 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign in with email and password
-  const signIn = async (email, password, role = null) => {
+  // Sign in with email and password: our API first, then Supabase for accounts that live only there
+  const signIn = async (email, password) => {
     setLoading(true);
     try {
-      // If role is specified, try backend authentication first (for recruiters/company_admin)
-      if (role && (role === "recruiter" || role === "company_admin")) {
-        console.log(`Trying backend auth for role: ${role}`);
-        console.log("📧 Auth data being sent:", {
-          email: email,
-          emailLength: email?.length,
-          password: password,
-          passwordLength: password?.length,
-          role: role,
-        });
-        try {
-          // Trim email and password to remove accidental whitespace from copy-paste
-          const trimmedEmail = email?.trim();
-          const trimmedPassword = password?.trim();
-
-          const response = await api.post(
-            "/user/login",
-            { email: trimmedEmail, password: trimmedPassword, role },
-          );
-
-          if (response.data.success) {
-            // Set user in Redux and local state
-            dispatch(setUser(response.data.user));
-            setLocalUser(response.data.user);
-
-            // Store token if available
-            if (response.data.token) {
-              localStorage.setItem("token", response.data.token);
-            }
-
-            return { data: response.data, error: null };
-          }
-        } catch (backendError) {
-          console.log(
-            `Backend auth failed for role ${role}:`,
-            backendError.response?.data?.message,
-          );
-          // If role-specific backend fails, throw error with specific message
-          throw new Error(
-            backendError.response?.data?.message || "Invalid login credentials",
-          );
+      let apiMessage;
+      try {
+        // Trimmed: passwords sent by email are often pasted with a trailing space
+        const response = await api.post("/user/login", { email: email?.trim(), password: password?.trim() });
+        if (response.data.success) {
+          dispatch(setUser(response.data.user));
+          setLocalUser(response.data.user);
+          return { data: response.data, error: null };
         }
+      } catch (apiError) {
+        apiMessage = apiError.response?.data?.message;
+        // A locked or expired account is a real answer, not a reason to try elsewhere
+        if ([403, 423].includes(apiError.response?.status)) throw new Error(apiMessage);
       }
 
-      // For students or when no role specified, try Supabase auth first
-      const { data, error } = await supabaseAuth.signIn(email, password);
-
-      if (!error && data) {
-        return { data, error: null };
-      }
-
-      // If Supabase fails and role is student, try backend
-      if (role === "student") {
-        try {
-          const response = await api.post(
-            "/user/login",
-            { email, password, role: "student" },
-          );
-
-          if (response.data.success) {
-            dispatch(setUser(response.data.user));
-            setLocalUser(response.data.user);
-
-            if (response.data.token) {
-              localStorage.setItem("token", response.data.token);
-            }
-
-            return { data: response.data, error: null };
-          }
-        } catch (backendError) {
-          console.log(
-            `Backend auth failed for student:`,
-            backendError.response?.data?.message,
-          );
-        }
-      }
-
-      // If all attempts fail, return error
-      throw error || new Error("Invalid login credentials");
+      const { data, error } = await supabaseAuth.signIn(email, password).catch((e) => ({ error: e }));
+      if (!error && data?.session) return { data, error: null };
+      throw new Error(apiMessage || "Invalid email or password.");
     } catch (error) {
       return { data: null, error };
     } finally {

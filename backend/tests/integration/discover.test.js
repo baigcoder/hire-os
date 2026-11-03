@@ -110,6 +110,7 @@ describe("semantic discovery", () => {
       role: "recruiter",
     });
     company = await Company.create({
+    subscription: { status: "active" },
       name: "Acme",
       email: "hr@acme.test",
       description: "Acme builds logistics software for everyone.",
@@ -119,6 +120,7 @@ describe("semantic discovery", () => {
       userId: recruiter._id,
     });
     otherCompany = await Company.create({
+    subscription: { status: "active" },
       name: "Other",
       email: "hr@other.test",
       description: "Other company that also hires engineers here.",

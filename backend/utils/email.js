@@ -49,60 +49,7 @@ const createTransporter = () => {
   return transporter;
 };
 
-// Generate 6-digit OTP
-export const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
-
-// Store OTPs in memory (use Redis in production)
-const otpStore = new Map();
-
-// Save OTP with expiry
-export const saveOTP = (email, otp) => {
-  otpStore.set(email.toLowerCase(), {
-    otp,
-    expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-    attempts: 0,
-  });
-};
-
-// Verify OTP
-export const verifyOTP = (email, inputOtp) => {
-  const stored = otpStore.get(email.toLowerCase());
-
-  if (!stored) {
-    return {
-      valid: false,
-      message: "OTP expired or not found. Please request a new code.",
-    };
-  }
-
-  if (Date.now() > stored.expiresAt) {
-    otpStore.delete(email.toLowerCase());
-    return {
-      valid: false,
-      message: "OTP has expired. Please request a new code.",
-    };
-  }
-
-  stored.attempts++;
-
-  if (stored.attempts > 5) {
-    otpStore.delete(email.toLowerCase());
-    return {
-      valid: false,
-      message: "Too many attempts. Please request a new code.",
-    };
-  }
-
-  if (stored.otp !== inputOtp) {
-    return { valid: false, message: "Invalid OTP. Please try again." };
-  }
-
-  // OTP is valid, remove it
-  otpStore.delete(email.toLowerCase());
-  return { valid: true, message: "OTP verified successfully" };
-};
+// Email codes are issued and checked in utils/emailCode.js
 
 // Send OTP email
 export const sendOTPEmail = async (email, otp, purpose = "verification") => {
@@ -1268,9 +1215,6 @@ export const sendSubscriptionExpiryEmail = async (
 };
 
 export default {
-  generateOTP,
-  saveOTP,
-  verifyOTP,
   sendOTPEmail,
   sendWelcomeEmail,
   sendRecruiterInvitation,

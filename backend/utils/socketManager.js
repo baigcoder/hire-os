@@ -8,6 +8,7 @@ import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
 import jwt from "jsonwebtoken";
 import { Interview } from "../models/interview.model.js";
+import { verifyAccessToken, tokenFromCookieHeader } from "./session.js";
 
 // Interview room states
 const ROOM_STATES = {
@@ -66,7 +67,8 @@ export const initializeSocketManager = async (httpServer, allowedOrigins) => {
     try {
       const token =
         socket.handshake.auth?.token ||
-        socket.handshake.headers?.authorization?.split(" ")[1];
+        socket.handshake.headers?.authorization?.split(" ")[1] ||
+        tokenFromCookieHeader(socket.handshake.headers?.cookie);
 
       if (!token) {
         // Allow anonymous for development
@@ -74,7 +76,7 @@ export const initializeSocketManager = async (httpServer, allowedOrigins) => {
         return next();
       }
 
-      const decoded = jwt.verify(token, process.env.SECRET_KEY);
+      const decoded = verifyAccessToken(token);
       socket.user = {
         id: decoded.userId,
         role: decoded.role,

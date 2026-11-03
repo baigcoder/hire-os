@@ -88,7 +88,6 @@ const PaymentSuccess = () => {
 
         // Store token and log user in
         if (registerResponse.data.token) {
-          localStorage.setItem("token", registerResponse.data.token);
           // Set axios default header for subsequent requests
           axios.defaults.headers.common["Authorization"] =
             `Bearer ${registerResponse.data.token}`;

@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
+import { verifyAccessToken, tokenFromCookieHeader } from "./utils/session.js";
 
 // Load environment variables
 dotenv.config();
@@ -67,17 +68,15 @@ io.use(async (socket, next) => {
   try {
     const token =
       socket.handshake.auth?.token ||
-      socket.handshake.headers?.authorization?.split(" ")[1];
+      socket.handshake.headers?.authorization?.split(" ")[1] ||
+      tokenFromCookieHeader(socket.handshake.headers?.cookie);
 
     if (!token) {
       socket.user = { id: `anon_${socket.id}`, role: "guest" };
       return next();
     }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.SECRET_KEY || "your-secret-key",
-    );
+    const decoded = verifyAccessToken(token);
     socket.user = {
       id: decoded.userId,
       role: decoded.role,

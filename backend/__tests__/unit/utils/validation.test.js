@@ -93,7 +93,7 @@ describe("Validation Schemas", () => {
     test("should require all fields", () => {
       const invalidData = {
         email: "john@example.com",
-        // missing password and role
+        // missing password
       };
 
       const { error } = loginSchema.validate(invalidData);

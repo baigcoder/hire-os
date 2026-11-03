@@ -83,10 +83,11 @@ export const validateRegistration = (req, res, next) => {
   // Validate role
   if (!role) {
     errors.push("Role is required");
-  } else if (!["student", "recruiter", "company_admin"].includes(role)) {
-    errors.push(
-      "Invalid role. Must be 'student', 'recruiter', or 'company_admin'",
-    );
+  } else if (role === "recruiter") {
+    // Recruiter accounts come only from a company owner's invitation
+    errors.push("Recruiters join through their company's invitation.");
+  } else if (!["student", "company_admin"].includes(role)) {
+    errors.push("Invalid role. Must be 'student' or 'company_admin'");
   }
 
   if (errors.length > 0) {
@@ -119,9 +120,7 @@ export const validateLogin = (req, res, next) => {
     errors.push("Password is required");
   }
 
-  if (!role) {
-    errors.push("Role is required");
-  } else if (!["student", "recruiter", "company_admin"].includes(role)) {
+  if (role && !["student", "recruiter", "company_admin"].includes(role)) {
     errors.push("Invalid role");
   }
 

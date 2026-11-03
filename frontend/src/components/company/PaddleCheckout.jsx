@@ -143,7 +143,6 @@ const PaddleCheckout = () => {
 
         if (token) {
           // Store token in localStorage for API calls
-          localStorage.setItem("token", token);
           console.log("✅ Token stored in localStorage");
         }
 

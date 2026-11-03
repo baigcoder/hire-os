@@ -22,6 +22,7 @@ describe("one owner queue, one decision", () => {
   beforeEach(async () => {
     owner = await createUser({ email: "ceo@acme.test", role: "company_admin" });
     company = await Company.create({
+    subscription: { status: "active" },
       name: "Acme",
       email: "hr@acme.test",
       description: "Acme builds logistics software for everyone.",
@@ -137,7 +138,8 @@ describe("one owner queue, one decision", () => {
   it("refuses non-owners, other companies and candidates not awaiting a decision", async () => {
     expect((await request(app).post(`/api/v1/company/candidates/${interviewed._id}/approve`).set(auth(recruiter)).send({ decision: "approved" })).status).toBe(403);
     const stranger = await createUser({ email: "x@other.test", role: "company_admin" });
-    await Company.create({ name: "Other", email: "hr@other.test", description: "Another company that hires people too.", website: "https://other.test", location: "Remote", adminUser: stranger._id });
+    await Company.create({
+    subscription: { status: "active" }, name: "Other", email: "hr@other.test", description: "Another company that hires people too.", website: "https://other.test", location: "Remote", adminUser: stranger._id });
     expect((await request(app).post(`/api/v1/company/candidates/${interviewed._id}/approve`).set(auth(stranger)).send({ decision: "approved" })).status).toBe(404);
     expect((await request(app).post(`/api/v1/company/candidates/${direct._id}/approve`).set(auth(owner)).send({ decision: "approved" })).status).toBe(409);
     expect((await request(app).post(`/api/v1/company/candidates/${interviewed._id}/approve`).set(auth(owner)).send({ decision: "maybe" })).status).toBe(400);

@@ -84,7 +84,7 @@ describe("Job Integration Tests", () => {
 
       const res = await request(app)
         .post("/api/v1/job/post")
-        .set("Cookie", `token=${recruiterToken}`)
+        .set("Cookie", `token=${recruiterToken}`).set("X-Requested-With", "XMLHttpRequest")
         .send(jobData);
 
       expect(res.statusCode).toBe(201);
@@ -108,7 +108,7 @@ describe("Job Integration Tests", () => {
 
       const res = await request(app)
         .post("/api/v1/job/post")
-        .set("Cookie", `token=${studentToken}`)
+        .set("Cookie", `token=${studentToken}`).set("X-Requested-With", "XMLHttpRequest")
         .send(jobData);
 
       expect(res.statusCode).toBe(403);

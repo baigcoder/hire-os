@@ -32,7 +32,7 @@ export const registerSchema = Joi.object({
 export const loginSchema = Joi.object({
   email: emailField,
   password: Joi.string().required(),
-  role: Joi.string().valid("student", "recruiter", "company_admin").required(),
+  role: Joi.string().valid("student", "recruiter", "company_admin"),
 });
 
 export const changePasswordSchema = Joi.object({

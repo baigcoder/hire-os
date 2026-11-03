@@ -90,6 +90,12 @@ export const RecruiterRoute = ({ children }) => {
       return;
     }
 
+    // A recruiter on the invitation's temporary password sets their own first
+    if (user?.mustChangePassword) {
+      navigate("/change-password", { state: { email: user.email }, replace: true });
+      return;
+    }
+
     // Check subscription status for both recruiters and company_admins
     const subscriptionStatus = user?.subscriptionStatus;
     const pendingStatuses = ["pending", "none", "cancelled", "expired"];

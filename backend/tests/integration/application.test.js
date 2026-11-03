@@ -74,7 +74,7 @@ describe("Application Integration Tests", () => {
     it("should allow student to apply for a job", async () => {
       const res = await request(app)
         .post(`/api/v1/application/apply/${jobId}`)
-        .set("Cookie", `token=${studentToken}`)
+        .set("Cookie", `token=${studentToken}`).set("X-Requested-With", "XMLHttpRequest")
         .send();
 
       expect(res.statusCode).toBe(201);
@@ -91,13 +91,13 @@ describe("Application Integration Tests", () => {
       // First application
       await request(app)
         .post(`/api/v1/application/apply/${jobId}`)
-        .set("Cookie", `token=${studentToken}`)
+        .set("Cookie", `token=${studentToken}`).set("X-Requested-With", "XMLHttpRequest")
         .send();
 
       // Second application
       const res = await request(app)
         .post(`/api/v1/application/apply/${jobId}`)
-        .set("Cookie", `token=${studentToken}`)
+        .set("Cookie", `token=${studentToken}`).set("X-Requested-With", "XMLHttpRequest")
         .send();
 
       expect(res.statusCode).toBe(400);
@@ -109,12 +109,12 @@ describe("Application Integration Tests", () => {
     it("should get applied jobs for student", async () => {
       await request(app)
         .post(`/api/v1/application/apply/${jobId}`)
-        .set("Cookie", `token=${studentToken}`)
+        .set("Cookie", `token=${studentToken}`).set("X-Requested-With", "XMLHttpRequest")
         .send();
 
       const res = await request(app)
         .get("/api/v1/application/get")
-        .set("Cookie", `token=${studentToken}`);
+        .set("Cookie", `token=${studentToken}`).set("X-Requested-With", "XMLHttpRequest");
 
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);

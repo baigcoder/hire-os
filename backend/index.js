@@ -205,6 +205,16 @@ app.use(cors(corsOptions));
 // Handle preflight requests explicitly for all routes
 app.options('*', cors(corsOptions));
 
+// CSRF: our session cookies are sent cross-site (SameSite=None), so a write
+// that relies on them must carry a header a plain cross-site form can't set.
+// Bearer-token calls and cookie-less calls (webhooks) are not affected.
+app.use("/api", (req, res, next) => {
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
+  if (!req.cookies?.token && !req.cookies?.refreshToken) return next();
+  if (req.headers.authorization || req.get("x-requested-with")) return next();
+  return res.status(403).json({ message: "Request blocked: missing X-Requested-With header.", success: false, code: "CSRF" });
+});
+
 // NOTE: Socket.io has been removed - using Supabase Realtime for all WebSocket features
 // WebRTC signaling, chat, presence, and dashboard updates are handled by Supabase Realtime on the frontend
 // Cloud Redis (Upstash) can still be used for caching via REDIS_URL environment variable

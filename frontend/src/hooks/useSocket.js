@@ -21,10 +21,9 @@ export const useSocket = (interviewId, options = {}) => {
 
   // Initialize socket connection
   useEffect(() => {
-    const token = localStorage.getItem("token");
 
     socketRef.current = io(SOCKET_URL, {
-      auth: { token },
+      withCredentials: true,
       transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionAttempts: 10,

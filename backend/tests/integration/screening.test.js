@@ -93,6 +93,7 @@ describe("recruiter screening", () => {
       role: "recruiter",
     });
     const company = await Company.create({
+    subscription: { status: "active" },
       name: "Acme",
       email: "hr@acme.test",
       description: "Acme builds logistics software for everyone.",
@@ -113,6 +114,18 @@ describe("recruiter screening", () => {
       email: "rec@other.test",
       role: "recruiter",
     });
+    // A recruiter at another paying company: real, but not this job's
+    const otherCompany = await Company.create({
+      subscription: { status: "active" },
+      name: "Other",
+      email: "hr@other.test",
+      description: "Other builds unrelated software for everyone.",
+      website: "https://other.test",
+      location: "Remote",
+      adminUser: outsider._id,
+      userId: outsider._id,
+    });
+    await User.updateOne({ _id: outsider._id }, { companyId: otherCompany._id });
     applicant = await createUser({
       fullname: "Jordan Reyes",
       email: "jordan.reyes@example.com",

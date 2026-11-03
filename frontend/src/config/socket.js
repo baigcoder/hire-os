@@ -13,7 +13,6 @@ console.log(`🔌 Connecting to Socket.io server: ${SOCKET_URL}`);
 // Create Socket.io connection
 export const socket = io(SOCKET_URL, {
   auth: {
-    token: localStorage.getItem("token") || "",
   },
   reconnection: true,
   reconnectionDelay: 1000,

@@ -3,6 +3,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { sendPasswordResetEmail } from "../utils/email.js";
 import AppError from "../utils/AppError.js";
+import { endAllSessions } from "../utils/session.js";
 
 /**
  * Generate password reset token
@@ -167,6 +168,9 @@ export const resetPassword = async (req, res) => {
     user.lastFailedLogin = undefined;
 
     await user.save();
+
+    // Whoever knew the old password is signed out everywhere
+    await endAllSessions(user._id);
 
     return res.status(200).json({
       success: true,

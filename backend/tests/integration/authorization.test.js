@@ -34,6 +34,7 @@ const auth = (user) => ({
 
 const createCompany = async (name, admin) => {
   const company = await Company.create({
+    subscription: { status: "active" },
     name,
     email: `hr@${name.toLowerCase()}.test`,
     description: `${name} builds software for a living, at scale.`,

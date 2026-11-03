@@ -34,9 +34,7 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
   const checkExistingReview = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
       const response = await axios.get(`${STATS_API_END_POINT}/my-review`, {
-        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
       if (response.data.success && response.data.review) {
@@ -60,12 +58,10 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
 
     setSubmitting(true);
     try {
-      const token = localStorage.getItem("token");
       const response = await axios.post(
         `${STATS_API_END_POINT}/reviews`,
         { rating, title, comment: comment.trim() },
         {
-          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         },
       );

@@ -37,6 +37,7 @@ describe("GET /api/v1/overview", () => {
   beforeEach(async () => {
     owner = await createUser({ email: "ceo@acme.test", role: "company_admin" });
     company = await Company.create({
+    subscription: { status: "active" },
       name: "Acme",
       email: "hr@acme.test",
       description: "Acme builds logistics software for everyone.",

@@ -74,11 +74,9 @@ const RecruiterProfile = () => {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
 
       // Load user profile
       const userResponse = await axios.get(`${USER_API}/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
 
@@ -104,7 +102,6 @@ const RecruiterProfile = () => {
             const companyResponse = await axios.get(
               `${COMPANY_API}/get/${userData.companyId}`,
               {
-                headers: { Authorization: `Bearer ${token}` },
                 withCredentials: true,
               },
             );
@@ -145,10 +142,8 @@ const RecruiterProfile = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const token = localStorage.getItem("token");
       const response = await axios.post(`${USER_API}/profile/photo`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
         withCredentials: true,
@@ -179,13 +174,11 @@ const RecruiterProfile = () => {
   const handleSaveProfile = async () => {
     try {
       setSaving(true);
-      const token = localStorage.getItem("token");
 
       const updateResponse = await axios.put(
         `${USER_API}/profile/update`,
         editedProfile,
         {
-          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         },
       );

@@ -14,6 +14,7 @@ const auth = (user) => ({ Authorization: `Bearer ${jwt.sign({ userId: user._id.t
 const setup = async (name) => {
   const owner = await createUser({ email: `ceo@${name}.test`, role: "company_admin" });
   const company = await Company.create({
+    subscription: { status: "active" },
     name,
     email: `hr@${name}.test`,
     description: `${name} builds logistics software for everyone.`,

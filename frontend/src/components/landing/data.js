@@ -67,29 +67,14 @@ export const PLANS = [
 export const PLAN_ROWS = [
   ["Job posts", "5", "20", "Unlimited"],
   ["Recruiter seats", "1", "5", "Unlimited"],
-  ["Video interviews, copilot and scorecards", "Not included", "Included", "Included"],
-  ["MCQ tests", "Not included", "Included", "Included"],
-  ["AI recommendations", "Not included", "Included", "Included"],
-  ["Analytics", "Standard", "Advanced", "Advanced"],
-  ["API access", "Not included", "Not included", "Included"],
-  ["Support", "Standard", "Priority", "Dedicated"],
+  ["Video interviews with the copilot", "—", "Included", "Included"],
+  ["API access", "—", "—", "Included"],
+  ["Support", "Email", "Priority", "Dedicated"],
 ];
 
-export const RECORDS = [
-  ["Transcript", "Both sides' microphones, only with the candidate's consent", "90 days", "The company's interviewers"],
-  ["Audio", "Sent for transcription in 15-second chunks", "Never stored", "Nobody"],
-  ["Verified quotes", "Exact lines from the transcript, with the minute they were said", "With the report", "The company"],
-  ["Ratings", "The interviewer, 1 to 4 per competency", "With the report", "The company"],
-  ["Integrity signals", "Browser events, only with the candidate's consent", "90 days", "Reviewers, as a priority, never a verdict"],
-  ["Resume for screening", "Name, contact details and photo links removed first", "While screening", "The screening model"],
-  ["Hiring report", "Built from the records above", "Locked once sent", "The company, never the candidate"],
-];
 
 export const FAQ = [
-  ["Does the AI decide who gets hired?", "No. It transcribes, tracks coverage and drafts ratings. A draft counts only once the interviewer confirms it, and the company's owner makes the final call."],
-  ["Is the interview recorded?", "Only as text, and only if the candidate agrees. Audio is sent for transcription and never stored; the transcript is deleted after 90 days."],
-  ["Can candidates read the report?", "No. The hiring report is internal to the company. Candidates hear the decision, not the deliberation."],
-  ["What does blind screening hide?", "The candidate's name, contact details, photo links and lines about personal attributes. Skills, roles, employers, schools and dates stay, because they are evidence."],
-  ["What if a must-have was never discussed?", "The report can't be sent. Every must-have needs a rating and the interviewer needs an overall call before it goes to the owner."],
-  ["What do job seekers pay?", "Nothing for 30 days: every candidate tool, from resume analysis to interview practice, is free during the trial."],
+  ["Does the AI decide who gets hired?", "No. It transcribes and drafts. The interviewer rates, and the company's owner decides."],
+  ["Is the interview recorded?", "Only as text, with the candidate's consent. Audio is never stored; transcripts are deleted after 90 days."],
+  ["Is it free for job seekers?", "Applying is. Resume analysis and interview practice are free for the first 30 days."],
 ];

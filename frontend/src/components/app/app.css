@@ -31,7 +31,6 @@
 
   display: grid;
   grid-template-columns: var(--side) 1fr;
-  grid-template-rows: var(--top) 1fr;
   min-height: 100vh;
   background: var(--ground);
   color: var(--text);
@@ -49,7 +48,6 @@
 
 /* Shell */
 .app-side {
-  grid-row: 1 / -1;
   border-right: 1px solid var(--rule);
   display: flex;
   flex-direction: column;
@@ -123,6 +121,31 @@
   margin-top: auto;
   border-top: 1px solid var(--rule);
   padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-side-foot .app-account-name {
+  flex: 1;
+  min-width: 0;
+}
+.app-more {
+  width: 100%;
+  background: none;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  color: var(--faint);
+}
+.app-more svg {
+  transition: transform 160ms;
+}
+.app-more svg.is-open {
+  transform: rotate(90deg);
+}
+.app-top-title {
+  flex: 1;
+  font-weight: 500;
 }
 .app-account {
   display: flex;
@@ -168,9 +191,9 @@
   width: 16px;
   height: 16px;
 }
+/* The slim bar exists only where the sidebar folds away */
 .app-top {
-  grid-column: 2;
-  display: flex;
+  display: none;
   align-items: center;
   gap: 12px;
   height: var(--top);
@@ -212,7 +235,7 @@
 }
 .app-canvas {
   grid-column: 2;
-  padding: 28px var(--gutter) 64px;
+  padding: 40px var(--gutter) 64px;
   min-width: 0;
 }
 .app-sheet {
@@ -523,13 +546,21 @@
   .app-side {
     display: none;
   }
-  .app-top,
+  .app-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--top);
+    padding: 0 12px;
+    border-bottom: 1px solid var(--rule);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--ground);
+  }
   .app-canvas {
     grid-column: 1;
-  }
-  .app-menu-btn {
-    display: grid;
-    margin-left: -8px;
+    padding-top: 24px;
   }
   .span-8,
   .span-7,
@@ -876,5 +907,91 @@
   }
   .app-facts {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Today: one list of things to do, each with its action */
+.app-page-title {
+  margin-bottom: 28px;
+}
+.app-tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+.app-task {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 60px;
+  padding: 10px var(--pad);
+}
+.app-task + .app-task {
+  border-top: 1px solid var(--rule);
+}
+.app-task-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.app-task-title {
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app-task-sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+.app-task-meta {
+  font-size: 13px;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.app-task-meta.is-late {
+  color: var(--pill-warning-ink);
+}
+.app-done {
+  margin: 0;
+  padding: 28px var(--pad);
+  background: var(--surface);
+  border-radius: var(--radius);
+  color: var(--muted);
+}
+.app-more-link {
+  display: inline-block;
+  margin-top: 12px;
+}
+.app-side-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.app-side-h {
+  margin: 4px 0 12px;
+}
+.app-later {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  text-decoration: none;
+  color: inherit;
+  border-top: 1px solid var(--rule);
+}
+.app-list li:first-child .app-later {
+  border-top: 0;
+}
+.app-later:hover .app-row-title {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .app-task {
+    flex-wrap: wrap;
   }
 }

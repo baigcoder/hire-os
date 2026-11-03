@@ -9,7 +9,7 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test:integrity": "node --test \"src/integrity/__tests__/*.test.mjs\"",
-    "test": "node --test \"src/integrity/__tests__/*.test.mjs\" src/components/recruiter/interviewState.test.mjs src/components/landing/data.test.js"
+    "test": "node --test \"src/integrity/__tests__/*.test.mjs\" src/components/recruiter/interviewState.test.mjs src/components/landing/data.test.js src/components/app/today.test.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "0.10.17",

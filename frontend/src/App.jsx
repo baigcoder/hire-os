@@ -12,6 +12,7 @@ import ResetPassword from "./components/auth/ResetPassword";
 import ChangePassword from "./components/auth/ChangePassword";
 import Landing from "./components/landing/Landing";
 import AppShell from "./components/app/AppShell";
+import { useSelector } from "react-redux";
 import FeaturesPage from "./components/FeaturesPage";
 import Jobs from "./components/Jobs";
 import Browse from "./components/Browse";
@@ -49,11 +50,15 @@ import CompanyReport from "./components/admin/CompanyReport";
 import CEOReportReview from "./components/admin/CEOReportReview";
 import MockInterview from "./components/student/MockInterview";
 import CallDialog from "./components/shared/CallDialog";
-import { AlertCircle, ArrowLeft } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
 
 // Lazy Load Heavy Dashboards
 const Dashboard = React.lazy(() => import("./components/student/DashboardNew"));
 const CandidateOverview = React.lazy(() => import("./components/student/CandidateOverview"));
+const TeamPage = React.lazy(() => import("./components/company/TeamPage"));
 const JobApplicants = React.lazy(() => import("./components/recruiter/JobApplicants"));
 const JobsList = React.lazy(() => import("./components/recruiter/JobsList"));
 const InterviewsList = React.lazy(() => import("./components/recruiter/InterviewsList"));
@@ -123,6 +128,12 @@ const AssessmentBuilder = React.lazy(
 const LazyWrapper = ({ children }) => (
   <Suspense fallback={<PageLoader />}>{children}</Suspense>
 );
+
+// Public pages that signed-in people also use: inside the app frame for them, standalone for visitors
+const ShellIfSignedIn = ({ title, children }) => {
+  const user = useSelector((s) => s.auth.user);
+  return user ? <AppShell title={title}>{children}</AppShell> : children;
+};
 
 // Redesigned 404 Component - Industrial Theme
 const NotFound = () => (
@@ -256,7 +267,11 @@ const appRouter = createBrowserRouter([
 
   {
     path: "/jobs",
-    element: <Jobs />,
+    element: (
+      <ShellIfSignedIn title="Jobs">
+        <Jobs />
+      </ShellIfSignedIn>
+    ),
   },
   {
     path: "/features",
@@ -813,6 +828,18 @@ const appRouter = createBrowserRouter([
       <CompanyAdminRoute>
         <LazyWrapper>
           <AppShell title="Messages"><RecruiterMessagesPage /></AppShell>
+        </LazyWrapper>
+      </CompanyAdminRoute>
+    ),
+  },
+  {
+    path: "/company/team",
+    element: (
+      <CompanyAdminRoute>
+        <LazyWrapper>
+          <AppShell title="Team">
+            <TeamPage />
+          </AppShell>
         </LazyWrapper>
       </CompanyAdminRoute>
     ),

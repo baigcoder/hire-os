@@ -109,8 +109,8 @@ const FilterCard = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-primary" />
-            <h2 className="text-sm font-bold text-white tracking-tight">
-              FILTERS
+            <h2 className="text-sm font-bold text-white">
+              Filters
             </h2>
           </div>
           {getTotalFiltersCount() > 0 && (
@@ -119,7 +119,7 @@ const FilterCard = () => {
               className="flex items-center gap-1 text-xs text-primary hover:text-primary/80"
             >
               <RotateCcw size={12} />
-              CLEAR
+              Clear
             </button>
           )}
         </div>
@@ -127,10 +127,10 @@ const FilterCard = () => {
         {/* Active Filters */}
         <AnimatePresence>
           {getTotalFiltersCount() > 0 && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+            <div
+             
+             
+             
               className="flex flex-wrap gap-2 mt-3"
             >
               {Object.entries(selectedFilters).map(([type, values]) =>
@@ -149,7 +149,7 @@ const FilterCard = () => {
                   </span>
                 )),
               )}
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </div>
@@ -190,10 +190,10 @@ const FilterCard = () => {
               {/* Options */}
               <AnimatePresence>
                 {isExpanded && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
+                  <div
+                   
+                   
+                   
                     className="mt-3 space-y-1"
                   >
                     {data.options.map((option, idx) => {
@@ -206,11 +206,7 @@ const FilterCard = () => {
                           className="flex items-center gap-3 cursor-pointer group py-1.5 px-2 rounded-sm hover:bg-white/5 transition-colors"
                         >
                           <div
-                            className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all ${
-                              isSelected
-                                ? "bg-primary border-primary"
-                                : "border-white/20 group-hover:border-primary/50"
-                            }`}
+                            className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all ${ isSelected ? "bg-primary border-primary" : "border-white/20 group-hover:border-primary/50" }`}
                           >
                             {isSelected && (
                               <svg
@@ -235,18 +231,14 @@ const FilterCard = () => {
                             className="sr-only"
                           />
                           <span
-                            className={`text-xs transition-colors ${
-                              isSelected
-                                ? "text-white"
-                                : "text-gray-500 group-hover:text-gray-300"
-                            }`}
+                            className={`text-xs transition-colors ${ isSelected ? "text-white" : "text-gray-500 group-hover:text-gray-300" }`}
                           >
                             {option}
                           </span>
                         </label>
                       );
                     })}
-                  </motion.div>
+                  </div>
                 )}
               </AnimatePresence>
             </div>

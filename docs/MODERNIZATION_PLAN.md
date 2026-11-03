@@ -1083,3 +1083,131 @@ Skill lint: 0 FAIL, 0 WARN. Backend **314/314**; frontend tests **13/13**.
 Backend **324/324** (10 new tests); frontend **13/13**; skill lint 0 FAIL, 0 WARN.
 
 **Still themed only:** pipeline board, talent pool, messages, templates, analytics, settings, billing, career tools and the live interview room.
+
+---
+
+## 25. Simplification pass: one purpose per screen
+
+The brief: simple purpose, simple architecture, simple design. Cut taglines, helper text and secondary labels; if a screen needs them, fix the layout.
+
+**Audit findings (before):**
+- **Landing:**
+  - ten sections, most with a paragraph explaining itself;
+  - six helper notes around the copilot panel;
+  - sub-labels inside the product pieces ("must-have, counts double", "Latest evidence · System design");
+  - "Start hiring" four times;
+  - two captioned archival artworks, a decorative diagram and a seven-row data-retention table;
+  - candidates had one nav link and a line of small print.
+- **App:**
+  - the same counts three times per screen (finding line, panel header, "View all N");
+  - a "Hiring flow" panel nobody acts on;
+  - a top bar whose breadcrumb repeated the page title;
+  - ten nav items for a recruiter;
+  - a sublabel under every KPI;
+  - team management on the owner's overview.
+
+**After:**
+- **Landing** (`components/landing`):
+  - the headline, one sentence and two doors (Start hiring / Find a job);
+  - the interactive scorecard at full width;
+  - three features, each a heading plus the product piece: the copilot, the owner's decisions, and jobs matched to a candidate;
+  - pricing as three plans with five rows that actually differ;
+  - three questions and a one-row footer.
+  - The artworks, diagram, records table, notes, fact box, repeated CTA and giant footer wordmark are gone.
+  - Inspector: 0 FAIL.
+- **Shell:**
+  - no top bar on desktop (the page title names the page);
+  - the bell and account in the sidebar foot;
+  - each role's nav cut to the daily work (recruiter: Today, Applicants, Interviews, Jobs, Messages), with rare tools under a collapsible More;
+  - `document.title` set per page.
+- **Today:** each role's overview is now one list of what needs them, ranked, each row with the one action that clears it (`app/today.js`, tested; `app/TaskList.jsx`):
+  - recruiter: join, then reports to send, then today's interviews, then reviews (longest waiting first), with "Coming up" beside it;
+  - owner: decisions, with open jobs beside them;
+  - candidate: interviews, then applications by stage, with matches beside them. The trial notice shows only within 5 days of the end or once expired.
+- **Team** (`/company/team`): recruiters with their activity, invite, resend and remove, plus the seat limit on the action itself. It moved off the overview.
+- **Decision queue rows:** name, job, call and score; the "from …" and "scorecard" labels are gone.
+
+**Removed:** `RecruiterPerformance` (merged into Team), plus the KPI strip and funnel helpers.
+
+**Checks:**
+- Frontend tests **15/15** (ranking tests added).
+- Skill lint 0 FAIL on the app screens and the landing page. Its rules in the product pieces are marked as allowed inside `data-ui`.
+- Signed in as recruiter, owner and candidate against the demo API.
+
+**Next, in the same spirit:**
+- the scorecard page, the report modal and the owner's report review (the core evidence flow, still old-styled);
+- the live interview room;
+- profile and settings.
+
+## 26. Sign-in, and every remaining page in the app frame
+
+**Sign-in no longer asks for a role.** The account already has one, and picking the wrong role used to fail with "No recruiter account found…".
+- `POST /user/login` takes `role` as optional. A role that is sent must still match the account (tested both ways).
+- `AuthContext.signIn(email, password)` tries our API first, then Supabase for accounts that live only there. A locked (423) or expired (403) answer stops there.
+- A debug line that logged the typed password to the console is gone.
+- **Who gets an account:**
+  - Candidates and company owners sign up themselves. Recruiters only through their owner's invitation: `/user/register` and `/otp/verify-signup` refuse `role: "recruiter"`.
+  - A recruiter signs in (password or Google) only while they belong to a company whose subscription is live: active, trial, or cancelled with paid time left. Otherwise sign-in returns `NO_COMPANY` or `COMPANY_SUBSCRIPTION_INACTIVE` (`recruiterAccessProblem`, tested).
+  - Owners can always sign in, so a lapsed owner can still reach Billing and renew.
+
+**Auth pages** (`auth/AuthLayout.jsx`, `auth/auth.css`): one 360px column on the page ground, with the wordmark, a title, the form and one way out. There's no card, no picture and no subtitle.
+- **Sign in:** Google, email, password (with "Forgot?" beside the label), and "Sign in with an email code" as a quiet switch.
+- **Create an account:**
+  - a two-way "Find a job / Hire" switch, then name, email and password;
+  - a show toggle replaces confirm-password;
+  - the optional phone field is gone;
+  - the terms checkbox is now a line of fine print.
+  - The code step uses one `one-time-code` field, so paste and phone autofill work.
+- **Forgot, reset, first-password and OAuth callback** use the same frame.
+- Design lint: 0 FAIL.
+
+**Pages inside the app frame:**
+- **Brought onto the system:** Pipeline, Talent pool, Assessments, Email templates, Job templates, Messages (all roles), Analytics, Billing, both Settings pages, Applications, Profile, Resume analysis and Interview practice.
+- **One pass per page:**
+  - each page's own accent becomes the one ink colour;
+  - uppercase, tracking and monospace styling are gone;
+  - entrance animations are gone (they left panels invisible until they ran);
+  - each header is a plain title row with at most one action;
+  - sci-fi copy ("Zero blueprints detected", "Commit log") is plain words.
+- Dead controls are removed: Pipeline and Analytics "Export".
+- **Summary sentences** under Applicants, Interviews, Jobs and a job's applicants are gone; the rows, pills and tab counts already say it.
+- **Career tools** opens on the tools themselves (career, practice tests). Its own top bar, profile card and the Overview, Jobs and Interviews tabs repeated other screens and are gone. That also removed a call that threw on realtime updates.
+- **Jobs** renders inside the app frame for signed-in people (`ShellIfSignedIn`) and stays public for visitors.
+
+**Checks:**
+- Backend **330/330**.
+- Frontend tests **15/15**; the build is clean.
+- Signed in as recruiter, owner and candidate (no role picked) and looked at every nav destination.
+
+**Not yet:**
+- the public navbar used on Jobs and other public pages;
+- the pricing and company-registration flows;
+- the interview room and the report review.
+
+## 27. Sign-in hardening
+
+| Gap | Fix |
+|---|---|
+| 7-day tokens, also kept in `localStorage` where any page script could read them | Every sign-in goes through `utils/session.js` `startSession`: a 15-minute access cookie and a 7-day refresh cookie, both httpOnly, the refresh one tied to an entry in `user.activeSessions`. The frontend stores no token: `utils/api.js` renews on a 401 (on `api` and on the global axios) and clears any old stored token. A refresh token is never accepted as an access token. |
+| Recruiter rules checked only at sign-in | `isRecruiter` re-checks the company subscription on every request, and so does every refresh. A lapsed company cuts its recruiters off at once. |
+| No CSRF protection while cookies are `SameSite=None` | Cookie-authenticated writes to `/api` must carry `X-Requested-With`, which a cross-site form can't set. The frontend sends it on every call to the API. |
+| Temporary recruiter password not enforced | Recruiter routes return `PASSWORD_CHANGE_REQUIRED`, and `RecruiterRoute` sends the recruiter to set their password. |
+| Sign-up told strangers which role an email had | "An account with this email already exists." Sign-in codes answer the same whether or not the account exists. |
+| Email codes from `Math.random`, kept in server memory | `utils/emailCode.js`: `crypto.randomInt`, stored hashed in MongoDB with a TTL index, 10 minutes, 5 tries, compared in constant time. |
+
+**Also:**
+- Sign-out ends that device's session.
+- A password change signs out every other device; a reset signs out everywhere.
+- Invitation passwords use `crypto.randomInt`.
+- Sockets read the httpOnly cookie.
+- `socketServer.js` no longer falls back to a hard-coded secret.
+
+**Checks:**
+- Backend **339/339**, including `sessions.test.js`: cookies, renewal, sign-out, refresh-token misuse, CSRF, temporary passwords, a lapsed company, and email codes.
+- Test companies now carry an active subscription, as a paying company does.
+- Frontend tests **15/15**; the build is clean.
+- In the browser:
+  - signed in as recruiter and owner with nothing in storage;
+  - renewal works;
+  - a forged write gets 403;
+  - an ended session signs the page out.

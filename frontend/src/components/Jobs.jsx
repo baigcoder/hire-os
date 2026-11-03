@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Navbar from "./shared/Navbar";
+import { useInShell } from "./app/shellContext";
 import Footer from "./shared/Footer";
 import FilterCard from "./FilterCard";
 import Job from "./Job";
@@ -13,8 +14,6 @@ import {
   List,
   Briefcase,
   X,
-  Sparkles,
-  Filter,
   ArrowUpDown,
 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -74,27 +73,17 @@ const Jobs = () => {
     });
   }, [allJobs, searchedQuery, debouncedSearch, sortBy]);
 
+  const inShell = useInShell();
+
   return (
     <div className="min-h-screen bg-background text-white">
       <Navbar />
 
       {/* Header Section */}
-      <div className="bg-card border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className={inShell ? "" : "pt-16"}>
+        <div className="max-w-7xl mx-auto px-4 pt-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-sm flex items-center justify-center border border-primary/30 bg-primary">
-                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                  BROWSE JOBS
-                </h1>
-                <p className="text-xs text-gray-500 tracking-wider">
-                  {filterJobs.length} POSITIONS AVAILABLE
-                </p>
-              </div>
-            </div>
+            <h1 className="app-h1">Jobs</h1>
 
             {/* Search Bar */}
             <div className="flex items-center gap-3 w-full md:flex-1 md:max-w-xl">
@@ -139,13 +128,10 @@ const Jobs = () => {
                 {/* Mobile Filter Toggle */}
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`lg:hidden flex items-center gap-2 px-3 py-2 rounded-sm text-xs transition-all ${showFilters
-                    ? "bg-primary text-black"
-                    : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"
-                    }`}
+                  className={`lg:hidden flex items-center gap-2 px-3 py-2 rounded-sm text-xs transition-all ${showFilters ? "bg-primary text-black" : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10" }`}
                 >
                   <SlidersHorizontal size={14} />
-                  FILTERS
+                  Filters
                 </button>
 
                 {/* Sort */}
@@ -156,10 +142,10 @@ const Jobs = () => {
                     onChange={(e) => setSortBy(e.target.value)}
                     className="pl-8 sm:pl-9 pr-3 sm:pr-4 py-2 bg-background border border-white/10 rounded-sm text-gray-300 text-xs sm:text-xs focus:border-primary/50 focus:outline-none appearance-none cursor-pointer"
                   >
-                    <option value="newest">NEWEST FIRST</option>
-                    <option value="oldest">OLDEST FIRST</option>
-                    <option value="salary-high">SALARY: HIGH → LOW</option>
-                    <option value="salary-low">SALARY: LOW → HIGH</option>
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="salary-high">Highest salary</option>
+                    <option value="salary-low">Lowest salary</option>
                   </select>
                 </div>
               </div>
@@ -168,19 +154,13 @@ const Jobs = () => {
               <div className="hidden sm:flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-sm">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-sm transition-all ${viewMode === "grid"
-                    ? "bg-primary text-black"
-                    : "text-gray-500 hover:text-white"
-                    }`}
+                  className={`p-2 rounded-sm transition-all ${viewMode === "grid" ? "bg-primary text-black" : "text-gray-500 hover:text-white" }`}
                 >
                   <Grid3X3 size={16} />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-sm transition-all ${viewMode === "list"
-                    ? "bg-primary text-black"
-                    : "text-gray-500 hover:text-white"
-                    }`}
+                  className={`p-2 rounded-sm transition-all ${viewMode === "list" ? "bg-primary text-black" : "text-gray-500 hover:text-white" }`}
                 >
                   <List size={16} />
                 </button>
@@ -189,28 +169,28 @@ const Jobs = () => {
 
             {/* Mobile Filters */}
             {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
+              <div
+               
+               
+               
                 className="lg:hidden mb-6"
               >
                 <FilterCard />
-              </motion.div>
+              </div>
             )}
 
             {/* Jobs List */}
             {filterJobs.length <= 0 ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+              <div
+               
+               
                 className="flex flex-col items-center justify-center py-20 bg-card border border-white/10 rounded-sm"
               >
                 <div className="w-16 h-16 rounded-sm bg-white/5 flex items-center justify-center mb-6 border border-white/10">
                   <Briefcase size={32} className="text-gray-600" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">
-                  NO JOBS FOUND
+                  No jobs match
                 </h3>
                 <p className="text-gray-500 text-center max-w-md mb-6 text-sm">
                   We couldn't find any jobs matching your criteria. Try
@@ -223,25 +203,22 @@ const Jobs = () => {
                   }}
                   className="bg-primary text-black hover:bg-primary/90 text-xs"
                 >
-                  CLEAR ALL FILTERS
+                  Clear filters
                 </Button>
-              </motion.div>
+              </div>
             ) : (
               <div
-                className={`${viewMode === "grid"
-                  ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4"
-                  : "flex flex-col gap-3"
-                  }`}
+                className={`${viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4" : "flex flex-col gap-3" }`}
               >
                 {filterJobs.map((job, index) => (
-                  <motion.div
+                  <div
                     key={job?._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
+                   
+                   
+                   
                   >
                     <Job job={job} viewMode={viewMode} />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
@@ -249,8 +226,8 @@ const Jobs = () => {
             {/* Results Count */}
             {filterJobs.length > 0 && (
               <div className="flex items-center justify-center mt-10 pt-6 border-t border-white/10">
-                <p className="text-gray-500 text-xs tracking-wider">
-                  SHOWING {filterJobs.length} OF {allJobs.length} JOBS
+                <p className="text-gray-500 text-xs">
+                  {filterJobs.length} of {allJobs.length} jobs
                 </p>
               </div>
             )}

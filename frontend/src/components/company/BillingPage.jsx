@@ -15,7 +15,6 @@ import {
   Receipt,
   Building2,
   Zap,
-  FileText,
   ExternalLink,
   History,
 } from "lucide-react";
@@ -131,21 +130,14 @@ const BillingPage = () => {
       <div className="fixed inset-0 pointer-events-none">
       </div>
 
-      <div className="container mx-auto px-4 py-8 pt-24 relative z-10">
+      <div className="relative">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-4"
+        <div
+         
+         
+          className="app-title-row"
         >
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight uppercase">
-              Billing & Subscription
-            </h1>
-            <p className="text-gray-500 text-sm mt-1">
-              Manage your subscription and payment history
-            </p>
-          </div>
+          <h1 className="app-h1">Billing</h1>
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
@@ -160,20 +152,20 @@ const BillingPage = () => {
             </Button>
             <Button
               onClick={() => navigate("/company/pricing")}
-              className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs"
+              className="bg-primary text-black hover:bg-[#e6e6e6] rounded-sm font-bold text-xs"
             >
               <ArrowUpRight className="w-4 h-4 mr-2" />
               Upgrade Plan
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Subscription Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+          <div
+           
+           
+           
             className="lg:col-span-2 relative bg-card border border-white/10 rounded-sm overflow-hidden"
           >
 
@@ -206,10 +198,10 @@ const BillingPage = () => {
                     <Crown className="w-7 h-7 text-black" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white uppercase tracking-tight">
+                    <h2 className="text-xl font-bold text-white">
                       {subscription?.plan || "Basic"} Plan
                     </h2>
-                    <p className="text-gray-500 text-xs uppercase">
+                    <p className="text-gray-500 text-xs">
                       {subscription?.type || "Monthly"} Billing
                     </p>
                   </div>
@@ -302,7 +294,7 @@ const BillingPage = () => {
                   <>
                     <Button
                       onClick={() => navigate("/company/pricing")}
-                      className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm font-bold text-xs"
+                      className="bg-primary text-black hover:bg-[#e6e6e6] rounded-sm font-bold text-xs"
                     >
                       <ArrowUpRight className="w-4 h-4 mr-2" />
                       Upgrade Plan
@@ -318,13 +310,13 @@ const BillingPage = () => {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Quick Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+          <div
+           
+           
+           
             className="space-y-4"
           >
             {/* Plan Features */}
@@ -393,14 +385,14 @@ const BillingPage = () => {
                 Contact Support
               </Button>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Payment History */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+        <div
+         
+         
+         
           className="mt-8 relative bg-card border border-white/10 rounded-sm overflow-hidden"
         >
 
@@ -465,7 +457,7 @@ const BillingPage = () => {
                         </span>
                       </td>
                       <td className="py-4 px-5">
-                        <Badge className="bg-white/5 text-gray-300 border-white/10 rounded-sm text-xs uppercase">
+                        <Badge className="bg-white/5 text-gray-300 border-white/10 rounded-sm text-xs">
                           {payment.plan} / {payment.duration}
                         </Badge>
                       </td>
@@ -476,13 +468,7 @@ const BillingPage = () => {
                       </td>
                       <td className="py-4 px-5">
                         <Badge
-                          className={`rounded-sm text-xs uppercase ${
-                            payment.status === "completed"
-                              ? "bg-accent/10 text-accent border-accent/30"
-                              : payment.status === "pending"
-                                ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                                : "bg-red-500/10 text-red-400 border-red-500/30"
-                          }`}
+                          className={`rounded-sm text-xs ${ payment.status === "completed" ? "bg-accent/10 text-accent border-accent/30" : payment.status === "pending" ? "bg-amber-500/10 text-amber-400 border-amber-500/30" : "bg-red-500/10 text-red-400 border-red-500/30" }`}
                         >
                           {payment.status}
                         </Badge>
@@ -509,7 +495,7 @@ const BillingPage = () => {
               </table>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

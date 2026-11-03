@@ -23,13 +23,8 @@ import {
   User,
   Search,
   RefreshCw,
-  ArrowLeft,
-  Briefcase,
-  Mail,
   Building,
-  Check,
   CheckCheck,
-  Clock,
   Phone,
   Video,
 } from "lucide-react";
@@ -311,11 +306,7 @@ const StudentMessagesPage = () => {
                   <button
                     key={contact._id}
                     onClick={() => handleSelectContact(contact)}
-                    className={`w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5 ${
-                      activeContact?._id === contact._id
-                        ? "bg-primary/10 border-l-2 border-l-primary"
-                        : ""
-                    }`}
+                    className={`w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5 ${ activeContact?._id === contact._id ? "bg-white/10" : "" }`}
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12 border border-white/10">
@@ -421,18 +412,14 @@ const StudentMessagesPage = () => {
                         const isMe = senderId === user?._id;
 
                         return (
-                          <motion.div
+                          <div
                             key={msg._id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
+                           
+                           
                             className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                           >
                             <div
-                              className={`max-w-[70%] ${
-                                isMe
-                                  ? "bg-gradient-to-br from-primary to-[#FFA500] text-black rounded-2xl rounded-br-sm"
-                                  : "bg-white/10 text-white rounded-2xl rounded-bl-sm"
-                              } px-4 py-3`}
+                              className={`max-w-[70%] ${ isMe ? "bg-gradient-to-br from-primary to-[#e6e6e6] text-black rounded-2xl rounded-br-sm" : "bg-white/10 text-white rounded-2xl rounded-bl-sm" } px-4 py-3`}
                             >
                               <p
                                 className={`text-sm ${isMe ? "text-[#000000]" : "text-white"}`}
@@ -440,9 +427,7 @@ const StudentMessagesPage = () => {
                                 {msg.content}
                               </p>
                               <div
-                                className={`flex items-center justify-end gap-1 mt-1 ${
-                                  isMe ? "text-[#000000]/50" : "text-gray-500"
-                                }`}
+                                className={`flex items-center justify-end gap-1 mt-1 ${ isMe ? "text-[#000000]/50" : "text-gray-500" }`}
                               >
                                 <span className="text-xs">
                                   {format(new Date(msg.createdAt), "HH:mm")}
@@ -455,7 +440,7 @@ const StudentMessagesPage = () => {
                                   ))}
                               </div>
                             </div>
-                          </motion.div>
+                          </div>
                         );
                       })}
                       <div ref={messagesEndRef} />
@@ -510,7 +495,7 @@ const StudentMessagesPage = () => {
                     <Button
                       onClick={handleSendMessage}
                       disabled={!messageText.trim() || sending}
-                      className="bg-primary hover:bg-[#FFE44D] text-black px-6"
+                      className="bg-primary hover:bg-[#e6e6e6] text-black px-6"
                     >
                       {sending ? (
                         <RefreshCw className="w-5 h-5 animate-spin" />

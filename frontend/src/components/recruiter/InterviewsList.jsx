@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import api from "@/utils/api";
-import { Skeleton, ErrorBlock, plural, when } from "../app/blocks";
+import { Skeleton, ErrorBlock, when } from "../app/blocks";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
 import { interviewState } from "./interviewState.js";
 
@@ -98,7 +98,6 @@ const InterviewsList = () => {
     return tab === "upcoming" ? [...list].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)) : list;
   }, [withState, tab]);
   const schedulable = apps.filter((a) => SCHEDULABLE.includes(a.stage) && !a.interviewId);
-  const next = withState.filter((i) => i.state.key === "scheduled" || i.state.key === "live").sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))[0];
 
   const schedule = async (e) => {
     e.preventDefault();
@@ -131,18 +130,6 @@ const InterviewsList = () => {
       <div className="app-title-row">
         <div>
           <h1 className="app-h1">Interviews</h1>
-          <p className="app-finding">
-            {!rows ? (
-              <Skeleton w={300} h={14} />
-            ) : next ? (
-              <>
-                Next: <strong>{next.studentId?.fullname ?? "Candidate"}</strong> for {next.jobId?.title ?? "a job"}, <strong>{when(next.scheduledAt)}</strong>
-                {counts.report ? ` · ${plural(counts.report, "report")} to send` : ""}.
-              </>
-            ) : (
-              <>Nothing scheduled{counts.report ? `; ${plural(counts.report, "report")} to send` : ""}.</>
-            )}
-          </p>
         </div>
         {!isOwner && (
           <button type="button" className="app-btn app-btn-primary" onClick={() => setForm({ ...emptyForm, scheduledAt: localNow() })}>

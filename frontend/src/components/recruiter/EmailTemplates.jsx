@@ -13,14 +13,9 @@ import {
   Edit2,
   Trash2,
   Copy,
-  Send,
   Eye,
-  FileText,
-  X,
-  Save,
   RefreshCw,
   Search,
-  ChevronDown,
 } from "lucide-react";
 import {
   Card,
@@ -53,22 +48,22 @@ import { EMAIL_TEMPLATES_API_END_POINT } from "@/utils/constant";
 
 // Template type colors
 const TYPE_COLORS = {
-  rejection: { bg: "bg-red-500/10", text: "text-red-400", label: "Rejection" },
+  rejection: { bg: "bg-white/5", text: "text-gray-300", label: "Rejection" },
   interview_invite: {
-    bg: "bg-blue-500/10",
-    text: "text-blue-400",
+    bg: "bg-white/5",
+    text: "text-gray-300",
     label: "Interview Invite",
   },
-  offer: { bg: "bg-accent/10", text: "text-accent", label: "Offer" },
+  offer: { bg: "bg-white/5", text: "text-gray-300", label: "Offer" },
   follow_up: {
-    bg: "bg-purple-500/10",
-    text: "text-purple-400",
+    bg: "bg-white/5",
+    text: "text-gray-300",
     label: "Follow Up",
   },
-  custom: { bg: "bg-[#22D3EE]/10", text: "text-[#22D3EE]", label: "Custom" },
+  custom: { bg: "bg-white/5", text: "text-gray-300", label: "Custom" },
   onboarding: {
-    bg: "bg-cyan-500/10",
-    text: "text-cyan-400",
+    bg: "bg-white/5",
+    text: "text-gray-300",
     label: "Onboarding",
   },
 };
@@ -84,10 +79,10 @@ const TemplateCard = ({
   const typeStyle = TYPE_COLORS[template.type] || TYPE_COLORS.custom;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative p-5 bg-card border border-white/10 rounded-sm group hover:border-[#22D3EE]/30 transition-all"
+    <div
+     
+     
+      className="relative p-5 bg-card border border-white/10 rounded-sm group hover:border-[#f2f2f2]/30 transition-all"
     >
 
       {/* Header */}
@@ -131,7 +126,7 @@ const TemplateCard = ({
             className="h-7 w-7"
             onClick={() => onEdit(template)}
           >
-            <Edit2 className="w-3.5 h-3.5 text-[#22D3EE]" />
+            <Edit2 className="w-3.5 h-3.5 text-[#f2f2f2]" />
           </Button>
           {!template.isDefault && (
             <Button
@@ -162,7 +157,7 @@ const TemplateCard = ({
           {template.variables.slice(0, 3).map((variable, idx) => (
             <code
               key={idx}
-              className="text-xs bg-[#22D3EE]/10 text-[#22D3EE] px-1.5 py-0.5 rounded"
+              className="text-xs bg-[#f2f2f2]/10 text-[#f2f2f2] px-1.5 py-0.5 rounded"
             >
               {`{{${variable}}}`}
             </code>
@@ -186,7 +181,7 @@ const TemplateCard = ({
           </span>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -265,7 +260,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
       <DialogContent className="max-w-2xl bg-card border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-[#22D3EE]" />
+            <Mail className="w-5 h-5 text-[#f2f2f2]" />
             {template?._id ? "Edit Template" : "Create New Template"}
           </DialogTitle>
           <DialogDescription className="text-gray-500">
@@ -344,7 +339,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
                   variant="outline"
                   size="sm"
                   onClick={() => insertVariable(variable)}
-                  className="h-7 text-xs bg-background border-white/10 text-gray-400 hover:text-[#22D3EE] hover:border-[#22D3EE]/30"
+                  className="h-7 text-xs bg-background border-white/10 text-gray-400 hover:text-[#f2f2f2] hover:border-[#f2f2f2]/30"
                 >
                   {`{{${variable}}}`}
                 </Button>
@@ -364,7 +359,7 @@ const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#22D3EE] text-black hover:bg-[#FFE44D]"
+            className="bg-[#f2f2f2] text-black hover:bg-[#e6e6e6]"
           >
             {saving ? "Saving..." : "Save Template"}
           </Button>
@@ -409,14 +404,14 @@ const PreviewModal = ({ isOpen, template, onClose }) => {
       <DialogContent className="max-w-2xl bg-card border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Eye className="w-5 h-5 text-[#22D3EE]" />
+            <Eye className="w-5 h-5 text-[#f2f2f2]" />
             Email Preview
           </DialogTitle>
         </DialogHeader>
 
         {loading ? (
           <div className="py-12 text-center">
-            <div className="w-8 h-8 border-2 border-[#22D3EE]/30 border-t-[#22D3EE] rounded-full animate-spin mx-auto" />
+            <div className="w-8 h-8 border-2 border-[#f2f2f2]/30 border-t-[#f2f2f2] rounded-full animate-spin mx-auto" />
             <p className="text-gray-500 mt-4">Loading preview...</p>
           </div>
         ) : previewData ? (
@@ -441,7 +436,7 @@ const PreviewModal = ({ isOpen, template, onClose }) => {
         <DialogFooter>
           <Button
             onClick={onClose}
-            className="bg-[#22D3EE] text-black hover:bg-[#FFE44D]"
+            className="bg-[#f2f2f2] text-black hover:bg-[#e6e6e6]"
           >
             Close
           </Button>
@@ -555,10 +550,10 @@ const EmailTemplates = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-[#22D3EE]/30 rounded-sm" />
-            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#22D3EE] rounded-sm animate-spin" />
+            <div className="w-16 h-16 border-2 border-[#f2f2f2]/30 rounded-sm" />
+            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#f2f2f2] rounded-sm animate-spin" />
           </div>
-          <p className="text-[#22D3EE]/70 text-sm">
+          <p className="text-[#f2f2f2]/70 text-sm">
             Loading Templates...
           </p>
         </div>
@@ -569,37 +564,19 @@ const EmailTemplates = () => {
   return (
     <div className="min-h-screen bg-background">
 
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8 gap-4"
-        >
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <Mail className="w-7 h-7 text-[#22D3EE]" />
-              Email Templates
-            </h1>
-            <p className="text-gray-500 text-sm mt-1">
-              Create and manage email templates for candidate communication
-            </p>
-          </div>
-
-          <Button
-            onClick={handleCreate}
-            className="bg-[#22D3EE] text-black hover:bg-[#FFE44D] rounded-sm font-bold"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Template
-          </Button>
-        </motion.div>
+      <div className="relative">
+        <div className="app-title-row">
+          <h1 className="app-h1">Email templates</h1>
+          <button type="button" className="app-btn app-btn-primary" onClick={handleCreate}>
+            New template
+          </button>
+        </div>
 
         {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+        <div
+         
+         
+         
           className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-card border border-white/10 rounded-sm"
         >
           <div className="relative flex-1 min-w-[200px]">
@@ -636,7 +613,7 @@ const EmailTemplates = () => {
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-        </motion.div>
+        </div>
 
         {/* Templates Grid */}
         {filteredTemplates.length > 0 ? (
@@ -655,28 +632,28 @@ const EmailTemplates = () => {
             </AnimatePresence>
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <div
+           
+           
             className="text-center py-16"
           >
             <Mail className="w-16 h-16 mx-auto mb-4 text-gray-700" />
             <h3 className="text-xl font-bold text-white mb-2">
-              No Templates Found
+              No templates yet
             </h3>
             <p className="text-gray-500 mb-6">
               {searchQuery || filterType !== "all"
-                ? "Try adjusting your filters"
-                : "Create your first email template to get started"}
+                ? "Nothing matches"
+                : ""}
             </p>
             <Button
               onClick={handleCreate}
-              className="bg-[#22D3EE] text-black hover:bg-[#FFE44D]"
+              className="bg-[#f2f2f2] text-black hover:bg-[#e6e6e6]"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Template
             </Button>
-          </motion.div>
+          </div>
         )}
       </div>
 

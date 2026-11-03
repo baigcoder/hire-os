@@ -8,17 +8,13 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
 import {
-  BarChart3,
   TrendingUp,
   Clock,
   Users,
   Target,
-  Calendar,
   ArrowUpRight,
   ArrowDownRight,
-  Download,
   RefreshCw,
-  Filter,
 } from "lucide-react";
 import {
   Card,
@@ -48,12 +44,12 @@ const BarChart = ({ data, maxHeight = 150 }) => {
     <div className="flex items-end justify-between gap-2 h-[150px]">
       {data.map((item, idx) => (
         <div key={idx} className="flex flex-col items-center flex-1">
-          <motion.div
-            initial={{ height: 0 }}
-            animate={{ height: `${(item.value / maxValue) * maxHeight}px` }}
-            transition={{ delay: idx * 0.05 }}
+          <div
+           
+           
+           
             className="w-full rounded-t-sm"
-            style={{ backgroundColor: item.color || "#FFD700" }}
+            style={{ backgroundColor: item.color || "#f2f2f2" }}
           />
           <p className="text-xs text-gray-500 mt-2 text-center truncate w-full">
             {item.label}
@@ -70,15 +66,13 @@ const MetricCard = ({
   title,
   value,
   change,
-  icon: Icon,
-  color = "#FFD700",
 }) => {
   const isPositive = change >= 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
+     
+     
       className="p-6 bg-card border border-white/10 rounded-sm"
     >
       <div className="flex items-start justify-between">
@@ -103,14 +97,8 @@ const MetricCard = ({
             </div>
           )}
         </div>
-        <div
-          className="w-10 h-10 rounded-sm flex items-center justify-center"
-          style={{ backgroundColor: `${color}15` }}
-        >
-          <Icon className="w-5 h-5" style={{ color }} />
-        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -146,9 +134,9 @@ const SourceRow = ({ source, applications, hires, conversionRate }) => (
 
 // Recruiter Performance Card
 const RecruiterCard = ({ recruiter }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
+  <div
+   
+   
     className="p-4 bg-background border border-white/10 rounded-sm"
   >
     <div className="flex items-center gap-3 mb-4">
@@ -191,7 +179,7 @@ const RecruiterCard = ({ recruiter }) => (
         <p className="text-xs text-gray-500">Rate</p>
       </div>
     </div>
-  </motion.div>
+  </div>
 );
 
 const AnalyticsDashboard = () => {
@@ -246,37 +234,29 @@ const AnalyticsDashboard = () => {
   };
 
   if (loading) {
-    return <DashboardLoader type="recruiter" message="LOADING ANALYTICS" />;
+    return <DashboardLoader type="recruiter" message="Loading analytics" />;
   }
 
   const funnelColors = [
-    "#FFD700",
-    "#F59E0B",
-    "#10B981",
-    "#3B82F6",
-    "#8B5CF6",
-    "#00FF94",
+    "#f2f2f2",
+    "#f2f2f2",
+    "#f2f2f2",
+    "#f2f2f2",
+    "#f2f2f2",
+    "#f2f2f2",
   ];
 
   return (
     <div className="min-h-screen bg-background">
 
-      <div className="container mx-auto px-4 py-8 relative z-10">
+      <div className="relative">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8 gap-4"
+        <div
+         
+         
+          className="app-title-row"
         >
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <BarChart3 className="w-7 h-7 text-primary" />
-              Analytics Dashboard
-            </h1>
-            <p className="text-gray-500 text-sm mt-1">
-              Track recruitment performance and metrics
-            </p>
-          </div>
+          <h1 className="app-h1">Analytics</h1>
 
           <div className="flex items-center gap-3">
             <Select value={dateRange} onValueChange={setDateRange}>
@@ -304,13 +284,8 @@ const AnalyticsDashboard = () => {
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
-
-            <Button variant="outline" className="border-white/10 text-gray-400">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Overview Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -319,36 +294,36 @@ const AnalyticsDashboard = () => {
             value={overview?.totalApplications || 0}
             change={overview?.applicationGrowth}
             icon={TrendingUp}
-            color="#FFD700"
+            color="#f2f2f2"
           />
           <MetricCard
             title="Avg. Time to Hire"
             value={`${timeToHire?.average || 0} days`}
             icon={Clock}
-            color="#3B82F6"
+            color="#f2f2f2"
           />
           <MetricCard
             title="Hires This Month"
             value={overview?.hiresThisMonth || 0}
             change={overview?.hireGrowth}
             icon={Users}
-            color="#00FF94"
+            color="#f2f2f2"
           />
           <MetricCard
             title="Response Rate"
             value={`${overview?.responseRate || 0}%`}
             icon={Target}
-            color="#8B5CF6"
+            color="#f2f2f2"
           />
         </div>
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
           {/* Funnel Chart */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+          <div
+           
+           
+           
             className="p-6 bg-card border border-white/10 rounded-sm"
           >
             <div className="flex items-center justify-between mb-6">
@@ -381,13 +356,13 @@ const AnalyticsDashboard = () => {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Time to Hire */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
+          <div
+           
+           
+           
             className="p-6 bg-card border border-white/10 rounded-sm"
           >
             <div className="flex items-center justify-between mb-6">
@@ -445,14 +420,14 @@ const AnalyticsDashboard = () => {
                 </div>
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
 
         {/* Source Analytics */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+        <div
+         
+         
+         
           className="p-6 bg-card border border-white/10 rounded-sm mb-8"
         >
           <div className="flex items-center justify-between mb-6">
@@ -483,14 +458,14 @@ const AnalyticsDashboard = () => {
               No source data available
             </p>
           )}
-        </motion.div>
+        </div>
 
         {/* Recruiter Performance */}
         {recruiters.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
+          <div
+           
+           
+           
             className="p-6 bg-card border border-white/10 rounded-sm"
           >
             <div className="flex items-center justify-between mb-6">
@@ -509,7 +484,7 @@ const AnalyticsDashboard = () => {
                 <RecruiterCard key={recruiter._id} recruiter={recruiter} />
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

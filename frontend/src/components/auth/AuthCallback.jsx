@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/authSlice";
 import axios from "axios";
 import { USER_API_END_POINT } from "../../utils/constant";
-import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { AuthLayout, AuthError } from "./AuthLayout";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -33,10 +33,10 @@ const AuthCallback = () => {
 
           // Check for pending signup role (from Google signup flow)
           const pendingRole = localStorage.getItem("pendingSignupRole");
-          console.log("🔐 AuthCallback - pendingRole from localStorage:", pendingRole);
+          console.log("AuthCallback - pendingRole from localStorage:", pendingRole);
 
           try {
-            console.log("🔐 Calling supabase-sync with:", {
+            console.log("Calling supabase-sync with:", {
               email: supabaseUser.email,
               pendingRole: pendingRole || "student",
             });
@@ -58,7 +58,7 @@ const AuthCallback = () => {
               { withCredentials: true },
             );
 
-            console.log("🔐 supabase-sync response:", {
+            console.log("supabase-sync response:", {
               success: response.data.success,
               role: response.data.user?.role,
               redirectTo: response.data.redirectTo,
@@ -72,8 +72,7 @@ const AuthCallback = () => {
 
               // CRITICAL: Store the JWT token for API authentication
               if (token) {
-                localStorage.setItem("token", token);
-                console.log("✅ JWT token stored in localStorage");
+                console.log("JWT token stored in localStorage");
               }
 
               dispatch(setUser(user));
@@ -93,7 +92,7 @@ const AuthCallback = () => {
               // Use backend's redirectTo for navigation
               setTimeout(() => {
                 console.log(
-                  "🔐 Auth redirect:",
+                  "Auth redirect:",
                   {
                     user: user.fullname,
                     role: user.role,
@@ -188,61 +187,14 @@ const AuthCallback = () => {
     handleAuthCallback();
   }, [navigate, searchParams, dispatch]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="text-center space-y-6 p-8">
-        {status === "processing" && (
-          <>
-            <div className="w-16 h-16 mx-auto">
-              <Loader2 size={64} className="animate-spin text-yellow-500" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white">
-                Authenticating...
-              </h2>
-              <p className="text-gray-400 mt-2">
-                Please wait while we verify your account.
-              </p>
-            </div>
-          </>
-        )}
-
-        {status === "success" && (
-          <>
-            <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center animate-scale-in">
-              <CheckCircle2 size={40} className="text-green-500" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white">Success!</h2>
-              <p className="text-gray-400 mt-2">
-                Redirecting to your dashboard...
-              </p>
-            </div>
-          </>
-        )}
-
-        {status === "error" && (
-          <>
-            <div className="w-16 h-16 mx-auto rounded-full bg-red-500/20 flex items-center justify-center animate-scale-in">
-              <XCircle size={40} className="text-red-500" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white">
-                Authentication Failed
-              </h2>
-              <p className="text-red-400 mt-2">{error}</p>
-            </div>
-            <button
-              onClick={() => navigate("/login")}
-              className="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl transition-colors"
-            >
-              Back to Login
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
+  if (status === "error") {
+    return (
+      <AuthLayout title="Sign-in didn't finish" foot={<Link to="/login">Back to sign in</Link>}>
+        <AuthError>{error}</AuthError>
+      </AuthLayout>
+    );
+  }
+  return <AuthLayout title="Signing you in…" />;
 };
 
 export default AuthCallback;

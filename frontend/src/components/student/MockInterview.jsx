@@ -8,24 +8,18 @@ import {
   MicOff,
   VideoOff,
   Play,
-  Square,
   RefreshCw,
   MessageSquare,
   User,
   Bot,
   Loader2,
-  Clock,
   ChevronRight,
-  ThumbsUp,
-  ThumbsDown,
   Star,
   Award,
-  AlertCircle,
   Volume2,
   VolumeX,
   Sparkles,
   Brain,
-  Send,
   StopCircle,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -568,17 +562,7 @@ const MockInterview = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-sm bg-primary/10 flex items-center justify-center border border-primary/30">
-              <Video className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            </div>
-            Mock Interview
-          </h2>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1">
-            Practice with AI-powered interview simulation
-          </p>
-        </div>
+        <h1 className="app-h1">Interview practice</h1>
         {mode !== "setup" && (
           <Button
             onClick={resetInterview}
@@ -595,11 +579,11 @@ const MockInterview = () => {
       <AnimatePresence mode="wait">
         {/* Setup Mode */}
         {mode === "setup" && (
-          <motion.div
+          <div
             key="setup"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+           
+           
+           
             className="space-y-4 sm:space-y-6"
           >
             {/* Interview Type Selection */}
@@ -612,10 +596,7 @@ const MockInterview = () => {
                   <button
                     key={type.id}
                     onClick={() => setInterviewType(type.id)}
-                    className={`p-4 rounded-sm border transition-all text-left ${interviewType === type.id
-                      ? "bg-primary/10 border-primary/50 text-white"
-                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                      }`}
+                    className={`p-4 rounded-sm border transition-all text-left ${interviewType === type.id ? "bg-primary/10 border-primary/50 text-white" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
                   >
                     <div className="font-semibold text-sm">{type.name}</div>
                     <div
@@ -636,10 +617,7 @@ const MockInterview = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 <button
                   onClick={() => setVideoEnabled(!videoEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${videoEnabled
-                    ? "bg-primary/10 border-primary/50 text-primary"
-                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${videoEnabled ? "bg-primary/10 border-primary/50 text-primary" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
                 >
                   {videoEnabled ? (
                     <Video className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -650,10 +628,7 @@ const MockInterview = () => {
                 </button>
                 <button
                   onClick={() => setAudioEnabled(!audioEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${audioEnabled
-                    ? "bg-primary/10 border-primary/50 text-primary"
-                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${audioEnabled ? "bg-primary/10 border-primary/50 text-primary" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
                 >
                   {audioEnabled ? (
                     <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -664,10 +639,7 @@ const MockInterview = () => {
                 </button>
                 <button
                   onClick={() => setVoiceEnabled(!voiceEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${voiceEnabled
-                    ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
-                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${voiceEnabled ? "bg-purple-500/10 border-purple-500/50 text-purple-400" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
                 >
                   {voiceEnabled ? (
                     <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -682,10 +654,7 @@ const MockInterview = () => {
                       conversationMode === "live" ? "manual" : "live",
                     )
                   }
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${conversationMode === "live"
-                    ? "bg-primary/10 border-primary/50 text-primary"
-                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${conversationMode === "live" ? "bg-primary/10 border-primary/50 text-primary" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
                 >
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                   {conversationMode === "live" ? "Live" : "Manual"}
@@ -702,7 +671,7 @@ const MockInterview = () => {
             <Button
               onClick={generateQuestions}
               disabled={loading}
-              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
+              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#e6e6e6] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -716,16 +685,16 @@ const MockInterview = () => {
                 </>
               )}
             </Button>
-          </motion.div>
+          </div>
         )}
 
         {/* Interview Mode */}
         {mode === "interview" && questions.length > 0 && (
-          <motion.div
+          <div
             key="interview"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+           
+           
+           
             className="space-y-4 sm:space-y-6"
           >
             {/* Progress */}
@@ -784,10 +753,7 @@ const MockInterview = () => {
                   <Button
                     onClick={toggleRecording}
                     size="sm"
-                    className={`${isRecording
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-green-500 hover:bg-green-600"
-                      } text-white text-xs sm:text-sm px-4 sm:px-6`}
+                    className={`${isRecording ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600" } text-white text-xs sm:text-sm px-4 sm:px-6`}
                   >
                     {isRecording ? (
                       <>
@@ -928,7 +894,7 @@ const MockInterview = () => {
                     isRecording ||
                     isAnalyzing
                   }
-                  className="w-full py-2.5 sm:py-3 bg-primary text-black hover:bg-[#FFE44D] text-xs sm:text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 sm:gap-2"
+                  className="w-full py-2.5 sm:py-3 bg-primary text-black hover:bg-[#e6e6e6] text-xs sm:text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 sm:gap-2"
                 >
                   {currentQIndex < questions.length - 1 ? (
                     <>
@@ -942,16 +908,16 @@ const MockInterview = () => {
                 </Button>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Feedback Mode */}
         {mode === "feedback" && (
-          <motion.div
+          <div
             key="feedback"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+           
+           
+           
             className="space-y-4 sm:space-y-6"
           >
             {/* Overall Score */}
@@ -966,12 +932,7 @@ const MockInterview = () => {
               </div>
 
               <Badge
-                className={`text-sm sm:text-lg px-3 sm:px-4 py-0.5 sm:py-1 ${overallScore >= 80
-                  ? "bg-green-500/20 text-green-400 border-green-500/30"
-                  : overallScore >= 60
-                    ? "bg-primary/20 text-primary border-primary/30"
-                    : "bg-red-500/20 text-red-400 border-red-500/30"
-                  }`}
+                className={`text-sm sm:text-lg px-3 sm:px-4 py-0.5 sm:py-1 ${overallScore >= 80 ? "bg-green-500/20 text-green-400 border-green-500/30" : overallScore >= 60 ? "bg-primary/20 text-primary border-primary/30" : "bg-red-500/20 text-red-400 border-red-500/30" }`}
               >
                 {overallScore >= 80
                   ? "Excellent!"
@@ -1005,12 +966,7 @@ const MockInterview = () => {
                       </div>
                       {r.feedback && (
                         <Badge
-                          className={`flex-shrink-0 text-xs ${r.feedback.score >= 7
-                            ? "bg-green-500/20 text-green-400"
-                            : r.feedback.score >= 5
-                              ? "bg-primary/20 text-primary"
-                              : "bg-red-500/20 text-red-400"
-                            }`}
+                          className={`flex-shrink-0 text-xs ${r.feedback.score >= 7 ? "bg-green-500/20 text-green-400" : r.feedback.score >= 5 ? "bg-primary/20 text-primary" : "bg-red-500/20 text-red-400" }`}
                         >
                           {r.feedback.score}/10
                         </Badge>
@@ -1029,12 +985,12 @@ const MockInterview = () => {
             {/* Try Again */}
             <Button
               onClick={resetInterview}
-              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
+              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#e6e6e6] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
             >
               <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
               Practice Again
             </Button>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

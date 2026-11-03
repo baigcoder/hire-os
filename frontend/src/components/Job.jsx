@@ -8,7 +8,6 @@ import {
   Building2,
   ArrowRight,
   Users,
-  Sparkles,
   Briefcase,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -65,7 +64,7 @@ const Job = ({ job, viewMode = "grid" }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 sm:gap-4">
               <div>
-                <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-yellow-500 transition-colors tracking-tight line-clamp-2 sm:line-clamp-none">
+                <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-yellow-500 transition-colors line-clamp-2 sm:line-clamp-none">
                   {job?.title}
                 </h3>
                 <div className="flex items-center gap-2 mt-1">

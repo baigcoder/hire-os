@@ -38,11 +38,11 @@ const StageIcon = ({ status }) => {
 };
 
 const Progress = ({ stages, status, error }) => (
-  <motion.div
+  <div
     key="progress"
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0 }}
+   
+   
+   
     className="bg-card border border-white/10 rounded-md p-8 max-w-xl mx-auto"
   >
     <h3 className="text-white font-semibold mb-1">Analyzing your resume</h3>
@@ -55,9 +55,7 @@ const Progress = ({ stages, status, error }) => (
       {stages.map((s) => (
         <li
           key={s.id}
-          className={`flex items-center gap-3 text-sm ${
-            s.status === "skipped" ? "text-gray-600" : "text-gray-300"
-          }`}
+          className={`flex items-center gap-3 text-sm ${ s.status === "skipped" ? "text-gray-600" : "text-gray-300" }`}
         >
           <StageIcon status={s.status} />
           <span className="flex-1">{s.label}</span>
@@ -70,7 +68,7 @@ const Progress = ({ stages, status, error }) => (
       ))}
     </ol>
     {error && <p className="text-xs text-orange-300 mt-5">{error}</p>}
-  </motion.div>
+  </div>
 );
 
 const InputForm = ({ onSubmit, submitting }) => {
@@ -97,12 +95,12 @@ const InputForm = ({ onSubmit, submitting }) => {
   };
 
   return (
-    <motion.form
+    <form
       key="input"
       onSubmit={submit}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
+     
+     
+     
       className="bg-card border border-white/10 rounded-md p-6 space-y-6"
     >
       <div>
@@ -115,11 +113,7 @@ const InputForm = ({ onSubmit, submitting }) => {
               key={value}
               type="button"
               onClick={() => setMode(value)}
-              className={`px-3 py-1.5 rounded text-xs border ${
-                mode === value
-                  ? "border-primary/50 text-primary bg-primary/10"
-                  : "border-white/10 text-gray-400 hover:text-gray-200"
-              }`}
+              className={`px-3 py-1.5 rounded text-xs border ${ mode === value ? "border-primary/50 text-primary bg-primary/10" : "border-white/10 text-gray-400 hover:text-gray-200" }`}
             >
               {label}
             </button>
@@ -196,7 +190,7 @@ const InputForm = ({ onSubmit, submitting }) => {
         Your resume text is stored with the report so you can revisit it. Delete
         a report anytime from history.
       </p>
-    </motion.form>
+    </form>
   );
 };
 
@@ -212,11 +206,7 @@ const HistoryList = ({ items, onOpen, onDelete, activeId }) =>
             <button
               type="button"
               onClick={() => onOpen(a._id)}
-              className={`flex-1 text-left text-sm truncate ${
-                a._id === activeId
-                  ? "text-primary"
-                  : "text-gray-300 hover:text-white"
-              }`}
+              className={`flex-1 text-left text-sm truncate ${ a._id === activeId ? "text-primary" : "text-gray-300 hover:text-white" }`}
             >
               {a.input?.jobTitle || a.input?.fileName || "Pasted resume"}
               <span className="text-xs text-gray-600 ml-2">
@@ -285,13 +275,7 @@ const ResumeIntelligence = ({ onUseClassic }) => {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-white">Resume Intelligence</h2>
-          <p className="text-xs text-gray-500">
-            Evidence-based review: every finding links back to a line in your
-            resume.
-          </p>
-        </div>
+        <h1 className="app-h1">Resume analysis</h1>
         <div className="flex gap-2">
           {(report || status === "failed") && (
             <Button
@@ -318,25 +302,25 @@ const ResumeIntelligence = ({ onUseClassic }) => {
 
       <AnimatePresence mode="wait">
         {status === "completed" && report ? (
-          <motion.div
+          <div
             key="report"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+           
+           
           >
             <ReportView report={report} />
-          </motion.div>
+          </div>
         ) : inProgress ? (
           <Progress stages={stages} status={status} error={error} />
         ) : status === "failed" ? (
-          <motion.div
+          <div
             key="failed"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+           
+           
             className="bg-card border border-red-500/30 rounded-md p-6 text-center"
           >
             <XCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
             <p className="text-gray-200">{error || "The analysis failed."}</p>
-          </motion.div>
+          </div>
         ) : (
           <InputForm onSubmit={submit} submitting={status === "submitting"} />
         )}

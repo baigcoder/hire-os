@@ -16,14 +16,10 @@ import {
   Phone,
   MapPin,
   Briefcase,
-  GraduationCap,
   FileText,
   ExternalLink,
-  Shield,
   Calendar,
-  Award,
   Target,
-  TrendingUp,
   Clock,
   CheckCircle,
   XCircle,
@@ -36,14 +32,8 @@ import {
   Linkedin,
   Github,
   Twitter,
-  Building2,
-  Users,
-  CreditCard,
   Settings,
-  ChevronRight,
   Link2,
-  Upload,
-  X,
   Sparkles,
 } from "lucide-react";
 import { USER_API_END_POINT } from "@/utils/constant";
@@ -96,17 +86,17 @@ const ProfilePage = () => {
   const roleConfig = {
     student: {
       title: "Candidate",
-      color: "#FFD700",
+      color: "#f2f2f2",
       sections: ["overview", "applications", "skills", "resume"],
     },
     recruiter: {
       title: "Recruiter",
-      color: "#00FF94",
+      color: "#f2f2f2",
       sections: ["overview", "company", "jobs", "stats"],
     },
     company_admin: {
       title: "CEO / Admin",
-      color: "#00BFFF",
+      color: "#f2f2f2",
       sections: ["overview", "company", "team", "billing"],
     },
   };
@@ -278,9 +268,9 @@ const ProfilePage = () => {
 
       <main className="max-w-6xl mx-auto px-4 py-8 pt-20 relative z-10">
         {/* Profile Header Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         
+         
           className="bg-card border border-white/10 rounded-md overflow-hidden mb-6 relative"
         >
           {/* Corner Accents */}
@@ -347,7 +337,7 @@ const ProfilePage = () => {
               <div className="flex-1 pt-4 sm:pt-0">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3 uppercase tracking-tight">
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
                       {user?.fullname || "User"}
                       <Badge
                         className="text-xs font-bold px-2 py-0.5"
@@ -420,13 +410,13 @@ const ProfilePage = () => {
                   icon: Mail,
                   label: "Email",
                   value: user?.email,
-                  color: "#FFD700",
+                  color: "#f2f2f2",
                 },
                 {
                   icon: Phone,
                   label: "Phone",
                   value: user?.phoneNumber || "Not added",
-                  color: "#00FF94",
+                  color: "#f2f2f2",
                 },
                 {
                   icon: MapPin,
@@ -436,13 +426,13 @@ const ProfilePage = () => {
                       ? `${user?.profile?.location?.city || ""}${user?.profile?.location?.city && user?.profile?.location?.country ? ", " : ""}${user?.profile?.location?.country || ""}` ||
                       "Not set"
                       : user?.profile?.location || "Not set",
-                  color: "#00BFFF",
+                  color: "#f2f2f2",
                 },
                 {
                   icon: Calendar,
                   label: "Member Since",
                   value: formatDate(user?.createdAt),
-                  color: "#FF6B6B",
+                  color: "#f2f2f2",
                 },
               ].map((item, idx) => (
                 <div
@@ -486,15 +476,15 @@ const ProfilePage = () => {
               />
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Edit Form */}
         <AnimatePresence>
           {isEditing && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+            <div
+             
+             
+             
               className="mb-6"
             >
               <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden">
@@ -684,16 +674,16 @@ const ProfilePage = () => {
                   </Button>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
         {/* Stats Section (For Students) */}
         {user?.role === "student" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+          <div
+           
+           
+           
             className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6"
           >
             {[
@@ -701,25 +691,25 @@ const ProfilePage = () => {
                 icon: Briefcase,
                 label: "Total Applied",
                 value: stats.total,
-                color: "#FFD700",
+                color: "#f2f2f2",
               },
               {
                 icon: Clock,
                 label: "Pending",
                 value: stats.pending,
-                color: "#F59E0B",
+                color: "#f2f2f2",
               },
               {
                 icon: Target,
                 label: "Interviews",
                 value: stats.interviews,
-                color: "#8B5CF6",
+                color: "#f2f2f2",
               },
               {
                 icon: CheckCircle,
                 label: "Accepted",
                 value: stats.accepted,
-                color: "#00FF94",
+                color: "#f2f2f2",
               },
               {
                 icon: XCircle,
@@ -750,16 +740,16 @@ const ProfilePage = () => {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
         )}
 
         {user?.role === "student" &&
           user?.trialEndDate &&
           activeSection === "subscription" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
+            <div
+             
+             
+             
               className="mb-6 rounded-sm p-5 border border-accent/30 relative overflow-hidden bg-card"
             >
               <div className="flex items-center justify-between mb-3 relative z-10">
@@ -780,15 +770,15 @@ const ProfilePage = () => {
                 </div>
                 <Badge className="bg-accent/20 text-accent border-accent/40 text-xs">
                   {user.subscriptionStatus === "trial"
-                    ? "ACTIVE"
+                    ? "Active"
                     : user.trialExpired
-                      ? "EXPIRED"
+                      ? "Expired"
                       : "TRIAL"}
                 </Badge>
               </div>
               <div className="flex items-center justify-between relative z-10">
                 <div>
-                  <p className="text-3xl font-black text-white">
+                  <p className="text-3xl font-semibold text-white">
                     {trialDaysRemaining !== null ? trialDaysRemaining : "-"}
                   </p>
                   <p className="text-xs text-gray-500">
@@ -804,16 +794,16 @@ const ProfilePage = () => {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
         {/* Content Sections */}
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Skills Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+          <div
+           
+           
+           
             className="bg-card border border-white/10 rounded-sm p-6 relative overflow-hidden"
           >
             <h3 className="text-sm font-bold text-primary mb-4 flex items-center gap-2">
@@ -834,13 +824,13 @@ const ProfilePage = () => {
                 <p className="text-gray-500 text-sm">No skills added yet</p>
               )}
             </div>
-          </motion.div>
+          </div>
 
           {/* Resume Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+          <div
+           
+           
+           
             className="bg-card border border-white/10 rounded-sm p-6 relative overflow-hidden"
           >
             <h3 className="text-sm font-bold text-accent mb-4 flex items-center gap-2">
@@ -863,16 +853,16 @@ const ProfilePage = () => {
             ) : (
               <p className="text-gray-500 text-sm">No resume uploaded</p>
             )}
-          </motion.div>
+          </div>
 
           {/* Social Links Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+          <div
+           
+           
+           
             className="bg-card border border-white/10 rounded-sm p-6 relative overflow-hidden"
           >
-            <h3 className="text-sm font-bold text-[#00BFFF] mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[#f2f2f2] mb-4 flex items-center gap-2">
               <Link2 size={14} />
               Social Links
             </h3>
@@ -912,7 +902,7 @@ const ProfilePage = () => {
                   >
                     <social.icon
                       size={14}
-                      className="text-gray-400 group-hover:text-[#00BFFF]"
+                      className="text-gray-400 group-hover:text-[#f2f2f2]"
                     />
                     <span className="text-sm text-gray-400 group-hover:text-white">
                       {social.label}
@@ -928,7 +918,7 @@ const ProfilePage = () => {
                   <p className="text-gray-500 text-sm">No links added</p>
                 )}
             </div>
-          </motion.div>
+          </div>
         </div>
       </main>
 

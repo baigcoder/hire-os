@@ -15,27 +15,24 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import {
-    Settings,
-    User,
-    Bell,
-    Shield,
-    Palette,
-    Lock,
-    Mail,
-    Eye,
-    EyeOff,
-    Loader2,
-    CheckCircle,
-    AlertTriangle,
-    Moon,
-    Sun,
-    Trash2,
-    LogOut,
-    Building2,
-    Briefcase,
-    Globe,
-    MapPin,
-    RefreshCw,
+  User,
+  Bell,
+  Shield,
+  Palette,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  Loader2,
+  CheckCircle,
+  Moon,
+  Sun,
+  LogOut,
+  Building2,
+  Briefcase,
+  Globe,
+  MapPin,
+  RefreshCw,
 } from "lucide-react";
 import {
     USER_API_END_POINT,
@@ -77,7 +74,7 @@ const CompanyAdminSettingsPage = () => {
         language: "en",
     });
 
-    const accentColor = "#00BFFF"; // Company Admin Blue
+    const accentColor = "#f2f2f2"; // Company Admin Blue
 
     const tabs = [
         { id: "company", label: "Company Profile", icon: Building2 },
@@ -197,7 +194,7 @@ const CompanyAdminSettingsPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-background text-white selection:bg-[#00BFFF]/30">
+        <div className="min-h-screen bg-background text-white selection:bg-[#f2f2f2]/30">
             <div className="fixed inset-0 pointer-events-none">
                 <div
                     className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[200px]"
@@ -207,35 +204,21 @@ const CompanyAdminSettingsPage = () => {
 
             <Navbar />
 
-            <main className="max-w-5xl mx-auto px-4 pt-28 pb-12 relative z-10">
+            <main className="relative">
                 {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                <div
+                   
+                   
                     className="mb-8"
                 >
-                    <h1 className="text-3xl font-bold text-white uppercase tracking-tight flex items-center gap-3">
-                        <div
-                            className="w-12 h-12 rounded-sm flex items-center justify-center border"
-                            style={{
-                                backgroundColor: `${accentColor}10`,
-                                borderColor: `${accentColor}30`,
-                            }}
-                        >
-                            <Settings size={24} style={{ color: accentColor }} />
-                        </div>
-                        Settings
-                    </h1>
-                    <p className="text-gray-500 text-sm mt-2">
-                        Manage your company profile and account settings
-                    </p>
-                </motion.div>
+                    <h1 className="app-h1">Settings</h1>
+                </div>
 
                 <div className="grid lg:grid-cols-4 gap-6">
                     {/* Sidebar Tabs */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                    <div
+                       
+                       
                         className="lg:col-span-1"
                     >
                         <div className="bg-card border border-white/10 rounded-md p-2 space-y-1">
@@ -243,10 +226,7 @@ const CompanyAdminSettingsPage = () => {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm text-sm font-medium transition-all ${activeTab === tab.id
-                                            ? "bg-white/10 text-white"
-                                            : "text-gray-400 hover:text-white hover:bg-white/5"
-                                        }`}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm text-sm font-medium transition-all ${activeTab === tab.id ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5" }`}
                                     style={
                                         activeTab === tab.id
                                             ? { borderLeft: `2px solid ${accentColor}` }
@@ -271,12 +251,12 @@ const CompanyAdminSettingsPage = () => {
                                 </button>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Content Area */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                    <div
+                       
+                       
                         className="lg:col-span-3"
                     >
                         <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden">
@@ -289,11 +269,11 @@ const CompanyAdminSettingsPage = () => {
                             <AnimatePresence mode="wait">
                                 {/* Company Profile Tab */}
                                 {activeTab === "company" && (
-                                    <motion.div
+                                    <div
                                         key="company"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
+                                       
+                                       
+                                       
                                         className="space-y-6"
                                     >
                                         <h2
@@ -395,16 +375,16 @@ const CompanyAdminSettingsPage = () => {
                                                 )}
                                             </Button>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 )}
 
                                 {/* Account Tab */}
                                 {activeTab === "account" && (
-                                    <motion.div
+                                    <div
                                         key="account"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
+                                       
+                                       
+                                       
                                         className="space-y-6"
                                     >
                                         <div>
@@ -499,16 +479,16 @@ const CompanyAdminSettingsPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 )}
 
                                 {/* Notifications Tab */}
                                 {activeTab === "notifications" && (
-                                    <motion.div
+                                    <div
                                         key="notifications"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
+                                       
+                                       
+                                       
                                     >
                                         <h2
                                             className="text-sm font-bold mb-6"
@@ -555,16 +535,16 @@ const CompanyAdminSettingsPage = () => {
                                                 }
                                             />
                                         </SettingRow>
-                                    </motion.div>
+                                    </div>
                                 )}
 
                                 {/* Appearance Tab */}
                                 {activeTab === "appearance" && (
-                                    <motion.div
+                                    <div
                                         key="appearance"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
+                                       
+                                       
+                                       
                                     >
                                         <h2
                                             className="text-sm font-bold mb-6"
@@ -585,10 +565,7 @@ const CompanyAdminSettingsPage = () => {
                                                             onClick={() =>
                                                                 handleSettingChange("theme", theme)
                                                             }
-                                                            className={`p-4 rounded-sm border transition-all flex items-center gap-3 ${settings.theme === theme
-                                                                    ? "bg-white/10 border-white/30"
-                                                                    : "bg-background border-white/10 hover:border-white/20"
-                                                                }`}
+                                                            className={`p-4 rounded-sm border transition-all flex items-center gap-3 ${settings.theme === theme ? "bg-white/10 border-white/30" : "bg-background border-white/10 hover:border-white/20" }`}
                                                         >
                                                             {theme === "dark" ? (
                                                                 <Moon
@@ -610,8 +587,7 @@ const CompanyAdminSettingsPage = () => {
                                                                 />
                                                             )}
                                                             <span
-                                                                className={`text-sm capitalize ${settings.theme === theme ? "text-white" : "text-gray-500"
-                                                                    }`}
+                                                                className={`text-sm capitalize ${settings.theme === theme ? "text-white" : "text-gray-500" }`}
                                                             >
                                                                 {theme} Mode
                                                             </span>
@@ -627,16 +603,16 @@ const CompanyAdminSettingsPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 )}
 
                                 {/* Security Tab (Simplified) */}
                                 {activeTab === "security" && (
-                                    <motion.div
+                                    <div
                                         key="security"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
+                                       
+                                       
+                                       
                                     >
                                         <h2
                                             className="text-sm font-bold mb-6"
@@ -655,12 +631,12 @@ const CompanyAdminSettingsPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 )}
 
                             </AnimatePresence>
                         </div>
-                    </motion.div>
+                    </div>
                 </div>
             </main>
 

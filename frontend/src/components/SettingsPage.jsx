@@ -11,11 +11,9 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Switch } from "./ui/switch";
 import {
-  Settings,
   User,
   Bell,
   Shield,
-  CreditCard,
   Palette,
   Lock,
   Mail,
@@ -24,19 +22,15 @@ import {
   Loader2,
   CheckCircle,
   AlertTriangle,
-  ChevronRight,
   Moon,
   Sun,
-  Globe,
   Trash2,
   Download,
   LogOut,
-  Key,
   Smartphone,
   Monitor,
   BellRing,
   Volume2,
-  VolumeX,
 } from "lucide-react";
 import { USER_API_END_POINT } from "@/utils/constant";
 import { WriteReviewButton } from "./shared/AddReviewModal";
@@ -75,11 +69,11 @@ const SettingsPage = () => {
 
   // Role-based accent color
   const roleColors = {
-    student: "#FFD700",
-    recruiter: "#00FF94",
-    company_admin: "#00BFFF",
+    student: "#f2f2f2",
+    recruiter: "#f2f2f2",
+    company_admin: "#f2f2f2",
   };
-  const accentColor = roleColors[user?.role] || "#FFD700";
+  const accentColor = roleColors[user?.role] || "#f2f2f2";
 
   const tabs = [
     { id: "account", label: "Account", icon: User },
@@ -196,35 +190,21 @@ const SettingsPage = () => {
 
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 pt-28 pb-12 relative z-10">
+      <main className="relative">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         
+         
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-white uppercase tracking-tight flex items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-sm flex items-center justify-center border"
-              style={{
-                backgroundColor: `${accentColor}10`,
-                borderColor: `${accentColor}30`,
-              }}
-            >
-              <Settings size={24} style={{ color: accentColor }} />
-            </div>
-            Settings
-          </h1>
-          <p className="text-gray-500 text-sm mt-2">
-            Manage your account preferences and security
-          </p>
-        </motion.div>
+          <h1 className="app-h1">Settings</h1>
+        </div>
 
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Sidebar Tabs */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
+           
+           
             className="lg:col-span-1"
           >
             <div className="bg-card border border-white/10 rounded-md p-2 space-y-1">
@@ -232,10 +212,7 @@ const SettingsPage = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm text-sm font-medium transition-all ${activeTab === tab.id
-                    ? "bg-white/10 text-white"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                    }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm text-sm font-medium transition-all ${activeTab === tab.id ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5" }`}
                   style={
                     activeTab === tab.id
                       ? { borderLeft: `2px solid ${accentColor}` }
@@ -260,12 +237,12 @@ const SettingsPage = () => {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Content Area */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
+           
+           
             className="lg:col-span-3"
           >
             <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden">
@@ -278,11 +255,11 @@ const SettingsPage = () => {
               <AnimatePresence mode="wait">
                 {/* Account Tab */}
                 {activeTab === "account" && (
-                  <motion.div
+                  <div
                     key="account"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                   
+                   
+                   
                     className="space-y-6"
                   >
                     <div>
@@ -417,16 +394,16 @@ const SettingsPage = () => {
                       </p>
                       <WriteReviewButton />
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Notifications Tab */}
                 {activeTab === "notifications" && (
-                  <motion.div
+                  <div
                     key="notifications"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                   
+                   
+                   
                   >
                     <h2
                       className="text-sm font-bold mb-6"
@@ -509,16 +486,16 @@ const SettingsPage = () => {
                         Save Preferences
                       </Button>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Privacy Tab */}
                 {activeTab === "privacy" && (
-                  <motion.div
+                  <div
                     key="privacy"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                   
+                   
+                   
                   >
                     <h2
                       className="text-sm font-bold mb-6"
@@ -600,16 +577,16 @@ const SettingsPage = () => {
                         </Button>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Appearance Tab */}
                 {activeTab === "appearance" && (
-                  <motion.div
+                  <div
                     key="appearance"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                   
+                   
+                   
                   >
                     <h2
                       className="text-sm font-bold mb-6"
@@ -630,10 +607,7 @@ const SettingsPage = () => {
                               onClick={() =>
                                 handleSettingChange("theme", theme)
                               }
-                              className={`p-4 rounded-sm border transition-all flex items-center gap-3 ${settings.theme === theme
-                                ? "bg-white/10 border-white/30"
-                                : "bg-background border-white/10 hover:border-white/20"
-                                }`}
+                              className={`p-4 rounded-sm border transition-all flex items-center gap-3 ${settings.theme === theme ? "bg-white/10 border-white/30" : "bg-background border-white/10 hover:border-white/20" }`}
                             >
                               {theme === "dark" ? (
                                 <Moon
@@ -689,16 +663,16 @@ const SettingsPage = () => {
                         </select>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Security Tab */}
                 {activeTab === "security" && (
-                  <motion.div
+                  <div
                     key="security"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                   
+                   
+                   
                   >
                     <h2
                       className="text-sm font-bold mb-6"
@@ -778,11 +752,11 @@ const SettingsPage = () => {
                         </Button>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
               </AnimatePresence>
             </div>
-          </motion.div>
+          </div>
         </div>
       </main>
 

@@ -9,7 +9,15 @@ import {
 } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Calendar, Clock, Building, Play, Video, FileCheck, CheckCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Building,
+  Play,
+  Video,
+  FileCheck,
+  CheckCircle,
+} from "lucide-react";
 import axios from "axios";
 import { APPLICATION_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
@@ -42,7 +50,7 @@ const InterviewCard = ({ application = {} }) => {
       const diffMs = interviewDate - now;
 
       if (diffMs <= 0) {
-        setTimeRemaining("NOW ACTIVE");
+        setTimeRemaining("Now");
         return;
       }
 
@@ -159,14 +167,14 @@ const InterviewCard = ({ application = {} }) => {
   // Status-based badge styling
   const getStatusBadge = () => {
     if (application.interviewDetails?.completed) {
-      return { text: "COMPLETED", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
+      return { text: "Done", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
     }
     switch (appStatus) {
-      case "mcq_pending": return { text: "MCQ PENDING", color: "bg-primary/10 text-primary border-primary/20 animate-pulse" };
-      case "mcq_passed": return { text: "MCQ PASSED ✓", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
-      case "video_scheduled": return { text: "VIDEO READY", color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 animate-pulse" };
-      case "video_completed": return { text: "COMPLETE", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
-      default: return { text: "SCHEDULED", color: "bg-primary/10 text-primary border-primary/20" };
+      case "mcq_pending": return { text: "Test to take", color: "bg-primary/10 text-primary border-primary/20" };
+      case "mcq_passed": return { text: "Test passed", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
+      case "video_scheduled": return { text: "Ready to join", color: "bg-[#172a1d] text-[#3fc07a] border-transparent" };
+      case "video_completed": return { text: "Done", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
+      default: return { text: "Scheduled", color: "bg-primary/10 text-primary border-primary/20" };
     }
   };
 
@@ -181,9 +189,9 @@ const InterviewCard = ({ application = {} }) => {
         <div className="flex justify-between items-start mb-6">
           <div className="flex-1">
             <div className="text-xs text-primary mb-1 opacity-60">
-              INTERVIEW SESSION // ACTIVE
+              Interview
             </div>
-            <h3 className="text-xl font-bold text-white uppercase group-hover:text-primary transition-colors leading-tight">
+            <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors leading-tight">
               {application.job?.title}
             </h3>
             <div className="flex items-center gap-2 mt-2">
@@ -193,7 +201,7 @@ const InterviewCard = ({ application = {} }) => {
               </span>
             </div>
           </div>
-          <Badge className={`text-xs tracking-tighter py-1 px-3 ${statusBadge.color} border uppercase rounded-sm`}>
+          <Badge className={`text-xs py-1 px-3 ${statusBadge.color} border rounded-sm`}>
             {statusBadge.text}
           </Badge>
         </div>
@@ -204,7 +212,7 @@ const InterviewCard = ({ application = {} }) => {
               <Calendar className="h-3 w-3 text-primary" />
               <span className="text-xs text-white">DATE</span>
             </div>
-            <div className="text-sm font-bold text-white tracking-tighter">
+            <div className="text-sm font-bold text-white">
               {formatDate(application.interviewDetails?.date)}
             </div>
           </div>
@@ -213,7 +221,7 @@ const InterviewCard = ({ application = {} }) => {
               <Clock className="h-3 w-3 text-primary" />
               <span className="text-xs text-white">SYSTEM CLOCK</span>
             </div>
-            <div className="text-sm font-bold text-white tracking-tighter">
+            <div className="text-sm font-bold text-white">
               {formatTime(application.interviewDetails?.date)}
             </div>
           </div>
@@ -222,7 +230,7 @@ const InterviewCard = ({ application = {} }) => {
         {application.interviewDetails?.details && (
           <div className="bg-card border-l-2 border-primary p-3 mb-6">
             <div className="text-xs text-gray-500 mb-1">
-              COMMAND INSTRUCTIONS:
+              Notes
             </div>
             <p className="text-xs text-gray-400 leading-relaxed italic">
               "{application.interviewDetails.details}"
@@ -232,7 +240,7 @@ const InterviewCard = ({ application = {} }) => {
 
         {!application.interviewDetails?.completed && (
           <div className="flex items-center justify-center py-2 mb-4 bg-white/5 border border-white/10 rounded-sm">
-            <span className={`text-xs font-bold tracking-widest ${status.isActive ? 'text-emerald-400' : 'text-primary'}`}>
+            <span className={`text-xs font-bold ${status.isActive ? 'text-emerald-400' : 'text-primary'}`}>
               {status.isActive ? ">> TERMINAL READY <<" : timeRemaining}
             </span>
           </div>
@@ -243,51 +251,36 @@ const InterviewCard = ({ application = {} }) => {
         {/* MCQ Test Pending - Start Test button */}
         {appStatus === "mcq_pending" && !application.interviewDetails?.completed && (
           <Button
-            className={`w-full text-xs tracking-widest py-6 border-b-2 active:translate-y-[1px] transition-all
-              ${status.isActive
-                ? 'bg-primary hover:bg-primary/90 text-black border-black/20 shadow-[0_0_20px_rgba(255,215,0,0.2)]'
-                : 'bg-card text-gray-500 border-white/5 cursor-not-allowed opacity-50'
-              }
-            `}
+            className={`w-full text-xs py-6 transition-all ${status.isActive ? 'bg-primary hover:bg-primary/90 text-black border-black/20' : 'bg-card text-gray-500 border-white/5 cursor-not-allowed opacity-50' }`}
             onClick={status.isActive ? handleStartMCQ : undefined}
             disabled={loading || !status.isActive}
           >
             <FileCheck className="mr-2 h-4 w-4" />
-            {status.isActive ? "START MCQ TEST" : "AWAITING_SCHEDULE"}
+            {status.isActive ? "Start the test" : "Not scheduled yet"}
           </Button>
         )}
 
         {/* MCQ Passed or Video Scheduled - Join Video button */}
         {(appStatus === "mcq_passed" || appStatus === "video_scheduled") && !application.interviewDetails?.completed && (
           <Button
-            className={`w-full text-xs tracking-widest py-6 border-b-2 active:translate-y-[1px] transition-all
-              ${status.isActive
-                ? 'bg-cyan-500 hover:bg-cyan-500/90 text-black border-black/20 shadow-[0_0_20px_rgba(0,255,255,0.2)]'
-                : 'bg-card text-gray-500 border-white/5 cursor-not-allowed opacity-50'
-              }
-            `}
+            className={`w-full text-xs py-6 transition-all ${status.isActive ? 'bg-primary hover:bg-primary/90 text-black border-black/20' : 'bg-card text-gray-500 border-white/5 cursor-not-allowed opacity-50' }`}
             onClick={status.isActive ? handleJoinVideo : undefined}
             disabled={loading || !status.isActive}
           >
             <Video className="mr-2 h-4 w-4" />
-            {status.isActive ? "JOIN VIDEO INTERVIEW" : "VIDEO_PENDING"}
+            {status.isActive ? "Join interview" : "Opens 15 minutes before"}
           </Button>
         )}
 
         {/* Default interview status */}
         {appStatus === "interview" && !application.interviewDetails?.completed && (
           <Button
-            className={`w-full text-xs tracking-widest py-6 border-b-2 active:translate-y-[1px] transition-all
-              ${status.isActive
-                ? 'bg-primary hover:bg-primary/90 text-black border-black/20 shadow-[0_0_20px_rgba(255,215,0,0.2)]'
-                : 'bg-card text-gray-500 border-white/5 cursor-not-allowed opacity-50'
-              }
-            `}
+            className={`w-full text-xs py-6 transition-all ${status.isActive ? 'bg-primary hover:bg-primary/90 text-black border-black/20' : 'bg-card text-gray-500 border-white/5 cursor-not-allowed opacity-50' }`}
             onClick={status.isActive ? handleJoinVideo : undefined}
             disabled={loading || !status.isActive}
           >
             <Play className="mr-2 h-4 w-4" />
-            {status.isActive ? "JOIN INTERVIEW" : "AWAITING_SCHEDULE"}
+            {status.isActive ? "Join interview" : "Not scheduled yet"}
           </Button>
         )}
 
@@ -295,7 +288,7 @@ const InterviewCard = ({ application = {} }) => {
         {application.interviewDetails?.completed && (
           <div className="w-full py-4 border border-emerald-500/20 bg-emerald-500/5 text-center text-xs text-emerald-400">
             <CheckCircle className="inline h-4 w-4 mr-2" />
-            SESSION_COMPLETE // DATA_UPLOADED
+            Interview complete
           </div>
         )}
       </div>

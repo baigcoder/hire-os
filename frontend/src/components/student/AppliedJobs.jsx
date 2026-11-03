@@ -78,72 +78,65 @@ const AppliedJobs = () => {
   const getStatusConfig = (status) => {
     const s = status?.toLowerCase() || "";
     if (["pending", "under_review", "reviewing"].includes(s))
-      return { bg: "bg-gray-500/10", text: "text-gray-400", label: "PENDING" };
+      return { bg: "bg-gray-500/10", text: "text-gray-400", label: "Applied" };
     if (["accepted", "hired", "offer_accepted", "offer_sent"].includes(s))
-      return { bg: "bg-emerald-500/10", text: "text-emerald-400", label: "ACCEPTED" };
+      return { bg: "bg-[#172a1d]", text: "text-[#3fc07a]", label: "Accepted" };
     if (s === "rejected")
-      return { bg: "bg-red-500/10", text: "text-red-400", label: "REJECTED" };
-    return { bg: "bg-primary/10", text: "text-primary", label: status.toUpperCase().replace("_", " ") };
+      return { bg: "bg-white/5", text: "text-gray-400", label: "Not selected" };
+    return { bg: "bg-primary/10", text: "text-primary", label: status[0].toUpperCase() + status.slice(1).replace("_", " ") };
   };
 
   return (
     <div className="min-h-screen bg-black text-white font-['Outfit',sans-serif]">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-8 pt-24">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-              <span className="text-primary">📋</span> MY APPLICATIONS
-            </h1>
-            <p className="text-gray-500 text-xs">
-              System: Active • Applications: {applications.length}
-            </p>
-          </div>
+      <div className="relative">
+        <div className="app-title-row">
+          <h1 className="app-h1">Applications</h1>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="mb-8 bg-card border border-white/10 p-1 rounded-sm flex-wrap h-auto">
             <TabsTrigger
               value="all"
-              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs py-2 px-4"
             >
-              ALL ({applications.length})
+              All ({applications.length})
             </TabsTrigger>
             <TabsTrigger
               value="pending"
-              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs py-2 px-4"
             >
-              PENDING ({pendingApplications.length})
+              Applied ({pendingApplications.length})
             </TabsTrigger>
             <TabsTrigger
               value="accepted"
-              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs py-2 px-4"
             >
-              ACCEPTED ({acceptedApplications.length})
+              Accepted ({acceptedApplications.length})
             </TabsTrigger>
             <TabsTrigger
               value="rejected"
-              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs py-2 px-4"
             >
-              REJECTED ({rejectedApplications.length})
+              Not selected ({rejectedApplications.length})
             </TabsTrigger>
             <TabsTrigger
               value="interview"
-              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs tracking-wider py-2 px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-black rounded-sm text-gray-500 text-xs py-2 px-4"
             >
-              INTERVIEWS ({interviewApplications.length})
+              Interviews ({interviewApplications.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-0">
             {loading ? (
               <div className="text-center py-20 text-xs text-gray-500 loader-dots">
-                INITIALIZING DATA STREAM...
+                Loading…
               </div>
             ) : applications.length === 0 ? (
               <div className="bg-card border border-white/10 rounded-sm p-12 text-center">
-                <p className="text-gray-500 text-xs tracking-wider">
-                  NO ACTIVE APPLICATIONS FOUND IN DATABASE
+                <p className="text-gray-500 text-xs">
+                  No applications yet.
                 </p>
               </div>
             ) : (
@@ -179,7 +172,7 @@ const AppliedJobs = () => {
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h3 className="font-bold text-lg text-white group-hover:text-primary transition-colors uppercase tracking-tight">
+                          <h3 className="font-bold text-lg text-white group-hover:text-primary transition-colors">
                             {application.job?.title}
                           </h3>
                           <p className="text-primary text-xs opacity-80">
@@ -194,10 +187,10 @@ const AppliedJobs = () => {
                       </div>
 
                       <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
-                        <span className="text-xs text-gray-600 uppercase">
+                        <span className="text-xs text-gray-600">
                           APPLICATION ID: {application._id.slice(-8).toUpperCase()}
                         </span>
-                        <span className="text-xs text-gray-600 uppercase">
+                        <span className="text-xs text-gray-600">
                           {new Date(application.createdAt).toLocaleDateString()}
                         </span>
                       </div>
@@ -211,8 +204,8 @@ const AppliedJobs = () => {
           <TabsContent value="interview" className="mt-0">
             {interviewApplications.length === 0 ? (
               <div className="bg-card border border-white/10 rounded-sm p-12 text-center">
-                <p className="text-gray-500 text-xs tracking-wider">
-                  NO SCHEDULED INTERVIEWS DETECTED
+                <p className="text-gray-500 text-xs">
+                  No interviews scheduled.
                 </p>
               </div>
             ) : (
@@ -238,10 +231,10 @@ const AppliedJobs = () => {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-bold text-white uppercase tracking-tight">
+                        <h3 className="font-bold text-white">
                           {application.job?.title}
                         </h3>
-                        <p className="text-primary text-xs uppercase">
+                        <p className="text-primary text-xs">
                           {application.job?.company?.name}
                         </p>
                       </div>
@@ -266,10 +259,10 @@ const AppliedJobs = () => {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-bold text-white uppercase tracking-tight">
+                        <h3 className="font-bold text-white">
                           {application.job?.title}
                         </h3>
-                        <p className="text-primary text-xs uppercase">
+                        <p className="text-primary text-xs">
                           {application.job?.company?.name}
                         </p>
                       </div>
@@ -294,10 +287,10 @@ const AppliedJobs = () => {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-bold text-white uppercase tracking-tight">
+                        <h3 className="font-bold text-white">
                           {application.job?.title}
                         </h3>
-                        <p className="text-primary text-xs uppercase">
+                        <p className="text-primary text-xs">
                           {application.job?.company?.name}
                         </p>
                       </div>

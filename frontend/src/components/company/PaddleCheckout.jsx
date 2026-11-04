@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { motion } from "framer-motion";
@@ -10,12 +10,9 @@ import {
   CreditCard,
   Building2,
   Shield,
-  Terminal,
 } from "lucide-react";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { toast } from "sonner";
-import { COMPANY_API_END_POINT } from "@/utils/constant";
 import api from "@/utils/api";
 import Navbar from "../shared/Navbar";
 import { setUser } from "@/redux/authSlice";
@@ -143,7 +140,6 @@ const PaddleCheckout = () => {
 
         if (token) {
           // Store token in localStorage for API calls
-          localStorage.setItem("token", token);
           console.log("✅ Token stored in localStorage");
         }
 

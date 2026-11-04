@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { AlertTriangle, RefreshCw, Home, Bug } from "lucide-react";
 
 /**
@@ -27,7 +27,7 @@ class ErrorBoundary extends Component {
     this.setState({ errorInfo });
 
     // Optional: Send error to logging service
-    if (process.env.NODE_ENV === "production") {
+    if (import.meta.env.PROD) {
       // TODO: Add error reporting service (e.g., Sentry)
       // logErrorToService(error, errorInfo);
     }
@@ -59,12 +59,12 @@ class ErrorBoundary extends Component {
                 Something Went Wrong
               </h1>
               <p className="text-gray-400 text-center mb-6">
-                We encountered an unexpected error. Don't worry, your data is
+                We encountered an unexpected error. Don&apos;t worry, your data is
                 safe.
               </p>
 
               {/* Error Details (Development Only) */}
-              {process.env.NODE_ENV === "development" && this.state.error && (
+              {import.meta.env.DEV && this.state.error && (
                 <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                   <div className="flex items-center gap-2 mb-2">
                     <Bug className="w-4 h-4 text-red-400" />

@@ -1,49 +1,28 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import Navbar from "../shared/Navbar";
 import {
-    ClipboardCheck,
-    Plus,
-    Search,
-    Filter,
-    Clock,
-    Users,
-    Play,
-    Pause,
-    Eye,
-    Edit,
-    Trash2,
-    Send,
-    Globe,
-    Lock,
-    Code,
-    FileText,
-    CheckCircle,
-    XCircle,
-    AlertTriangle,
-    Timer,
-    Award,
-    BarChart2,
-    Terminal,
-    ChevronRight,
-    ExternalLink,
-    Shield,
-    Activity,
-    Box,
-    FolderPlus,
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Trash2,
+  Send,
+  Globe,
+  Lock,
+  Code,
+  CheckCircle,
+  Timer,
+  Award,
+  Activity,
+  Box,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
     Dialog,
     DialogContent,
@@ -63,7 +42,6 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -143,7 +121,7 @@ const AssessmentBuilder = () => {
 
     const handleCreate = async () => {
         if (!formData.title || formData.questions.length === 0) {
-            toast.error("Title and at least one question required");
+            toast.error("Add a title and at least one question");
             return;
         }
 
@@ -262,62 +240,16 @@ const AssessmentBuilder = () => {
             <div className="fixed inset-0 pointer-events-none">
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 py-8 pt-24 relative z-10 min-h-screen pb-20">
-                {/* Header Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10"
-                >
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-[#EC4899] rounded-sm flex items-center justify-center">
-                            <ClipboardCheck className="w-6 h-6 text-black" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold uppercase tracking-tight">
-                                Skill Assessments
-                            </h1>
-                            <p className="text-gray-500 text-sm flex items-center gap-2">
-                                <Terminal className="w-3 h-3" />
-                                INTELLIGENT EVALUATION ENGINE
-                            </p>
-                        </div>
-                    </div>
+            <div className="relative">
+                <div className="app-title-row">
+                    <h1 className="app-h1">Assessments</h1>
+                    <button type="button" className="app-btn app-btn-primary" onClick={() => { resetForm(); setShowCreateModal(true); }}>
+                        New assessment
+                    </button>
+                </div>
 
-                    <div className="flex items-center gap-3">
-                        <div className="hidden md:flex items-center gap-4 px-4 py-2 bg-white/5 border border-white/10 rounded-sm">
-                            <div className="flex flex-col">
-                                <span className="text-xs text-gray-500">
-                                    Live Assessments
-                                </span>
-                                <span className="text-lg font-bold text-[#EC4899] leading-none">
-                                    {assessments.length}
-                                </span>
-                            </div>
-                            <div className="w-px h-8 bg-white/10" />
-                            <div className="flex flex-col">
-                                <span className="text-xs text-gray-500">
-                                    Library Modules
-                                </span>
-                                <span className="text-lg font-bold text-primary leading-none">
-                                    {publicAssessments.length}
-                                </span>
-                            </div>
-                        </div>
-                        <Button
-                            onClick={() => {
-                                resetForm();
-                                setShowCreateModal(true);
-                            }}
-                            className="bg-[#EC4899] text-black hover:bg-[#EC4899]/90 rounded-sm font-bold flex items-center gap-2 px-6 h-11"
-                        >
-                            <Plus className="w-4 h-4" />
-                            INITIALIZE NEW
-                        </Button>
-                    </div>
-                </motion.div>
-
-                {/* Filters & Tabs Section */}
+                
+{/* Filters & Tabs Section */}
                 <div className="bg-card/80 border border-white/10 rounded-sm p-4 mb-8">
                     <Tabs
                         value={activeTab}
@@ -328,15 +260,15 @@ const AssessmentBuilder = () => {
                             <TabsList className="bg-black/40 border border-white/5 p-1 rounded-sm h-11">
                                 <TabsTrigger
                                     value="company"
-                                    className="rounded-sm data-[state=active]:bg-[#EC4899] data-[state=active]:text-black text-xs font-bold uppercase py-2 px-6"
+                                    className="rounded-sm data-[state=active]:bg-[#f2f2f2] data-[state=active]:text-black text-xs font-bold py-2 px-6"
                                 >
-                                    My Assessments
+                                    Yours
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="library"
-                                    className="rounded-sm data-[state=active]:bg-[#EC4899] data-[state=active]:text-black text-xs font-bold uppercase py-2 px-6"
+                                    className="rounded-sm data-[state=active]:bg-[#f2f2f2] data-[state=active]:text-black text-xs font-bold py-2 px-6"
                                 >
-                                    Public Library
+                                    Shared
                                 </TabsTrigger>
                             </TabsList>
 
@@ -344,8 +276,8 @@ const AssessmentBuilder = () => {
                                 <div className="relative flex-1 md:w-80">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                                     <Input
-                                        placeholder="SEARCH MODULES..."
-                                        className="pl-10 bg-black/40 border-white/10 text-white text-xs rounded-sm focus:border-[#EC4899]/50 h-11"
+                                        placeholder="Search assessments"
+                                        className="pl-10 bg-black/40 border-white/10 text-white text-xs rounded-sm focus:border-[#f2f2f2]/50 h-11"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -353,8 +285,8 @@ const AssessmentBuilder = () => {
                                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                                     <SelectTrigger className="w-48 bg-black/40 border-white/10 text-xs rounded-sm h-11">
                                         <div className="flex items-center gap-2">
-                                            <Filter className="w-3 h-3 text-[#EC4899]" />
-                                            <SelectValue placeholder="CATEGORY" />
+                                            <Filter className="w-3 h-3 text-[#f2f2f2]" />
+                                            <SelectValue placeholder="Category" />
                                         </div>
                                     </SelectTrigger>
                                     <SelectContent className="bg-card border-white/10 text-white">
@@ -372,37 +304,35 @@ const AssessmentBuilder = () => {
                             <TabsContent value="company" className="mt-8 border-none p-0 outline-none">
                                 {loading ? (
                                     <div className="flex flex-col items-center justify-center py-24">
-                                        <div className="w-10 h-10 border-2 border-[#EC4899]/20 border-t-[#EC4899] rounded-full animate-spin mb-4" />
+                                        <div className="w-10 h-10 border-2 border-[#f2f2f2]/20 border-t-[#f2f2f2] rounded-full animate-spin mb-4" />
                                         <p className="text-gray-500 text-xs">
-                                            Retrieving Secure Modules...
+                                            Loading…
                                         </p>
                                     </div>
                                 ) : filtered.length === 0 ? (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/5 border-dashed rounded-sm"
+                                    <div
+                                       
+                                       
+                                        className="flex flex-col items-start py-6"
                                     >
-                                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6">
-                                            <FolderPlus className="h-8 w-8 text-gray-700" />
-                                        </div>
-                                        <h3 className="text-gray-300 font-bold mb-2">
-                                            No Assessments Initialized
+                                        <h3 className="text-white text-base font-medium mb-1">
+                                            No assessments yet
                                         </h3>
-                                        <p className="text-gray-600 text-xs uppercase max-w-xs text-center mb-6">
-                                            YOU HAVEN'T CREALED ANY CUSTOM EVALUATION MODULES YET.
+<p className="app-meta" style={{ margin: "0 0 16px" }}>Short tests candidates take before the interview, scored automatically.</p>
+                                        <p className="text-gray-600 text-xs max-w-xs text-center mb-6">
+                                            
                                         </p>
                                         <Button
                                             variant="outline"
-                                            className="border-white/10 text-gray-500 hover:text-[#EC4899] hover:border-[#EC4899]/30 rounded-sm text-xs"
+                                            className="border-white/10 text-gray-500 hover:text-[#f2f2f2] hover:border-[#f2f2f2]/30 rounded-sm text-xs"
                                             onClick={() => {
                                                 resetForm();
                                                 setShowCreateModal(true);
                                             }}
                                         >
-                                            + INITIALIZE FIRST MODULE
+                                            New assessment
                                         </Button>
-                                    </motion.div>
+                                    </div>
                                 ) : (
                                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {filtered.map((a, idx) => (
@@ -421,16 +351,16 @@ const AssessmentBuilder = () => {
                             <TabsContent value="library" className="mt-8 border-none p-0 outline-none">
                                 {loading ? (
                                     <div className="flex flex-col items-center justify-center py-24">
-                                        <div className="w-10 h-10 border-2 border-[#EC4899]/20 border-t-[#EC4899] rounded-full animate-spin mb-4" />
+                                        <div className="w-10 h-10 border-2 border-[#f2f2f2]/20 border-t-[#f2f2f2] rounded-full animate-spin mb-4" />
                                         <p className="text-gray-500 text-xs">
-                                            Accessing Global Repository...
+                                            Loading…
                                         </p>
                                     </div>
                                 ) : filtered.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/5 border-dashed rounded-sm">
+                                    <div className="flex flex-col items-start py-6">
                                         <Globe className="h-12 w-12 text-gray-800 mb-4" />
-                                        <p className="text-gray-500 uppercase text-sm">
-                                            No library content matches filter
+                                        <p className="text-gray-500 text-sm">
+                                            Nothing matches
                                         </p>
                                     </div>
                                 ) : (
@@ -453,12 +383,12 @@ const AssessmentBuilder = () => {
                         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card border-white/10 text-white custom-scrollbar">
 
                             <DialogHeader>
-                                <DialogTitle className="text-2xl font-bold uppercase tracking-tight flex items-center gap-3">
-                                    <Activity className="w-6 h-6 text-[#EC4899]" />
-                                    {editingAssessment ? "Modify Assessment" : "Module Initialization"}
+                                <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                                    <Activity className="w-6 h-6 text-[#f2f2f2]" />
+                                    {editingAssessment ? "Edit assessment" : "New assessment"}
                                 </DialogTitle>
-                                <DialogDescription className="text-gray-500 text-xs uppercase">
-                                    {editingAssessment ? "UPDATING EXISTING ASSESSMENT ARCHITECTURE" : "DESIGNING NEW EVALUATION ARCHITECTURE AND PARAMETERS"}
+                                <DialogDescription className="text-gray-500 text-xs">
+                                    {editingAssessment ? "" : ""}
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -466,16 +396,16 @@ const AssessmentBuilder = () => {
                                 {/* Basic Config */}
                                 <div className="grid gap-6 md:grid-cols-2 bg-white/[0.02] border border-white/5 p-6 rounded-sm">
                                     <div className="space-y-2">
-                                        <Label className="text-xs text-gray-500 uppercase">Assessment Title *</Label>
+                                        <Label className="text-xs text-gray-500">Assessment Title *</Label>
                                         <Input
-                                            placeholder="e.g., SENIOR SYSTEM ARCHITECT EVALUATION"
-                                            className="bg-black/40 border-white/10 uppercase font-bold text-sm h-11 focus:border-[#EC4899]/50"
+                                            placeholder="Backend fundamentals"
+                                            className="bg-black/40 border-white/10 font-bold text-sm h-11 focus:border-[#f2f2f2]/50"
                                             value={formData.title}
                                             onChange={(e) => setFormData({ ...formData, title: e.target.value.toUpperCase() })}
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs text-gray-500 uppercase">Category Index</Label>
+                                        <Label className="text-xs text-gray-500">Category Index</Label>
                                         <Select
                                             value={formData.category}
                                             onValueChange={(v) => setFormData({ ...formData, category: v })}
@@ -493,10 +423,10 @@ const AssessmentBuilder = () => {
                                         </Select>
                                     </div>
                                     <div className="md:col-span-2 space-y-2">
-                                        <Label className="text-xs text-gray-500 uppercase">Strategic Description</Label>
+                                        <Label className="text-xs text-gray-500">Strategic Description</Label>
                                         <Textarea
-                                            placeholder="DEFINE THE ASSESSMENT CORE COMPETENCIES AND GOALS..."
-                                            className="bg-black/40 border-white/10 text-xs focus:border-[#EC4899]/50"
+                                            placeholder=""
+                                            className="bg-black/40 border-white/10 text-xs focus:border-[#f2f2f2]/50"
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                             rows={2}
@@ -507,18 +437,18 @@ const AssessmentBuilder = () => {
                                 {/* Performance Parameters */}
                                 <div className="grid gap-6 md:grid-cols-3 bg-white/[0.02] border border-white/5 p-6 rounded-sm">
                                     <div className="space-y-2">
-                                        <Label className="text-xs text-gray-500 uppercase flex items-center gap-1">
+                                        <Label className="text-xs text-gray-500 flex items-center gap-1">
                                             <Timer className="w-3 h-3" /> Duration (Min)
                                         </Label>
                                         <Input
                                             type="number"
-                                            className="bg-black/40 border-white/10 font-bold h-11 focus:border-[#EC4899]/50"
+                                            className="bg-black/40 border-white/10 font-bold h-11 focus:border-[#f2f2f2]/50"
                                             value={formData.duration}
                                             onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 60 })}
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs text-gray-500 uppercase flex items-center gap-1">
+                                        <Label className="text-xs text-gray-500 flex items-center gap-1">
                                             <Award className="w-3 h-3" /> Passing Threshold (%)
                                         </Label>
                                         <Input
@@ -529,15 +459,15 @@ const AssessmentBuilder = () => {
                                         />
                                     </div>
                                     <div className="flex flex-col justify-center gap-2">
-                                        <Label className="text-xs text-gray-500 uppercase">Public Deployment</Label>
+                                        <Label className="text-xs text-gray-500">Share with other companies</Label>
                                         <div className="flex items-center gap-3 bg-black/40 h-11 border border-white/10 px-4 rounded-sm">
                                             <Switch
                                                 checked={formData.isPublic}
                                                 onCheckedChange={(v) => setFormData({ ...formData, isPublic: v })}
-                                                className="data-[state=checked]:bg-[#EC4899]"
+                                                className="data-[state=checked]:bg-[#f2f2f2]"
                                             />
                                             <span className="text-xs text-gray-400">
-                                                {formData.isPublic ? "ENABLED" : "DISABLED"}
+                                                {formData.isPublic ? "On" : "Off"}
                                             </span>
                                         </div>
                                     </div>
@@ -547,23 +477,23 @@ const AssessmentBuilder = () => {
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-between border-b border-white/10 pb-2">
                                         <h3 className="font-bold text-sm flex items-center gap-2">
-                                            <Code className="w-4 h-4 text-[#EC4899]" />
-                                            Question Workspace
+                                            <Code className="w-4 h-4 text-[#f2f2f2]" />
+                                            Questions
                                         </h3>
                                         <div className="flex items-center gap-4 text-xs">
                                             <span className="text-gray-500">COUNT: <span className="text-white">{formData.questions.length}</span></span>
-                                            <span className="text-gray-500">TOTAL SCORE: <span className="text-[#EC4899]">{totalPoints} PTS</span></span>
+                                            <span className="text-gray-500">Total <span className="text-[#f2f2f2]">{totalPoints} points</span></span>
                                         </div>
                                     </div>
 
                                     {/* List of Questions */}
                                     <div className="space-y-3">
                                         {formData.questions.map((q, i) => (
-                                            <motion.div
+                                            <div
                                                 key={i}
-                                                layout
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
+                                               
+                                               
+                                               
                                                 className="flex items-center justify-between p-4 bg-white/[0.01] border border-white/5 rounded-sm group hover:border-white/20 transition-all"
                                             >
                                                 <div className="flex items-center gap-4 flex-1">
@@ -573,8 +503,8 @@ const AssessmentBuilder = () => {
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-sm font-medium text-gray-200 truncate">{q.question}</p>
                                                         <div className="flex items-center gap-2 mt-1">
-                                                            <Badge variant="outline" className="text-xs h-4 border-white/10 text-gray-500 uppercase">{q.type}</Badge>
-                                                            <Badge variant="outline" className="text-xs h-4 border-[#EC4899]/20 text-[#EC4899] uppercase">{q.difficulty}</Badge>
+                                                            <Badge variant="outline" className="text-xs h-4 border-white/10 text-gray-500">{q.type}</Badge>
+                                                            <Badge variant="outline" className="text-xs h-4 border-[#f2f2f2]/20 text-[#f2f2f2]">{q.difficulty}</Badge>
                                                             <span className="text-xs text-gray-600">{q.points} PTS</span>
                                                         </div>
                                                     </div>
@@ -587,20 +517,20 @@ const AssessmentBuilder = () => {
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
-                                            </motion.div>
+                                            </div>
                                         ))}
                                     </div>
 
                                     {/* Add New Question Form */}
                                     <div className="bg-black/40 border border-white/10 p-6 rounded-sm relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-1 h-full bg-[#EC4899]/30" />
-                                        <h4 className="text-xs text-gray-500 uppercase mb-4 tracking-tighter">Initialize Sub-Module (Add Question)</h4>
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-[#f2f2f2]/30" />
+                                        <h4 className="text-xs text-gray-500 mb-4">Add a question</h4>
 
                                         <div className="grid gap-4 md:grid-cols-2 mb-4">
                                             <div className="space-y-4">
                                                 <div className="grid grid-cols-2 gap-3">
                                                     <div className="space-y-1">
-                                                        <Label className="text-xs text-gray-600 uppercase">Module Type</Label>
+                                                        <Label className="text-xs text-gray-600">Type</Label>
                                                         <Select
                                                             value={currentQuestion.type}
                                                             onValueChange={(v) => setCurrentQuestion({ ...currentQuestion, type: v })}
@@ -609,14 +539,14 @@ const AssessmentBuilder = () => {
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent className="bg-card border-white/10 text-white">
-                                                                <SelectItem value="mcq">MCQ</SelectItem>
-                                                                <SelectItem value="code">CODING</SelectItem>
-                                                                <SelectItem value="text">TEXT</SelectItem>
+                                                                <SelectItem value="mcq">Multiple choice</SelectItem>
+                                                                <SelectItem value="code">Code</SelectItem>
+                                                                <SelectItem value="text">Written</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
                                                     <div className="space-y-1">
-                                                        <Label className="text-xs text-gray-600 uppercase">Difficulty</Label>
+                                                        <Label className="text-xs text-gray-600">Difficulty</Label>
                                                         <Select
                                                             value={currentQuestion.difficulty}
                                                             onValueChange={(v) => setCurrentQuestion({ ...currentQuestion, difficulty: v })}
@@ -625,18 +555,18 @@ const AssessmentBuilder = () => {
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent className="bg-card border-white/10 text-white">
-                                                                <SelectItem value="easy">EASY</SelectItem>
-                                                                <SelectItem value="medium">MEDIUM</SelectItem>
-                                                                <SelectItem value="hard">HARD</SelectItem>
+                                                                <SelectItem value="easy">Easy</SelectItem>
+                                                                <SelectItem value="medium">Medium</SelectItem>
+                                                                <SelectItem value="hard">Hard</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <Label className="text-xs text-gray-600 uppercase text-center">Weighting (Points)</Label>
+                                                    <Label className="text-xs text-gray-600 text-center">Weighting (Points)</Label>
                                                     <Input
                                                         type="number"
-                                                        className="bg-card border-white/5 h-9 text-xs font-bold focus:border-[#EC4899]/30"
+                                                        className="bg-card border-white/5 h-9 text-xs font-bold focus:border-[#f2f2f2]/30"
                                                         value={currentQuestion.points}
                                                         onChange={(e) => setCurrentQuestion({ ...currentQuestion, points: parseInt(e.target.value) || 10 })}
                                                     />
@@ -645,10 +575,10 @@ const AssessmentBuilder = () => {
 
                                             <div className="space-y-4">
                                                 <div className="space-y-1">
-                                                    <Label className="text-xs text-gray-600 uppercase">Question Prompt</Label>
+                                                    <Label className="text-xs text-gray-600">Question Prompt</Label>
                                                     <Textarea
-                                                        placeholder="OPERATIONAL PROMPT TEXT..."
-                                                        className="bg-card border-white/5 text-xs focus:border-[#EC4899]/30 h-[100px]"
+                                                        placeholder="Question"
+                                                        className="bg-card border-white/5 text-xs focus:border-[#f2f2f2]/30 h-[100px]"
                                                         value={currentQuestion.question}
                                                         onChange={(e) => setCurrentQuestion({ ...currentQuestion, question: e.target.value })}
                                                     />
@@ -658,7 +588,7 @@ const AssessmentBuilder = () => {
 
                                         {currentQuestion.type === "mcq" && (
                                             <div className="mt-6 space-y-3 pt-6 border-t border-white/5">
-                                                <Label className="text-xs text-primary/70 block mb-4">Response Vectors (MCQ Options)</Label>
+                                                <Label className="text-xs text-primary/70 block mb-4">Options</Label>
                                                 <div className="grid md:grid-cols-2 gap-4">
                                                     {currentQuestion.options.map((opt, i) => (
                                                         <div key={i} className="flex gap-3 items-center group">
@@ -670,13 +600,13 @@ const AssessmentBuilder = () => {
                                                                     checked={currentQuestion.correctAnswer === i}
                                                                     onChange={() => setCurrentQuestion({ ...currentQuestion, correctAnswer: i })}
                                                                 />
-                                                                <div className="w-5 h-5 rounded-sm border border-white/10 peer-checked:bg-[#EC4899] peer-checked:border-[#EC4899] transition-all flex items-center justify-center">
+                                                                <div className="w-5 h-5 rounded-sm border border-white/10 peer-checked:bg-[#f2f2f2] peer-checked:border-[#f2f2f2] transition-all flex items-center justify-center">
                                                                     {currentQuestion.correctAnswer === i && <CheckCircle className="w-3 h-3 text-black" />}
                                                                 </div>
                                                             </div>
                                                             <Input
-                                                                placeholder={`OPTION VECTOR ${i + 1}`}
-                                                                className="bg-card border-white/5 h-9 text-xs focus:border-[#EC4899]/30 flex-1"
+                                                                placeholder={`Option ${i + 1}`}
+                                                                className="bg-card border-white/5 h-9 text-xs focus:border-[#f2f2f2]/30 flex-1"
                                                                 value={opt}
                                                                 onChange={(e) => {
                                                                     const newOpts = [...currentQuestion.options];
@@ -692,9 +622,9 @@ const AssessmentBuilder = () => {
 
                                         <Button
                                             onClick={addQuestion}
-                                            className="w-full mt-8 bg-white/5 hover:bg-[#EC4899]/10 border border-white/5 hover:border-[#EC4899]/30 text-gray-400 hover:text-[#EC4899] rounded-sm font-bold text-xs h-11 transition-all"
+                                            className="w-full mt-8 bg-white/5 hover:bg-[#f2f2f2]/10 border border-white/5 hover:border-[#f2f2f2]/30 text-gray-400 hover:text-[#f2f2f2] rounded-sm font-bold text-xs h-11 transition-all"
                                         >
-                                            <Plus className="h-4 w-4 mr-2" /> COMMIT QUESTION TO MODULE
+                                            <Plus className="h-4 w-4 mr-2" /> Add question
                                         </Button>
                                     </div>
                                 </div>
@@ -706,13 +636,13 @@ const AssessmentBuilder = () => {
                                     onClick={() => setShowCreateModal(false)}
                                     className="border-white/10 text-gray-500 text-xs h-11 px-8 rounded-sm"
                                 >
-                                    ABORT
+                                    Cancel
                                 </Button>
                                 <Button
                                     onClick={handleCreate}
-                                    className="bg-[#EC4899] text-black hover:bg-[#EC4899]/90 font-bold px-12 h-11 rounded-sm"
+                                    className="bg-[#f2f2f2] text-black hover:bg-[#f2f2f2]/90 font-bold px-12 h-11 rounded-sm"
                                 >
-                                    {editingAssessment ? "DEPLOY UPDATES" : "FINALIZE & DEPLOY MODULE"}
+                                    {editingAssessment ? "Save" : "Create assessment"}
                                 </Button>
                             </DialogFooter>
                         </DialogContent>
@@ -720,7 +650,7 @@ const AssessmentBuilder = () => {
                 )}
             </AnimatePresence>
 
-            <style jsx global>{`
+            <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 5px;
         }
@@ -740,23 +670,23 @@ const AssessmentBuilder = () => {
 };
 
 const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -5 }}
+    <div
+       
+       
+       
         className="group relative"
     >
-        <Card className="bg-card/80 border border-white/10 group-hover:border-[#EC4899]/30 transition-all rounded-sm overflow-hidden h-full flex flex-col">
+        <Card className="bg-card/80 border border-white/10 group-hover:border-[#f2f2f2]/30 transition-all rounded-sm overflow-hidden h-full flex flex-col">
             {/* Corner Accent */}
 
             <CardHeader className="pb-3 px-5">
                 <div className="flex justify-between items-start gap-4">
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-gray-100 group-hover:text-white transition-colors truncate uppercase tracking-tight">
+                        <h3 className="text-lg font-bold text-gray-100 group-hover:text-white transition-colors truncate">
                             {assessment.title}
                         </h3>
                         <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="bg-[#EC4899]/5 border-[#EC4899]/20 text-[#EC4899] text-xs rounded-sm h-4">
+                            <Badge variant="outline" className="bg-[#f2f2f2]/5 border-[#f2f2f2]/20 text-[#f2f2f2] text-xs rounded-sm h-4">
                                 {assessment.category.toUpperCase()}
                             </Badge>
                             <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -765,12 +695,12 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
                                 ) : (
                                     <Lock className="h-3 w-3 text-gray-600" />
                                 )}
-                                {assessment.isPublic ? "PUBLIC" : "PRIVATE"}
+                                {assessment.isPublic ? "Shared" : "Private"}
                             </div>
                         </div>
                     </div>
-                    <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center group-hover:bg-[#EC4899]/10 transition-colors">
-                        <Code className="w-5 h-5 text-gray-400 group-hover:text-[#EC4899]" />
+                    <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center group-hover:bg-[#f2f2f2]/10 transition-colors">
+                        <Code className="w-5 h-5 text-gray-400 group-hover:text-[#f2f2f2]" />
                     </div>
                 </div>
             </CardHeader>
@@ -778,13 +708,13 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
             <CardContent className="px-5 pb-5 flex-1 flex flex-col">
                 <div className="grid grid-cols-3 gap-2 py-4 border-t border-b border-white/5 mb-4">
                     <div className="text-center">
-                        <p className="text-xs text-gray-500 uppercase mb-1 flex items-center justify-center gap-1">
+                        <p className="text-xs text-gray-500 mb-1 flex items-center justify-center gap-1">
                             <Timer className="w-3 h-3" /> Time
                         </p>
                         <p className="font-bold text-sm text-gray-200">{assessment.duration}m</p>
                     </div>
                     <div className="text-center border-l border-r border-white/5">
-                        <p className="text-xs text-gray-500 uppercase mb-1 flex items-center justify-center gap-1">
+                        <p className="text-xs text-gray-500 mb-1 flex items-center justify-center gap-1">
                             <Box className="w-3 h-3" /> Count
                         </p>
                         <p className="font-bold text-sm text-gray-200">
@@ -792,7 +722,7 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
                         </p>
                     </div>
                     <div className="text-center">
-                        <p className="text-xs text-gray-500 uppercase mb-1 flex items-center justify-center gap-1">
+                        <p className="text-xs text-gray-500 mb-1 flex items-center justify-center gap-1">
                             <Award className="w-3 h-3" /> Pass
                         </p>
                         <p className="font-bold text-sm text-primary">{assessment.passingScore}%</p>
@@ -801,19 +731,19 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
 
                 <div className="mt-auto pt-2">
                     <div className="flex justify-between items-center mb-4">
-                        <p className="text-xs text-gray-500 uppercase flex items-center gap-1">
+                        <p className="text-xs text-gray-500 flex items-center gap-1">
                             <Activity className="w-3 h-3" /> Utilization: <span className="text-gray-300 ml-1">{assessment.usageCount || 0} SELECTIONS</span>
                         </p>
                     </div>
 
                     <div className="flex gap-2">
-                        <Button size="sm" className="flex-1 bg-[#EC4899] text-black hover:bg-[#EC4899]/90 rounded-sm font-bold text-xs gap-2">
+                        <Button size="sm" className="flex-1 bg-[#f2f2f2] text-black hover:bg-[#f2f2f2]/90 rounded-sm font-bold text-xs gap-2">
                             <Send className="h-3 w-3" /> ASSIGN
                         </Button>
 
                         {showActions && (
                             <div className="flex gap-1">
-                                <Button size="sm" variant="outline" className="border-white/10 hover:border-[#EC4899]/30 h-8 w-8 p-0" onClick={onEdit}>
+                                <Button size="sm" variant="outline" className="border-white/10 hover:border-[#f2f2f2]/30 h-8 w-8 p-0" onClick={onEdit}>
                                     <Edit className="h-3.5 w-3.5 text-gray-400" />
                                 </Button>
                                 <Button size="sm" variant="outline" className="border-white/10 hover:border-red-500/30 h-8 w-8 p-0" onClick={onDelete}>
@@ -829,14 +759,14 @@ const AssessmentCard = ({ assessment, onEdit, onDelete, showActions, showCompany
                         <div className="w-5 h-5 bg-white/5 rounded-sm flex items-center justify-center border border-white/10">
                             <span className="text-xs font-bold text-gray-500">{assessment.company.name.charAt(0)}</span>
                         </div>
-                        <span className="text-xs text-gray-600 uppercase truncate">
+                        <span className="text-xs text-gray-600 truncate">
                             DEPLOYED BY: {assessment.company.name}
                         </span>
                     </div>
                 )}
             </CardContent>
         </Card>
-    </motion.div>
+    </div>
 );
 
 export default AssessmentBuilder;

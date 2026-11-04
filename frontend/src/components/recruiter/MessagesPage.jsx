@@ -10,12 +10,10 @@
  * - Real-time typing indicators and call signaling
  */
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
   MessageSquare,
@@ -23,17 +21,14 @@ import {
   User,
   Users,
   Search,
-  ArrowLeft,
   RefreshCw,
   Crown,
   Phone,
   Video,
   Mail,
-  MapPin,
   Briefcase,
   X,
   Calendar,
-  Clock,
   Check,
   CheckCheck,
   Terminal,
@@ -46,19 +41,16 @@ import { Textarea } from "../ui/textarea";
 import Navbar from "../shared/Navbar";
 import {
   MESSAGE_API_END_POINT,
-  COMPANY_API_END_POINT,
-  INTERVIEW_API_END_POINT,
 } from "@/utils/constant";
 import { useRealtime } from "@/context/SocketContext";
+import api from "@/utils/api";
 
 const RecruiterMessagesPage = () => {
-  const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
   const messagesEndRef = useRef(null);
   const {
     isConnected,
     isUserOnline,
-    getUserPresence,
     getTypingUsers,
     startTyping,
     stopTyping,
@@ -88,8 +80,6 @@ const RecruiterMessagesPage = () => {
   const [ceoContact, setCeoContact] = useState(null);
 
   // Call state
-  const [isCallActive, setIsCallActive] = useState(false);
-  const [callType, setCallType] = useState(null); // 'audio' or 'video'
 
   // Filtered contacts based on search query
   const filteredTeamMembers = useMemo(() => {
@@ -176,121 +166,44 @@ const RecruiterMessagesPage = () => {
     setLoading(false);
   };
 
+  // Contacts come from the API, which applies the messaging rule: the
+  // company's team, and candidates with an interview at the company
   const fetchContacts = async () => {
     try {
-      const isCompanyAdmin = user?.role === "company_admin";
+      const res = await api.get("/message/contacts");
+      const all = (res.data.contacts || []).map((c) => ({ ...c, profile: { profilePhoto: c.photo } }));
+      const team = all.filter((c) => c.team);
+      const candidates = all
+        .filter((c) => !c.team)
+        .map((c) => ({ ...c, jobTitle: c.jobTitle || "Candidate", interviewDate: c.interviewAt }));
 
-      // Fetch companies
-      const companyRes = await axios.get(`${COMPANY_API_END_POINT}/get`, {
-        withCredentials: true,
-      });
-
-      if (companyRes.data.success && companyRes.data.companies?.length > 0) {
-        const company = companyRes.data.companies[0];
-
-        // Fetch company by ID to get populated data
-        const detailRes = await axios.get(
-          `${COMPANY_API_END_POINT}/get/${company._id}`,
-          {
-            withCredentials: true,
-          },
-        );
-
-        if (detailRes.data.success) {
-          const companyData = detailRes.data.company;
-
-          if (isCompanyAdmin) {
-            // For CEO/Admin: Show recruiters as team members
-            const recruiters = (companyData.recruiters || [])
-              .filter(r => r.userId?._id !== user?._id) // Exclude self
-              .map(r => ({
-                _id: String(r.userId?._id),
-                fullname: String(r.userId?.fullname || "Recruiter"),
-                email: String(r.userId?.email || ""),
-                role: "recruiter",
-                isRecruiter: true,
-                profile: r.userId?.profile || {},
-                companyName: String(company.name),
-              }));
-
-            setTeamMembers(recruiters);
-
-            // Set first recruiter as default contact if no active contact
-            if (recruiters.length > 0 && !activeContact) {
-              setActiveContact(recruiters[0]);
-              loadConversation(recruiters[0]._id);
-            }
-          } else {
-            // For Recruiters: Show CEO as default contact
-            if (companyData.adminUser) {
-              const ceo = companyData.adminUser;
-              const ceoData = {
-                _id: String(ceo._id),
-                fullname: String(ceo.fullname || "Company Admin"),
-                email: String(ceo.email || ""),
-                role: "company_admin",
-                isCEO: true,
-                profile: ceo.profile || {},
-                companyName: String(company.name),
-              };
-              setCeoContact(ceoData);
-              // Default to CEO chat if no active contact
-              if (!activeContact) {
-                setActiveContact(ceoData);
-                loadConversation(ceoData._id);
-              }
-            }
+      if (user?.role === "company_admin") {
+        const recruiters = team.map((c) => ({ ...c, isRecruiter: true }));
+        setTeamMembers(recruiters);
+        if (recruiters.length > 0 && !activeContact) {
+          setActiveContact(recruiters[0]);
+          loadConversation(recruiters[0]._id);
+        }
+      } else {
+        const owner = team.find((c) => c.role === "company_admin");
+        if (owner) {
+          const ceoData = { ...owner, isCEO: true };
+          setCeoContact(ceoData);
+          if (!activeContact) {
+            setActiveContact(ceoData);
+            loadConversation(ceoData._id);
           }
         }
       }
-
-      // Fetch interview candidates (for both roles)
-      const interviewRes = await axios.get(
-        `${INTERVIEW_API_END_POINT}/recruiter/my-interviews`,
-        {
-          withCredentials: true,
-        },
-      );
-
-      if (interviewRes.data.success) {
-        const candidates = (interviewRes.data.interviews || [])
-          .filter((int) => int.studentId)
-          .map((int) => ({
-            _id: String(int.studentId._id),
-            fullname: String(int.studentId.fullname),
-            email: String(int.studentId.email || ""),
-            role: "student",
-            jobTitle: String(int.jobId?.title || "Candidate"),
-            profile: int.studentId.profile || {},
-            interviewDate: int.scheduledAt,
-          }));
-
-        const uniqueCandidates = candidates.filter(
-          (c, i, arr) => arr.findIndex((x) => x._id === c._id) === i,
-        );
-
-        setContacts(uniqueCandidates);
-      }
+      setContacts(candidates);
     } catch (error) {
       console.error("Failed to fetch contacts:", error);
-      // Don't toast error here to avoid annoyance if just empty
     }
   };
 
   const handleCall = (type) => {
     if (!activeContact) return;
-
-    // In a real implementation, this would open a call modal/overlay
-    // For now, we'll simulate the signaling
-    const callId = initiateCall(activeContact._id, type);
-    if (callId) {
-      setCallType(type);
-      setIsCallActive(true);
-      toast.success(`Calling ${activeContact.fullname}...`);
-      // Here you would mount the WebRTC component with callId
-    } else {
-      toast.error("Connection not available. Attempting to reconnect...");
-    }
+    initiateCall(activeContact._id, type, activeContact.fullname);
   };
 
   const loadConversation = async (contactId) => {
@@ -390,12 +303,6 @@ const RecruiterMessagesPage = () => {
     toast.success("Messages refreshed");
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   const handleDeleteConversation = async () => {
     if (!activeContact?._id) return;
@@ -434,7 +341,7 @@ const RecruiterMessagesPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22C55E]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#f2f2f2]" />
       </div>
     );
   }
@@ -451,7 +358,7 @@ const RecruiterMessagesPage = () => {
           <div className="p-4 border-b border-white/10">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-lg font-bold flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-[#22C55E]" />
+                <MessageSquare className="w-5 h-5 text-[#f2f2f2]" />
                 Messages
                 {isConnected && (
                   <span
@@ -488,23 +395,20 @@ const RecruiterMessagesPage = () => {
             {/* CEO Section (For Recruiters) */}
             {filteredCeoContact && (
               <div>
-                <div className="px-4 py-2 bg-[#22C55E]/5 flex items-center gap-2">
-                  <Crown className="w-3 h-3 text-[#22C55E]" />
-                  <span className="text-xs text-[#22C55E] font-bold">
+                <div className="px-4 py-2 bg-[#f2f2f2]/5 flex items-center gap-2">
+                  <Crown className="w-3 h-3 text-[#f2f2f2]" />
+                  <span className="text-xs text-[#f2f2f2] font-bold">
                     Company Admin
                   </span>
                 </div>
                 <button
                   onClick={() => handleSelectContact(filteredCeoContact)}
-                  className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${activeContact?._id === filteredCeoContact._id
-                    ? "bg-[#22C55E]/10 border-[#22C55E]"
-                    : "border-transparent hover:bg-white/5"
-                    }`}
+                  className={`w-full flex items-center gap-3 p-4 transition-colors ${activeContact?._id === filteredCeoContact._id ? "bg-white/10" : "hover:bg-white/5" }`}
                 >
                   <div className="relative">
-                    <Avatar className="h-12 w-12 border-2 border-[#22C55E]/30">
+                    <Avatar className="h-12 w-12 border-2 border-[#f2f2f2]/30">
                       <AvatarImage src={filteredCeoContact.profile?.profilePhoto} />
-                      <AvatarFallback className="bg-[#22C55E]/10 text-[#22C55E] font-bold text-lg">
+                      <AvatarFallback className="bg-[#f2f2f2]/10 text-[#f2f2f2] font-bold text-lg">
                         {filteredCeoContact.fullname?.charAt(0) || "C"}
                       </AvatarFallback>
                     </Avatar>
@@ -527,9 +431,9 @@ const RecruiterMessagesPage = () => {
             {/* Team Members Section (For Admin) */}
             {filteredTeamMembers.length > 0 && (
               <div>
-                <div className="px-4 py-2 bg-[#22C55E]/5 flex items-center gap-2 mt-2">
-                  <Terminal className="w-3 h-3 text-[#22C55E]" />
-                  <span className="text-xs text-[#22C55E] font-bold">
+                <div className="px-4 py-2 bg-[#f2f2f2]/5 flex items-center gap-2 mt-2">
+                  <Terminal className="w-3 h-3 text-[#f2f2f2]" />
+                  <span className="text-xs text-[#f2f2f2] font-bold">
                     Team Members ({filteredTeamMembers.length})
                   </span>
                 </div>
@@ -537,15 +441,12 @@ const RecruiterMessagesPage = () => {
                   <button
                     key={member._id}
                     onClick={() => handleSelectContact(member)}
-                    className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${activeContact?._id === member._id
-                      ? "bg-[#22C55E]/10 border-[#22C55E]"
-                      : "border-transparent hover:bg-white/5"
-                      }`}
+                    className={`w-full flex items-center gap-3 p-4 transition-colors ${activeContact?._id === member._id ? "bg-white/10" : "hover:bg-white/5" }`}
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={member.profile?.profilePhoto} />
-                        <AvatarFallback className="bg-[#22C55E]/10 text-[#22C55E]">
+                        <AvatarFallback className="bg-[#f2f2f2]/10 text-[#f2f2f2]">
                           {member.fullname?.charAt(0) || "R"}
                         </AvatarFallback>
                       </Avatar>
@@ -569,9 +470,9 @@ const RecruiterMessagesPage = () => {
             {/* Candidates Section */}
             {filteredContacts.length > 0 && (
               <div>
-                <div className="px-4 py-2 bg-cyan-500/5 flex items-center gap-2 mt-2">
-                  <Users className="w-3 h-3 text-cyan-400" />
-                  <span className="text-xs text-cyan-400 font-bold">
+                <div className="px-4 py-2  flex items-center gap-2 mt-2">
+                  <Users className="w-3 h-3 text-gray-400" />
+                  <span className="text-xs text-gray-400 font-bold">
                     Candidates ({filteredContacts.length})
                   </span>
                 </div>
@@ -579,15 +480,12 @@ const RecruiterMessagesPage = () => {
                   <button
                     key={contact._id}
                     onClick={() => handleSelectContact(contact)}
-                    className={`w-full flex items-center gap-3 p-4 transition-all border-l-2 ${activeContact?._id === contact._id
-                      ? "bg-cyan-500/10 border-cyan-400"
-                      : "border-transparent hover:bg-white/5"
-                      }`}
+                    className={`w-full flex items-center gap-3 p-4 transition-colors ${activeContact?._id === contact._id ? "bg-white/10" : "hover:bg-white/5" }`}
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={contact.profile?.profilePhoto} />
-                        <AvatarFallback className="bg-cyan-500/10 text-cyan-400">
+                        <AvatarFallback className="bg-white/10 text-gray-400">
                           {contact.fullname?.charAt(0) || "C"}
                         </AvatarFallback>
                       </Avatar>
@@ -631,8 +529,8 @@ const RecruiterMessagesPage = () => {
                     <AvatarFallback
                       className={
                         activeContact.isCEO
-                          ? "bg-[#22C55E]/10 text-[#22C55E]"
-                          : "bg-cyan-500/10 text-cyan-400"
+                          ? "bg-[#f2f2f2]/10 text-[#f2f2f2]"
+                          : "bg-white/10 text-gray-400"
                       }
                     >
                       {activeContact.fullname?.charAt(0) || "U"}
@@ -642,7 +540,7 @@ const RecruiterMessagesPage = () => {
                     <div className="font-bold text-white flex items-center gap-2">
                       {activeContact.fullname}
                       {activeContact.isCEO && (
-                        <Crown className="w-4 h-4 text-[#22C55E]" />
+                        <Crown className="w-4 h-4 text-[#f2f2f2]" />
                       )}
                     </div>
                     <div className="text-gray-500 text-xs flex items-center gap-2">
@@ -667,6 +565,7 @@ const RecruiterMessagesPage = () => {
                     size="sm"
                     variant="ghost"
                     onClick={() => handleCall("audio")}
+                      aria-label="Voice call"
                     className="text-gray-500 hover:text-white w-10 h-10 p-0"
                   >
                     <Phone className="w-5 h-5" />
@@ -675,6 +574,7 @@ const RecruiterMessagesPage = () => {
                     size="sm"
                     variant="ghost"
                     onClick={() => handleCall("video")}
+                      aria-label="Video call"
                     className="text-gray-500 hover:text-white w-10 h-10 p-0"
                   >
                     <Video className="w-5 h-5" />
@@ -700,7 +600,7 @@ const RecruiterMessagesPage = () => {
                   <div className="flex-1 overflow-y-auto p-6 space-y-4">
                     {loadingConversation ? (
                       <div className="flex items-center justify-center h-full">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#22C55E]" />
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#f2f2f2]" />
                       </div>
                     ) : conversation.length > 0 ? (
                       <>
@@ -712,17 +612,14 @@ const RecruiterMessagesPage = () => {
                           const isMe = senderId === user?._id;
 
                           return (
-                            <motion.div
+                            <div
                               key={msg._id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
+                             
+                             
                               className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                             >
                               <div
-                                className={`max-w-[60%] ${isMe
-                                  ? "bg-gradient-to-br from-[#22C55E] to-[#FFA500] text-[#000000] rounded-2xl rounded-br-sm shadow-lg shadow-[#22C55E]/20"
-                                  : "bg-white/10 text-white rounded-2xl rounded-bl-sm backdrop-blur-sm"
-                                  } px-4 py-3`}
+                                className={`max-w-[60%] ${isMe ? "bg-gradient-to-br from-[#f2f2f2] to-[#e6e6e6] text-[#000000] rounded-2xl rounded-br-sm shadow-lg shadow-[#f2f2f2]/20" : "bg-white/10 text-white rounded-2xl rounded-bl-sm backdrop-blur-sm" } px-4 py-3`}
                               >
                                 <p
                                   className={`text-sm leading-relaxed ${isMe ? "text-[#000000]" : "text-white"}`}
@@ -730,8 +627,7 @@ const RecruiterMessagesPage = () => {
                                   {msg.content}
                                 </p>
                                 <div
-                                  className={`flex items-center justify-end gap-1 mt-2 ${isMe ? "text-[#000000]/50" : "text-gray-500"
-                                    }`}
+                                  className={`flex items-center justify-end gap-1 mt-2 ${isMe ? "text-[#000000]/50" : "text-gray-500" }`}
                                 >
                                   <span className="text-xs">
                                     {format(new Date(msg.createdAt), "HH:mm")}
@@ -747,18 +643,15 @@ const RecruiterMessagesPage = () => {
                                     ))}
                                 </div>
                               </div>
-                            </motion.div>
+                            </div>
                           );
                         })}
                         <div ref={messagesEndRef} />
                       </>
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-center">
-                        <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                          <MessageSquare className="w-10 h-10 text-gray-600" />
-                        </div>
-                        <h3 className="text-gray-400 font-bold text-lg mb-2">
-                          Start a Conversation
+                        <h3 className="text-white text-base font-medium mb-1">
+                          No messages yet
                         </h3>
                         <p className="text-gray-600 text-sm max-w-xs">
                           Send a message to {activeContact.fullname}
@@ -807,7 +700,7 @@ const RecruiterMessagesPage = () => {
                       <Button
                         onClick={handleSendMessage}
                         disabled={sending || !messageText.trim()}
-                        className="bg-[#22C55E] hover:bg-[#FFE44D] text-black font-bold h-12 w-12 p-0 rounded-xl"
+                        className="bg-[#f2f2f2] hover:bg-[#e6e6e6] text-black font-bold h-12 w-12 p-0 rounded-xl"
                       >
                         {sending ? (
                           <RefreshCw className="w-5 h-5 animate-spin" />
@@ -821,10 +714,10 @@ const RecruiterMessagesPage = () => {
 
                 {/* Profile Panel */}
                 {showProfile && (
-                  <motion.div
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: 320, opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
+                  <div
+                   
+                   
+                   
                     className="w-80 bg-[#0D0D0D] border-l border-white/10 overflow-y-auto flex-shrink-0"
                   >
                     <div className="p-6">
@@ -849,10 +742,7 @@ const RecruiterMessagesPage = () => {
                             src={activeContact.profile?.profilePhoto}
                           />
                           <AvatarFallback
-                            className={`text-3xl ${activeContact.isCEO
-                              ? "bg-[#22C55E]/10 text-[#22C55E]"
-                              : "bg-cyan-500/10 text-cyan-400"
-                              }`}
+                            className={`text-3xl ${activeContact.isCEO ? "bg-[#f2f2f2]/10 text-[#f2f2f2]" : "bg-white/10 text-gray-400" }`}
                           >
                             {activeContact.fullname?.charAt(0) || "U"}
                           </AvatarFallback>
@@ -863,12 +753,12 @@ const RecruiterMessagesPage = () => {
                         <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
                           {activeContact.isCEO ? (
                             <>
-                              <Crown className="w-4 h-4 text-[#22C55E]" />
+                              <Crown className="w-4 h-4 text-[#f2f2f2]" />
                               <span>Company Admin</span>
                             </>
                           ) : (
                             <>
-                              <Briefcase className="w-4 h-4 text-cyan-400" />
+                              <Briefcase className="w-4 h-4 text-gray-400" />
                               <span>
                                 {activeContact.jobTitle || "Candidate"}
                               </span>
@@ -947,17 +837,14 @@ const RecruiterMessagesPage = () => {
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
               </div>
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-              <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                <MessageSquare className="w-12 h-12 text-gray-600" />
-              </div>
-              <h3 className="text-gray-400 font-bold text-xl mb-2">
-                No Chat Selected
+              <h3 className="text-white text-base font-medium mb-1">
+                Pick a conversation
               </h3>
               <p className="text-gray-600 text-sm max-w-xs">
                 Select a contact from the sidebar to start messaging

@@ -92,8 +92,6 @@ const ApplicantsList = () => {
   }, [tab, jobId, query]);
 
   const now = Date.now();
-  const waiting = (rows ?? []).filter((a) => a.stage === "new");
-  const oldest = waiting.reduce((d, a) => Math.max(d, Math.floor((now - new Date(a.createdAt)) / DAY)), 0);
   const page = visible.slice(0, shown);
   const allOnPage = page.length > 0 && page.every((a) => selected.has(a._id));
 
@@ -143,17 +141,6 @@ const ApplicantsList = () => {
       <div className="app-title-row">
         <div>
           <h1 className="app-h1">Applicants</h1>
-          <p className="app-finding">
-            {!rows ? (
-              <Skeleton w={280} h={14} />
-            ) : waiting.length ? (
-              <>
-                <strong>{plural(waiting.length, "applicant")}</strong> waiting for review, the oldest for <strong>{daysAgo(oldest).toLowerCase()}</strong>.
-              </>
-            ) : (
-              "No one is waiting for review."
-            )}
-          </p>
         </div>
       </div>
 

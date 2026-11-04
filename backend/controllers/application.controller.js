@@ -137,7 +137,9 @@ export const getAppliedJobs = async (req, res) => {
           path: "company",
           options: { sort: { createdAt: -1 } },
         },
-      });
+      })
+      // The interview's time and state, so the candidate's list can offer Join at the right moment
+      .populate({ path: "interviewId", select: "scheduledAt status" });
 
     // Return empty array if no applications found (this is valid, not an error)
     return res.status(200).json({

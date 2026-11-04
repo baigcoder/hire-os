@@ -3,14 +3,12 @@
  * Hire.iOS Industrial Theme
  */
 
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import {
   Crown,
   AlertTriangle,
-  Clock,
   Zap,
   Users,
   Briefcase,
@@ -20,7 +18,6 @@ import {
   RefreshCw,
   Shield,
   TrendingUp,
-  Calendar,
   CreditCard,
   Star,
 } from "lucide-react";
@@ -32,11 +29,6 @@ import { useSubscription } from "@/hooks/useSubscription";
 const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
-
-  // Don't show subscription panel for recruiters - only CEO manages subscription
-  if (user?.role === "recruiter") {
-    return null;
-  }
 
   const {
     subscription,
@@ -50,6 +42,11 @@ const SubscriptionPanel = ({ compact = false, showUpgrade = true }) => {
     isExpired,
     refresh,
   } = useSubscription();
+
+  // Don't show subscription panel for recruiters - only CEO manages subscription
+  if (user?.role === "recruiter") {
+    return null;
+  }
 
   if (loading) {
     return (

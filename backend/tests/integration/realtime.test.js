@@ -30,6 +30,7 @@ describe("realtime call config", () => {
 
     recruiter = await createUser({ email: "r@acme.test", role: "recruiter" });
     const company = await Company.create({
+    subscription: { status: "active" },
       name: "Acme",
       email: "hr@acme.test",
       description: "Acme builds logistics software for everyone.",
@@ -61,6 +62,8 @@ describe("realtime call config", () => {
       studentId: candidate._id,
       recruiterId: recruiter._id,
       scheduledAt: new Date(),
+      // No MCQ round, so the candidate may join the video room straight away
+      mcqTest: { enabled: false },
     });
   });
 

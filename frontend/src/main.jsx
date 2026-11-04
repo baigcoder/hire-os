@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import store from "./redux/store.js";
 import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
+import "./utils/api.js"; // installs session handling on axios before any screen loads
 import { AuthProvider } from "./context/AuthContext.jsx";
 
 const persistor = persistStore(store);

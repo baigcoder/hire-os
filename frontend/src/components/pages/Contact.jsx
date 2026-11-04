@@ -1,148 +1,89 @@
-import React from "react";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import api from "@/utils/api";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
-import { Mail, Phone, MapPin, MessageSquare, Send } from "lucide-react";
-import { Button } from "../ui/button";
 
+const TOPICS = ["General", "Support", "Sales", "Press"];
+
+/** Contact: a form that really sends (POST /contact), or says plainly when it can't. */
 const Contact = () => {
+  const [params] = useSearchParams();
+  const [form, setForm] = useState({ name: "", email: "", topic: TOPICS.includes(params.get("topic")) ? params.get("topic") : "General", message: "" });
+  const [state, setState] = useState({ sending: false, sent: false, error: "" });
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const send = async (e) => {
+    e.preventDefault();
+    setState({ sending: true, sent: false, error: "" });
+    try {
+      await api.post("/contact", form);
+      setState({ sending: false, sent: true, error: "" });
+    } catch (err) {
+      setState({ sending: false, sent: false, error: err.response?.data?.message || "Your message couldn't be sent. Please try again." });
+    }
+  };
+
   return (
-    <IndustrialPageLayout
-      title="Contact Base"
-      subtitle="Initiate communication protocol. Direct channels open."
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Contact Information */}
-        <div>
-          <div className="space-y-8">
-            <div className="p-6 bg-card border border-white/10 rounded-sm group hover:border-primary/30 transition-colors">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-white/5 rounded-sm text-primary">
-                  <MapPin size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    Headquarters
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    Level 14, High Tech Plaza
-                    <br />
-                    Gulberg III, Lahore
-                    <br />
-                    Pakistan, 54000
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-card border border-white/10 rounded-sm group hover:border-primary/30 transition-colors">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-white/5 rounded-sm text-primary">
-                  <Mail size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    Direct Line
-                  </h3>
-                  <p className="text-gray-400 text-sm mb-1">
-                    General: hello@hire.os
-                  </p>
-                  <p className="text-gray-400 text-sm">
-                    Support: help@hire.os
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-card border border-white/10 rounded-sm group hover:border-primary/30 transition-colors">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-white/5 rounded-sm text-primary">
-                  <Phone size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    Voice Comms
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    +92 300 1234567
-                  </p>
-                  <p className="text-gray-500 text-xs mt-1">
-                    Mon-Fri, 9am - 6pm PKT
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Contact Form */}
-        <div className="bg-card p-8 border border-white/10 rounded-sm relative">
-          <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-primary/20 rounded-tr-sm" />
-          <div className="absolute bottom-0 left-0 w-20 h-20 border-b-2 border-l-2 border-primary/20 rounded-bl-sm" />
-
-          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <MessageSquare size={20} className="text-primary" />
-            SEND TRANSMISSION
-          </h3>
-
-          <form className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+    <IndustrialPageLayout title="Contact" subtitle="Questions about plans, help with your account, or a story: write to us and we'll reply by email.">
+      <section className="app-panel" style={{ maxWidth: 760 }} aria-labelledby="msg-h">
+        <h2 className="app-h2" id="msg-h">
+          Send a message
+        </h2>
+        {state.sent ? (
+          <p style={{ margin: "12px 0 0" }}>Thanks, {form.name.split(" ")[0]}. We&apos;ll reply to {form.email}.</p>
+        ) : (
+          <form onSubmit={send}>
+            <dl className="app-dl">
               <div>
-                <label className="block text-xs text-gray-500 mb-2 uppercase">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-background border border-white/10 rounded-sm p-3 text-white focus:border-primary focus:outline-none transition-colors"
-                />
+                <dt>
+                  <label htmlFor="c-name">Name</label>
+                </dt>
+                <dd>
+                  <input id="c-name" className="app-input" required maxLength={100} autoComplete="name" value={form.name} onChange={set("name")} />
+                </dd>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-2 uppercase">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-background border border-white/10 rounded-sm p-3 text-white focus:border-primary focus:outline-none transition-colors"
-                />
+                <dt>
+                  <label htmlFor="c-email">Email</label>
+                </dt>
+                <dd>
+                  <input id="c-email" className="app-input" type="email" required autoComplete="email" value={form.email} onChange={set("email")} />
+                </dd>
               </div>
+              <div>
+                <dt>
+                  <label htmlFor="c-topic">Topic</label>
+                </dt>
+                <dd>
+                  <select id="c-topic" className="app-select" value={form.topic} onChange={set("topic")}>
+                    {TOPICS.map((t) => (
+                      <option key={t}>{t}</option>
+                    ))}
+                  </select>
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  <label htmlFor="c-msg">Message</label>
+                </dt>
+                <dd>
+                  <textarea id="c-msg" className="app-input" required minLength={10} maxLength={4000} value={form.message} onChange={set("message")} />
+                </dd>
+              </div>
+            </dl>
+            {state.error && (
+              <p role="alert" style={{ color: "var(--pill-negative-ink)", margin: "8px 0 0" }}>
+                {state.error}
+              </p>
+            )}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+              <button type="submit" className="app-btn app-btn-primary" disabled={state.sending}>
+                {state.sending ? "Sending…" : "Send message"}
+              </button>
             </div>
-
-            <div>
-              <label className="block text-xs text-gray-500 mb-2 uppercase">
-                Email Address
-              </label>
-              <input
-                type="email"
-                className="w-full bg-background border border-white/10 rounded-sm p-3 text-white focus:border-primary focus:outline-none transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs text-gray-500 mb-2 uppercase">
-                Subject
-              </label>
-              <select className="w-full bg-background border border-white/10 rounded-sm p-3 text-white focus:border-primary focus:outline-none transition-colors">
-                <option>General Inquiry</option>
-                <option>Support Request</option>
-                <option>Partnership Proposal</option>
-                <option>Press/Media</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs text-gray-500 mb-2 uppercase">
-                Message
-              </label>
-              <textarea
-                rows="4"
-                className="w-full bg-background border border-white/10 rounded-sm p-3 text-white focus:border-primary focus:outline-none transition-colors"
-              ></textarea>
-            </div>
-
-            <Button className="w-full bg-primary text-black font-bold hover:bg-[#FFE44D] mt-4 py-6">
-              Transmit Message <Send size={16} className="ml-2" />
-            </Button>
           </form>
-        </div>
-      </div>
+        )}
+      </section>
     </IndustrialPageLayout>
   );
 };

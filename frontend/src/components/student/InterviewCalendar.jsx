@@ -4,7 +4,7 @@
  * Premium Industrial Theme - Exact match with HIRE.OS design language
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
@@ -12,18 +12,11 @@ import {
   ChevronRight,
   Video,
   Clock,
-  Building,
-  MapPin,
-  Briefcase,
-  Bell,
-  Loader2,
   CalendarDays,
-  MonitorPlay,
   Play,
   Phone,
   Sparkles,
 } from "lucide-react";
-import { Badge } from "../ui/badge";
 import { ComponentLoader } from "../shared/DashboardLoader";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";

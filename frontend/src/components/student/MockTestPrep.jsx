@@ -1,26 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/utils/api";
 import { toast } from "sonner";
 import {
   Brain,
-  Clock,
   CheckCircle,
   XCircle,
   Loader2,
   Play,
-  ArrowRight,
   Trophy,
   RefreshCw,
   BookOpen,
-  Target,
-  Zap,
-  Award,
-  AlertCircle,
   ChevronRight,
   Timer,
-  HelpCircle,
-  Star,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";

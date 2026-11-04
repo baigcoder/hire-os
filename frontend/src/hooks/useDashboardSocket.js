@@ -17,18 +17,14 @@ export const useDashboardSocket = (options = {}) => {
   const [lastUpdate, setLastUpdate] = useState(null);
 
   // Callbacks for real-time updates
-  const [onStatsUpdate, setOnStatsUpdate] = useState(null);
-  const [onApplicationUpdate, setOnApplicationUpdate] = useState(null);
-  const [onNotification, setOnNotification] = useState(null);
 
   // Initialize socket connection
   useEffect(() => {
     if (!user?._id) return;
 
-    const token = localStorage.getItem("token");
 
     socketRef.current = io(SOCKET_URL, {
-      auth: { token },
+      withCredentials: true,
       transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionAttempts: 5,

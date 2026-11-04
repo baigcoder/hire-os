@@ -1,5 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import { Company } from "../models/company.model.js";
+import { startSession, clearSessionCookies, endAllSessions, recruiterAccessProblem, signAccessToken, signRefreshToken, newSessionId, accessCookie, refreshCookie } from "../utils/session.js";
 import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
@@ -14,68 +16,12 @@ import { initializeStudentTrial } from "../utils/trialService.js";
 import logger from "../utils/logger.js";
 import { blacklistToken, isTokenBlacklisted } from "../utils/tokenBlacklist.js";
 
-// =============== TOKEN GENERATION SYSTEM ===============
-// Access token: Short-lived (15 minutes) - used for API requests
-// Refresh token: Long-lived (7 days) - used to get new access tokens
+// Sessions (tokens, cookies, refresh) live in utils/session.js
 
-const ACCESS_TOKEN_EXPIRY = "15m";
-const REFRESH_TOKEN_EXPIRY = "7d";
-const ACCESS_TOKEN_MAX_AGE = 15 * 60 * 1000; // 15 minutes in ms
-const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
-
-// Generate access token (short-lived)
-const generateAccessToken = (userId) => {
-  return jwt.sign(
-    { userId, type: "access" },
-    process.env.SECRET_KEY,
-    { expiresIn: ACCESS_TOKEN_EXPIRY }
-  );
-};
-
-// Generate refresh token (long-lived)  
-const generateRefreshToken = (userId, sessionId) => {
-  return jwt.sign(
-    { userId, sessionId, type: "refresh" },
-    process.env.SECRET_KEY,
-    { expiresIn: REFRESH_TOKEN_EXPIRY }
-  );
-};
-
-// Generate unique session ID
-const generateSessionId = () => {
-  return crypto.randomBytes(32).toString("hex");
-};
-
-// Legacy token generation (kept for backwards compatibility)
-const generateToken = (userId, expiresIn = "7d") => {
-  return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn });
-};
-
-// Cookie options for access token
-const getAccessCookieOptions = () => ({
-  maxAge: ACCESS_TOKEN_MAX_AGE,
-  httpOnly: true,
-  secure: true,
-  sameSite: "none",
-  path: "/",
-});
-
-// Cookie options for refresh token
-const getRefreshCookieOptions = () => ({
-  maxAge: REFRESH_TOKEN_MAX_AGE,
-  httpOnly: true,
-  secure: true,
-  sameSite: "none",
-  path: "/api/v1/user/refresh-token", // Only sent to refresh endpoint
-});
-
-// Legacy cookie options (kept for backwards compatibility)
-const getCookieOptions = (maxAge = 7 * 24 * 60 * 60 * 1000) => ({
-  maxAge,
-  httpOnly: true,
-  secure: true,
-  sameSite: "none",
-});
+// The company a recruiter or owner works in, named in the app's sidebar
+const companyNameOf = async (user) =>
+  user.companyId ? (await Company.findById(user.companyId).select("name").lean())?.name ?? null : null;
+const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
 // Extract device info from request
 const getDeviceInfo = (req) => {
@@ -155,7 +101,7 @@ export const register = async (req, res) => {
     });
 
     // Generate token and auto-login after registration
-    const token = generateToken(newUser._id);
+    const token = await startSession(res, newUser._id, req);
 
     // Initialize 30-day free trial for students
     let trialInfo = null;
@@ -182,7 +128,6 @@ export const register = async (req, res) => {
 
     return res
       .status(201)
-      .cookie("token", token, getCookieOptions())
       .json({
         message:
           role === "student"
@@ -207,7 +152,8 @@ export const login = async (req, res) => {
 
     logger.debug("🔐 Login attempt:", { email, role, hasPassword: !!password });
 
-    if (!email || !password || !role) {
+    // The account knows its role; one sent by older clients must still match it
+    if (!email || !password) {
       return res.status(400).json({
         message: "Please fill in all fields",
         success: false,
@@ -279,7 +225,7 @@ export const login = async (req, res) => {
     }
 
     // Check role
-    if (role !== user.role) {
+    if (role && role !== user.role) {
       return res.status(400).json({
         message: `No ${role} account found with these credentials. Please select the correct role.`,
         success: false,
@@ -297,8 +243,8 @@ export const login = async (req, res) => {
       });
     }
 
-    // Check subscription status (for all roles)
-    if (user.subscriptionStatus === "expired") {
+    // Owners can always sign in: renewing happens inside the app
+    if (user.role !== "company_admin" && user.subscriptionStatus === "expired") {
       return res.status(403).json({
         message: "Your subscription has expired. Please renew to continue.",
         success: false,
@@ -307,24 +253,8 @@ export const login = async (req, res) => {
       });
     }
 
-    // For recruiters/company_admin, check company subscription
-    if (
-      (user.role === "recruiter" || user.role === "company_admin") &&
-      user.companyId
-    ) {
-      const { Company } = await import("../models/company.model.js");
-      const company = await Company.findById(user.companyId);
-
-      if (company && company.subscription.status === "expired") {
-        return res.status(403).json({
-          message:
-            "Your company's subscription has expired. Please contact your administrator.",
-          success: false,
-          code: "COMPANY_SUBSCRIPTION_EXPIRED",
-          subscriptionExpired: true,
-        });
-      }
-    }
+    const blocked = await recruiterAccessProblem(user);
+    if (blocked) return res.status(403).json({ ...blocked, success: false });
     // =============== END SUBSCRIPTION CHECK ===============
 
     // Reset failed login attempts on successful login
@@ -333,7 +263,7 @@ export const login = async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    const token = generateToken(user._id);
+    const token = await startSession(res, user._id, req);
 
     const userResponse = {
       _id: user._id,
@@ -342,6 +272,7 @@ export const login = async (req, res) => {
       phoneNumber: user.phoneNumber,
       role: user.role,
       companyId: user.companyId || null, // Include companyId for registration status check
+      companyName: await companyNameOf(user),
       profile: user.profile,
       lastLogin: user.lastLogin,
       mustChangePassword: user.mustChangePassword || false,
@@ -353,7 +284,6 @@ export const login = async (req, res) => {
 
     return res
       .status(200)
-      .cookie("token", token, getCookieOptions())
       .json({
         message: user.mustChangePassword
           ? `Welcome ${user.fullname}! Please change your password to continue.`
@@ -394,11 +324,15 @@ export const logout = async (req, res) => {
       }
     }
 
-    // Clear all auth cookies
+    // End this device's session so its refresh token can't be used again
+    const refresh = req.cookies.refreshToken && jwt.decode(req.cookies.refreshToken);
+    if (refresh?.userId && refresh.sessionId) {
+      await User.updateOne({ _id: refresh.userId }, { $pull: { activeSessions: { sessionId: refresh.sessionId } } });
+    }
+
+    clearSessionCookies(res);
     return res
       .status(200)
-      .cookie("token", "", { maxAge: 0, path: "/" })
-      .cookie("refreshToken", "", { maxAge: 0, path: "/" })
       .json({
         message: "Logged out successfully.",
         success: true,
@@ -496,14 +430,23 @@ export const refreshToken = async (req, res) => {
       });
     }
 
+    // A recruiter whose company lapsed loses the session at the next refresh
+    const blocked = await recruiterAccessProblem(user);
+    if (blocked) {
+      user.activeSessions.splice(sessionIndex, 1);
+      await user.save();
+      clearSessionCookies(res);
+      return res.status(403).json({ ...blocked, success: false });
+    }
+
     // Generate new tokens (rotate both for security)
-    const newAccessToken = generateAccessToken(user._id);
-    const newSessionId = generateSessionId();
-    const newRefreshToken = generateRefreshToken(user._id, newSessionId);
+    const newAccessToken = signAccessToken(user._id);
+    const nextSessionId = newSessionId();
+    const newRefreshToken = signRefreshToken(user._id, nextSessionId);
 
     // Update session with new refresh token
     user.activeSessions[sessionIndex].refreshToken = newRefreshToken;
-    user.activeSessions[sessionIndex].sessionId = newSessionId;
+    user.activeSessions[sessionIndex].sessionId = nextSessionId;
     user.activeSessions[sessionIndex].lastUsed = new Date();
     user.activeSessions[sessionIndex].expiresAt = new Date(Date.now() + REFRESH_TOKEN_MAX_AGE);
     await user.save();
@@ -515,8 +458,8 @@ export const refreshToken = async (req, res) => {
 
     return res
       .status(200)
-      .cookie("token", newAccessToken, getAccessCookieOptions())
-      .cookie("refreshToken", newRefreshToken, getRefreshCookieOptions())
+      .cookie("token", newAccessToken, accessCookie)
+      .cookie("refreshToken", newRefreshToken, refreshCookie)
       .json({
         message: "Token refreshed successfully",
         token: newAccessToken,
@@ -532,6 +475,14 @@ export const refreshToken = async (req, res) => {
 };
 
 // =============== SESSION MANAGEMENT ===============
+// "Chrome on Windows" from a user agent string; null when it can't tell
+const describeDevice = (ua = "") => {
+  if (!ua) return null;
+  const browser = /Edg\//.test(ua) ? "Edge" : /OPR\//.test(ua) ? "Opera" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : null;
+  const os = /Windows/.test(ua) ? "Windows" : /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iOS" : /Mac OS X/.test(ua) ? "macOS" : /Linux/.test(ua) ? "Linux" : null;
+  return [browser, os].filter(Boolean).join(" on ") || null;
+};
+
 // Get all active sessions for current user
 export const getActiveSessions = async (req, res) => {
   try {
@@ -545,14 +496,18 @@ export const getActiveSessions = async (req, res) => {
     }
 
     // Map sessions to safe response (without refresh tokens)
-    const sessions = (user.activeSessions || []).map((session, index) => ({
-      id: session.sessionId,
-      deviceInfo: session.deviceInfo,
-      ipAddress: session.ipAddress?.replace(/(\d+)\.(\d+)\.(\d+)\.(\d+)/, "$1.$2.***.**"),
-      createdAt: session.createdAt,
-      lastUsed: session.lastUsed,
-      isCurrent: false, // Will be set by frontend comparing session IDs
-    }));
+    // The refresh cookie reaches /user routes, so this device's session can be marked
+    const current = req.cookies?.refreshToken ? jwt.decode(req.cookies.refreshToken)?.sessionId : null;
+    const sessions = (user.activeSessions || [])
+      .filter((session) => !session.expiresAt || session.expiresAt > new Date())
+      .map((session) => ({
+        id: session.sessionId,
+        device: describeDevice(session.userAgent) ?? session.deviceInfo,
+        ipAddress: session.ipAddress?.replace(/(\d+)\.(\d+)\.(\d+)\.(\d+)/, "$1.$2.***.**"),
+        createdAt: session.createdAt,
+        lastUsed: session.lastUsed,
+        isCurrent: session.sessionId === current,
+      }));
 
     return res.status(200).json({
       sessions,
@@ -623,7 +578,9 @@ export const revokeSession = async (req, res) => {
 // Revoke all sessions except current
 export const revokeAllSessions = async (req, res) => {
   try {
-    const currentSessionId = req.body.currentSessionId;
+    // This device's session comes from its refresh cookie; the page can't read it
+    const currentSessionId =
+      req.body?.currentSessionId ?? (req.cookies?.refreshToken ? jwt.decode(req.cookies.refreshToken)?.sessionId : null);
     const user = await User.findById(req.id);
 
     if (!user) {
@@ -724,8 +681,9 @@ export const changeInitialPassword = async (req, res) => {
 
     logger.info("✅ Initial password changed", { userId: String(user._id) });
 
-    // Generate new token and log user in
-    const token = generateToken(user._id);
+    // The temporary password's sessions end; this one starts fresh
+    await endAllSessions(user._id);
+    const token = await startSession(res, user._id, req);
 
     const userResponse = {
       _id: user._id,
@@ -738,7 +696,7 @@ export const changeInitialPassword = async (req, res) => {
       mustChangePassword: false,
     };
 
-    return res.status(200).cookie("token", token, getCookieOptions()).json({
+    return res.status(200).json({
       message: "Password changed successfully! Welcome to JobPortal.",
       user: userResponse,
       token,
@@ -1024,6 +982,10 @@ export const changePassword = async (req, res) => {
     user.passwordChangedAt = new Date();
     await user.save();
 
+    // Every other device is signed out; this one starts a fresh session
+    await endAllSessions(user._id);
+    await startSession(res, user._id, req);
+
     return res.status(200).json({
       message: "Password changed successfully",
       success: true,
@@ -1303,8 +1265,11 @@ export const supabaseSync = async (req, res) => {
       }
     }
 
+    const blocked = await recruiterAccessProblem(user);
+    if (blocked) return res.status(403).json({ ...blocked, success: false });
+
     // Generate JWT token for backend authentication
-    const token = generateToken(user._id);
+    const token = await startSession(res, user._id, req);
 
     // =============== DETERMINE REDIRECT DESTINATION ===============
     // This helps frontend know exactly where to send the user
@@ -1352,6 +1317,7 @@ export const supabaseSync = async (req, res) => {
       phoneNumber: user.phoneNumber,
       role: user.role,
       companyId: user.companyId || null,
+      companyName: await companyNameOf(user),
       profile: user.profile,
       createdAt: user.createdAt,
       // Include subscription/trial info
@@ -1363,7 +1329,6 @@ export const supabaseSync = async (req, res) => {
 
     return res
       .status(200)
-      .cookie("token", token, getCookieOptions())
       .json({
         message: isNewUser
           ? "Account created successfully"

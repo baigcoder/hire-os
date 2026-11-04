@@ -1,17 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { RESUME_API_END_POINT, JOB_API_END_POINT } from "@/utils/constant";
 import {
-  Loader2,
   Upload,
   CheckCircle,
   AlertCircle,
   FileText,
-  Target,
-  Zap,
-  TrendingUp,
   AlertTriangle,
   Sparkles,
 } from "lucide-react";
@@ -19,13 +16,13 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 
 const ResumeUpload = ({ jobId, onUploadComplete }) => {
-  const token = localStorage.getItem("token");
+  const signedIn = useSelector((s) => !!s.auth.user);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState("");
   const [analysis, setAnalysis] = useState(null);
-  const [jobData, setJobData] = useState(null);
+  const [, setJobData] = useState(null);
 
   // Loading step messages for animation (same as dashboard)
   const loadingSteps = [
@@ -73,7 +70,7 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
       return;
     }
 
-    if (!token) {
+    if (!signedIn) {
       setError("Authentication required. Please login.");
       return;
     }
@@ -95,7 +92,6 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
       let jobDescription = "";
       try {
         const jobRes = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {
-          headers: { Authorization: `Bearer ${token}` },
         });
         if (jobRes.data.job) {
           setJobData(jobRes.data.job);
@@ -124,7 +120,6 @@ const ResumeUpload = ({ jobId, onUploadComplete }) => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
           },
         }
       );

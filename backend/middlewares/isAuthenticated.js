@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import { verifyAccessToken, recruiterAccessProblem } from "../utils/session.js";
 import { isTokenBlacklisted } from "../utils/tokenBlacklist.js";
 import { getLogContext } from "../utils/logger.js";
 
@@ -29,7 +29,7 @@ const isAuthenticated = async (req, res, next) => {
     }
 
     try {
-      const decode = jwt.verify(token, process.env.SECRET_KEY);
+      const decode = verifyAccessToken(token);
       if (!decode || !decode.userId) {
         return res.status(401).json({
           message: "Invalid token. Please login again.",
@@ -96,6 +96,15 @@ export const isRecruiter = async (req, res, next) => {
         success: false,
         code: "FORBIDDEN",
       });
+    }
+
+    // Checked on every request, not only at sign-in
+    if (user.role === "recruiter") {
+      if (user.mustChangePassword) {
+        return res.status(403).json({ message: "Set your own password to continue.", success: false, code: "PASSWORD_CHANGE_REQUIRED" });
+      }
+      const blocked = await recruiterAccessProblem(user);
+      if (blocked) return res.status(403).json({ ...blocked, success: false });
     }
 
     req.user = user;

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import api from "@/utils/api";
-import { Skeleton, ErrorBlock, plural, daysAgo } from "../app/blocks";
+import { Skeleton, ErrorBlock, daysAgo } from "../app/blocks";
 import ScreeningPanel from "./screening/ScreeningPanel";
 
 const STAGE_LABEL = {
@@ -76,7 +76,6 @@ const JobApplicants = () => {
     [job],
   );
   const selected = apps.find((a) => a._id === selectedId) ?? apps[0];
-  const counts = apps.reduce((c, a) => ({ ...c, [a.stage]: (c[a.stage] ?? 0) + 1 }), {});
   const now = Date.now();
 
   const setStatus = async (app, status, label) => {
@@ -104,20 +103,12 @@ const JobApplicants = () => {
           </Link>
           <h1 className="app-h1" style={{ marginTop: 4 }}>
             {job ? job.title : <Skeleton w={220} h={24} />}
-          </h1>
-          <p className="app-finding">
-            {!job ? (
-              <Skeleton w={300} h={14} />
-            ) : apps.length === 0 ? (
-              "No applicants yet."
-            ) : (
-              <>
-                <strong>{plural(apps.length, "applicant")}</strong>
-                {ORDER.filter((k) => counts[k]).map((k) => ` · ${counts[k]} ${STAGE_LABEL[k].toLowerCase()}`)}
-                {job.isActive === false ? " · this job is closed" : ""}
-              </>
+            {job?.isActive === false && (
+              <span className="app-pill" style={{ marginLeft: 12, verticalAlign: "middle" }}>
+                Closed
+              </span>
             )}
-          </p>
+          </h1>
         </div>
       </div>
 
@@ -129,7 +120,7 @@ const JobApplicants = () => {
             {!job ? (
               <Skeleton rows={6} />
             ) : apps.length === 0 ? (
-              <p className="app-empty">Applicants appear here as they apply.</p>
+              <p className="app-empty">No applicants yet.</p>
             ) : (
               <ul className="app-list" role="listbox" aria-label="Applicants">
                 {apps.map((a) => (

@@ -1,19 +1,6 @@
 /** Small building blocks shared by the app screens (see app.css). */
 
-export const plural = (n, word, many = `${word}s`) => `${n.toLocaleString()} ${n === 1 ? word : many}`;
-
-export const daysAgo = (days) => (days === 0 ? "Today" : days === 1 ? "1 day" : `${days} days`);
-
-const timeFmt = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
-const dayFmt = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" });
-
-/** "Today, 3:30 PM" / "Tomorrow, 10:00 AM" / "Thu 6 Nov, 9:00 AM" */
-export const when = (date, now = new Date()) => {
-  const d = new Date(date);
-  const days = Math.round((new Date(d.toDateString()) - new Date(now.toDateString())) / 864e5);
-  const day = days === 0 ? "Today" : days === 1 ? "Tomorrow" : days === -1 ? "Yesterday" : dayFmt.format(d);
-  return `${day}, ${timeFmt.format(d)}`;
-};
+export { plural, daysAgo, when } from "./format.js";
 
 /** Loading: the final layout with flat bars at their real size. */
 export const Skeleton = ({ w = "100%", h = 14, rows }) =>
@@ -37,42 +24,30 @@ export const ErrorBlock = ({ what, onRetry }) => (
   </div>
 );
 
-/** KPIs as one container split by dividers: label, value, one grey line. */
-export const Kpis = ({ items, loading, count = 4 }) => (
-  <div className="app-kpis">
-    {(loading ? Array.from({ length: count }, () => null) : items).map((k, i) => (
-      <div className="app-kpi" key={k?.label ?? i}>
-        <div className="app-kpi-label">{k ? k.label : <Skeleton w={90} h={12} />}</div>
-        <div className="app-kpi-value num">{k ? k.value : <Skeleton w={56} h={24} />}</div>
-        {k?.sub && <div className="app-kpi-sub">{k.sub}</div>}
-      </div>
-    ))}
-  </div>
-);
-
 /**
- * The hiring funnel: one bar per stage at its true share of the largest
- * stage. Only the stage the screen is about carries the data hue.
+ * The hiring pipeline as one strip: each stage's width is its share of the
+ * applications, and the stage this person acts on carries the one data hue.
  */
-export const Funnel = ({ pipeline, hue, hide = ["closed"] }) => {
-  if (!pipeline) return <Skeleton rows={6} />;
-  const stages = pipeline.stages.filter((s) => !hide.includes(s.key));
-  const max = Math.max(1, ...stages.map((s) => s.count));
-  const closed = pipeline.stages.find((s) => s.key === "closed")?.count ?? 0;
+export const PipelineStrip = ({ pipeline, focus, to }) => {
+  const stages = (pipeline?.stages ?? []).filter((s) => s.key !== "closed");
+  const total = stages.reduce((n, s) => n + s.count, 0);
+  if (!total) return <p className="app-meta">No applications yet.</p>;
   return (
-    <div className="app-funnel">
-      {stages.map((s) => (
-        <div key={s.key} className={`app-funnel-row${s.key === hue ? " is-hue" : ""}`}>
-          <span className="app-funnel-label">{s.label}</span>
-          <span className="app-funnel-track" aria-hidden="true">
-            {s.count > 0 && <span className="app-funnel-fill" style={{ width: `${(s.count / max) * 100}%`, display: "block" }} />}
-          </span>
-          <span className="num" style={{ textAlign: "right" }}>
-            {s.count}
-          </span>
-        </div>
-      ))}
-      {hide.includes("closed") && <div className="app-meta">{closed ? `${plural(closed, "application")} closed` : "None closed yet"}</div>}
+    <div className="app-strip">
+      <div className="app-strip-bar" aria-hidden="true">
+        {stages.map((s) =>
+          s.count ? <span key={s.key} className={s.key === focus ? "is-focus" : ""} style={{ flexGrow: s.count }} /> : null,
+        )}
+      </div>
+      <ul className="app-strip-legend">
+        {stages.map((s) => (
+          <li key={s.key} className={s.key === focus ? "is-focus" : ""}>
+            <span className="num app-strip-count">{s.count}</span>
+            <span>{s.label}</span>
+          </li>
+        ))}
+      </ul>
+      {to}
     </div>
   );
 };

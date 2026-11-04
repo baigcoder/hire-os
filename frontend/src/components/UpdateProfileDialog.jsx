@@ -15,13 +15,11 @@ import {
   FileEdit,
   Sparkles,
   Camera,
-  Image as ImageIcon,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import api from "@/utils/api";
 import { setUser } from "@/redux/authSlice";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
 
 const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
   const [loading, setLoading] = useState(false);
@@ -30,7 +28,7 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
   const [resumeUrl, setResumeUrl] = useState("");
   const [resumeName, setResumeName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
-  const [profilePhotoFile, setProfilePhotoFile] = useState(null);
+  const [, setProfilePhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState("");
   const photoInputRef = useRef(null);
 
@@ -122,11 +120,6 @@ const UpdateProfileDialog = ({ open = false, setOpen = () => { } }) => {
     }
   };
 
-  // Legacy function - kept for compatibility but no longer needed
-  const uploadProfilePhoto = async () => {
-    // Auto-upload is now handled in handlePhotoChange
-    // This is kept for any external callers
-  };
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });

@@ -4,7 +4,7 @@
  * Heavy components are loaded only when needed
  */
 
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 
 // ═══════════════════════════════════════════════════════════════
 // LOADING FALLBACKS

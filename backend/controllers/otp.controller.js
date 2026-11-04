@@ -1,26 +1,8 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import {
-  generateOTP,
-  saveOTP,
-  verifyOTP,
-  sendOTPEmail,
-  sendWelcomeEmail,
-} from "../utils/email.js";
-
-// Token generation helper
-const generateToken = (userId, expiresIn = "7d") => {
-  return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn });
-};
-
-// Cookie options
-const getCookieOptions = (maxAge = 7 * 24 * 60 * 60 * 1000) => ({
-  maxAge,
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
-});
+import { sendOTPEmail, sendWelcomeEmail } from "../utils/email.js";
+import { issueCode, checkCode } from "../utils/emailCode.js";
+import { startSession, recruiterAccessProblem } from "../utils/session.js";
 
 // Send OTP for signup/login
 export const sendOTP = async (req, res) => {
@@ -41,48 +23,32 @@ export const sendOTP = async (req, res) => {
     const existingUser = await User.findOne({ email: email.toLowerCase() });
 
     if (purpose === "signup" && existingUser) {
-      // Provide specific role-based message
-      const roleMessages = {
-        company_admin:
-          "This email is registered as a Company Owner/CEO account. Please login with your CEO credentials or use a different email.",
-        recruiter:
-          "This email is registered as a Recruiter account. Please login with your Recruiter credentials or use a different email.",
-        student:
-          "This email is already registered as a Student account. Please login with your existing credentials or use a different email.",
-      };
-
       return res.status(400).json({
-        message:
-          roleMessages[existingUser.role] ||
-          "An account with this email already exists. Please login instead.",
-        existingRole: existingUser.role,
-        code: "EMAIL_ROLE_CONFLICT",
+        message: "An account with this email already exists. Sign in instead.",
+        code: "EMAIL_EXISTS",
         success: false,
       });
     }
 
+    // Sign-in codes: the answer is the same whether or not the account exists
     if (purpose === "login" && !existingUser) {
-      return res.status(400).json({
-        message: "No account found with this email. Please signup first.",
-        success: false,
-      });
+      return res.status(200).json({ message: "If this email has an account, a code is on its way.", success: true, expiresInSeconds: 600 });
     }
 
     // Generate and save OTP
-    const otp = generateOTP();
-    saveOTP(email, otp);
+    const otp = await issueCode(email);
 
     // Send OTP email
     await sendOTPEmail(email, otp, purpose);
 
-    // OTP expires in 5 minutes
-    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    // Codes last 10 minutes (utils/emailCode.js)
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     return res.status(200).json({
       message: "Verification code sent to your email",
       success: true,
       expiresAt: otpExpiresAt,
-      expiresInSeconds: 300, // 5 minutes
+      expiresInSeconds: 600
     });
   } catch (error) {
     console.error("Send OTP error:", error);
@@ -112,8 +78,16 @@ export const verifySignupOTP = async (req, res) => {
       });
     }
 
+    // Recruiter accounts come only from a company owner's invitation
+    if (!["student", "company_admin"].includes(role)) {
+      return res.status(400).json({
+        message: "Recruiters join through their company's invitation.",
+        success: false,
+      });
+    }
+
     // Verify OTP
-    const otpResult = verifyOTP(email, otp);
+    const otpResult = await checkCode(email, otp);
     if (!otpResult.valid) {
       return res.status(400).json({
         message: otpResult.message,
@@ -167,8 +141,7 @@ export const verifySignupOTP = async (req, res) => {
 
     const newUser = await User.create(userData);
 
-    // Generate token
-    const token = generateToken(newUser._id);
+    const token = await startSession(res, newUser._id, req);
 
     // Send appropriate welcome email
     if (role === "student") {
@@ -204,7 +177,6 @@ export const verifySignupOTP = async (req, res) => {
 
     return res
       .status(201)
-      .cookie("token", token, getCookieOptions())
       .json({
         message:
           role === "student"
@@ -239,7 +211,7 @@ export const verifyLoginOTP = async (req, res) => {
     }
 
     // Verify OTP
-    const otpResult = verifyOTP(email, otp);
+    const otpResult = await checkCode(email, otp);
     if (!otpResult.valid) {
       return res.status(400).json({
         message: otpResult.message,
@@ -261,8 +233,10 @@ export const verifyLoginOTP = async (req, res) => {
     user.isEmailVerified = true;
     await user.save();
 
-    // Generate token
-    const token = generateToken(user._id);
+    const blocked = await recruiterAccessProblem(user);
+    if (blocked) return res.status(403).json({ ...blocked, success: false });
+
+    const token = await startSession(res, user._id, req);
 
     const userResponse = {
       _id: user._id,
@@ -276,7 +250,6 @@ export const verifyLoginOTP = async (req, res) => {
 
     return res
       .status(200)
-      .cookie("token", token, getCookieOptions())
       .json({
         message: `Welcome back, ${user.fullname}!`,
         user: userResponse,
@@ -305,20 +278,19 @@ export const resendOTP = async (req, res) => {
     }
 
     // Generate new OTP
-    const otp = generateOTP();
-    saveOTP(email, otp);
+    const otp = await issueCode(email);
 
     // Send OTP email
     await sendOTPEmail(email, otp, purpose);
 
-    // OTP expires in 5 minutes
-    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    // Codes last 10 minutes (utils/emailCode.js)
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     return res.status(200).json({
       message: "New verification code sent to your email",
       success: true,
       expiresAt: otpExpiresAt,
-      expiresInSeconds: 300, // 5 minutes
+      expiresInSeconds: 600
     });
   } catch (error) {
     console.error("Resend OTP error:", error);

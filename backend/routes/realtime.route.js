@@ -10,6 +10,7 @@ import express from "express";
 import mongoose from "mongoose";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { resolveAccess } from "../modules/integrity/service.js";
+import { Interview } from "../models/interview.model.js";
 import {
   mintRealtimeToken,
   privateChannelsEnabled,
@@ -42,6 +43,12 @@ router.get("/interviews/:interviewId/call-config", async (req, res, next) => {
     if (!role) return notFound();
     if (interview.videoInterview?.status === "cancelled") {
       return res.status(409).json({ success: false, code: "INTERVIEW_CANCELLED", message: "This interview was cancelled" });
+    }
+    if (role === "candidate") {
+      const { mcqTest } = (await Interview.findById(interviewId).select("mcqTest.enabled mcqTest.status").lean()) ?? {};
+      if (mcqTest?.enabled && mcqTest.status !== "passed") {
+        return res.status(403).json({ success: false, code: "MCQ_REQUIRED", message: "Pass the MCQ test to join the video interview" });
+      }
     }
     const topic = interviewTopic(interviewId);
     const ice = await getIceServers({ userId: req.id });

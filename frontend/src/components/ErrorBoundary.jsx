@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -16,7 +16,7 @@ class ErrorBoundary extends Component {
         };
     }
 
-    static getDerivedStateFromError(error) {
+    static getDerivedStateFromError() {
         // Update state so the next render will show the fallback UI
         return { hasError: true };
     }
@@ -77,7 +77,7 @@ class ErrorBoundary extends Component {
                             </p>
 
                             {/* Error Details (Development only) */}
-                            {process.env.NODE_ENV === 'development' && this.state.error && (
+                            {import.meta.env.DEV && this.state.error && (
                                 <div className="bg-black/50 border border-red-500/10 rounded p-4 mb-6 text-left overflow-auto max-h-40">
                                     <p className="text-red-400 text-xs mb-2">
                                         <Bug className="w-3 h-3 inline mr-1" />

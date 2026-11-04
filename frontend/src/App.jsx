@@ -12,9 +12,9 @@ import ResetPassword from "./components/auth/ResetPassword";
 import ChangePassword from "./components/auth/ChangePassword";
 import Landing from "./components/landing/Landing";
 import AppShell from "./components/app/AppShell";
+import { useSelector } from "react-redux";
 import FeaturesPage from "./components/FeaturesPage";
 import Jobs from "./components/Jobs";
-import Browse from "./components/Browse";
 import Profile from "./components/Profile";
 import ProfilePage from "./components/ProfilePage";
 import SettingsPage from "./components/SettingsPage";
@@ -24,7 +24,6 @@ import CompanyCreate from "./components/admin/CompanyCreate";
 import CompanySetup from "./components/admin/CompanySetup";
 import PostJob from "./components/admin/PostJob";
 import TalentSearch from "./components/recruiter/TalentSearch";
-import AdminAnalytics from "./components/admin/AdminAnalytics";
 import ProtectedRoute, {
   RecruiterRoute,
   CompanyAdminRoute,
@@ -48,12 +47,16 @@ import AnalysisResult from "./components/student/AnalysisResult";
 import CompanyReport from "./components/admin/CompanyReport";
 import CEOReportReview from "./components/admin/CEOReportReview";
 import MockInterview from "./components/student/MockInterview";
-import CallDialog from "./components/shared/CallDialog";
-import { AlertCircle, ArrowLeft } from "lucide-react";
+import CallCenter from "./components/calls/CallCenter";
+import {
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
 
 // Lazy Load Heavy Dashboards
 const Dashboard = React.lazy(() => import("./components/student/DashboardNew"));
 const CandidateOverview = React.lazy(() => import("./components/student/CandidateOverview"));
+const TeamPage = React.lazy(() => import("./components/company/TeamPage"));
 const JobApplicants = React.lazy(() => import("./components/recruiter/JobApplicants"));
 const JobsList = React.lazy(() => import("./components/recruiter/JobsList"));
 const InterviewsList = React.lazy(() => import("./components/recruiter/InterviewsList"));
@@ -123,6 +126,12 @@ const AssessmentBuilder = React.lazy(
 const LazyWrapper = ({ children }) => (
   <Suspense fallback={<PageLoader />}>{children}</Suspense>
 );
+
+// Public pages that signed-in people also use: inside the app frame for them, standalone for visitors
+const ShellIfSignedIn = ({ title, children }) => {
+  const user = useSelector((s) => s.auth.user);
+  return user ? <AppShell title={title}>{children}</AppShell> : children;
+};
 
 // Redesigned 404 Component - Industrial Theme
 const NotFound = () => (
@@ -256,15 +265,19 @@ const appRouter = createBrowserRouter([
 
   {
     path: "/jobs",
-    element: <Jobs />,
+    element: (
+      <ShellIfSignedIn title="Jobs">
+        <Jobs />
+      </ShellIfSignedIn>
+    ),
   },
   {
     path: "/features",
     element: <FeaturesPage />,
   },
   {
-    path: "/browse",
-    element: <Browse />,
+    path: "/browse", // the same list as /jobs
+    element: <Navigate to="/jobs" replace />,
   },
   {
     path: "/profile",
@@ -818,6 +831,18 @@ const appRouter = createBrowserRouter([
     ),
   },
   {
+    path: "/company/team",
+    element: (
+      <CompanyAdminRoute>
+        <LazyWrapper>
+          <AppShell title="Team">
+            <TeamPage />
+          </AppShell>
+        </LazyWrapper>
+      </CompanyAdminRoute>
+    ),
+  },
+  {
     path: "/company/settings",
     element: (
       <CompanyAdminRoute>
@@ -888,7 +913,7 @@ function App() {
     <ErrorBoundary>
       <RealtimeProvider>
         <RouterProvider router={appRouter} />
-        <CallDialog />
+        <CallCenter />
         <Toaster />
       </RealtimeProvider>
     </ErrorBoundary>

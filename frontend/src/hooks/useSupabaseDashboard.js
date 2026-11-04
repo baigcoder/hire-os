@@ -115,7 +115,6 @@ export const useSupabaseDashboard = (options = {}) => {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "application/json",
           },
         },

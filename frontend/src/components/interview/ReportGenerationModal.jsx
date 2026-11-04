@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,22 +14,17 @@ import {
   Loader2,
   Wand2,
   Send,
-  FileText,
   CheckCircle,
   AlertTriangle,
-  User,
   Briefcase,
   Mail,
   Clock,
   Target,
   Shield,
-  X,
   Cpu,
   Terminal,
 } from "lucide-react";
-import { useSelector } from "react-redux";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
@@ -49,7 +44,6 @@ const ReportGenerationModal = ({
   const [interviewData, setInterviewData] = useState(null);
   // Why sending failed: scorecard gaps, or ratings changed since generation
   const [blocked, setBlocked] = useState(null);
-  const { user } = useSelector((store) => store.auth);
 
   // Fetch interview details when modal opens
   useEffect(() => {
@@ -152,7 +146,7 @@ const ReportGenerationModal = ({
               <Cpu className="w-4 h-4 text-primary" />
             </div>
             <span>
-              <span className="text-primary">AI.REPORT</span> // GENERATOR
+              Interview report
             </span>
             <Badge
               variant="outline"

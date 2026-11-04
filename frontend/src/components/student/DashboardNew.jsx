@@ -1,164 +1,58 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { logout } from "@/redux/authSlice";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "../ui/card";
-import { Badge } from "../ui/badge";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "../ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Progress } from "../ui/progress";
 import {
-  Briefcase,
-  CheckCircle,
-  Clock,
-  FileText,
-  XCircle,
-  TrendingUp,
-  UserCheck,
-  CalendarCheck,
-  Search,
-  MapPin,
-  Building,
   DollarSign,
-  Target,
-  Zap,
-  ArrowUpRight,
-  Brain,
   FileSearch,
-  Mic,
-  Download,
-  Mail,
-  Phone,
-  LayoutDashboard,
-  Sparkles,
-  GraduationCap,
-  Video,
-  ShieldCheck,
-  MessageSquare,
   BrainCircuit,
-  Bookmark,
-  Calendar,
   BarChart3,
-  Rocket,
   BookOpen,
   Users,
-  Bell,
-  ChevronDown,
-  Settings,
-  LogOut,
-  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/utils/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import MockTestPrep from "./MockTestPrep";
-import LiveInterview from "./LiveInterview";
 import TrialWelcomeModal from "./TrialWelcomeModal";
-import JobsForYou from "./JobsForYou";
-import ProfileCompletionCard from "./ProfileCompletionCard";
-import TrialBanner from "./TrialBanner";
-import {
-  ApplicationStatusChart,
-  WeeklyActivityChart,
-  SkillsMatchChart,
-} from "./DashboardCharts";
-import { WriteReviewButton } from "../shared/AddReviewModal";
 // New Dashboard Features
-import SavedJobs from "./SavedJobs";
-import InterviewCalendar from "./InterviewCalendar";
 import SkillGapAnalysis from "./SkillGapAnalysis";
-import CareerTimeline from "./CareerTimeline";
 import SalaryInsights from "./SalaryInsights";
 import LearningResources from "./LearningResources";
-import NetworkConnections from "./NetworkConnections";
-import DailyJobAlerts from "./DailyJobAlerts";
-import PracticeHistory from "./PracticeHistory";
 import AICareerCoach from "./AICareerCoach";
 import ReferralDashboard from "./ReferralDashboard";
 import ResumeAnalyzer from "./resume-intel/ResumeAnalyzerGate";
 import { useSupabaseDashboard } from "../../hooks/useSupabaseDashboard";
 import DashboardLoader from "../shared/DashboardLoader";
-import RealtimeNotifications from "../shared/RealtimeNotifications";
 import { useAuth } from "../../context/AuthContext";
 
-// LIVE Badge Component
-const LiveBadge = ({ isLive }) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.8 }}
-    animate={{ opacity: 1, scale: 1 }}
-    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${isLive
-      ? "bg-accent/10 text-accent border-accent/30"
-      : "bg-gray-500/10 text-gray-400 border-gray-500/30"
-      }`}
-  >
-    <motion.div
-      animate={{ scale: isLive ? [1, 1.2, 1] : 1 }}
-      transition={{ repeat: isLive ? Infinity : 0, duration: 1.5 }}
-      className={`w-2 h-2 rounded-full ${isLive ? "bg-accent" : "bg-gray-500"}`}
-    />
-    {isLive ? "LIVE" : "OFFLINE"}
-  </motion.div>
-);
 
 const StudentDashboard = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useSelector((store) => store.auth);
-  const { signOut } = useAuth();
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  useAuth();
 
-  // Logout handler - clears both backend session AND Supabase session
-  const logoutHandler = async () => {
-    try {
-      // Sign out from Supabase first (clears Google session)
-      await signOut();
-      // Then clear backend session
-      await api.get("/user/logout");
-      dispatch(logout());
-      localStorage.removeItem("token");
-      localStorage.removeItem("pendingSignupRole");
-      navigate("/");
-      toast.success("Logged out successfully");
-    } catch (error) {
-      console.error("Logout error:", error);
-      dispatch(logout());
-      localStorage.removeItem("token");
-      navigate("/");
-      toast.success("Logged out");
-    }
-  };
 
-  const [stats, setStats] = useState({
+  const [, setStats] = useState({
     applied: 0,
     accepted: 0,
     rejected: 0,
     interviews: 0,
     pending: 0,
   });
-  const [recentApplications, setRecentApplications] = useState([]);
+  const [, setRecentApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(
-    searchParams.get("tab") || "overview",
-  );
-  const [aiJobs, setAiJobs] = useState([]);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [expandedJobId, setExpandedJobId] = useState(null);
+  // Today, Jobs and Applications have their own screens; this one keeps the career tools
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") === "practice" ? "practice" : "career");
+  const [, setAiJobs] = useState([]);
+  const [, setAiLoading] = useState(false);
 
   // Trial Welcome Modal state
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [trialEndDate, setTrialEndDate] = useState(null);
 
   // Real-time dashboard connection using Supabase Realtime
-  const { isLive, lastUpdate, refreshStats } = useSupabaseDashboard({
+  useSupabaseDashboard({
     onStatsUpdate: useCallback((data) => {
       console.log("📊 Real-time stats update:", data);
       if (data.stats) {
@@ -167,8 +61,6 @@ const StudentDashboard = () => {
     }, []),
     onApplicationUpdate: useCallback((data) => {
       console.log("📊 Application update:", data);
-      // Refresh applications list
-      fetchApplicationData();
     }, []),
     onInterviewScheduled: useCallback((data) => {
       console.log("🎯 Interview scheduled:", data);
@@ -204,9 +96,6 @@ const StudentDashboard = () => {
           const applications = res.data.application || [];
           const pendingCount = applications.filter(
             (app) => app.status === "pending",
-          ).length;
-          const acceptedCount = applications.filter(
-            (app) => app.status === "accepted",
           ).length;
           const rejectedCount = applications.filter(
             (app) => app.status === "rejected",
@@ -295,98 +184,9 @@ const StudentDashboard = () => {
     return () => clearInterval(interval);
   }, [user, fetchAIMatchedJobs]);
 
-  // Calculate profile completion
-  const profileCompletion = useMemo(() => {
-    let completion = 0;
-    if (user?.fullname) completion += 20;
-    if (user?.email) completion += 20;
-    if (user?.phoneNumber) completion += 15;
-    if (user?.profile?.bio) completion += 15;
-    if (user?.profile?.skills?.length > 0) completion += 15;
-    if (user?.profile?.resume) completion += 15;
-    return completion;
-  }, [user]);
 
-  // Get status badge
-  const getStatusBadge = (status) => {
-    const badges = {
-      pending: {
-        color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/30",
-        label: "Under Review",
-      },
-      under_review: {
-        color: "bg-blue-500/10 text-blue-500 border-blue-500/30",
-        label: "Being Reviewed",
-      },
-      shortlisted: {
-        color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/30",
-        label: "Shortlisted",
-      },
-      interview: {
-        color: "bg-purple-500/10 text-purple-500 border-purple-500/30",
-        label: "Interview Scheduled",
-      },
-      video_scheduled: {
-        color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
-        label: "Video Interview",
-      },
-      mcq_pending: {
-        color: "bg-primary/10 text-primary border-primary/30",
-        label: "MCQ Test Pending",
-      },
-      mcq_passed: {
-        color: "bg-accent/10 text-accent border-accent/30",
-        label: "MCQ Passed ✓",
-      },
-      video_completed: {
-        color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-        label: "Interview Complete",
-      },
-      pending_ceo_approval: {
-        color: "bg-orange-500/10 text-orange-500 border-orange-500/30",
-        label: "Final Review",
-      },
-      hired: {
-        color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/30",
-        label: "🎉 Hired!",
-      },
-      accepted: {
-        color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/30",
-        label: "Offer Received",
-      },
-      rejected: {
-        color: "bg-red-500/10 text-red-500 border-red-500/30",
-        label: "Not Selected",
-      },
-      withdrawn: {
-        color: "bg-gray-500/10 text-gray-400 border-gray-500/30",
-        label: "Withdrawn",
-      },
-    };
-    const badge = badges[status?.toLowerCase()] || {
-      color: "bg-gray-500/10 text-gray-500 border-gray-500/30",
-      label: status,
-    };
-    return (
-      <Badge
-        className={`${badge.color} border px-3 py-1 text-xs rounded-full font-bold`}
-      >
-        {badge.label}
-      </Badge>
-    );
-  };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
 
-  // Calculate success rate
-  const successRate =
-    stats.applied > 0 ? ((stats.accepted / stats.applied) * 100).toFixed(0) : 0;
 
   // Show loading state
   if (loading) {
@@ -406,561 +206,44 @@ const StudentDashboard = () => {
       <div className="fixed inset-0 pointer-events-none">
       </div>
 
-      {/* Top Header Bar */}
-      <div className="fixed top-0 left-0 right-0 h-14 bg-background/95 border-b border-white/5 z-50">
-        <div className="max-w-[1600px] mx-auto h-full px-4 flex items-center justify-end gap-4">
-          {/* Realtime Notification Bell */}
-          <RealtimeNotifications />
-
-          {/* Messages Button */}
-          <button
-            onClick={() => navigate("/messages")}
-            className="relative p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-cyan-400 border border-transparent hover:border-cyan-500/30"
-            title="Messages"
-          >
-            <MessageSquare size={18} />
-          </button>
-
-          {/* Settings */}
-          <button
-            onClick={() => navigate("/settings")}
-            className="p-2 rounded-md hover:bg-white/5 transition-colors text-gray-400 hover:text-primary border border-transparent hover:border-primary/30"
-            title="Settings"
-          >
-            <Settings size={18} />
-          </button>
-
-          {/* User Menu Dropdown */}
-          <div className="relative">
+      <div className="relative">
+        <div className="app-title-row">
+          <h1 className="app-h1">Career tools</h1>
+        </div>
+        <div className="app-tabs" role="tablist" style={{ marginBottom: 24 }}>
+          {[
+            ["career", "Career"],
+            ["practice", "Practice tests"],
+          ].map(([id, label]) => (
             <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 p-1.5 pl-3 pr-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 transition-all hover:border-primary/30"
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === id}
+              className={activeTab === id ? "is-active" : ""}
+              onClick={() => {
+                setActiveTab(id);
+                setSearchParams({ tab: id });
+              }}
             >
-              <span className="hidden sm:inline text-sm font-medium text-gray-300">
-                {user?.fullname?.split(" ")[0]?.toUpperCase()}
-              </span>
-              <div className="w-7 h-7 rounded-sm bg-primary flex items-center justify-center text-black font-bold text-xs">
-                {user?.fullname?.charAt(0)?.toUpperCase() || "U"}
-              </div>
+              {label}
             </button>
-
-            {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-card rounded-md shadow-2xl border border-white/10 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="p-4 border-b border-white/5 bg-white/5">
-                  <p className="text-sm font-bold text-white truncate">
-                    {user?.fullname?.toUpperCase()}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {user?.email}
-                  </p>
-                </div>
-
-                <div className="p-2">
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 rounded-md transition-colors hover:text-primary font-medium"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    <User size={14} />
-                    Profile Settings
-                  </Link>
-
-                  <button
-                    onClick={() => {
-                      setShowUserMenu(false);
-                      logoutHandler();
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 rounded-md transition-colors mt-2 font-medium"
-                  >
-                    <LogOut size={14} />
-                    System Logout
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          ))}
         </div>
-      </div>
-
-      <div className="max-w-[1600px] mx-auto px-4 py-8 pt-20 relative z-10">
-        {/* Trial Status Banner */}
-        <TrialBanner />
-
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row gap-8 mb-12">
-          {/* User Profile Card */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="w-full md:w-1/3"
-          >
-            <div className="bg-card border border-white/10 rounded-md p-6 relative overflow-hidden group hover:border-primary/30 transition-colors duration-300">
-
-              <button
-                onClick={() => navigate("/settings")}
-                className="absolute top-4 right-4 text-gray-500 hover:text-primary transition-colors z-20"
-                title="Settings"
-              >
-                <Settings size={20} />
-              </button>
-
-              <div className="relative z-10">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="relative">
-                    <Avatar className="h-20 w-20 border-2 border-yellow-500/50">
-                      <AvatarImage
-                        src={user?.profile?.profilePhoto}
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="bg-zinc-800 text-yellow-500 text-2xl font-bold">
-                        {user?.fullname?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    {profileCompletion === 100 && (
-                      <div className="absolute -bottom-1 -right-1 bg-black rounded-full p-1">
-                        <div className="bg-yellow-500 text-black p-1 rounded-full">
-                          <CheckCircle size={12} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold text-white mb-1 uppercase tracking-tight">
-                      {user?.fullname}
-                    </h1>
-                    <Badge
-                      variant="outline"
-                      className="border-primary/30 text-primary bg-primary/5 text-xs"
-                    >
-                      <GraduationCap className="h-3 w-3 mr-1" /> Candidate
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center gap-3 text-sm text-gray-400">
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                      <Mail size={14} className="text-yellow-500" />
-                    </div>
-                    {user?.email}
-                  </div>
-                  {user?.phoneNumber && (
-                    <div className="flex items-center gap-3 text-sm text-gray-400">
-                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                        <Phone size={14} className="text-yellow-500" />
-                      </div>
-                      {user?.phoneNumber}
-                    </div>
-                  )}
-                </div>
-
-                <div className="bg-white/5 rounded-sm p-3 border border-white/5">
-                  <div className="flex justify-between mb-2 text-xs">
-                    <span className="text-gray-500">
-                      Profile Strength
-                    </span>
-                    <span className="text-primary">
-                      {profileCompletion}%
-                    </span>
-                  </div>
-                  <Progress
-                    value={profileCompletion}
-                    className="h-1 bg-white/5"
-                    indicatorClassName="bg-primary"
-                  />
-                </div>
-
-                {/* Trial Status Card */}
-                {user?.trialEndDate && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="rounded-sm p-3 border border-accent/30 mt-3 bg-card"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-accent" />
-                        <span className="text-xs text-accent font-bold">
-                          Free Trial
-                        </span>
-                      </div>
-                      <Badge className="bg-accent/20 text-accent border-accent/30 text-xs">
-                        ACTIVE
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-2xl font-black text-white">
-                          {Math.max(
-                            0,
-                            Math.ceil(
-                              (new Date(user.trialEndDate) - new Date()) /
-                              (1000 * 60 * 60 * 24),
-                            ),
-                          )}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          days remaining
-                        </p>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30 text-xs"
-                        onClick={() => navigate("/profile?tab=subscription")}
-                      >
-                        View Details
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-
-                <div className="grid grid-cols-2 gap-2 mt-5">
-                  <Button
-                    variant="outline"
-                    className="w-full bg-white/5 border-white/10 hover:bg-white/10 hover:border-primary/30 text-gray-400 hover:text-white rounded-sm text-xs"
-                    onClick={() => navigate("/profile")}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    className="w-full bg-primary hover:bg-[#FFE44D] text-black font-bold border-none rounded-sm text-xs"
-                    onClick={() =>
-                      user?.profile?.resume
-                        ? window.open(user.profile.resume, "_blank")
-                        : toast.error("No resume found")
-                    }
-                  >
-                    <Download className="mr-1 h-3 w-3" /> Resume
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Stats Grid */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-gray-500">
-                Real-time Stats
-              </span>
-              <LiveBadge isLive={isLive} />
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                {
-                  label: "APPLIED",
-                  value: stats.applied,
-                  icon: FileText,
-                  color: "text-accent",
-                },
-                {
-                  label: "INTERVIEWS",
-                  value: stats.interviews,
-                  icon: Video,
-                  color: "text-cyan-400",
-                },
-                {
-                  label: "OFFERS",
-                  value: stats.accepted,
-                  icon: Target,
-                  color: "text-primary",
-                },
-                {
-                  label: "PENDING",
-                  value: stats.pending,
-                  icon: Clock,
-                  color: "text-gray-400",
-                },
-              ].map((stat, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.08 * idx }}
-                >
-                  <div className="h-full bg-card border border-white/10 rounded-md p-5 relative overflow-hidden group hover:border-primary/30 transition-all">
-                    <div className="relative z-10">
-                      <div
-                        className={`p-2 rounded-sm bg-white/5 w-fit mb-3 ${stat.color}`}
-                      >
-                        <stat.icon size={18} />
-                      </div>
-                      <div className="text-3xl font-bold text-white mb-1">
-                        {stat.value}
-                      </div>
-                      <div className="text-gray-500 text-xs">
-                        {stat.label}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-
-              {/* AI Insight Card */}
-              <motion.div
-                className="col-span-2 lg:col-span-4 mt-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <div className="bg-card border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
-                  <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-sm bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30">
-                      <BrainCircuit size={24} className="text-cyan-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white mb-1">
-                        AI Interview Coach
-                      </h3>
-                      <p className="text-gray-500 text-xs">
-                        AI-powered mock interview preparation
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    className="relative z-10 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 font-bold rounded-sm px-5 py-2.5 h-auto border border-cyan-500/30 text-xs w-full sm:w-auto mt-2 sm:mt-0"
-                    onClick={() => {
-                      setSearchParams({ tab: "practice" });
-                      setActiveTab("practice");
-                    }}
-                  >
-                    Start Practice <Sparkles className="ml-2 h-3 w-3" />
-                  </Button>
-                </div>
-              </motion.div>
-
-              {/* Mock MCQ Test Card */}
-              <motion.div
-                className="col-span-2 lg:col-span-2 mt-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.45 }}
-              >
-                <div className="bg-card border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden h-full">
-                  <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-sm bg-primary/10 flex items-center justify-center border border-primary/30">
-                      <Brain size={24} className="text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white mb-1">
-                        Mock MCQ Tests
-                      </h3>
-                      <p className="text-gray-500 text-xs">
-                        AI-generated practice tests
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    className="relative z-10 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-sm px-5 py-2 h-auto border border-primary/30 text-xs w-full sm:w-auto"
-                    onClick={() => {
-                      setSearchParams({ tab: "practice" });
-                      setActiveTab("practice");
-                    }}
-                  >
-                    Take Test <Target className="ml-2 h-3 w-3" />
-                  </Button>
-                </div>
-              </motion.div>
-
-              {/* Skill Gap Analysis Card */}
-              <motion.div
-                className="col-span-2 lg:col-span-2 mt-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <div className="bg-card border border-white/10 rounded-md p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden h-full">
-                  <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-sm bg-accent/10 flex items-center justify-center border border-accent/30">
-                      <BarChart3 size={24} className="text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white mb-1">
-                        Skill Gap Analysis
-                      </h3>
-                      <p className="text-gray-500 text-xs">
-                        Identify skills to develop
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    className="relative z-10 bg-accent/20 text-accent hover:bg-accent/30 font-bold rounded-sm px-5 py-2 h-auto border border-accent/30 text-xs w-full sm:w-auto"
-                    onClick={() => {
-                      setSearchParams({ tab: "career", sub: "skills" });
-                      setActiveTab("career");
-                    }}
-                  >
-                    Analyze <BarChart3 className="ml-2 h-3 w-3" />
-                  </Button>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Tabs Navigation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-8 flex justify-center"
-        >
-          <div className="bg-card border border-white/10 rounded-md p-1.5 flex gap-1.5 overflow-x-auto scrollbar-hide sm:inline-flex sm:flex-wrap sm:justify-center sm:p-2 sm:gap-2 max-w-full">
-            {[
-              {
-                id: "overview",
-                label: "Overview",
-                icon: LayoutDashboard,
-                description: "Dashboard home",
-              },
-              {
-                id: "jobs",
-                label: "Jobs",
-                icon: Briefcase,
-                description: "Find & save jobs",
-              },
-              {
-                id: "interviews",
-                label: "Interviews",
-                icon: Video,
-                description: "Mock interviews & calendar",
-              },
-              {
-                id: "career",
-                label: "Career",
-                icon: TrendingUp,
-                description: "Skills, salary & learning",
-              },
-              {
-                id: "practice",
-                label: "Practice",
-                icon: Brain,
-                description: "Mock tests",
-              },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setSearchParams({ tab: tab.id });
-                }}
-                className={`group flex items-center gap-2 px-5 py-3 rounded-sm text-sm font-medium transition-all relative ${activeTab === tab.id
-                  ? "bg-primary text-black"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
-              >
-                <tab.icon className="w-4 h-4 shrink-0" />
-                <span className="whitespace-nowrap">{tab.label}</span>
-              </button>
-            ))}
-          </div>
-        </motion.div>
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
-          {/* JOBS TAB - Consolidated job discovery */}
-          {activeTab === "jobs" && (
-            <motion.div
-              key="jobs"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-8"
-            >
-              {/* Sub-navigation for Jobs */}
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 px-2 sm:justify-center sm:flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "find" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
-                  onClick={() => setSearchParams({ tab: "jobs", sub: "find" })}
-                >
-                  <Search className="w-4 h-4 mr-2" /> Find Jobs
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "saved" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
-                  onClick={() => setSearchParams({ tab: "jobs", sub: "saved" })}
-                >
-                  <Bookmark className="w-4 h-4 mr-2" /> Saved Jobs
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "alerts" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
-                  onClick={() =>
-                    setSearchParams({ tab: "jobs", sub: "alerts" })
-                  }
-                >
-                  <Bell className="w-4 h-4 mr-2" /> Job Alerts
-                </Button>
-              </div>
 
-              {(!searchParams.get("sub") ||
-                searchParams.get("sub") === "find") && <JobsForYou />}
-              {searchParams.get("sub") === "saved" && <SavedJobs />}
-              {searchParams.get("sub") === "alerts" && <DailyJobAlerts />}
-            </motion.div>
-          )}
 
-          {/* INTERVIEWS TAB - Consolidated interview prep */}
-          {activeTab === "interviews" && (
-            <motion.div
-              key="interviews"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-8"
-            >
-              {/* Sub-navigation for Interviews */}
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 px-2 sm:justify-center sm:flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={`border-white/10 ${!searchParams.get("sub") || searchParams.get("sub") === "mock" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
-                  onClick={() =>
-                    setSearchParams({ tab: "interviews", sub: "mock" })
-                  }
-                >
-                  <Video className="w-4 h-4 mr-2" /> Mock Interview
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "calendar" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
-                  onClick={() =>
-                    setSearchParams({ tab: "interviews", sub: "calendar" })
-                  }
-                >
-                  <Calendar className="w-4 h-4 mr-2" /> Calendar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={`border-white/10 ${searchParams.get("sub") === "history" ? "bg-primary text-black" : "text-gray-400 hover:text-white"}`}
-                  onClick={() =>
-                    setSearchParams({ tab: "interviews", sub: "history" })
-                  }
-                >
-                  <Clock className="w-4 h-4 mr-2" /> History
-                </Button>
-              </div>
 
-              {(!searchParams.get("sub") ||
-                searchParams.get("sub") === "mock") && <LiveInterview />}
-              {searchParams.get("sub") === "calendar" && <InterviewCalendar />}
-              {searchParams.get("sub") === "history" && <PracticeHistory />}
-            </motion.div>
-          )}
 
           {/* CAREER TAB - Consolidated career growth */}
           {activeTab === "career" && (
-            <motion.div
+            <div
               key="career"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+             
+             
+             
               className="space-y-8"
             >
               {/* Sub-navigation for Career */}
@@ -1034,465 +317,22 @@ const StudentDashboard = () => {
               {searchParams.get("sub") === "referrals" && <ReferralDashboard />}
               {searchParams.get("sub") === "learning" && <LearningResources />}
               {searchParams.get("sub") === "resume" && <ResumeAnalyzer />}
-            </motion.div>
+            </div>
           )}
 
           {/* PRACTICE TAB - Mock Tests */}
           {activeTab === "practice" && (
-            <motion.div
+            <div
               key="practice"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+             
+             
+             
             >
               <MockTestPrep />
-            </motion.div>
+            </div>
           )}
 
-          {activeTab === "overview" && (
-            <motion.div
-              key="overview"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              {/* Main Content Areas */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Recent Applications Lists */}
-                <div className="lg:col-span-2 space-y-6">
-                  {/* Application Pipeline Tracker */}
-                  {recentApplications.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-background border border-white/10 rounded-3xl p-6 mb-6"
-                    >
-                      <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                        <TrendingUp className="text-yellow-500" size={20} />
-                        Application Pipeline
-                      </h3>
-                      <div className="relative">
-                        {/* Progress Line */}
-                        <div className="absolute top-6 left-0 right-0 h-1 bg-zinc-800 rounded-full mx-8" />
 
-                        {/* Stages */}
-                        <div className="grid grid-cols-2 gap-y-6 md:flex md:justify-between relative z-10">
-                          {[
-                            {
-                              stage: "Applied",
-                              icon: FileText,
-                              count: stats.applied,
-                              color: "blue",
-                            },
-                            {
-                              stage: "Review",
-                              icon: Clock,
-                              count: stats.pending,
-                              color: "yellow",
-                            },
-                            {
-                              stage: "Interview",
-                              icon: Video,
-                              count: stats.interviews,
-                              color: "purple",
-                            },
-                            {
-                              stage: "Offer",
-                              icon: Target,
-                              count: stats.accepted,
-                              color: "emerald",
-                            },
-                          ].map((step, idx) => (
-                            <div
-                              key={idx}
-                              className="flex flex-col items-center"
-                            >
-                              <div
-                                className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 border-2 transition-all
-                                                    ${step.count > 0
-                                    ? `bg-${step.color}-500/20 border-${step.color}-500 text-${step.color}-400`
-                                    : "bg-zinc-900 border-zinc-700 text-zinc-500"
-                                  }`}
-                                style={{
-                                  backgroundColor:
-                                    step.count > 0
-                                      ? `rgba(var(--${step.color}-rgb), 0.2)`
-                                      : undefined,
-                                  borderColor:
-                                    step.count > 0
-                                      ? `var(--${step.color}-color)`
-                                      : undefined,
-                                }}
-                              >
-                                <step.icon size={20} />
-                              </div>
-                              <span className="text-xs text-gray-400 font-medium">
-                                {step.stage}
-                              </span>
-                              <span
-                                className={`text-lg font-bold ${step.count > 0 ? "text-white" : "text-zinc-600"}`}
-                              >
-                                {step.count}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Success Rate */}
-                      <div className="mt-6 pt-4 border-t border-zinc-800 flex items-center justify-between">
-                        <span className="text-sm text-gray-400">
-                          Success Rate
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 h-2 bg-zinc-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full transition-all duration-500 bg-primary"
-                              style={{ width: `${successRate}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-bold text-yellow-500">
-                            {successRate}%
-                          </span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-white">
-                      Recent Applications
-                    </h2>
-                    <Button
-                      variant="ghost"
-                      className="text-yellow-500 hover:text-yellow-400 hover:bg-transparent"
-                      onClick={() => navigate("/applied-jobs")}
-                    >
-                      View All <ArrowUpRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className="space-y-4">
-                    {recentApplications.length > 0 ? (
-                      recentApplications.map((app, idx) => (
-                        <motion.div
-                          key={app._id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.1 * idx }}
-                          className="group bg-background border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all cursor-pointer relative overflow-hidden"
-                          onClick={() => navigate("/applied-jobs")}
-                        >
-                          <div className="absolute inset-y-0 left-0 w-1 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <div className="flex items-center justify-between relative z-10">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white font-bold group-hover:bg-yellow-500/20 group-hover:text-yellow-500 transition-colors">
-                                {app.job?.company?.name?.charAt(0) || (
-                                  <Building size={20} />
-                                )}
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-white group-hover:text-yellow-500 transition-colors">
-                                  {app.job?.title}
-                                </h3>
-                                <p className="text-sm text-gray-500">
-                                  {app.job?.company?.name} •{" "}
-                                  {formatDate(app.createdAt)}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              {getStatusBadge(app.status)}
-                              <ArrowUpRight
-                                className="text-gray-600 group-hover:text-white transition-colors"
-                                size={20}
-                              />
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))
-                    ) : (
-                      <div className="text-center py-20 bg-background border border-white/10 rounded-3xl border-dashed">
-                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <FileText className="text-gray-600" size={32} />
-                        </div>
-                        <h3 className="text-lg font-medium text-white mb-2">
-                          No applications yet
-                        </h3>
-                        <p className="text-gray-500 mb-6">
-                          Start your journey by exploring open positions.
-                        </p>
-                        <Button
-                          className="bg-white text-black hover:bg-gray-200"
-                          onClick={() => navigate("/browse")}
-                        >
-                          Browse Jobs
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Live Animated Charts Section */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-                    <ApplicationStatusChart stats={stats} />
-                    <WeeklyActivityChart applications={recentApplications} />
-                  </div>
-                  <div className="mt-6">
-                    <SkillsMatchChart skills={user?.profile?.skills || []} />
-                  </div>
-                </div>
-
-                {/* Right Sidebar: AI Recommendations */}
-                <div className="space-y-6">
-                  <motion.div
-                    className="bg-background border border-white/10 rounded-3xl overflow-hidden relative"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
-                          <Sparkles className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-white">
-                            AI Recommendations
-                          </h3>
-                          <p className="text-xs text-gray-500">
-                            RAG + GPT MATCHING
-                          </p>
-                        </div>
-                      </div>
-                      <LiveBadge isLive={isLive} />
-                    </div>
-
-                    <div className="p-4 space-y-3">
-                      {aiLoading ? (
-                        <div className="flex flex-col items-center justify-center py-8">
-                          <div className="relative">
-                            <div className="w-12 h-12 border-2 border-primary/20 rounded-full animate-pulse" />
-                            <Sparkles className="absolute inset-0 m-auto w-5 h-5 text-primary animate-pulse" />
-                          </div>
-                          <p className="text-gray-500 mt-3 text-xs">
-                            Analyzing best matches...
-                          </p>
-                        </div>
-                      ) : aiJobs.length > 0 ? (
-                        aiJobs.slice(0, 4).map((job, idx) => {
-                          const score = job.matchScore || 0;
-                          const isExpanded = expandedJobId === job._id;
-                          const tone =
-                            score >= 85
-                              ? {
-                                badge:
-                                  "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-                                border: "hover:border-emerald-500/30",
-                              }
-                              : score >= 70
-                                ? {
-                                  badge:
-                                    "bg-primary/10 text-primary border-primary/30",
-                                  border: "hover:border-primary/30",
-                                }
-                                : score >= 55
-                                  ? {
-                                    badge:
-                                      "bg-blue-500/10 text-blue-400 border-blue-500/20",
-                                    border: "hover:border-blue-500/30",
-                                  }
-                                  : {
-                                    badge:
-                                      "bg-white/5 text-gray-400 border-white/10",
-                                    border: "hover:border-white/20",
-                                  };
-
-                          return (
-                            <motion.div
-                              key={job._id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.08 * idx }}
-                              className={`group relative p-3 bg-background border border-white/10 rounded-2xl ${tone.border} transition-all cursor-pointer`}
-                              onClick={() =>
-                                navigate(`/description/${job._id}`)
-                              }
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-primary/30 transition-colors shrink-0">
-                                  {job.company?.logo ? (
-                                    <img
-                                      src={job.company.logo}
-                                      alt=""
-                                      className="w-7 h-7 object-contain rounded"
-                                    />
-                                  ) : (
-                                    <Building className="w-5 h-5 text-gray-500" />
-                                  )}
-                                </div>
-
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                      <h4 className="text-sm font-semibold text-white group-hover:text-primary transition-colors truncate">
-                                        {job.title}
-                                      </h4>
-                                      <p className="text-xs text-gray-500 truncate">
-                                        {job.company?.name}
-                                      </p>
-                                    </div>
-                                    <Badge
-                                      className={`${tone.badge} text-xs`}
-                                    >
-                                      {score}% match
-                                    </Badge>
-                                  </div>
-
-                                  <div className="flex items-center gap-3 text-xs mt-2 text-gray-400">
-                                    <span className="flex items-center gap-1">
-                                      <MapPin className="w-3 h-3" />
-                                      {job.location || "Remote"}
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                      <DollarSign className="w-3 h-3 text-primary" />
-                                      <span className="text-gray-300">
-                                        {job.salary || "Competitive"}
-                                      </span>
-                                    </span>
-                                  </div>
-
-                                  {(job.aiInsight ||
-                                    job.matchedSkills?.length > 0) && (
-                                      <div className="mt-2 space-y-2">
-                                        {job.aiInsight && (
-                                          <p className="text-xs text-gray-400 leading-relaxed">
-                                            {job.aiInsight}
-                                          </p>
-                                        )}
-                                        {(job.matchedSkills?.length > 0 ||
-                                          job.missingSkills?.length > 0) && (
-                                            <div className="flex flex-wrap gap-1.5">
-                                              {(job.matchedSkills || [])
-                                                .slice(0, 3)
-                                                .map((s) => (
-                                                  <Badge
-                                                    key={`${job._id}-${s}`}
-                                                    className="bg-primary/10 text-primary border-primary/30 text-xs"
-                                                  >
-                                                    {s}
-                                                  </Badge>
-                                                ))}
-                                              {(job.missingSkills || [])
-                                                .slice(0, 2)
-                                                .map((s) => (
-                                                  <Badge
-                                                    key={`${job._id}-missing-${s}`}
-                                                    className="bg-red-500/10 text-red-400 border-red-500/20 text-xs"
-                                                  >
-                                                    {s}
-                                                  </Badge>
-                                                ))}
-                                              {(job.matchedSkills || []).length >
-                                                3 && (
-                                                  <Badge className="bg-white/5 text-gray-400 border-white/10 text-xs">
-                                                    +
-                                                    {(job.matchedSkills || [])
-                                                      .length - 3}
-                                                  </Badge>
-                                                )}
-                                            </div>
-                                          )}
-                                      </div>
-                                    )}
-                                  {(job.whyGoodFit ||
-                                    (job.topStrengths &&
-                                      job.topStrengths.length > 0)) && (
-                                      <div className="mt-3 border-t border-white/5 pt-2">
-                                        <button
-                                          type="button"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setExpandedJobId(
-                                              isExpanded ? null : job._id,
-                                            );
-                                          }}
-                                          className="flex items-center justify-between w-full text-xs text-gray-400 hover:text-primary transition-colors"
-                                        >
-                                          <span>Why this job?</span>
-                                          <ChevronDown
-                                            className={`w-3 h-3 transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                                          />
-                                        </button>
-                                        {isExpanded && (
-                                          <div className="mt-2 space-y-1">
-                                            {job.whyGoodFit && (
-                                              <p className="text-xs text-gray-400 leading-relaxed">
-                                                {job.whyGoodFit}
-                                              </p>
-                                            )}
-                                            {job.topStrengths &&
-                                              job.topStrengths.length > 0 && (
-                                                <ul className="text-xs text-gray-400 list-disc list-inside">
-                                                  {job.topStrengths
-                                                    .slice(0, 3)
-                                                    .map((item, index) => (
-                                                      <li
-                                                        key={`${job._id}-strength-${index}`}
-                                                      >
-                                                        {item}
-                                                      </li>
-                                                    ))}
-                                                </ul>
-                                              )}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                </div>
-                              </div>
-
-                              <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <ArrowUpRight className="w-4 h-4 text-primary" />
-                              </div>
-                            </motion.div>
-                          );
-                        })
-                      ) : (
-                        <div className="text-center py-10 text-gray-500">
-                          <Target className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                          <p className="text-sm">
-                            {profileCompletion < 70
-                              ? "Complete your profile for personalized recommendations"
-                              : "No job matches found. Check back soon!"}
-                          </p>
-                          {profileCompletion < 70 && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="mt-3 border-primary/30 text-primary"
-                              onClick={() => navigate("/profile")}
-                            >
-                              Complete Profile
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-4 border-t border-white/10">
-                      <Button
-                        className="w-full bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold"
-                        onClick={() => navigate("/jobs")}
-                      >
-                        View All Matches
-                        <ArrowUpRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          )}
         </AnimatePresence>
       </div>
     </div>

@@ -3,30 +3,21 @@
  * Kanban-style candidate pipeline for recruiters
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import api from "@/utils/api";
 import { toast } from "sonner";
 import {
-  User,
   Mail,
-  Phone,
-  FileText,
   Calendar,
-  MessageSquare,
-  ChevronRight,
   MoreVertical,
   Star,
   Flag,
   Eye,
   X,
-  Filter,
   Search,
-  RefreshCw,
-  Download,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
@@ -49,45 +40,45 @@ import { APPLICATION_API_END_POINT, JOB_API_END_POINT } from "@/utils/constant";
 
 // Pipeline stages configuration
 const PIPELINE_STAGES = [
-  { id: "pending", label: "Applied", color: "#FFD700", bgColor: "#FFD700/10" },
+  { id: "pending", label: "Applied", color: "#f2f2f2", bgColor: "#f2f2f2/10" },
   {
     id: "under_review",
     label: "Reviewing",
-    color: "#F59E0B",
-    bgColor: "#F59E0B/10",
+    color: "#f2f2f2",
+    bgColor: "#f2f2f2/10",
   },
   {
     id: "shortlisted",
     label: "Shortlisted",
-    color: "#3B82F6",
-    bgColor: "#3B82F6/10",
+    color: "#f2f2f2",
+    bgColor: "#f2f2f2/10",
   },
   {
     id: "interview",
     label: "Interview",
-    color: "#8B5CF6",
-    bgColor: "#8B5CF6/10",
+    color: "#f2f2f2",
+    bgColor: "#f2f2f2/10",
   },
   {
     id: "offer_pending",
     label: "Offer Stage",
-    color: "#10B981",
-    bgColor: "#10B981/10",
+    color: "#f2f2f2",
+    bgColor: "#f2f2f2/10",
   },
-  { id: "hired", label: "Hired", color: "#00FF94", bgColor: "#00FF94/10" },
+  { id: "hired", label: "Hired", color: "#f2f2f2", bgColor: "#f2f2f2/10" },
 ];
 
 // Candidate Card Component
 const CandidateCard = ({ application, onStatusChange, onSelect }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [, setIsHovered] = useState(false);
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="relative p-4 bg-background border border-white/10 rounded-sm hover:border-[#8B5CF6]/30 transition-all cursor-pointer group"
+    <div
+     
+     
+     
+     
+      className="relative p-4 bg-background border border-white/10 rounded-sm hover:border-[#f2f2f2]/30 transition-all cursor-pointer group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onSelect(application)}
@@ -97,13 +88,13 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
         <div className="absolute top-0 left-0 w-1 h-full bg-red-500 rounded-l-sm" />
       )}
       {application.priority === "urgent" && (
-        <div className="absolute top-0 left-0 w-1 h-full bg-[#8B5CF6] rounded-l-sm animate-pulse" />
+        <div className="absolute top-0 left-0 w-1 h-full bg-[#f2f2f2] rounded-l-sm animate-pulse" />
       )}
 
       <div className="flex items-start gap-3">
         <Avatar className="w-10 h-10 rounded-sm">
           <AvatarImage src={application.applicant?.profile?.profilePhoto} />
-          <AvatarFallback className="rounded-sm bg-[#8B5CF6]/10 text-[#8B5CF6] font-bold">
+          <AvatarFallback className="rounded-sm bg-[#f2f2f2]/10 text-[#f2f2f2] font-bold">
             {application.applicant?.fullname?.[0] || "U"}
           </AvatarFallback>
         </Avatar>
@@ -177,10 +168,10 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
                   style={{
                     backgroundColor:
                       application.resumeScore >= 80
-                        ? "#00FF94"
+                        ? "#f2f2f2"
                         : application.resumeScore >= 60
-                          ? "#FFD700"
-                          : "#F59E0B",
+                          ? "#f2f2f2"
+                          : "#f2f2f2",
                   }}
                 />
                 <span className="text-xs text-gray-400">
@@ -198,13 +189,13 @@ const CandidateCard = ({ application, onStatusChange, onSelect }) => {
       {/* Flags */}
       <div className="absolute top-2 right-2 flex gap-1">
         {application.isStarred && (
-          <Star className="w-3 h-3 text-[#8B5CF6] fill-[#8B5CF6]" />
+          <Star className="w-3 h-3 text-[#f2f2f2] fill-[#f2f2f2]" />
         )}
         {application.isFlagged && (
           <Flag className="w-3 h-3 text-red-400 fill-red-400" />
         )}
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -238,8 +229,7 @@ const PipelineColumn = ({
 
   return (
     <div
-      className={`flex-shrink-0 w-80 bg-card border rounded-sm transition-colors ${isDragOver ? "border-[#8B5CF6]/50 bg-[#8B5CF6]/5" : "border-white/10"
-        }`}
+      className={`flex-shrink-0 w-80 bg-card border rounded-sm transition-colors ${isDragOver ? "border-[#f2f2f2]/50 bg-[#f2f2f2]/5" : "border-white/10" }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -413,10 +403,10 @@ const CandidatePipeline = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-[#8B5CF6]/30 rounded-sm" />
-            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#8B5CF6] rounded-sm animate-spin" />
+            <div className="w-16 h-16 border-2 border-[#f2f2f2]/30 rounded-sm" />
+            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#f2f2f2] rounded-sm animate-spin" />
           </div>
-          <p className="text-[#8B5CF6]/70 text-sm">
+          <p className="text-[#f2f2f2]/70 text-sm">
             Loading Pipeline...
           </p>
         </div>
@@ -427,48 +417,19 @@ const CandidatePipeline = () => {
   return (
     <div className="min-h-screen bg-background">
 
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                Candidate Pipeline
-              </h1>
-              <p className="text-gray-500 text-sm mt-1">
-                Drag and drop candidates between stages
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                className="border-white/10 text-gray-400"
-                onClick={fetchData}
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
-              <Button
-                variant="outline"
-                className="border-white/10 text-gray-400"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </div>
-        </motion.div>
+      <div className="relative">
+        <div className="app-title-row">
+          <h1 className="app-h1">Pipeline</h1>
+          <button type="button" className="app-btn" onClick={fetchData}>
+            Refresh
+          </button>
+        </div>
 
         {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+        <div
+         
+         
+         
           className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-card border border-white/10 rounded-sm"
         >
           <div className="relative flex-1 min-w-[200px]">
@@ -501,16 +462,16 @@ const CandidatePipeline = () => {
             </SelectContent>
           </Select>
 
-          <Badge className="bg-[#8B5CF6]/10 text-[#8B5CF6]">
+          <Badge className="bg-[#f2f2f2]/10 text-[#f2f2f2]">
             {getFilteredApplications().length} candidates
           </Badge>
-        </motion.div>
+        </div>
 
         {/* Pipeline Board */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+        <div
+         
+         
+         
           className="flex gap-4 overflow-x-auto pb-4"
         >
           {PIPELINE_STAGES.map((stage) => (
@@ -523,24 +484,24 @@ const CandidatePipeline = () => {
               onDrop={handleStatusChange}
             />
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Candidate Detail Drawer */}
       <AnimatePresence>
         {selectedApplication && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
+           
+           
+           
             className="fixed inset-0 bg-black/50 z-50"
             onClick={() => setSelectedApplication(null)}
           >
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25 }}
+            <div
+             
+             
+             
+             
               className="absolute right-0 top-0 h-full w-full max-w-md bg-card border-l border-white/10 overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
@@ -564,7 +525,7 @@ const CandidatePipeline = () => {
                     <AvatarImage
                       src={selectedApplication.applicant?.profile?.profilePhoto}
                     />
-                    <AvatarFallback className="rounded-sm bg-[#8B5CF6]/10 text-[#8B5CF6] text-xl font-bold">
+                    <AvatarFallback className="rounded-sm bg-[#f2f2f2]/10 text-[#f2f2f2] text-xl font-bold">
                       {selectedApplication.applicant?.fullname?.[0] || "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -592,10 +553,10 @@ const CandidatePipeline = () => {
                             width: `${selectedApplication.resumeScore}%`,
                             backgroundColor:
                               selectedApplication.resumeScore >= 80
-                                ? "#00FF94"
+                                ? "#f2f2f2"
                                 : selectedApplication.resumeScore >= 60
-                                  ? "#FFD700"
-                                  : "#F59E0B",
+                                  ? "#f2f2f2"
+                                  : "#f2f2f2",
                           }}
                         />
                       </div>
@@ -608,7 +569,7 @@ const CandidatePipeline = () => {
 
                 {/* Actions */}
                 <div className="grid grid-cols-2 gap-3">
-                  <Button className="bg-[#8B5CF6] text-black hover:bg-[#FFE44D]">
+                  <Button className="bg-[#f2f2f2] text-black hover:bg-[#e6e6e6]">
                     <Mail className="w-4 h-4 mr-2" /> Email
                   </Button>
                   <Button
@@ -622,8 +583,8 @@ const CandidatePipeline = () => {
                   </Button>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
     </div>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import api from "@/utils/api";
-import { Skeleton, plural } from "../app/blocks";
+import { Skeleton } from "../app/blocks";
 import StructuredReport from "../interview/report/StructuredReport";
 
 const RECOMMENDATION = {
@@ -69,15 +69,14 @@ const DecisionQueue = ({ onDecided }) => {
     <section className="app-panel" aria-labelledby="queue-h">
       <div className="app-panel-head">
         <h2 className="app-h2" id="queue-h">
-          Awaiting your decision
+          Decisions
         </h2>
-        <span className="app-meta">{items ? plural(items.length, "candidate") : ""}</span>
       </div>
 
       {items === null ? (
         <Skeleton rows={4} />
       ) : items.length === 0 ? (
-        <p className="app-empty">Nothing is waiting on you. Reports your recruiters send will appear here.</p>
+        <p className="app-done">Nothing waiting on you.</p>
       ) : (
         <ul className="app-list">
           {items.map((item) => {
@@ -104,18 +103,18 @@ const DecisionQueue = ({ onDecided }) => {
                       )}
                     </span>
                     <span className="app-row-sub" style={{ display: "block" }}>
-                      {item.job} · {item.recruiter ? `from ${item.recruiter}` : "from a recruiter"}
+                      {item.job}
                     </span>
                   </span>
                   <span className="app-row-end">
                     <span style={{ display: "block", textAlign: "right" }}>
                       {viaReport ? (
                         <>
-                          <span style={{ display: "block" }}>{RECOMMENDATION[item.report.recommendation] ?? item.report.recommendation}</span>
-                          <span className="app-meta num">{item.report.overallScore != null ? `scorecard ${item.report.overallScore}/100` : "scorecard —"}</span>
+                          {RECOMMENDATION[item.report.recommendation] ?? item.report.recommendation}{" "}
+                          <span className="app-meta num">{item.report.overallScore ?? "—"}</span>
                         </>
                       ) : (
-                        <span className="app-meta">No interview report</span>
+                        <span className="app-meta">No interview</span>
                       )}
                     </span>
                     {expanded ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
@@ -152,11 +151,10 @@ const DecisionQueue = ({ onDecided }) => {
                       </div>
                     )}
 
-                    <label htmlFor={`notes-${item.applicationId}`} className="app-field-label">
-                      Note for the recruiter <span className="app-meta">Optional</span>
-                    </label>
                     <textarea
                       id={`notes-${item.applicationId}`}
+                      aria-label="Note for the recruiter"
+                      placeholder="Note for the recruiter"
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       rows={2}

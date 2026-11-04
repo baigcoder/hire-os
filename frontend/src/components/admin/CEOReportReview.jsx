@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +28,6 @@ import {
 import api from "@/utils/api";
 import StructuredReport from "../interview/report/StructuredReport";
 import OfferLetterModal from "./OfferLetterModal";
-import { useSelector } from "react-redux";
 
 const CEOReportReview = () => {
   const { id } = useParams();
@@ -377,7 +375,7 @@ const CEOReportReview = () => {
                       Recruiter Notes
                     </h4>
                     <p className="text-sm text-gray-600 italic">
-                      "{finalReport.notes}"
+                      &quot;{finalReport.notes}&quot;
                     </p>
                   </div>
                 )}

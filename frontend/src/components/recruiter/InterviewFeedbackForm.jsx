@@ -3,7 +3,7 @@
  * Structured interview feedback collection form
  */
 
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
@@ -14,33 +14,16 @@ import {
   ThumbsDown,
   Save,
   Send,
-  User,
   Briefcase,
-  Clock,
-  CheckCircle,
   X,
   Plus,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { INTERVIEW_FEEDBACK_API_END_POINT } from "@/utils/constant";
 
 // Rating Component with Stars

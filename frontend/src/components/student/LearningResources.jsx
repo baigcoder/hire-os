@@ -3,21 +3,17 @@
  * AI-curated courses and learning paths
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen,
-  ExternalLink,
   Clock,
   Star,
   Play,
   CheckCircle,
   Sparkles,
-  Filter,
-  GraduationCap,
   Code,
   Award,
-  RefreshCw,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -28,7 +24,7 @@ import { dashboardCache } from "../../hooks/useDashboardPrefetch";
 
 const LearningResources = () => {
   const [resources, setResources] = useState(null);
-  const [userSkills, setUserSkills] = useState([]);
+  const [, setUserSkills] = useState([]);
   const [inDemandSkills, setInDemandSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // all, free, paid

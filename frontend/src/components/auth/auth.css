@@ -1,0 +1,249 @@
+/* Auth pages: one column on the page ground, in the app's palette.
+   No card, no picture: the form is the page. */
+
+.auth {
+  --ground: #0a0a0a;
+  --surface: #141414;
+  --control: #333333;
+  --text: #f2f2f2;
+  --muted: #a8a8a8;
+  --error: #e5566f;
+
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 64px;
+  background: var(--ground);
+  color: var(--text);
+  font-family: "General Sans", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+}
+.auth :focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+.auth a {
+  color: var(--text);
+}
+.auth-brand {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 64px;
+  padding: 0 8px;
+  font-family: "Gambarino", Georgia, serif;
+  font-size: 22px;
+  text-decoration: none;
+}
+.auth-mark {
+  width: 12px;
+  height: 12px;
+  background: #b11226;
+}
+.auth-col {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 14vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.auth-col form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.auth-h1 {
+  font-family: "Gambarino", Georgia, serif;
+  font-size: 36px;
+  line-height: 40px;
+  font-weight: 400;
+  margin: 0 0 8px;
+}
+.auth-lead {
+  color: var(--muted);
+  margin: -12px 0 8px;
+}
+
+/* Fields */
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.auth-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+}
+.auth-label a {
+  font-weight: 400;
+  color: var(--muted);
+  text-decoration: none;
+}
+.auth-label a:hover {
+  color: var(--text);
+}
+.auth-input-wrap {
+  position: relative;
+  display: block;
+}
+.auth-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--control);
+  border-radius: 8px;
+  font: inherit;
+  transition: border-color 120ms;
+}
+.auth-input:focus {
+  outline: none;
+  border-color: var(--text);
+}
+.auth-input-wrap .auth-input {
+  padding-right: 40px;
+}
+.auth-reveal {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.auth-reveal:hover {
+  color: var(--text);
+}
+.auth-reveal svg {
+  width: 16px;
+  height: 16px;
+}
+.auth-code {
+  height: 48px;
+  font-size: 22px;
+  letter-spacing: 0.5em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Role choice: two halves of one control */
+.auth-seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface);
+}
+.auth-seg button {
+  height: 34px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.auth-seg button[aria-pressed="true"] {
+  background: #2a2a2a;
+  color: var(--text);
+}
+
+/* Buttons */
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--control);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 120ms, transform 120ms;
+}
+.auth-btn:hover {
+  background: var(--surface);
+}
+.auth-btn:active {
+  transform: scale(0.98);
+}
+.auth-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.auth-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.auth-btn-primary {
+  margin-top: 8px;
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #0a0a0a;
+}
+.auth-btn-primary:hover {
+  background: #e6e6e6;
+}
+.auth-or {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Quiet links and lines */
+.auth-text-btn {
+  align-self: center;
+  background: none;
+  border: 0;
+  padding: 4px;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+.auth-text-btn:hover:not(:disabled) {
+  color: var(--text);
+}
+.auth-text-btn:disabled {
+  cursor: default;
+}
+.auth-error {
+  margin: 0;
+  color: var(--error);
+}
+.auth-fine {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+.auth-fine a {
+  color: var(--muted);
+}
+.auth-foot {
+  margin: 32px 0 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .auth-col {
+    margin-top: 6vh;
+  }
+}

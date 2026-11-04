@@ -14,6 +14,7 @@ import {
   getConversation,
   deleteConversation,
 } from "../controllers/message.controller.js";
+import { listContacts } from "../modules/messaging/contacts.js";
 
 const router = express.Router();
 
@@ -21,6 +22,14 @@ const router = express.Router();
 router.use(isAuthenticated);
 
 // Inbox and message management
+// The people this user may message or call (modules/messaging/contacts.js)
+router.get("/contacts", async (req, res, next) => {
+  try {
+    res.json({ success: true, contacts: await listContacts(req.id) });
+  } catch (error) {
+    next(error);
+  }
+});
 router.get("/inbox", getInbox);
 router.get("/sent", getSentMessages);
 router.get("/unread-count", getUnreadCount);

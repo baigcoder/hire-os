@@ -1,173 +1,62 @@
-import React from "react";
+import { Link } from "react-router-dom";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
-import {
-  HelpCircle,
-  FileText,
-  BadgeDollarSign,
-  BookOpen,
-  Search,
-  ArrowRight,
-  Lightbulb,
-} from "lucide-react";
-import { Button } from "../ui/button";
 
+// Each row is a real answer or a link to the screen that does the thing.
+const PAGES = {
+  help: {
+    title: "Help",
+    subtitle: "Answers to the common questions, and how to reach us for the rest.",
+    rows: [
+      ["How do I join as a recruiter?", "Your company's owner invites you by email. Recruiters can't sign up on their own.", "/company/pricing", "See plans"],
+      ["How do I start hiring?", "Choose a plan, create your company, then invite your recruiters.", "/company/pricing", "Choose a plan"],
+      ["How do I apply for a job?", "Create a free account, then apply from any job's page.", "/jobs", "Browse jobs"],
+      ["Where can I see my applications?", "Applications lists each one with its stage and any interview.", "/applied-jobs", "Applications"],
+      ["I forgot my password.", "Choose Forgot password on the sign-in page and we'll email you a link that works for an hour.", "/forgot-password", "Reset password"],
+      ["Something else?", "Write to us and we'll reply by email.", "/contact?topic=Support", "Contact us"],
+    ],
+  },
+  resume: {
+    title: "Resume analysis",
+    subtitle: "Upload your resume and get feedback on how it reads to a recruiter.",
+    rows: [["Check your resume", "Free with a job seeker account for the first 30 days.", "/student/career", "Open career tools"]],
+  },
+  salary: {
+    title: "Salaries",
+    subtitle: "Every job on HIRE.OS shows its pay, so you can compare before you apply.",
+    rows: [
+      ["Compare jobs", "Sort and filter open jobs; pay is shown on each.", "/jobs", "Browse jobs"],
+      ["Your market", "Salary insights for your skills are in the career tools.", "/student/career", "Open career tools"],
+    ],
+  },
+  tips: {
+    title: "Interview practice",
+    subtitle: "Practise with a mock interview and see how you'd be scored.",
+    rows: [["Mock interview", "Answer real questions and get a scorecard tied to what you said.", "/student/career?tab=practice", "Start practising"]],
+  },
+};
+
+/** Help and the job-seeker resource pages: answers and real links, no dead cards. */
 const ResourcePage = ({ type }) => {
-  const getContent = () => {
-    switch (type) {
-      case "help":
-        return {
-          title: "Help Center",
-          subtitle: "Knowledge base and support documentation.",
-          icon: HelpCircle,
-          categories: [
-            {
-              title: "Account Management",
-              desc: "Login, security, and profile settings.",
-            },
-            {
-              title: "For Candidates",
-              desc: "Application tracking and profile optimization.",
-            },
-            {
-              title: "For Recruiters",
-              desc: "Job posting, candidate search, and billing.",
-            },
-            {
-              title: "Technical Support",
-              desc: "Platform issues and bug reporting.",
-            },
-          ],
-        };
-      case "resume":
-        return {
-          title: "Resume Builder",
-          subtitle: "Generate ATS-optimized resumes with AI.",
-          icon: FileText,
-          categories: [
-            {
-              title: "ATS Optimization",
-              desc: "Ensure your resume passes automated filters.",
-            },
-            {
-              title: "AI Content Writer",
-              desc: "Generate professional summaries and bullet points.",
-            },
-            {
-              title: "Smart Templates",
-              desc: "Industry-standard formats that recruiters love.",
-            },
-            {
-              title: "Export Options",
-              desc: "Download in PDF, Word, or plain text formats.",
-            },
-          ],
-        };
-      case "salary":
-        return {
-          title: "Salary Guide",
-          subtitle: "Real-time market compensation data.",
-          icon: BadgeDollarSign,
-          categories: [
-            {
-              title: "Software Engineering",
-              desc: "Backend, Frontend, Fullstack, DevOps.",
-            },
-            {
-              title: "Data Science",
-              desc: "AI/ML, Data Engineering, Analytics.",
-            },
-            {
-              title: "Product Management",
-              desc: "Technical PM, Group PM, Head of Product.",
-            },
-            { title: "Design", desc: "UI/UX, Product Design, Research." },
-          ],
-        };
-      case "tips":
-        return {
-          title: "Interview Tips",
-          subtitle: "Master the technical and behavioral interview.",
-          icon: Lightbulb,
-          categories: [
-            {
-              title: "System Design",
-              desc: "Architecting scalable distributed systems.",
-            },
-            {
-              title: "Algorithms",
-              desc: "Data structures and algorithmic problem solving.",
-            },
-            {
-              title: "Behavioral",
-              desc: "STAR method and soft skill demonstration.",
-            },
-            { title: "Mock Interviews", desc: "Practice with AI or peers." },
-          ],
-        };
-      default:
-        return {
-          title: "Resource Hub",
-          subtitle: "Access platform resources.",
-          icon: BookOpen,
-          categories: [],
-        };
-    }
-  };
-
-  const content = getContent();
-
+  const page = PAGES[type] || PAGES.help;
   return (
-    <IndustrialPageLayout title={content.title} subtitle={content.subtitle}>
-      {/* Search (if help center) */}
-      {type === "help" && (
-        <div className="max-w-2xl mx-auto mb-16 relative">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search usage protocols..."
-            className="w-full pl-12 pr-4 py-4 bg-card border border-white/10 rounded-sm text-white focus:border-primary focus:outline-none transition-colors"
-          />
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        {content.categories.map((cat, idx) => (
-          <div
-            key={idx}
-            className="bg-card p-8 border border-white/10 rounded-sm group hover:border-primary/30 transition-all cursor-pointer"
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-white/5 rounded-sm text-primary group-hover:bg-primary group-hover:text-black transition-colors">
-                <content.icon size={24} />
-              </div>
-              <ArrowRight
-                size={20}
-                className="text-gray-600 group-hover:text-primary transition-colors"
-              />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
-              {cat.title}
-            </h3>
-            <p className="text-gray-400 leading-relaxed text-sm">{cat.desc}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* CTA Section */}
-      <div className="bg-primary/5 border border-primary/10 rounded-sm p-8 text-center">
-        <h3 className="text-white font-bold mb-2">
-          Need escalated assistance?
-        </h3>
-        <p className="text-gray-400 text-sm mb-6">
-          Our support engineers are online 24/7/365.
-        </p>
-        <Button className="bg-transparent border border-primary text-primary hover:bg-primary hover:text-black transition-all text-xs font-bold">
-          Contact Support
-        </Button>
-      </div>
+    <IndustrialPageLayout title={page.title} subtitle={page.subtitle}>
+      <section className="app-panel" style={{ maxWidth: 860 }} aria-label={page.title}>
+        <ul className="app-list">
+          {page.rows.map(([q, a, to, label]) => (
+            <li key={q} className="app-row">
+              <span className="app-row-main">
+                <span className="app-row-title" style={{ display: "block" }}>
+                  {q}
+                </span>
+                <span className="app-row-sub">{a}</span>
+              </span>
+              <Link className="app-btn app-btn-sm" to={to}>
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
     </IndustrialPageLayout>
   );
 };

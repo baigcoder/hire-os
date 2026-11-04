@@ -6,24 +6,19 @@ import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { startSession } from "../utils/session.js";
 import { sendRecruiterInvitation, sendPaymentInvoice } from "../utils/email.js";
 import {
   getPendingTransaction,
   markPendingTransaction,
 } from "./paddle.controller.js";
 
-// Token generation helper
-const generateToken = (userId, expiresIn = "7d") => {
-  return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn });
-};
-
 // Generate secure random password (alphanumeric only to avoid email copy-paste issues)
 const generateSecurePassword = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
   let password = "";
   for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+    password += chars.charAt(crypto.randomInt(chars.length));
   }
   return password;
 };
@@ -112,7 +107,7 @@ export const registerCompany = async (req, res) => {
           await existingAdmin.save();
         }
 
-        const token = generateToken(existingAdmin._id);
+        const token = await startSession(res, existingAdmin._id, req);
         return res.status(200).json({
           message: "Company already registered!",
           company: {
@@ -384,7 +379,7 @@ export const registerCompany = async (req, res) => {
     }
 
     // Generate token for auto-login
-    const token = generateToken(adminUser._id);
+    const token = await startSession(res, adminUser._id, req);
 
     return res.status(201).json({
       message: "Company registered successfully!",
@@ -770,7 +765,7 @@ export const acceptRecruiterInvitation = async (req, res) => {
     });
 
     // Generate token for auto-login
-    const authToken = generateToken(user._id);
+    const authToken = await startSession(res, user._id, req);
 
     return res.status(200).json({
       message: `Welcome to ${company.name}! You are now a recruiter.`,

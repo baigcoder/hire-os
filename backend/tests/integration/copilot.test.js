@@ -87,6 +87,7 @@ describe("interview copilot API", () => {
 
     recruiter = await createUser({ email: "r@acme.test", role: "recruiter" });
     const company = await Company.create({
+    subscription: { status: "active" },
       name: "Acme",
       email: "hr@acme.test",
       description: "Acme builds logistics software for everyone.",

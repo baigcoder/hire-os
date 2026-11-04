@@ -15,3 +15,14 @@ test("score follows the backend rule: must-haves double, 1–4 mapped to 0–100
 test("every plan row has one answer per plan", () => {
   for (const row of PLAN_ROWS) assert.equal(row.length, PLANS.length + 1);
 });
+
+test("a typed role gets its own draft, anything else a generic one", async () => {
+  const { draftScorecard } = await import("./data.js");
+  assert.equal(draftScorecard("Senior Backend Engineer").must[0][0], "API design");
+  assert.equal(draftScorecard("Product designer").must[0][0], "Interaction design");
+  const other = draftScorecard("Pastry chef");
+  assert.equal(other.matched, false);
+  assert.equal(other.must.length, 2);
+  assert.equal(draftScorecard("Software development lead").matched, false);
+  assert.equal(draftScorecard("Building manager").matched, false);
+});

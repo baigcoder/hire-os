@@ -28,6 +28,9 @@ export const useVideoCall = (signaling = {}, interviewId, options = {}) => {
   // ICE servers from the API (short-lived TURN credentials) when given
   const iceServersRef = useRef(null);
   iceServersRef.current = options.iceServers ?? null;
+  // Voice calls never ask for the camera
+  const audioOnlyRef = useRef(false);
+  audioOnlyRef.current = Boolean(options.audioOnly);
 
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
@@ -47,6 +50,7 @@ export const useVideoCall = (signaling = {}, interviewId, options = {}) => {
   // Initialize local media stream with fallback
   const initializeMedia = useCallback(async () => {
     try {
+      if (audioOnlyRef.current) throw new Error("audio-only call");
       // Try full video + audio first
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -88,7 +92,7 @@ export const useVideoCall = (signaling = {}, interviewId, options = {}) => {
         setIsVideoOn(false);
 
         console.log("🎤 Audio-only mode initialized");
-        setCallError("Camera unavailable - audio-only mode");
+        if (!audioOnlyRef.current) setCallError("Camera unavailable - audio-only mode");
         return audioStream;
       } catch (audioError) {
         console.error("Failed to get any media:", audioError);

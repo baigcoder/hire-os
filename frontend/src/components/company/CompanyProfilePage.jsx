@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -23,7 +23,6 @@ import {
   Award,
   Coffee,
   Zap,
-  Star,
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -106,7 +105,7 @@ const CompanyProfilePage = () => {
             Company Not Found
           </h1>
           <p className="text-gray-500 mb-6">
-            The company you're looking for doesn't exist.
+            The company you&apos;re looking for doesn&apos;t exist.
           </p>
           <Button
             onClick={() => navigate("/companies")}

@@ -3,7 +3,7 @@
  * Visual timeline of career milestones and achievements
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   GraduationCap,
@@ -12,7 +12,6 @@ import {
   Rocket,
   Star,
   Calendar,
-  MapPin,
   Plus,
   Trophy,
   Target,

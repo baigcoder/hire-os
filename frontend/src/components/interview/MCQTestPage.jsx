@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain,
@@ -8,11 +7,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   Play,
   Timer,
-  Flag,
   Send,
   Eye,
 } from "lucide-react";
@@ -38,7 +35,6 @@ import Navbar from "../shared/Navbar";
 const MCQTestPage = () => {
   const { id: interviewId } = useParams();
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
 
   const [testData, setTestData] = useState(null);
   const [questions, setQuestions] = useState([]);

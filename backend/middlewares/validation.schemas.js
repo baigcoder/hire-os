@@ -6,7 +6,8 @@ import Joi from "joi";
  */
 
 // Common field validators
-const emailField = Joi.string().email().lowercase().trim().required();
+// No TLD list: sign-up accepts any domain, so reset must too
+const emailField = Joi.string().email({ tlds: { allow: false } }).lowercase().trim().required();
 const passwordField = Joi.string().min(8).max(128).required();
 const optionalPassword = Joi.string().min(8).max(128);
 const phoneField = Joi.string().pattern(/^[+]?[\d\s-]{10,15}$/);
@@ -32,7 +33,7 @@ export const registerSchema = Joi.object({
 export const loginSchema = Joi.object({
   email: emailField,
   password: Joi.string().required(),
-  role: Joi.string().valid("student", "recruiter", "company_admin").required(),
+  role: Joi.string().valid("student", "recruiter", "company_admin"),
 });
 
 export const changePasswordSchema = Joi.object({

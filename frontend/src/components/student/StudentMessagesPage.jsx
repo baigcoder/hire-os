@@ -10,26 +10,18 @@
  * - Video/Audio Calls
  */
 
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
   MessageSquare,
   Send,
-  User,
   Search,
   RefreshCw,
-  ArrowLeft,
-  Briefcase,
-  Mail,
   Building,
-  Check,
   CheckCheck,
-  Clock,
   Phone,
   Video,
 } from "lucide-react";
@@ -39,12 +31,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Navbar from "../shared/Navbar";
 import {
   MESSAGE_API_END_POINT,
-  APPLICATION_API_END_POINT,
 } from "@/utils/constant";
 import { useRealtime } from "@/context/SocketContext";
+import api from "@/utils/api";
 
 const StudentMessagesPage = () => {
-  const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
   const messagesEndRef = useRef(null);
   const {
@@ -103,50 +94,26 @@ const StudentMessagesPage = () => {
     }
   }, [newMessage, activeContact, user?._id]);
 
-  // Fetch contacts (recruiters from application history)
+  // Contacts: the people the API lets this candidate message (recruiters
+  // and owners at companies with an interview scheduled for them)
   useEffect(() => {
-    const fetchContacts = async () => {
-      setLoading(true);
-      try {
-        // Get applications to find recruiters
-        const res = await axios.get(`${APPLICATION_API_END_POINT}/get`, {
-          withCredentials: true,
-        });
-
-        if (res.data.success) {
-          const applications = res.data.application || [];
-
-          // Extract unique recruiters from applications
-          const recruiterMap = new Map();
-          applications.forEach((app) => {
-            if (app.job?.createdBy) {
-              const recruiterId = app.job.createdBy._id || app.job.createdBy;
-              if (!recruiterMap.has(recruiterId)) {
-                recruiterMap.set(recruiterId, {
-                  _id: recruiterId,
-                  fullname: app.job.createdBy.fullname || "Recruiter",
-                  profile: app.job.createdBy.profile,
-                  companyName: app.job.company?.name,
-                  jobTitle: app.job.title,
-                  applicationStatus: app.status,
-                });
-              }
-            }
-          });
-
-          setContacts(Array.from(recruiterMap.values()));
-        }
-      } catch (error) {
-        console.error("Failed to fetch contacts:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user?._id) {
-      fetchContacts();
-    }
-  }, [user]);
+    if (!user?._id) return;
+    setLoading(true);
+    api
+      .get("/message/contacts")
+      .then((res) =>
+        setContacts(
+          (res.data.contacts || []).map((c) => ({
+            ...c,
+            profile: { profilePhoto: c.photo },
+            companyName: c.companyName,
+            jobTitle: c.role === "company_admin" ? `Owner, ${c.companyName || "company"}` : c.jobTitle,
+          })),
+        ),
+      )
+      .catch((error) => console.error("Failed to fetch contacts:", error))
+      .finally(() => setLoading(false));
+  }, [user?._id]);
 
   // Load conversation
   const loadConversation = async (contactId) => {
@@ -235,12 +202,7 @@ const StudentMessagesPage = () => {
   const handleCall = (type) => {
     if (!activeContact) return;
 
-    const callId = initiateCall(activeContact._id, type);
-    if (callId) {
-      toast.success(`Calling ${activeContact.fullname}...`);
-    } else {
-      toast.error("Connection not available");
-    }
+    initiateCall(activeContact._id, type, activeContact.fullname);
   };
 
   // Auto-scroll
@@ -311,11 +273,7 @@ const StudentMessagesPage = () => {
                   <button
                     key={contact._id}
                     onClick={() => handleSelectContact(contact)}
-                    className={`w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5 ${
-                      activeContact?._id === contact._id
-                        ? "bg-primary/10 border-l-2 border-l-primary"
-                        : ""
-                    }`}
+                    className={`w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-colors border-b border-white/5 ${ activeContact?._id === contact._id ? "bg-white/10" : "" }`}
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12 border border-white/10">
@@ -344,7 +302,6 @@ const StudentMessagesPage = () => {
                 ))
               ) : (
                 <div className="p-8 text-center">
-                  <User className="w-12 h-12 text-gray-700 mx-auto mb-3" />
                   <p className="text-gray-500 text-sm">No contacts found</p>
                   <p className="text-gray-600 text-xs mt-1">
                     Apply to jobs to connect with recruiters
@@ -392,6 +349,7 @@ const StudentMessagesPage = () => {
                       size="sm"
                       variant="ghost"
                       onClick={() => handleCall("audio")}
+                      aria-label="Voice call"
                       className="text-gray-400 hover:text-white w-10 h-10 p-0"
                     >
                       <Phone className="w-5 h-5" />
@@ -400,6 +358,7 @@ const StudentMessagesPage = () => {
                       size="sm"
                       variant="ghost"
                       onClick={() => handleCall("video")}
+                      aria-label="Video call"
                       className="text-gray-400 hover:text-white w-10 h-10 p-0"
                     >
                       <Video className="w-5 h-5" />
@@ -421,18 +380,14 @@ const StudentMessagesPage = () => {
                         const isMe = senderId === user?._id;
 
                         return (
-                          <motion.div
+                          <div
                             key={msg._id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
+                           
+                           
                             className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                           >
                             <div
-                              className={`max-w-[70%] ${
-                                isMe
-                                  ? "bg-gradient-to-br from-primary to-[#FFA500] text-black rounded-2xl rounded-br-sm"
-                                  : "bg-white/10 text-white rounded-2xl rounded-bl-sm"
-                              } px-4 py-3`}
+                              className={`max-w-[70%] ${ isMe ? "bg-gradient-to-br from-primary to-[#e6e6e6] text-black rounded-2xl rounded-br-sm" : "bg-white/10 text-white rounded-2xl rounded-bl-sm" } px-4 py-3`}
                             >
                               <p
                                 className={`text-sm ${isMe ? "text-[#000000]" : "text-white"}`}
@@ -440,9 +395,7 @@ const StudentMessagesPage = () => {
                                 {msg.content}
                               </p>
                               <div
-                                className={`flex items-center justify-end gap-1 mt-1 ${
-                                  isMe ? "text-[#000000]/50" : "text-gray-500"
-                                }`}
+                                className={`flex items-center justify-end gap-1 mt-1 ${ isMe ? "text-[#000000]/50" : "text-gray-500" }`}
                               >
                                 <span className="text-xs">
                                   {format(new Date(msg.createdAt), "HH:mm")}
@@ -455,16 +408,15 @@ const StudentMessagesPage = () => {
                                   ))}
                               </div>
                             </div>
-                          </motion.div>
+                          </div>
                         );
                       })}
                       <div ref={messagesEndRef} />
                     </>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center">
-                      <MessageSquare className="w-16 h-16 text-gray-700 mb-4" />
-                      <h3 className="text-gray-400 font-bold">
-                        Start a Conversation
+                      <h3 className="text-white text-base font-medium mb-1">
+                        No messages yet
                       </h3>
                       <p className="text-gray-600 text-sm mt-1">
                         Send a message to {activeContact.fullname}
@@ -510,7 +462,7 @@ const StudentMessagesPage = () => {
                     <Button
                       onClick={handleSendMessage}
                       disabled={!messageText.trim() || sending}
-                      className="bg-primary hover:bg-[#FFE44D] text-black px-6"
+                      className="bg-primary hover:bg-[#e6e6e6] text-black px-6"
                     >
                       {sending ? (
                         <RefreshCw className="w-5 h-5 animate-spin" />
@@ -524,9 +476,8 @@ const StudentMessagesPage = () => {
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
-                  <MessageSquare className="w-20 h-20 text-gray-700 mx-auto mb-4" />
-                  <h2 className="text-gray-400 font-bold text-lg">
-                    Select a Contact
+                  <h2 className="text-white text-base font-medium mb-1">
+                    Pick a conversation
                   </h2>
                   <p className="text-gray-600 text-sm mt-2">
                     Choose a recruiter to start messaging

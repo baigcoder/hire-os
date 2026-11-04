@@ -1,0 +1,103 @@
+/* The public bar: the landing page's wordmark and links on the page ground.
+   Fixed and 64px tall, as the public pages' top offsets expect. */
+
+.pub-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(16px, 2.3vw, 32px);
+  background: #0a0a0a;
+  color: #ececec;
+  font-family: "General Sans", system-ui, sans-serif;
+  font-size: 15px;
+}
+.pub-nav-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #ececec;
+  text-decoration: none;
+  font-family: "Gambarino", Georgia, serif;
+  font-size: 22px;
+}
+.pub-nav-square {
+  width: 11px;
+  height: 11px;
+  background: #b11226;
+}
+.pub-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.pub-nav-link {
+  color: #8c8c8c;
+  text-decoration: none;
+  transition: color 140ms;
+}
+.pub-nav-link:hover,
+.pub-nav-link.is-active,
+.pub-nav-strong {
+  color: #ececec;
+}
+.pub-nav :focus-visible {
+  outline: 2px solid #ececec;
+  outline-offset: 3px;
+}
+@media (max-width: 480px) {
+  .pub-nav-links {
+    gap: 16px;
+  }
+  .pub-nav-mark {
+    font-size: 19px;
+  }
+}
+
+/* The public footer: one row, the same marks and links as the bar */
+.pub-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  padding: 32px clamp(16px, 2.3vw, 32px);
+  background: #0a0a0a;
+  color: #ececec;
+  font-family: "General Sans", system-ui, sans-serif;
+  font-size: 15px;
+}
+.pub-foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.pub-foot-copy {
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+/* Info pages (about, careers, contact, press, legal, resources) */
+.info-head {
+  margin-bottom: 48px;
+  max-width: 760px;
+}
+.info-h1 {
+  margin: 0;
+  font-family: "Gambarino", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2.5rem, 1.6rem + 3vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #ececec;
+}
+.info-lead {
+  margin: 20px 0 0;
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
+  line-height: 1.45;
+  color: #c8c8c8;
+  max-width: 56ch;
+}

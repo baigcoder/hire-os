@@ -3,10 +3,10 @@
  * Shows in dashboard with days remaining and upgrade CTA
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Clock, Sparkles, Crown, AlertTriangle, X, Zap } from "lucide-react";
+import { Sparkles, Crown, AlertTriangle, X } from "lucide-react";
 import api from "@/utils/api";
 
 const TrialBanner = () => {

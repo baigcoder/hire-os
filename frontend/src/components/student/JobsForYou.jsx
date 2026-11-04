@@ -1,25 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import api from "@/utils/api";
 import { toast } from "sonner";
 import {
-  Briefcase,
   MapPin,
   Building2,
   Sparkles,
   Target,
   ChevronRight,
-  TrendingUp,
   Check,
   X,
-  Loader2,
-  Award,
-  Star,
-  Filter,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Progress } from "../ui/progress";
 import { ComponentLoader } from "../shared/DashboardLoader";
 
 

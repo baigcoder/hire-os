@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,28 +9,12 @@ import {
   ArrowRight,
   ArrowLeft,
   CreditCard,
-  User,
-  Mail,
-  Phone,
-  Lock,
-  Eye,
-  EyeOff,
-  Briefcase,
   Users,
-  Sparkles,
   Shield,
-  Video,
-  Brain,
-  BarChart3,
-  Upload,
   Plus,
   Trash2,
-  Send,
   CheckCircle,
   Loader2,
-  Globe,
-  MapPin,
-  Terminal,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -39,7 +23,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
-import { COMPANY_API_END_POINT, PAYMENT_API_END_POINT } from "@/utils/constant";
+import { PAYMENT_API_END_POINT } from "@/utils/constant";
 import Navbar from "../shared/Navbar";
 
 // ========== INDUSTRIAL STEP INDICATOR ==========
@@ -277,8 +261,8 @@ const CompanyRegistration = () => {
   const [recruiters, setRecruiters] = useState([
     { name: "", email: "", phone: "", role: "" },
   ]);
-  const [registrationComplete, setRegistrationComplete] = useState(false);
-  const [registrationResult, setRegistrationResult] = useState(null);
+  const [registrationComplete] = useState(false);
+  const [registrationResult] = useState(null);
 
   const handleCompanyChange = (field, value) =>
     setCompanyInfo((prev) => ({ ...prev, [field]: value }));
@@ -606,7 +590,7 @@ const CompanyRegistration = () => {
                       Recruiters
                     </h3>
                     <p className="text-gray-600 text-xs mb-4">
-                      Add team members. They'll receive email invitations with
+                      Add team members. They&apos;ll receive email invitations with
                       login credentials.
                     </p>
                     <div className="space-y-4">

@@ -36,8 +36,10 @@ export const useCallConfig = (interviewId) => {
       .catch((error) => {
         if (cancelled) return;
         const status = error?.response?.status;
-        // Not a participant, or cancelled: don't join any channel
-        if (status === 404 || status === 409) setState({ status: "denied", config: null });
+        // Not a participant, cancelled, or MCQ not passed yet: don't join any channel
+        if (status === 403 || status === 404 || status === 409) {
+          setState({ status: "denied", config: null, code: error?.response?.data?.code, message: error?.response?.data?.message });
+        }
         else setState({ status: "ready", config: fallback(interviewId) });
       });
     return () => {

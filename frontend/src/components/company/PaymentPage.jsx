@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -17,7 +17,7 @@ import Navbar from "../shared/Navbar";
 const PaymentPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [paymentData, setPaymentData] = useState(null);
+  const [, setPaymentData] = useState(null);
 
   const status = searchParams.get("status");
   const transactionId = searchParams.get("txn");

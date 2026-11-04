@@ -3,7 +3,7 @@
  * AI-powered skill gap identification and recommendations
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Target,
@@ -12,14 +12,12 @@ import {
   CheckCircle,
   AlertCircle,
   Lightbulb,
-  ArrowRight,
   RefreshCw,
   Brain,
   Zap,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Progress } from "../ui/progress";
 import api from "@/utils/api";  // Uses JWT token interceptor
 import { toast } from "sonner";
 import { CAREER_INSIGHTS_API_END_POINT } from "@/utils/constant";

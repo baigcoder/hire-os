@@ -3,6 +3,8 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { sendPasswordResetEmail } from "../utils/email.js";
 import AppError from "../utils/AppError.js";
+import { endAllSessions } from "../utils/session.js";
+import { validatePassword } from "../middlewares/validation.js";
 
 /**
  * Generate password reset token
@@ -24,6 +26,15 @@ const generateResetToken = () => {
 export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
+
+    // Checked before the lookup, so a mail outage can't reveal which emails have accounts
+    if (!(process.env.SMTP_USER || process.env.EMAIL_USER) || !(process.env.SMTP_PASS || process.env.EMAIL_PASS)) {
+      return res.status(503).json({
+        success: false,
+        message: "Password reset emails can't be sent right now. Please contact us.",
+        code: "EMAIL_NOT_CONFIGURED",
+      });
+    }
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
@@ -133,6 +144,11 @@ export const resetPassword = async (req, res) => {
       });
     }
 
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length) {
+      return res.status(400).json({ success: false, message: passwordErrors[0], errors: passwordErrors });
+    }
+
     // Hash the token to compare with stored version
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -167,6 +183,9 @@ export const resetPassword = async (req, res) => {
     user.lastFailedLogin = undefined;
 
     await user.save();
+
+    // Whoever knew the old password is signed out everywhere
+    await endAllSessions(user._id);
 
     return res.status(200).json({
       success: true,

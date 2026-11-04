@@ -1083,3 +1083,231 @@ Skill lint: 0 FAIL, 0 WARN. Backend **314/314**; frontend tests **13/13**.
 Backend **324/324** (10 new tests); frontend **13/13**; skill lint 0 FAIL, 0 WARN.
 
 **Still themed only:** pipeline board, talent pool, messages, templates, analytics, settings, billing, career tools and the live interview room.
+
+---
+
+## 25. Simplification pass: one purpose per screen
+
+The brief: simple purpose, simple architecture, simple design. Cut taglines, helper text and secondary labels; if a screen needs them, fix the layout.
+
+**Audit findings (before):**
+- **Landing:**
+  - ten sections, most with a paragraph explaining itself;
+  - six helper notes around the copilot panel;
+  - sub-labels inside the product pieces ("must-have, counts double", "Latest evidence · System design");
+  - "Start hiring" four times;
+  - two captioned archival artworks, a decorative diagram and a seven-row data-retention table;
+  - candidates had one nav link and a line of small print.
+- **App:**
+  - the same counts three times per screen (finding line, panel header, "View all N");
+  - a "Hiring flow" panel nobody acts on;
+  - a top bar whose breadcrumb repeated the page title;
+  - ten nav items for a recruiter;
+  - a sublabel under every KPI;
+  - team management on the owner's overview.
+
+**After:**
+- **Landing** (`components/landing`):
+  - the headline, one sentence and two doors (Start hiring / Find a job);
+  - the interactive scorecard at full width;
+  - three features, each a heading plus the product piece: the copilot, the owner's decisions, and jobs matched to a candidate;
+  - pricing as three plans with five rows that actually differ;
+  - three questions and a one-row footer.
+  - The artworks, diagram, records table, notes, fact box, repeated CTA and giant footer wordmark are gone.
+  - Inspector: 0 FAIL.
+- **Shell:**
+  - no top bar on desktop (the page title names the page);
+  - the bell and account in the sidebar foot;
+  - each role's nav cut to the daily work (recruiter: Today, Applicants, Interviews, Jobs, Messages), with rare tools under a collapsible More;
+  - `document.title` set per page.
+- **Today:** each role's overview is now one list of what needs them, ranked, each row with the one action that clears it (`app/today.js`, tested; `app/TaskList.jsx`):
+  - recruiter: join, then reports to send, then today's interviews, then reviews (longest waiting first), with "Coming up" beside it;
+  - owner: decisions, with open jobs beside them;
+  - candidate: interviews, then applications by stage, with matches beside them. The trial notice shows only within 5 days of the end or once expired.
+- **Team** (`/company/team`): recruiters with their activity, invite, resend and remove, plus the seat limit on the action itself. It moved off the overview.
+- **Decision queue rows:** name, job, call and score; the "from …" and "scorecard" labels are gone.
+
+**Removed:** `RecruiterPerformance` (merged into Team), plus the KPI strip and funnel helpers.
+
+**Checks:**
+- Frontend tests **15/15** (ranking tests added).
+- Skill lint 0 FAIL on the app screens and the landing page. Its rules in the product pieces are marked as allowed inside `data-ui`.
+- Signed in as recruiter, owner and candidate against the demo API.
+
+**Next, in the same spirit:**
+- the scorecard page, the report modal and the owner's report review (the core evidence flow, still old-styled);
+- the live interview room;
+- profile and settings.
+
+## 26. Sign-in, and every remaining page in the app frame
+
+**Sign-in no longer asks for a role.** The account already has one, and picking the wrong role used to fail with "No recruiter account found…".
+- `POST /user/login` takes `role` as optional. A role that is sent must still match the account (tested both ways).
+- `AuthContext.signIn(email, password)` tries our API first, then Supabase for accounts that live only there. A locked (423) or expired (403) answer stops there.
+- A debug line that logged the typed password to the console is gone.
+- **Who gets an account:**
+  - Candidates and company owners sign up themselves. Recruiters only through their owner's invitation: `/user/register` and `/otp/verify-signup` refuse `role: "recruiter"`.
+  - A recruiter signs in (password or Google) only while they belong to a company whose subscription is live: active, trial, or cancelled with paid time left. Otherwise sign-in returns `NO_COMPANY` or `COMPANY_SUBSCRIPTION_INACTIVE` (`recruiterAccessProblem`, tested).
+  - Owners can always sign in, so a lapsed owner can still reach Billing and renew.
+
+**Auth pages** (`auth/AuthLayout.jsx`, `auth/auth.css`): one 360px column on the page ground, with the wordmark, a title, the form and one way out. There's no card, no picture and no subtitle.
+- **Sign in:** Google, email, password (with "Forgot?" beside the label), and "Sign in with an email code" as a quiet switch.
+- **Create an account:**
+  - a two-way "Find a job / Hire" switch, then name, email and password;
+  - a show toggle replaces confirm-password;
+  - the optional phone field is gone;
+  - the terms checkbox is now a line of fine print.
+  - The code step uses one `one-time-code` field, so paste and phone autofill work.
+- **Forgot, reset, first-password and OAuth callback** use the same frame.
+- Design lint: 0 FAIL.
+
+**Pages inside the app frame:**
+- **Brought onto the system:** Pipeline, Talent pool, Assessments, Email templates, Job templates, Messages (all roles), Analytics, Billing, both Settings pages, Applications, Profile, Resume analysis and Interview practice.
+- **One pass per page:**
+  - each page's own accent becomes the one ink colour;
+  - uppercase, tracking and monospace styling are gone;
+  - entrance animations are gone (they left panels invisible until they ran);
+  - each header is a plain title row with at most one action;
+  - sci-fi copy ("Zero blueprints detected", "Commit log") is plain words.
+- Dead controls are removed: Pipeline and Analytics "Export".
+- **Summary sentences** under Applicants, Interviews, Jobs and a job's applicants are gone; the rows, pills and tab counts already say it.
+- **Career tools** opens on the tools themselves (career, practice tests). Its own top bar, profile card and the Overview, Jobs and Interviews tabs repeated other screens and are gone. That also removed a call that threw on realtime updates.
+- **Jobs** renders inside the app frame for signed-in people (`ShellIfSignedIn`) and stays public for visitors.
+
+**Checks:**
+- Backend **330/330**.
+- Frontend tests **15/15**; the build is clean.
+- Signed in as recruiter, owner and candidate (no role picked) and looked at every nav destination.
+
+**Not yet:**
+- the public navbar used on Jobs and other public pages;
+- the pricing and company-registration flows;
+- the interview room and the report review.
+
+## 27. Sign-in hardening
+
+| Gap | Fix |
+|---|---|
+| 7-day tokens, also kept in `localStorage` where any page script could read them | Every sign-in goes through `utils/session.js` `startSession`: a 15-minute access cookie and a 7-day refresh cookie, both httpOnly, the refresh one tied to an entry in `user.activeSessions`. The frontend stores no token: `utils/api.js` renews on a 401 (on `api` and on the global axios) and clears any old stored token. A refresh token is never accepted as an access token. |
+| Recruiter rules checked only at sign-in | `isRecruiter` re-checks the company subscription on every request, and so does every refresh. A lapsed company cuts its recruiters off at once. |
+| No CSRF protection while cookies are `SameSite=None` | Cookie-authenticated writes to `/api` must carry `X-Requested-With`, which a cross-site form can't set. The frontend sends it on every call to the API. |
+| Temporary recruiter password not enforced | Recruiter routes return `PASSWORD_CHANGE_REQUIRED`, and `RecruiterRoute` sends the recruiter to set their password. |
+| Sign-up told strangers which role an email had | "An account with this email already exists." Sign-in codes answer the same whether or not the account exists. |
+| Email codes from `Math.random`, kept in server memory | `utils/emailCode.js`: `crypto.randomInt`, stored hashed in MongoDB with a TTL index, 10 minutes, 5 tries, compared in constant time. |
+
+**Also:**
+- Sign-out ends that device's session.
+- A password change signs out every other device; a reset signs out everywhere.
+- Invitation passwords use `crypto.randomInt`.
+- Sockets read the httpOnly cookie.
+- `socketServer.js` no longer falls back to a hard-coded secret.
+
+**Checks:**
+- Backend **339/339**, including `sessions.test.js`: cookies, renewal, sign-out, refresh-token misuse, CSRF, temporary passwords, a lapsed company, and email codes.
+- Test companies now carry an active subscription, as a paying company does.
+- Frontend tests **15/15**; the build is clean.
+- In the browser:
+  - signed in as recruiter and owner with nothing in storage;
+  - renewal works;
+  - a forged write gets 403;
+  - an ended session signs the page out.
+
+## 28. The dark room: the landing page, and one kit for the app
+
+**Landing page** (design-taste-frontend, direction "The dark room", seed 121445876):
+- **Idea:** one black field, and in it the lit things: the candidate's own words, the evidence each score rests on.
+- **Hero:** "Hire on / evidence." runs from the top edge to the bottom edge. Between the two lines, an interview transcript lights one answer at a time, each with its skill, rating and timestamp.
+- **Sections:**
+  - **Hiring, until now:** two public-domain prints (Bettelheim 1935–36, The Met; Keene 1870–91, Art Institute of Chicago), lit as exhibits.
+  - **Type any role:** the one live thing. The heading is an input, and HIRE.OS drafts that role's scorecard: must-haves, nice-to-haves and the opening question for each (`draftScorecard`, tested).
+  - **How a hire happens:** what you give and what comes back, three times.
+  - **The index:** pointing at a capability lights its description and preview.
+  - **Pricing:** plan names with one live figure.
+  - **FAQ:** five real questions, open.
+  - **Close:** a crimson field holding the "New job" dialog, then a curtain footer with the full-width wordmark.
+- **Redraws, with reasons:**
+  - the hero (the dealt one had no display headline);
+  - pricing (three plans, not one);
+  - proof dropped (no real customer names to show).
+- **Checks:** inspector **0 FAIL** at 1440, 768 and 390 on the production build. One warning: no footage, since no honest clip of a structured interview exists.
+
+**App: one kit:**
+- **Shared primitives** (`components/ui`) take the app's look:
+  - pill buttons with neutral hovers (outline and ghost used to turn green, the status colour);
+  - 36px fields with an 8px radius;
+  - flat 12px cards with no line and no shadow;
+  - quiet badges, pill tabs, and dialogs that alone cast a shadow.
+- **`app/legacy.css`** maps the older pages' own utilities onto the same tokens, scoped to the app canvas:
+  - zero radius becomes 10–12px, and white/10 lines become tone steps;
+  - 12px text becomes 13px;
+  - `text-gray-600` (about 2.5:1 on black) becomes readable;
+  - resting shadows are removed.
+  
+  A page rebuilt on `app.css` stops needing this file.
+- **Sidebar scope:** the sidebar names its workspace under the mark, for example "Northwind Logistics · Recruiter", or "Job search · Candidate". `companyName` now comes with the user at sign-in.
+- **Talent pool** with no pools shows one empty state with its action, instead of two empty panes.
+- **Checks:** all 28 sidebar pages for the three roles render with the scope, no resting shadows, no text under 13px and no errors. Backend **339/339**, frontend **16/16**, lint 0 errors, build clean.
+
+## 29. The weak screens, rebuilt on the kit
+
+Each screen below was captured at 1440×900 as its role, critiqued and fixed.
+
+- **Profile:**
+  - a person header with a photo you can change;
+  - About, Details, Skills and Links, edited in one mode;
+  - Resume, a completeness bar that names what's missing, and application counts from the same pipeline as Today.
+  - "Member since: N/A" and the icon stat tiles are gone.
+- **Settings (both):** one page, no inner menu. Account, Password, Signed-in devices (names each device and marks this one; sign out one or everywhere else) and Close account (confirmed with your password).
+  - The Notifications, Privacy and Appearance toggles saved nothing, and "Delete account" said it deleted without deleting. They are gone; every control left is backed by the API.
+  - The owner's page adds the company profile.
+  - `GET /user/sessions` marks the current session and names devices; `revoke-all` keeps this device by its refresh cookie.
+- **Billing:** the plan with price, start, renewal and what's included; usage against the plan's limits; payments as a table.
+- **Email templates:** a list beside the open template, its subject and body with placeholders marked, plus Edit, Duplicate, Preview and Delete. The card grid is gone.
+- **Interview practice:** one setup panel. Kind and pace are segmented; camera, microphone and voice are On/Off; no emoji, no purple.
+- **Career coach:** topics, recent conversations and suggested questions as plain lists. The second `h1`, icon tiles and avatar welcome are gone.
+- **Messages and empty states:** one quiet line instead of large icon placeholders.
+- **Today:**
+  - owner and recruiter: a pipeline strip (stage shares, with the stage you act on in the data hue);
+  - owner: plan usage;
+  - candidate: each application's next step.
+- **Data fixes:**
+  - salaries read "Rs 350,000 a year", not "350000LPA";
+  - location filters list Pakistani cities;
+  - the salary-band filter, which could never match, is removed;
+  - interview cards say "Not scheduled yet" instead of "Invalid Date".
+
+**Checks:** backend **339/339**, frontend **16/16**, lint 0 errors, build clean. All 30 screens were captured for the three roles after the changes.
+
+## 30. Applications and Jobs on the kit
+
+- **Applications:** one table with stage tabs and counts (All, In review, Interviewing, Offer or hired, Closed). Each row shows the job, its company and city, and the next step, or the interview time. It has a stage pill, the date applied and one action: Join from 15 minutes before an interview, Practise before that, otherwise View job.
+  - `GET /application/get` now includes each application's interview (time and status).
+  - The demo seed links interviews to their applications, as the real scheduler does.
+  - The old interview card is removed. Its refresh after a live "interview scheduled" read a field the API never sends.
+- **Jobs:** one list instead of a card grid. Each row shows title, company, city, type, pay with its period, age, and a real Save (`POST /job/save/:id`, with saved state from `/job/saved`).
+  - Filters use the jobs' own location and type, so every option matches something.
+  - The old filter card applied only the first ticked box, as a text search, and is gone.
+  - Signed-out visitors see the same page under the public bar.
+  - The fake bookmark buttons on the Browse cards (their handler was a TODO) are removed.
+
+**Checks:** backend **339/339**, frontend **16/16**, lint 0 errors, build clean. Captured as candidate and signed out.
+
+## 31. Honest public pages
+
+- **About** no longer shows invented figures. It says why HIRE.OS exists, links owners to plans and job seekers to jobs, and lists four promises the product keeps today.
+- **Press** and **Careers** dropped fake coverage, press-kit downloads and invented openings. Press is a fact sheet; Careers points to our jobs on HIRE.OS.
+- **Contact** is a working form: `POST /api/v1/contact` validates, escapes and emails the message to `CONTACT_EMAIL` (or the SMTP account), 5 per hour per IP. Without SMTP it answers 503 instead of pretending.
+- **Footer** lost its placeholder phone and email.
+- **Pricing** (`/company/pricing`) is a plain comparison table on the app kit with a monthly/yearly switch.
+- `/browse` redirects to `/jobs`; the unused `Browse`, `Job` and `HeroSection` components are gone.
+- **Help, Privacy, Terms, Cookies** and the job-seeker resource pages (`/resume`, `/salary`, `/tips`) now state only what the product does (90-day transcript retention, the two sign-in cookies, which AI providers see what text) and link to real screens. The invented document IDs, encryption claims, 24/7 support line and dead category cards are gone.
+- **Password reset** works again: the forgot, verify and reset routes are wired, resets follow the sign-up password rules, and every session ends after a reset. Without SMTP the forgot step answers 503 for every address, so it never reveals which emails have accounts.
+
+## 32. Messages, calls and integrity alerts
+
+- **Who can talk to whom** lives in one place, `backend/modules/messaging/contacts.js`: owner and recruiters of one company, and a candidate with that company's staff once an interview is scheduled for them (any status but cancelled). Send, reply and the new `GET /message/contacts` all use it; the Messages screens list only those people. Before, anyone could message anyone, and an owner's broadcast reached every user of a role on the platform; it now reaches only their own recruiters.
+- **Live messages** are pushed by the API on the recipient's private `user:<id>` topic after the message is saved, so a sender's name can't be faked in the browser.
+- **Calls** (`/api/v1/calls`): the API checks the same rule, rings the callee on their private topic, and gives both sides TURN credentials and a token for a private `call:<id>` topic. Voice calls never open the camera. Unanswered calls become missed after 45 s. `CallCenter` replaces `CallDialog`, which signalled on public channels with STUN only.
+- **Video interview after the MCQ**: starting it already required a passed MCQ; joining and the call config now do too (`MCQ_REQUIRED`), and the call screen says why and links to the test.
+- **Anti-cheat alerts**: when monitoring counts a signal (tab hidden, looking away, phone, another person, …) or a tamper flag, the interview's recruiter and the company owner get a `fraud_alert` notification and a live toast, at most once per signal type every 5 minutes per interview. The integrity page shows the live risk and recent signals while the interview runs.
+- **Supabase**: re-run `docs/supabase/realtime-private-channels.sql`; the send policy now allows `call:%` topics as well as `interview:%`.

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import {
-  LayoutGrid,
+  Sun,
   Briefcase,
   Users,
   Video,
@@ -20,9 +20,11 @@ import {
   FileCheck,
   Mic,
   User,
+  UsersRound,
   LogOut,
   Menu,
   X,
+  ChevronRight,
 } from "lucide-react";
 import api from "@/utils/api";
 import { USER_API_END_POINT } from "@/utils/constant";
@@ -30,73 +32,64 @@ import { logout } from "@/redux/authSlice";
 import { useAuth } from "../../context/AuthContext";
 import { NotificationBell } from "../notifications/NotificationCenter";
 import { ShellContext } from "./shellContext";
+import { Skeleton } from "./blocks";
 import "./app.css";
+import "./legacy.css";
 
-/** Navigation per role: the screens each person actually works in. */
+/**
+ * Navigation per role: the daily work first, everything else under More.
+ * Each entry is [label, path, icon].
+ */
 const NAV = {
-  company_admin: [
-    {
-      items: [
-        ["Overview", "/company/admin/dashboard", LayoutGrid],
-        ["Jobs", "/admin/jobs", Briefcase],
-        ["Applications", "/admin/applications", Users],
-        ["Interviews", "/admin/interviews", Video],
-        ["Analytics", "/admin/analytics", BarChart3],
-        ["Messages", "/ceo/messages", MessageSquare],
-      ],
-    },
-    {
-      label: "Company",
-      items: [
-        ["Settings", "/company/settings", Settings],
-        ["Billing", "/company/billing", CreditCard],
-      ],
-    },
-  ],
-  recruiter: [
-    {
-      items: [
-        ["Overview", "/recruiter/dashboard", LayoutGrid],
-        ["Applicants", "/recruiter/applicants", Users],
-        ["Jobs", "/recruiter/jobs", Briefcase],
-        ["Pipeline", "/recruiter/pipeline", Columns3],
-        ["Interviews", "/recruiter/interviews", Video],
-        ["Talent pool", "/recruiter/talent-pool", Library],
-        ["Messages", "/recruiter/messages", MessageSquare],
-      ],
-    },
-    {
-      label: "Tools",
-      items: [
-        ["Assessments", "/recruiter/assessments", ClipboardList],
-        ["Email templates", "/recruiter/email-templates", Mail],
-        ["Job templates", "/recruiter/job-templates", FileText],
-      ],
-    },
-  ],
-  student: [
-    {
-      items: [
-        ["Overview", "/student/dashboard", LayoutGrid],
-        ["Find jobs", "/jobs", Search],
-        ["Applications", "/applied-jobs", FileCheck],
-        ["Resume analysis", "/resume-analyzer", FileText],
-        ["Career tools", "/student/career", Library],
-        ["Interview practice", "/interview-prep", Mic],
-        ["Messages", "/messages", MessageSquare],
-      ],
-    },
-    {
-      label: "You",
-      items: [
-        ["Profile", "/profile", User],
-        ["Settings", "/settings", Settings],
-      ],
-    },
-  ],
+  company_admin: {
+    main: [
+      ["Today", "/company/admin/dashboard", Sun],
+      ["Jobs", "/admin/jobs", Briefcase],
+      ["Applicants", "/admin/applications", Users],
+      ["Interviews", "/admin/interviews", Video],
+      ["Team", "/company/team", UsersRound],
+      ["Messages", "/ceo/messages", MessageSquare],
+    ],
+    more: [
+      ["Analytics", "/admin/analytics", BarChart3],
+      ["Settings", "/company/settings", Settings],
+      ["Billing", "/company/billing", CreditCard],
+    ],
+  },
+  recruiter: {
+    main: [
+      ["Today", "/recruiter/dashboard", Sun],
+      ["Applicants", "/recruiter/applicants", Users],
+      ["Interviews", "/recruiter/interviews", Video],
+      ["Jobs", "/recruiter/jobs", Briefcase],
+      ["Messages", "/recruiter/messages", MessageSquare],
+    ],
+    more: [
+      ["Pipeline board", "/recruiter/pipeline", Columns3],
+      ["Talent pool", "/recruiter/talent-pool", Library],
+      ["Assessments", "/recruiter/assessments", ClipboardList],
+      ["Email templates", "/recruiter/email-templates", Mail],
+      ["Job templates", "/recruiter/job-templates", FileText],
+    ],
+  },
+  student: {
+    main: [
+      ["Today", "/student/dashboard", Sun],
+      ["Jobs", "/jobs", Search],
+      ["Applications", "/applied-jobs", FileCheck],
+      ["Messages", "/messages", MessageSquare],
+    ],
+    more: [
+      ["Resume analysis", "/resume-analyzer", FileText],
+      ["Interview practice", "/interview-prep", Mic],
+      ["Career tools", "/student/career", Library],
+      ["Profile", "/profile", User],
+      ["Settings", "/settings", Settings],
+    ],
+  },
 };
 
-const ROLE_NAME = { company_admin: "Owner", recruiter: "Recruiter", student: "Candidate" };
+const ROLE_LABEL = { company_admin: "Owner", recruiter: "Recruiter", student: "Candidate" };
 
 export const Mark = () => (
   <span className="app-wordmark">
@@ -105,21 +98,33 @@ export const Mark = () => (
   </span>
 );
 
+const NavItem = ([label, to, Icon]) => (
+  <NavLink key={to} to={to} end className={({ isActive }) => `app-nav-item${isActive ? " is-active" : ""}`}>
+    <Icon aria-hidden="true" />
+    {label}
+  </NavLink>
+);
+
 /**
- * The shell for the screens people work in: a sidebar and a top bar on one
- * ground, divided by 1px rules (ruled T-frame). The top bar names the scope
- * and the screen, and holds notifications and the account.
+ * The shell for the screens people work in: one sidebar with the product,
+ * the work and the account. No top bar on desktop: the page's own title
+ * names it. Below 1024px a slim bar opens the same navigation as a sheet.
  */
-const AppShell = ({ title, scope, children }) => {
+const AppShell = ({ title, children }) => {
   const { user } = useSelector((s) => s.auth);
   const { signOut } = useAuth();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const nav = NAV[user?.role] ?? NAV.student;
+  const inMore = nav.more.some(([, to]) => location.pathname.startsWith(to));
+  const [moreOpen, setMoreOpen] = useState(inMore);
   const [menuOpen, setMenuOpen] = useState(false);
-  const groups = NAV[user?.role] ?? NAV.student;
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
+  useEffect(() => {
+    if (title) document.title = `${title} · HIRE.OS`;
+  }, [title]);
 
   const signOutHandler = async () => {
     try {
@@ -134,31 +139,41 @@ const AppShell = ({ title, scope, children }) => {
     }
   };
 
-  const nav = (
+  // Whose workspace this is: the company and your part in it, or your own job search
+  const scopeName = user?.role === "student" ? "Job search" : user?.companyName ?? "Your company";
+  const scopeRole = ROLE_LABEL[user?.role] ?? "";
+  const scope = (
+    <div className="app-scope">
+      <span className="app-scope-mark" aria-hidden="true">
+        {scopeName[0]}
+      </span>
+      <span className="app-scope-text">
+        <span className="app-scope-name">{scopeName}</span>
+        <span className="app-scope-role">{scopeRole}</span>
+      </span>
+    </div>
+  );
+
+  const navigation = (
     <nav aria-label="Main" className="app-nav">
-      {groups.map((g, i) => (
-        <div key={g.label ?? i} className="app-nav-group">
-          {g.label && <div className="app-nav-label">{g.label}</div>}
-          {g.items.map(([label, to, Icon]) => (
-            <NavLink key={to} to={to} end className={({ isActive }) => `app-nav-item${isActive ? " is-active" : ""}`}>
-              <Icon aria-hidden="true" />
-              {label}
-            </NavLink>
-          ))}
-        </div>
-      ))}
+      <div className="app-nav-group">{nav.main.map(NavItem)}</div>
+      <div className="app-nav-group">
+        <button type="button" className="app-nav-item app-more" aria-expanded={moreOpen || inMore} onClick={() => setMoreOpen((o) => !o)}>
+          <ChevronRight aria-hidden="true" className={moreOpen || inMore ? "is-open" : ""} />
+          More
+        </button>
+        {(moreOpen || inMore) && nav.more.map(NavItem)}
+      </div>
     </nav>
   );
 
-  const account = (
-    <div className="app-account">
+  const foot = (
+    <div className="app-side-foot">
       <div className="app-avatar" aria-hidden="true">
         {user?.fullname?.[0]?.toUpperCase() ?? "?"}
       </div>
-      <div className="app-account-text">
-        <div className="app-account-name">{user?.fullname ?? "Signed in"}</div>
-        <div className="app-meta">{ROLE_NAME[user?.role] ?? "Member"}</div>
-      </div>
+      <span className="app-account-name">{user?.fullname ?? "Signed in"}</span>
+      <NotificationBell />
       <button type="button" className="app-icon-btn" onClick={signOutHandler} aria-label="Sign out" title="Sign out">
         <LogOut aria-hidden="true" />
       </button>
@@ -171,26 +186,24 @@ const AppShell = ({ title, scope, children }) => {
         <NavLink to="/" className="app-brand" aria-label="HIRE.OS home">
           <Mark />
         </NavLink>
-        {nav}
-        <div className="app-side-foot">{account}</div>
+        {scope}
+        {navigation}
+        {foot}
       </aside>
 
       <header className="app-top">
-        <button type="button" className="app-icon-btn app-menu-btn" onClick={() => setMenuOpen(true)} aria-label="Open menu" aria-expanded={menuOpen}>
+        <button type="button" className="app-icon-btn" onClick={() => setMenuOpen(true)} aria-label="Open menu" aria-expanded={menuOpen}>
           <Menu aria-hidden="true" />
         </button>
-        <div className="app-crumb">
-          {scope && <span className="app-crumb-scope">{scope}</span>}
-          {scope && <span className="app-crumb-sep" aria-hidden="true">/</span>}
-          <span className="app-crumb-page">{title}</span>
-        </div>
-        <div className="app-top-right">
-          <NotificationBell />
-        </div>
+        <span className="app-top-title">{title}</span>
+        <NotificationBell />
       </header>
 
       <main className="app-canvas" id="main">
-        <ShellContext.Provider value={true}>{children}</ShellContext.Provider>
+        <ShellContext.Provider value={true}>
+          {/* Pages load lazily; while one does, the frame stays and the canvas shows its skeleton */}
+          <Suspense fallback={<Skeleton rows={6} />}>{children}</Suspense>
+        </ShellContext.Provider>
       </main>
 
       {menuOpen && (
@@ -201,8 +214,8 @@ const AppShell = ({ title, scope, children }) => {
               <X aria-hidden="true" />
             </button>
           </div>
-          {nav}
-          <div className="app-side-foot">{account}</div>
+          {navigation}
+          {foot}
         </div>
       )}
     </div>

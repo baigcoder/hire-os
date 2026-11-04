@@ -1,31 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
 import {
-  Video,
   Mic,
-  MicOff,
-  VideoOff,
-  Play,
-  Square,
   RefreshCw,
   MessageSquare,
   User,
   Bot,
   Loader2,
-  Clock,
   ChevronRight,
-  ThumbsUp,
-  ThumbsDown,
   Star,
   Award,
-  AlertCircle,
   Volume2,
-  VolumeX,
-  Sparkles,
   Brain,
-  Send,
   StopCircle,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -52,18 +40,17 @@ const MockInterview = () => {
   // AI Voice states
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const [aiModel, setAiModel] = useState("gpt-4o-mini"); // Track which model
-  const [autoContinue, setAutoContinue] = useState(true); // Auto-advance to next question
+  const [, setAiModel] = useState("gpt-4o-mini"); // Track which model
+  const [autoContinue] = useState(true); // Auto-advance to next question
   const [conversationMode, setConversationMode] = useState("live"); // 'live' or 'manual'
 
   // Feedback
-  const [feedback, setFeedback] = useState(null);
   const [overallScore, setOverallScore] = useState(null);
 
   // Mobile and speech recognition support detection
-  const [isMobile, setIsMobile] = useState(false);
-  const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState(true);
-  const [useFallbackInput, setUseFallbackInput] = useState(false);
+  const [, setIsMobile] = useState(false);
+  const [, setSpeechRecognitionSupported] = useState(true);
+  const [, setUseFallbackInput] = useState(false);
 
   const videoRef = useRef(null);
   const mediaStreamRef = useRef(null);
@@ -568,17 +555,7 @@ const MockInterview = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-sm bg-primary/10 flex items-center justify-center border border-primary/30">
-              <Video className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            </div>
-            Mock Interview
-          </h2>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1">
-            Practice with AI-powered interview simulation
-          </p>
-        </div>
+        <h1 className="app-h1">Interview practice</h1>
         {mode !== "setup" && (
           <Button
             onClick={resetInterview}
@@ -595,137 +572,78 @@ const MockInterview = () => {
       <AnimatePresence mode="wait">
         {/* Setup Mode */}
         {mode === "setup" && (
-          <motion.div
+          <div
             key="setup"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+           
+           
+           
             className="space-y-4 sm:space-y-6"
           >
-            {/* Interview Type Selection */}
-            <div className="bg-card border border-white/10 rounded-md p-4 sm:p-6">
-              <label className="text-xs text-gray-500 mb-4 block">
-                Select Interview Type
-              </label>
-              <div className="grid grid-cols-1 gap-3">
-                {interviewTypes.map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => setInterviewType(type.id)}
-                    className={`p-4 rounded-sm border transition-all text-left ${interviewType === type.id
-                      ? "bg-primary/10 border-primary/50 text-white"
-                      : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                      }`}
-                  >
-                    <div className="font-semibold text-sm">{type.name}</div>
-                    <div
-                      className={`text-xs mt-1 ${interviewType === type.id ? "text-gray-300" : "text-gray-500"}`}
-                    >
-                      {type.description}
+            <section className="app-panel" aria-labelledby="setup-h" style={{ maxWidth: 760 }}>
+              <h2 className="app-h2" id="setup-h">
+                Set up a practice interview
+              </h2>
+              <dl className="app-dl">
+                <div>
+                  <dt>Kind</dt>
+                  <dd>
+                    <div className="app-tabs" role="radiogroup" aria-label="Kind of interview" style={{ marginBottom: 6 }}>
+                      {interviewTypes.map((type) => (
+                        <button key={type.id} type="button" role="radio" aria-checked={interviewType === type.id} className={interviewType === type.id ? "is-active" : ""} onClick={() => setInterviewType(type.id)}>
+                          {type.name}
+                        </button>
+                      ))}
                     </div>
-                  </button>
+                    <span className="app-meta">{interviewTypes.find((t) => t.id === interviewType)?.description}</span>
+                  </dd>
+                </div>
+                {[
+                  ["Camera", videoEnabled, () => setVideoEnabled(!videoEnabled)],
+                  ["Microphone", audioEnabled, () => setAudioEnabled(!audioEnabled)],
+                  ["Read questions aloud", voiceEnabled, () => setVoiceEnabled(!voiceEnabled)],
+                ].map(([label, on, toggle]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>
+                      <button type="button" className="app-btn app-btn-sm" aria-pressed={on} onClick={toggle} style={{ minWidth: 64 }}>
+                        {on ? "On" : "Off"}
+                      </button>
+                    </dd>
+                  </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Media Settings */}
-            <div className="bg-card border border-white/10 rounded-md p-4 sm:p-6">
-              <label className="text-xs text-gray-500 mb-4 block">
-                Recording Settings
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                <button
-                  onClick={() => setVideoEnabled(!videoEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${videoEnabled
-                    ? "bg-primary/10 border-primary/50 text-primary"
-                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
-                >
-                  {videoEnabled ? (
-                    <Video className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                  <span className="hidden xs:inline">Video</span> {videoEnabled ? "On" : "Off"}
-                </button>
-                <button
-                  onClick={() => setAudioEnabled(!audioEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${audioEnabled
-                    ? "bg-primary/10 border-primary/50 text-primary"
-                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
-                >
-                  {audioEnabled ? (
-                    <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                  <span className="hidden xs:inline">Mic</span> {audioEnabled ? "On" : "Off"}
-                </button>
-                <button
-                  onClick={() => setVoiceEnabled(!voiceEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${voiceEnabled
-                    ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
-                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
-                >
-                  {voiceEnabled ? (
-                    <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                  <span className="hidden xs:inline">AI</span> {voiceEnabled ? "On" : "Off"}
-                </button>
-                <button
-                  onClick={() =>
-                    setConversationMode(
-                      conversationMode === "live" ? "manual" : "live",
-                    )
-                  }
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${conversationMode === "live"
-                    ? "bg-primary/10 border-primary/50 text-primary"
-                    : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
-                >
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                  {conversationMode === "live" ? "Live" : "Manual"}
+                <div>
+                  <dt>Pace</dt>
+                  <dd>
+                    <div className="app-tabs" role="radiogroup" aria-label="Pace" style={{ marginBottom: 6 }}>
+                      {[
+                        ["live", "Live"],
+                        ["manual", "Manual"],
+                      ].map(([id, label]) => (
+                        <button key={id} type="button" role="radio" aria-checked={conversationMode === id} className={conversationMode === id ? "is-active" : ""} onClick={() => setConversationMode(id)}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    <span className="app-meta">{conversationMode === "live" ? "The interviewer speaks, listens and moves on by itself." : "You move to the next question when you're ready."}</span>
+                  </dd>
+                </div>
+              </dl>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                <button type="button" className="app-btn app-btn-primary" onClick={generateQuestions} disabled={loading}>
+                  {loading ? "Preparing questions…" : "Start interview"}
                 </button>
               </div>
-              <p className="text-xs sm:text-xs text-gray-500 mt-3">
-                {conversationMode === "live"
-                  ? "🔴 LIVE: AI speaks, listens, and auto-advances"
-                  : "💡 MANUAL: You control the pace"}
-              </p>
-            </div>
-
-            {/* Start Button */}
-            <Button
-              onClick={generateQuestions}
-              disabled={loading}
-              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Preparing Interview...
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" />
-                  Start Voice Interview
-                </>
-              )}
-            </Button>
-          </motion.div>
+            </section>
+          </div>
         )}
 
         {/* Interview Mode */}
         {mode === "interview" && questions.length > 0 && (
-          <motion.div
+          <div
             key="interview"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+           
+           
+           
             className="space-y-4 sm:space-y-6"
           >
             {/* Progress */}
@@ -784,10 +702,7 @@ const MockInterview = () => {
                   <Button
                     onClick={toggleRecording}
                     size="sm"
-                    className={`${isRecording
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-green-500 hover:bg-green-600"
-                      } text-white text-xs sm:text-sm px-4 sm:px-6`}
+                    className={`${isRecording ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600" } text-white text-xs sm:text-sm px-4 sm:px-6`}
                   >
                     {isRecording ? (
                       <>
@@ -928,7 +843,7 @@ const MockInterview = () => {
                     isRecording ||
                     isAnalyzing
                   }
-                  className="w-full py-2.5 sm:py-3 bg-primary text-black hover:bg-[#FFE44D] text-xs sm:text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 sm:gap-2"
+                  className="w-full py-2.5 sm:py-3 bg-primary text-black hover:bg-[#e6e6e6] text-xs sm:text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 sm:gap-2"
                 >
                   {currentQIndex < questions.length - 1 ? (
                     <>
@@ -942,16 +857,16 @@ const MockInterview = () => {
                 </Button>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Feedback Mode */}
         {mode === "feedback" && (
-          <motion.div
+          <div
             key="feedback"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+           
+           
+           
             className="space-y-4 sm:space-y-6"
           >
             {/* Overall Score */}
@@ -966,12 +881,7 @@ const MockInterview = () => {
               </div>
 
               <Badge
-                className={`text-sm sm:text-lg px-3 sm:px-4 py-0.5 sm:py-1 ${overallScore >= 80
-                  ? "bg-green-500/20 text-green-400 border-green-500/30"
-                  : overallScore >= 60
-                    ? "bg-primary/20 text-primary border-primary/30"
-                    : "bg-red-500/20 text-red-400 border-red-500/30"
-                  }`}
+                className={`text-sm sm:text-lg px-3 sm:px-4 py-0.5 sm:py-1 ${overallScore >= 80 ? "bg-green-500/20 text-green-400 border-green-500/30" : overallScore >= 60 ? "bg-primary/20 text-primary border-primary/30" : "bg-red-500/20 text-red-400 border-red-500/30" }`}
               >
                 {overallScore >= 80
                   ? "Excellent!"
@@ -1005,12 +915,7 @@ const MockInterview = () => {
                       </div>
                       {r.feedback && (
                         <Badge
-                          className={`flex-shrink-0 text-xs ${r.feedback.score >= 7
-                            ? "bg-green-500/20 text-green-400"
-                            : r.feedback.score >= 5
-                              ? "bg-primary/20 text-primary"
-                              : "bg-red-500/20 text-red-400"
-                            }`}
+                          className={`flex-shrink-0 text-xs ${r.feedback.score >= 7 ? "bg-green-500/20 text-green-400" : r.feedback.score >= 5 ? "bg-primary/20 text-primary" : "bg-red-500/20 text-red-400" }`}
                         >
                           {r.feedback.score}/10
                         </Badge>
@@ -1029,12 +934,12 @@ const MockInterview = () => {
             {/* Try Again */}
             <Button
               onClick={resetInterview}
-              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#FFE44D] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
+              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#e6e6e6] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
             >
               <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
               Practice Again
             </Button>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

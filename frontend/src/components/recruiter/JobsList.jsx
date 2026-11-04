@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import api from "@/utils/api";
-import { Skeleton, ErrorBlock, plural, daysAgo } from "../app/blocks";
+import { Skeleton, ErrorBlock, daysAgo } from "../app/blocks";
 
 const dash = (n) => (n ? n : <span className="app-meta">—</span>);
 
@@ -55,21 +55,6 @@ const JobsList = () => {
       <div className="app-title-row">
         <div>
           <h1 className="app-h1">Jobs</h1>
-          <p className="app-finding">
-            {!jobs ? (
-              <Skeleton w={260} h={14} />
-            ) : open.length === 0 ? (
-              "No open jobs."
-            ) : stuck.length ? (
-              <>
-                <strong>{plural(stuck.length, "open job")}</strong> {stuck.length === 1 ? "has" : "have"} had no one move past review in two weeks or more.
-              </>
-            ) : (
-              <>
-                <strong>{plural(open.length, "open job")}</strong> with {plural(open.reduce((n, j) => n + j.applicants, 0), "applicant")}.
-              </>
-            )}
-          </p>
         </div>
         {isOwner && (
           <Link to="/admin/jobs/create" className="app-btn app-btn-primary">

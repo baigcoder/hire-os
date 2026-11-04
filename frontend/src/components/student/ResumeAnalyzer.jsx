@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -9,7 +9,6 @@ import {
   Target,
   Zap,
   CheckCircle,
-  XCircle,
   Loader2,
   TrendingUp,
   Award,
@@ -22,12 +21,10 @@ import {
   FileSearch,
   GraduationCap,
   Briefcase,
-  Code,
   ArrowRight,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Progress } from "../ui/progress";
 import { RESUME_API_END_POINT } from "@/utils/constant";
 
 const ResumeAnalyzer = () => {
@@ -40,7 +37,6 @@ const ResumeAnalyzer = () => {
   const [showJobInput, setShowJobInput] = useState(false);
   const [existingAnalysis, setExistingAnalysis] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
-  const [uploadMode, setUploadMode] = useState("pdf"); // 'pdf' or 'text'
 
   // Loading step messages for animation
   const loadingSteps = [
@@ -179,24 +175,6 @@ const ResumeAnalyzer = () => {
     }
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.type === "application/pdf") {
-      handlePDFUpload(e);
-    } else if (file.type === "text/plain") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setResumeText(e.target.result);
-        setUploadMode("text");
-        toast.success("Resume text loaded");
-      };
-      reader.readAsText(file);
-    } else {
-      toast.error("Please upload a PDF or TXT file");
-    }
-  };
 
   const getScoreColor = (score) => {
     if (score >= 80) return "#00FF94";
@@ -886,7 +864,7 @@ const ResumeAnalyzer = () => {
                     {analysis.interviewQuestions.slice(0, 4).map((q, idx) => (
                       <div key={idx} className="bg-white/5 rounded-sm p-3">
                         <p className="text-white text-sm font-medium mb-2">
-                          "{q.question}"
+                          &quot;{q.question}&quot;
                         </p>
                         <p className="text-gray-500 text-xs mb-1">
                           <span className="text-pink-400">

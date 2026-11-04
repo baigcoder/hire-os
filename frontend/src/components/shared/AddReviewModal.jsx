@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
@@ -14,7 +14,6 @@ import {
   Quote,
 } from "lucide-react";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 
 const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
   const [rating, setRating] = useState(5);
@@ -34,9 +33,7 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
   const checkExistingReview = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
       const response = await axios.get(`${STATS_API_END_POINT}/my-review`, {
-        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
       if (response.data.success && response.data.review) {
@@ -60,12 +57,10 @@ const AddReviewModal = ({ isOpen, onClose, onSuccess }) => {
 
     setSubmitting(true);
     try {
-      const token = localStorage.getItem("token");
       const response = await axios.post(
         `${STATS_API_END_POINT}/reviews`,
         { rating, title, comment: comment.trim() },
         {
-          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         },
       );

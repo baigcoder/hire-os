@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
 import { APPLICATION_API_END_POINT } from "@/utils/constant";
 import ResumeUpload from "./ResumeUpload";
 import { Loader2, CheckCircle, AlertCircle, X } from "lucide-react";
 import { Button } from "../ui/button";
 
 const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
-  // Use token from localStorage (backend JWT from supabase-sync)
-  const token = localStorage.getItem("token");
+  const signedIn = useSelector((s) => !!s.auth.user);
   const [coverLetter, setCoverLetter] = useState("");
   const [resumeAnalysis, setResumeAnalysis] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -25,7 +25,7 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
       return;
     }
 
-    if (!token) {
+    if (!signedIn) {
       setError("Authentication required. Please login.");
       return;
     }
@@ -41,10 +41,7 @@ const JobApplication = ({ jobId, onApplicationSubmit, onCancel }) => {
           resumeAnalysisId: resumeAnalysis._id,
         },
         {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        },
+                  },
       );
 
       setSuccess(true);

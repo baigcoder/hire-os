@@ -8,6 +8,7 @@ import hpp from "hpp";
 import os from "os";
 import connectDB, { checkDBHealth } from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
+import contactRoute from "./routes/contact.route.js";
 import companyRoute from "./routes/company.route.js";
 import jobRoute from "./routes/job.route.js";
 import applicationRoute from "./routes/application.route.js";
@@ -50,6 +51,7 @@ import resumeFileRoute from "./routes/resumeFile.route.js";
 import discoverRoute from "./routes/discover.route.js";
 import integrityRoute from "./routes/integrity.route.js";
 import realtimeRoute from "./routes/realtime.route.js";
+import callRoute from "./routes/call.route.js";
 import copilotRoute from "./routes/copilot.route.js";
 import overviewRoute from "./routes/overview.route.js";
 import isAuthenticated, {
@@ -205,6 +207,16 @@ app.use(cors(corsOptions));
 // Handle preflight requests explicitly for all routes
 app.options('*', cors(corsOptions));
 
+// CSRF: our session cookies are sent cross-site (SameSite=None), so a write
+// that relies on them must carry a header a plain cross-site form can't set.
+// Bearer-token calls and cookie-less calls (webhooks) are not affected.
+app.use("/api", (req, res, next) => {
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
+  if (!req.cookies?.token && !req.cookies?.refreshToken) return next();
+  if (req.headers.authorization || req.get("x-requested-with")) return next();
+  return res.status(403).json({ message: "Request blocked: missing X-Requested-With header.", success: false, code: "CSRF" });
+});
+
 // NOTE: Socket.io has been removed - using Supabase Realtime for all WebSocket features
 // WebRTC signaling, chat, presence, and dashboard updates are handled by Supabase Realtime on the frontend
 // Cloud Redis (Upstash) can still be used for caching via REDIS_URL environment variable
@@ -321,6 +333,7 @@ app.get("/api/v1/health", async (req, res) => {
 
 // API Routes
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/contact", contactRoute);
 app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
@@ -362,6 +375,7 @@ app.use("/api/v1/screening", screeningRoute); // Blind recruiter screening
 app.use("/api/v1/resumes", resumeFileRoute); // Private resume files (signed URLs)
 app.use("/api/v1/discover", discoverRoute); // Semantic job & talent search
 app.use("/api/v1/integrity", integrityRoute); // Live-interview integrity monitoring
+app.use("/api/v1/calls", callRoute); // One-to-one calls from Messages
 app.use("/api/v1/realtime", realtimeRoute); // Private realtime channels + TURN call config
 app.use("/api/v1/copilot", copilotRoute); // Interview transcripts, scorecards, live copilot
 app.use("/api/v1/overview", overviewRoute); // Role-aware dashboard overview

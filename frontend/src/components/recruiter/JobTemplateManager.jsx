@@ -1,51 +1,29 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import Navbar from "../shared/Navbar";
 import {
-    LayoutTemplate,
-    Plus,
-    Search,
-    Filter,
-    Copy,
-    Edit,
-    Trash2,
-    Globe,
-    Lock,
-    ChevronRight,
-    Briefcase,
-    X,
-    Check,
-    FolderOpen,
-    Sparkles,
-    TrendingUp,
-    Clock,
-    Terminal,
-    ExternalLink,
-    Shield,
-    Activity,
-    Box,
+  LayoutTemplate,
+  Plus,
+  Search,
+  Filter,
+  Copy,
+  Edit,
+  Trash2,
+  Globe,
+  Lock,
+  X,
+  FolderOpen,
+  Sparkles,
+  TrendingUp,
+  Box,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogFooter,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import {
     Select,
     SelectContent,
@@ -107,7 +85,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
 
     const [requirementInput, setRequirementInput] = useState("");
     const [skillInput, setSkillInput] = useState("");
-    const [benefitInput, setBenefitInput] = useState("");
+    const [, setBenefitInput] = useState("");
 
     useEffect(() => {
         fetchTemplates();
@@ -140,7 +118,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
 
     const handleCreate = async () => {
         if (!formData.name || !formData.template.title || !formData.template.description) {
-            toast.error("Please fill in all required fields");
+            toast.error("Add a name and a job title");
             return;
         }
 
@@ -151,12 +129,12 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                     formData,
                     { withCredentials: true }
                 );
-                toast.success("Template updated successfully");
+                toast.success("Template saved");
             } else {
                 await axios.post(`${API_URL}/api/v1/job-templates`, formData, {
                     withCredentials: true,
                 });
-                toast.success("Template created successfully");
+                toast.success("Template created");
             }
 
             setShowCreateModal(false);
@@ -186,12 +164,12 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
             onSelectTemplate(template);
         } else {
             try {
-                const res = await axios.post(
+                await axios.post(
                     `${API_URL}/api/v1/job-templates/${template._id}/use`,
                     {},
                     { withCredentials: true }
                 );
-                toast.success("Job created from template!");
+                toast.success("Job posted");
             } catch (error) {
                 toast.error("Failed to create job from template");
             }
@@ -279,80 +257,33 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
             <div className="fixed inset-0 pointer-events-none">
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 py-8 pt-24 relative z-10 min-h-screen pb-20">
-                {/* Header Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12"
-                >
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-[#F97316] rounded-sm flex items-center justify-center">
-                            <LayoutTemplate className="w-7 h-7 text-black" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold uppercase tracking-tight">
-                                Job Templates
-                            </h1>
-                            <p className="text-gray-500 text-xs flex items-center gap-2 tracking-widest">
-                                <Terminal className="w-3 h-3 text-[#F97316]" />
-                                REUSABLE DEPLOYMENT BLUEPRINTS
-                            </p>
-                        </div>
-                    </div>
+            <div className="relative">
+                <div className="app-title-row">
+                    <h1 className="app-h1">Job templates</h1>
+                    <button type="button" className="app-btn app-btn-primary" onClick={() => { resetForm(); setShowCreateModal(true); }}>
+                        New template
+                    </button>
+                </div>
 
-                    <div className="flex items-center gap-3">
-                        <div className="hidden lg:flex items-center gap-6 px-6 py-2.5 bg-white/5 border border-white/10 rounded-sm">
-                            <div className="flex flex-col">
-                                <span className="text-xs text-gray-500">
-                                    Total Library
-                                </span>
-                                <span className="text-xl font-bold text-[#F97316] leading-none">
-                                    {templates.length + publicTemplates.length}
-                                </span>
-                            </div>
-                            <div className="w-px h-10 bg-white/10" />
-                            <div className="flex flex-col">
-                                <span className="text-xs text-gray-500">
-                                    Active Local
-                                </span>
-                                <span className="text-xl font-bold text-white leading-none">
-                                    {templates.length}
-                                </span>
-                            </div>
-                        </div>
-
-                        <Button
-                            onClick={() => {
-                                resetForm();
-                                setShowCreateModal(true);
-                            }}
-                            className="bg-[#F97316] text-black hover:bg-[#F97316]/90 rounded-sm font-bold flex items-center gap-2 px-8 h-12"
-                        >
-                            <Plus className="w-5 h-5" />
-                            CREATE BLUEPRINT
-                        </Button>
-                    </div>
-                </motion.div>
-
-                {/* Workspace Controls */}
+                
+{/* Workspace Controls */}
                 <div className="bg-card/80 border border-white/10 rounded-sm p-4 mb-10">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                             <TabsList className="bg-black/40 border border-white/5 p-1 rounded-sm h-12 w-full md:w-auto">
                                 <TabsTrigger
                                     value="company"
-                                    className="flex-1 md:flex-none rounded-sm data-[state=active]:bg-[#F97316] data-[state=active]:text-black text-xs font-bold uppercase py-2.5 px-8"
+                                    className="flex-1 md:flex-none rounded-sm data-[state=active]:bg-[#f2f2f2] data-[state=active]:text-black text-xs font-bold py-2.5 px-8"
                                 >
                                     <FolderOpen className="w-3.5 h-3.5 mr-2" />
-                                    Local Archive
+                                    Yours
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="library"
-                                    className="flex-1 md:flex-none rounded-sm data-[state=active]:bg-[#F97316] data-[state=active]:text-black text-xs font-bold uppercase py-2.5 px-8"
+                                    className="flex-1 md:flex-none rounded-sm data-[state=active]:bg-[#f2f2f2] data-[state=active]:text-black text-xs font-bold py-2.5 px-8"
                                 >
                                     <Globe className="w-3.5 h-3.5 mr-2" />
-                                    Global Repository
+                                    Shared
                                 </TabsTrigger>
                             </TabsList>
 
@@ -360,22 +291,22 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                 <div className="relative flex-1 md:w-96">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                                     <Input
-                                        placeholder="SEARCH BLUEPRINTS..."
-                                        className="pl-10 bg-black/40 border-white/10 text-white text-xs rounded-sm focus:border-[#F97316]/50 h-12 uppercase tracking-tight"
+                                        placeholder="Search templates"
+                                        className="pl-10 bg-black/40 border-white/10 text-white text-xs rounded-sm focus:border-[#f2f2f2]/50 h-12"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
                                 </div>
                                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                                    <SelectTrigger className="w-56 bg-black/40 border-white/10 text-xs rounded-sm h-12 uppercase">
+                                    <SelectTrigger className="w-56 bg-black/40 border-white/10 text-xs rounded-sm h-12">
                                         <div className="flex items-center gap-2">
-                                            <Filter className="w-3.5 h-3.5 text-[#F97316]" />
-                                            <SelectValue placeholder="DOMAIN" />
+                                            <Filter className="w-3.5 h-3.5 text-[#f2f2f2]" />
+                                            <SelectValue placeholder="Category" />
                                         </div>
                                     </SelectTrigger>
                                     <SelectContent className="bg-card border-white/10 text-white">
                                         {CATEGORIES.map((cat) => (
-                                            <SelectItem key={cat.value} value={cat.value} className="text-xs uppercase">
+                                            <SelectItem key={cat.value} value={cat.value} className="text-xs">
                                                 {cat.label}
                                             </SelectItem>
                                         ))}
@@ -388,37 +319,35 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                             <TabsContent value="company" className="mt-10 border-none p-0 outline-none">
                                 {loading ? (
                                     <div className="flex flex-col items-center justify-center py-32">
-                                        <div className="w-12 h-12 border-2 border-[#F97316]/20 border-t-[#F97316] rounded-full animate-spin mb-6" />
+                                        <div className="w-12 h-12 border-2 border-[#f2f2f2]/20 border-t-[#f2f2f2] rounded-full animate-spin mb-6" />
                                         <p className="text-gray-500 text-xs animate-pulse">
-                                            Parsing Local Repositories...
+                                            Loading…
                                         </p>
                                     </div>
                                 ) : filteredTemplates.length === 0 ? (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/5 border-dashed rounded-sm"
+                                    <div
+                                       
+                                       
+                                        className="flex flex-col items-start py-6"
                                     >
-                                        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-8">
-                                            <LayoutTemplate className="h-10 w-10 text-gray-700" />
-                                        </div>
-                                        <h3 className="text-gray-300 font-bold text-lg mb-2">
-                                            Zero Blueprints Detected
+                                        <h3 className="text-white text-base font-medium mb-1">
+                                            No templates yet
                                         </h3>
-                                        <p className="text-gray-600 text-xs uppercase max-w-sm text-center mb-8">
-                                            LOCAL STORAGE IS EMPTY. INITIALIZE A NEW BLUEPRINT TO START SCALING YOUR DEPLOYMENTS.
+<p className="app-meta" style={{ margin: "0 0 16px" }}>Save a job you post often and post it again in one step.</p>
+                                        <p className="text-gray-600 text-xs max-w-sm text-center mb-8">
+                                            
                                         </p>
                                         <Button
                                             variant="outline"
-                                            className="border-white/10 text-gray-500 hover:text-[#F97316] hover:border-[#F97316]/30 rounded-sm text-xs h-11 px-10"
+                                            className="border-white/10 text-gray-500 hover:text-[#f2f2f2] hover:border-[#f2f2f2]/30 rounded-sm text-xs h-11 px-10"
                                             onClick={() => {
                                                 resetForm();
                                                 setShowCreateModal(true);
                                             }}
                                         >
-                                            + INITIALIZE LOCAL ARCHIVE
+                                            New template
                                         </Button>
-                                    </motion.div>
+                                    </div>
                                 ) : (
                                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                                         {filteredTemplates.map((template) => (
@@ -438,16 +367,16 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                             <TabsContent value="library" className="mt-10 border-none p-0 outline-none">
                                 {loading ? (
                                     <div className="flex flex-col items-center justify-center py-32">
-                                        <div className="w-12 h-12 border-2 border-[#F97316]/20 border-t-[#F97316] rounded-full animate-spin mb-6" />
+                                        <div className="w-12 h-12 border-2 border-[#f2f2f2]/20 border-t-[#f2f2f2] rounded-full animate-spin mb-6" />
                                         <p className="text-gray-500 text-xs animate-pulse">
-                                            Connecting to Global Repository...
+                                            Loading…
                                         </p>
                                     </div>
                                 ) : filteredTemplates.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/5 border-dashed rounded-sm">
+                                    <div className="flex flex-col items-start py-6">
                                         <Globe className="h-14 w-14 text-gray-800 mb-6" />
                                         <p className="text-gray-500 text-sm">
-                                            Global Repository Filter: Null Results
+                                            Nothing matches
                                         </p>
                                     </div>
                                 ) : (
@@ -474,12 +403,12 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                     <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
                         <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto bg-card border-white/10 text-white p-0 rounded-sm custom-scrollbar overflow-x-hidden">
                             <div className="sticky top-0 z-20 bg-card/90 border-b border-white/10 p-6 flex flex-col gap-1">
-                                <DialogTitle className="text-2xl font-bold uppercase tracking-tighter flex items-center gap-3">
-                                    <Box className="w-6 h-6 text-[#F97316]" />
-                                    {editingTemplate ? "Modify Blueprint" : "Initialize New Blueprint"}
+                                <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                                    <Box className="w-6 h-6 text-[#f2f2f2]" />
+                                    {editingTemplate ? "Edit template" : "New template"}
                                 </DialogTitle>
                                 <DialogDescription className="text-gray-500 text-xs">
-                                    {editingTemplate ? "UPDATING SYSTEM BLUEPRINT SPECIFICATIONS" : "DESIGNING NEW DEPLOYMENT BLUEPRINT ARCHITECTURE"}
+                                    {editingTemplate ? "" : ""}
                                 </DialogDescription>
                             </div>
 
@@ -487,16 +416,16 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                 {/* Section 1: Meta Config */}
                                 <div className="space-y-6">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-8 h-8 rounded-full border border-[#F97316]/20 flex items-center justify-center text-xs font-bold text-[#F97316]">01</div>
+                                        <div className="w-8 h-8 rounded-full border border-[#f2f2f2]/20 flex items-center justify-center text-xs font-bold text-[#f2f2f2]">01</div>
                                         <h3 className="font-bold text-xs text-gray-400">Metadata Identification</h3>
                                     </div>
 
                                     <div className="grid gap-6 md:grid-cols-2 bg-white/[0.02] border border-white/5 p-6 rounded-sm relative">
                                         <div className="space-y-2 flex flex-col">
-                                            <Label className="text-xs text-gray-500">Blueprint Instance Name *</Label>
+                                            <Label className="text-xs text-gray-500">Template name</Label>
                                             <Input
-                                                placeholder="e.g., SENIOR CORE ENGINEER TEMPLATE"
-                                                className="bg-black/40 border-white/10 uppercase font-bold text-sm h-12 focus:border-[#F97316]/50 rounded-sm"
+                                                placeholder="Senior engineer"
+                                                className="bg-black/40 border-white/10 font-bold text-sm h-12 focus:border-[#f2f2f2]/50 rounded-sm"
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value.toUpperCase() })}
                                             />
@@ -507,10 +436,10 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                                 value={formData.category}
                                                 onValueChange={(v) => setFormData({ ...formData, category: v })}
                                             >
-                                                <SelectTrigger className="bg-black/40 border-white/10 text-xs h-12 rounded-sm uppercase">
+                                                <SelectTrigger className="bg-black/40 border-white/10 text-xs h-12 rounded-sm">
                                                     <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-card border-white/10 text-white uppercase">
+                                                <SelectContent className="bg-card border-white/10 text-white">
                                                     {CATEGORIES.slice(1).map((cat) => (
                                                         <SelectItem key={cat.value} value={cat.value} className="text-xs">
                                                             {cat.label}
@@ -520,10 +449,10 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                             </Select>
                                         </div>
                                         <div className="md:col-span-2 space-y-2 flex flex-col">
-                                            <Label className="text-xs text-gray-500">Deployment Context</Label>
+                                            <Label className="text-xs text-gray-500">When to use it</Label>
                                             <Textarea
-                                                placeholder="SPECIFY WHEN TO DEPLOY THIS BLUEPRINT..."
-                                                className="bg-black/40 border-white/10 text-xs focus:border-[#F97316]/50 rounded-sm resize-none uppercase"
+                                                placeholder=""
+                                                className="bg-black/40 border-white/10 text-xs focus:border-[#f2f2f2]/50 rounded-sm resize-none"
                                                 value={formData.description}
                                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                                 rows={2}
@@ -534,11 +463,11 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                             <Switch
                                                 checked={formData.isPublic}
                                                 onCheckedChange={(v) => setFormData({ ...formData, isPublic: v })}
-                                                className="data-[state=checked]:bg-[#F97316]"
+                                                className="data-[state=checked]:bg-[#f2f2f2]"
                                             />
                                             <div className="flex flex-col">
                                                 <Label className="text-xs font-bold">Public Access Authorization</Label>
-                                                <span className="text-xs text-gray-600 uppercase">ENABLE SHARING WITH EXTERNAL RECRUITMENT NETWORKS</span>
+                                                <span className="text-xs text-gray-600"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -547,16 +476,16 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                 {/* Section 2: Core Payload */}
                                 <div className="space-y-6">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-8 h-8 rounded-full border border-[#F97316]/20 flex items-center justify-center text-xs font-bold text-[#F97316]">02</div>
-                                        <h3 className="font-bold text-xs text-gray-400">Core Job Payload</h3>
+                                        <div className="w-8 h-8 rounded-full border border-[#f2f2f2]/20 flex items-center justify-center text-xs font-bold text-[#f2f2f2]">02</div>
+                                        <h3 className="font-bold text-xs text-gray-400">The job</h3>
                                     </div>
 
                                     <div className="space-y-8 bg-white/[0.02] border border-white/5 p-8 rounded-sm">
                                         <div className="space-y-2 flex flex-col">
                                             <Label className="text-xs text-gray-500">Operational Job Title *</Label>
                                             <Input
-                                                placeholder="e.g., LEAD SYSTEMS ARCHITECT"
-                                                className="bg-black/40 border-white/10 font-bold text-base h-12 focus:border-[#F97316]/50 rounded-sm uppercase tracking-tight"
+                                                placeholder="Job title"
+                                                className="bg-black/40 border-white/10 font-bold text-base h-12 focus:border-[#f2f2f2]/50 rounded-sm"
                                                 value={formData.template.title}
                                                 onChange={(e) =>
                                                     setFormData({
@@ -570,8 +499,8 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                         <div className="space-y-2 flex flex-col">
                                             <Label className="text-xs text-gray-500">Job Narrative & Mission Statement *</Label>
                                             <Textarea
-                                                placeholder="DEFINE THE ROLE MISSION, GOALS, AND OPERATIONAL SCOPE..."
-                                                className="bg-black/40 border-white/10 text-xs focus:border-[#F97316]/50 rounded-sm min-h-[160px] uppercase leading-relaxed"
+                                                placeholder=""
+                                                className="bg-black/40 border-white/10 text-xs focus:border-[#f2f2f2]/50 rounded-sm min-h-[160px] leading-relaxed"
                                                 value={formData.template.description}
                                                 onChange={(e) =>
                                                     setFormData({
@@ -586,11 +515,11 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                         <div className="grid md:grid-cols-2 gap-10">
                                             {/* Requirements */}
                                             <div className="space-y-4">
-                                                <Label className="text-xs text-[#F97316]">Requirement Vectors</Label>
+                                                <Label className="text-xs text-[#f2f2f2]">Requirements</Label>
                                                 <div className="flex gap-2">
                                                     <Input
-                                                        placeholder="ADD VECTOR..."
-                                                        className="bg-black/40 border-white/10 h-10 text-xs rounded-sm uppercase"
+                                                        placeholder="Add a requirement"
+                                                        className="bg-black/40 border-white/10 h-10 text-xs rounded-sm"
                                                         value={requirementInput}
                                                         onChange={(e) => setRequirementInput(e.target.value)}
                                                         onKeyDown={(e) => {
@@ -602,7 +531,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                                     />
                                                     <Button
                                                         type="button"
-                                                        className="bg-[#F97316] text-black hover:bg-[#F97316]/90 h-10 px-4 rounded-sm"
+                                                        className="bg-[#f2f2f2] text-black hover:bg-[#f2f2f2]/90 h-10 px-4 rounded-sm"
                                                         onClick={() => addListItem("requirements", requirementInput, setRequirementInput)}
                                                     >
                                                         <Plus className="h-4 w-4" />
@@ -611,20 +540,20 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                                 <div className="flex flex-wrap gap-2 min-h-[40px] p-3 bg-black/20 rounded-sm border border-white/5">
                                                     <AnimatePresence>
                                                         {formData.template.requirements.map((req, i) => (
-                                                            <motion.div
+                                                            <div
                                                                 key={i}
-                                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                                animate={{ opacity: 1, scale: 1 }}
-                                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                               
+                                                               
+                                                               
                                                             >
-                                                                <Badge className="bg-white/5 border border-white/10 text-gray-400 text-xs py-1 px-3 flex items-center gap-2 rounded-sm uppercase italic">
+                                                                <Badge className="bg-white/5 border border-white/10 text-gray-400 text-xs py-1 px-3 flex items-center gap-2 rounded-sm italic">
                                                                     {req}
                                                                     <X
                                                                         className="h-3 w-3 cursor-pointer hover:text-red-500 transition-colors"
                                                                         onClick={() => removeListItem("requirements", i)}
                                                                     />
                                                                 </Badge>
-                                                            </motion.div>
+                                                            </div>
                                                         ))}
                                                     </AnimatePresence>
                                                 </div>
@@ -635,8 +564,8 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                                 <Label className="text-xs text-primary">Skill Indexes</Label>
                                                 <div className="flex gap-2">
                                                     <Input
-                                                        placeholder="ADD SKILL..."
-                                                        className="bg-black/40 border-white/10 h-10 text-xs rounded-sm uppercase"
+                                                        placeholder="Add a skill"
+                                                        className="bg-black/40 border-white/10 h-10 text-xs rounded-sm"
                                                         value={skillInput}
                                                         onChange={(e) => setSkillInput(e.target.value)}
                                                         onKeyDown={(e) => {
@@ -657,20 +586,20 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                                 <div className="flex flex-wrap gap-2 min-h-[40px] p-3 bg-black/20 rounded-sm border border-white/5">
                                                     <AnimatePresence>
                                                         {formData.template.skills.map((skill, i) => (
-                                                            <motion.div
+                                                            <div
                                                                 key={i}
-                                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                                animate={{ opacity: 1, scale: 1 }}
-                                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                               
+                                                               
+                                                               
                                                             >
-                                                                <Badge className="bg-primary/5 border border-primary/10 text-primary/80 text-xs py-1 px-3 flex items-center gap-2 rounded-sm uppercase">
+                                                                <Badge className="bg-primary/5 border border-primary/10 text-primary/80 text-xs py-1 px-3 flex items-center gap-2 rounded-sm">
                                                                     {skill}
                                                                     <X
                                                                         className="h-3 w-3 cursor-pointer hover:text-red-500 transition-colors"
                                                                         onClick={() => removeListItem("skills", i)}
                                                                     />
                                                                 </Badge>
-                                                            </motion.div>
+                                                            </div>
                                                         ))}
                                                     </AnimatePresence>
                                                 </div>
@@ -682,14 +611,14 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                 {/* Section 3: Parametric Config */}
                                 <div className="space-y-6">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-8 h-8 rounded-full border border-[#F97316]/20 flex items-center justify-center text-xs font-bold text-[#F97316]">03</div>
+                                        <div className="w-8 h-8 rounded-full border border-[#f2f2f2]/20 flex items-center justify-center text-xs font-bold text-[#f2f2f2]">03</div>
                                         <h3 className="font-bold text-xs text-gray-400">Parametric Configuration</h3>
                                     </div>
 
                                     <div className="grid gap-10 md:grid-cols-2 bg-white/[0.02] border border-white/5 p-8 rounded-sm">
                                         <div className="grid gap-6">
                                             <div className="space-y-2 flex flex-col">
-                                                <Label className="text-xs text-gray-500">Deployment Type</Label>
+                                                <Label className="text-xs text-gray-500">Job type</Label>
                                                 <Select
                                                     value={formData.template.jobType}
                                                     onValueChange={(v) =>
@@ -699,10 +628,10 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                                         })
                                                     }
                                                 >
-                                                    <SelectTrigger className="bg-black/40 border-white/10 h-11 text-xs font-bold rounded-sm uppercase">
+                                                    <SelectTrigger className="bg-black/40 border-white/10 h-11 text-xs font-bold rounded-sm">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="bg-card border-white/10 text-white uppercase">
+                                                    <SelectContent className="bg-card border-white/10 text-white">
                                                         {["Full-time", "Part-time", "Contract", "Internship", "Freelance", "Remote"].map(
                                                             (type) => (
                                                                 <SelectItem key={type} value={type} className="text-xs">
@@ -716,12 +645,12 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
 
                                             <div className="space-y-2 flex flex-col">
                                                 <Label className="text-xs text-gray-500 flex justify-between items-center">
-                                                    Seniority Level Index
-                                                    <span className="text-[#F97316] font-bold">{formData.template.experienceLevel} YRS</span>
+                                                    Seniority
+                                                    <span className="text-[#f2f2f2] font-bold">{formData.template.experienceLevel} YRS</span>
                                                 </Label>
                                                 <Input
                                                     type="number"
-                                                    className="bg-black/40 border-white/10 h-11 font-bold text-sm focus:border-[#F97316]/50 rounded-sm"
+                                                    className="bg-black/40 border-white/10 h-11 font-bold text-sm focus:border-[#f2f2f2]/50 rounded-sm"
                                                     value={formData.template.experienceLevel}
                                                     onChange={(e) =>
                                                         setFormData({
@@ -746,11 +675,11 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                                             template: { ...formData.template, isRemote: v },
                                                         })
                                                     }
-                                                    className="data-[state=checked]:bg-[#F97316]"
+                                                    className="data-[state=checked]:bg-[#f2f2f2]"
                                                 />
                                                 <div className="flex flex-col">
                                                     <Label className="text-xs font-bold">Remote Node Access</Label>
-                                                    <span className="text-xs text-gray-600 uppercase">ENABLE DISTRIBUTED DEPLOYMENT ARCHITECTURE</span>
+                                                    <span className="text-xs text-gray-600"></span>
                                                 </div>
                                             </div>
 
@@ -758,7 +687,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                                 <TrendingUp className="w-5 h-5 text-primary/50" />
                                                 <div className="flex flex-col">
                                                     <Label className="text-xs font-bold text-primary/80">Salary Range Calibration</Label>
-                                                    <span className="text-xs text-gray-600 uppercase">CONFIGURED IN FINAL JOB DEPLOYMENT STAGE</span>
+                                                    <span className="text-xs text-gray-600"></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -772,13 +701,13 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                     onClick={() => setShowCreateModal(false)}
                                     className="border-white/10 text-gray-500 text-xs h-12 px-10 rounded-sm hover:text-white transition-colors"
                                 >
-                                    ABORT SEQUENCE
+                                    Cancel
                                 </Button>
                                 <Button
                                     onClick={handleCreate}
-                                    className="bg-[#F97316] text-black hover:bg-[#F97316]/90 font-bold px-12 h-12 rounded-sm"
+                                    className="bg-[#f2f2f2] text-black hover:bg-[#f2f2f2]/90 font-bold px-12 h-12 rounded-sm"
                                 >
-                                    {editingTemplate ? "COMMIT BLUEPRINT UPDATES" : "FINALIZE & DEPLOY BLUEPRINT"}
+                                    {editingTemplate ? "Save" : "Create template"}
                                 </Button>
                             </div>
                         </DialogContent>
@@ -786,7 +715,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                 )}
             </AnimatePresence>
 
-            <style jsx global>{`
+            <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 5px;
         }
@@ -807,23 +736,23 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
 
 // Template Card Component
 const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, showCompany = false }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -5 }}
+    <div
+       
+       
+       
         className="group relative"
     >
-        <Card className="bg-card/80 border border-white/10 group-hover:border-[#F97316]/30 transition-all rounded-sm overflow-hidden h-full flex flex-col">
+        <Card className="bg-card/80 border border-white/10 group-hover:border-[#f2f2f2]/30 transition-all rounded-sm overflow-hidden h-full flex flex-col">
             {/* Corner Accent */}
 
             <CardHeader className="pb-3 px-5">
                 <div className="flex justify-between items-start gap-4">
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-gray-100 group-hover:text-white transition-colors truncate uppercase tracking-tight">
+                        <h3 className="text-lg font-bold text-gray-100 group-hover:text-white transition-colors truncate">
                             {template.name}
                         </h3>
                         <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="bg-[#F97316]/5 border-[#F97316]/20 text-[#F97316] text-xs rounded-sm h-4">
+                            <Badge variant="outline" className="bg-[#f2f2f2]/5 border-[#f2f2f2]/20 text-[#f2f2f2] text-xs rounded-sm h-4">
                                 {template.category.toUpperCase()}
                             </Badge>
                             <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -832,7 +761,7 @@ const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, 
                                 ) : (
                                     <Lock className="h-3 w-3 text-gray-600" />
                                 )}
-                                {template.isPublic ? "PUBLIC ARCHIVE" : "PRIVATE LOCAL"}
+                                {template.isPublic ? "Shared" : "Private"}
                             </div>
                         </div>
                     </div>
@@ -841,8 +770,8 @@ const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, 
                             <Sparkles className="w-5 h-5 text-primary" />
                         </div>
                     ) : (
-                        <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center group-hover:bg-[#F97316]/10 transition-colors">
-                            <LayoutTemplate className="w-5 h-5 text-gray-400 group-hover:text-[#F97316]" />
+                        <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center group-hover:bg-[#f2f2f2]/10 transition-colors">
+                            <LayoutTemplate className="w-5 h-5 text-gray-400 group-hover:text-[#f2f2f2]" />
                         </div>
                     )}
                 </div>
@@ -850,7 +779,7 @@ const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, 
 
             <CardContent className="px-5 pb-5 flex-1 flex flex-col">
                 <div className="mb-4">
-                    <p className="text-xs font-bold text-[#F97316]/70 uppercase mb-1">Target Role:</p>
+                    <p className="text-xs font-bold text-[#f2f2f2]/70 mb-1">Target Role:</p>
                     <p className="font-medium text-gray-200 line-clamp-1">{template.template?.title}</p>
                     <p className="text-xs text-gray-500 line-clamp-2 mt-2 leading-relaxed">
                         {template.template?.description}
@@ -860,7 +789,7 @@ const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, 
                 {template.template?.skills?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-6">
                         {template.template.skills.slice(0, 3).map((skill, i) => (
-                            <Badge key={i} variant="outline" className="text-xs h-4 border-white/5 text-gray-400 uppercase">
+                            <Badge key={i} variant="outline" className="text-xs h-4 border-white/5 text-gray-400">
                                 {skill}
                             </Badge>
                         ))}
@@ -874,7 +803,7 @@ const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, 
 
                 <div className="mt-auto pt-4 border-t border-white/5 flex flex-col gap-4">
                     <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2 text-xs text-gray-500 uppercase">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
                             <TrendingUp className="h-3 w-3" />
                             <span>{template.usageCount || 0} DEPLOYMENTS</span>
                         </div>
@@ -882,7 +811,7 @@ const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, 
                         <div className="flex gap-1">
                             {showActions && (
                                 <>
-                                    <Button size="sm" variant="outline" className="border-white/10 hover:border-[#F97316]/30 h-8 w-8 p-0" onClick={onEdit}>
+                                    <Button size="sm" variant="outline" className="border-white/10 hover:border-[#f2f2f2]/30 h-8 w-8 p-0" onClick={onEdit}>
                                         <Edit className="h-3.5 w-3.5 text-gray-400" />
                                     </Button>
                                     <Button size="sm" variant="outline" className="border-white/10 hover:border-red-500/30 h-8 w-8 p-0" onClick={onDelete}>
@@ -893,9 +822,9 @@ const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, 
                         </div>
                     </div>
 
-                    <Button size="sm" onClick={onUse} className="w-full bg-[#F97316] text-black hover:bg-[#F97316]/90 rounded-sm font-bold text-xs gap-2 h-9">
+                    <Button size="sm" onClick={onUse} className="w-full bg-[#f2f2f2] text-black hover:bg-[#f2f2f2]/90 rounded-sm font-bold text-xs gap-2 h-9">
                         <Copy className="h-3.5 w-3.5" />
-                        DEPLOY TEMPLATE
+                        Post a job from this
                     </Button>
                 </div>
 
@@ -911,7 +840,7 @@ const TemplateCard = ({ template, onEdit, onDelete, onUse, showActions = false, 
                 )}
             </CardContent>
         </Card>
-    </motion.div>
+    </div>
 );
 
 export default JobTemplateManager;

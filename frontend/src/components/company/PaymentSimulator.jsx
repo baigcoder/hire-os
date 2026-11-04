@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -170,7 +170,6 @@ const PaymentSimulator = () => {
 
         // Store token and log user in
         if (registerResponse.data.token) {
-          localStorage.setItem("token", registerResponse.data.token);
           axios.defaults.headers.common["Authorization"] =
             `Bearer ${registerResponse.data.token}`;
         }

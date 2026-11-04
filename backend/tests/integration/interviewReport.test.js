@@ -40,6 +40,7 @@ describe("evidence-based report and CEO approval", () => {
 
     ceo = await createUser({ email: "ceo@acme.test", role: "company_admin" });
     const company = await Company.create({
+    subscription: { status: "active" },
       name: "Acme",
       email: "hr@acme.test",
       description: "Acme builds logistics software for everyone.",

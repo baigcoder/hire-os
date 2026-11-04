@@ -1,4 +1,3 @@
-import React from "react";
 import LatestJobCards from "./LatestJobCards";
 import { useSelector } from "react-redux";
 import { ArrowRight, Sparkles, Briefcase } from "lucide-react";
@@ -49,7 +48,7 @@ const LatestJobs = () => {
                   No Jobs Available
                 </h3>
                 <p className="text-gray-400 text-center max-w-md">
-                  We're working on bringing you the best opportunities. Check
+                  We&apos;re working on bringing you the best opportunities. Check
                   back soon!
                 </p>
               </div>
@@ -68,7 +67,7 @@ const LatestJobs = () => {
               <div className="absolute inset-0 bg-yellow-500/5 group-hover:bg-yellow-500/10 transition-colors duration-500"></div>
               <div className="text-white text-left relative z-10">
                 <h3 className="text-xl font-bold text-white">
-                  Can't find what you're looking for?
+                  Can&apos;t find what you&apos;re looking for?
                 </h3>
                 <p className="text-gray-400 text-sm mt-1">
                   Browse our complete job listings or set up job alerts

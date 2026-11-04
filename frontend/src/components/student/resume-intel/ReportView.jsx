@@ -89,11 +89,7 @@ const Flags = ({ report }) => {
       {notes.map((n, i) => (
         <div
           key={i}
-          className={`flex gap-3 rounded-md border p-3 text-sm ${
-            n.tone === "flag"
-              ? "border-red-500/30 bg-red-500/10 text-red-300"
-              : "border-orange-500/30 bg-orange-500/10 text-orange-200"
-          }`}
+          className={`flex gap-3 rounded-md border p-3 text-sm ${ n.tone === "flag" ? "border-red-500/30 bg-red-500/10 text-red-300" : "border-orange-500/30 bg-orange-500/10 text-orange-200" }`}
         >
           {n.tone === "flag" ? (
             <ShieldAlert className="w-4 h-4 mt-0.5 shrink-0" />
@@ -285,11 +281,7 @@ const ReportView = ({ report }) => {
                     ? `Used in ${s.evidence.length} role(s)/project(s)`
                     : "Listed only"
                 }
-                className={`border ${
-                  s.evidence.length
-                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                    : "border-white/10 bg-white/5 text-gray-400"
-                }`}
+                className={`border ${ s.evidence.length ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-white/10 bg-white/5 text-gray-400" }`}
               >
                 {s.name}
               </Badge>

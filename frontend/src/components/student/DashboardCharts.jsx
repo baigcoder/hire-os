@@ -3,7 +3,7 @@
  * Hire.iOS Industrial Design with Gold Accents
  */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   AreaChart,
@@ -18,30 +18,15 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
 } from "recharts";
 import {
   TrendingUp,
   TrendingDown,
   Activity,
   Target,
-  Briefcase,
   CheckCircle,
 } from "lucide-react";
 
-// Hire.iOS Color Palette
-const COLORS = {
-  gold: "#FFD700",
-  goldDark: "#B8860B",
-  success: "#00FF94",
-  warning: "#F59E0B",
-  danger: "#EF4444",
-  purple: "#A855F7",
-  cyan: "#22D3EE",
-  surface: "#111111",
-  border: "rgba(255, 255, 255, 0.1)",
-};
 
 const PIE_COLORS = ["#FFD700", "#00FF94", "#F59E0B", "#EF4444", "#A855F7"];
 

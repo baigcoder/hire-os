@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
@@ -22,7 +22,6 @@ import {
   Phone,
   Building2,
   Briefcase,
-  Calendar,
   Crown,
   Shield,
   Camera,
@@ -31,7 +30,6 @@ import {
   Loader2,
   CheckCircle,
   X,
-  CreditCard,
   Users,
   Clock,
   Star,
@@ -74,11 +72,9 @@ const RecruiterProfile = () => {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
 
       // Load user profile
       const userResponse = await axios.get(`${USER_API}/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
 
@@ -104,7 +100,6 @@ const RecruiterProfile = () => {
             const companyResponse = await axios.get(
               `${COMPANY_API}/get/${userData.companyId}`,
               {
-                headers: { Authorization: `Bearer ${token}` },
                 withCredentials: true,
               },
             );
@@ -145,10 +140,8 @@ const RecruiterProfile = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const token = localStorage.getItem("token");
       const response = await axios.post(`${USER_API}/profile/photo`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
         withCredentials: true,
@@ -179,13 +172,11 @@ const RecruiterProfile = () => {
   const handleSaveProfile = async () => {
     try {
       setSaving(true);
-      const token = localStorage.getItem("token");
 
       const updateResponse = await axios.put(
         `${USER_API}/profile/update`,
         editedProfile,
         {
-          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         },
       );
@@ -523,7 +514,7 @@ const RecruiterProfile = () => {
                     Subscription Details
                   </CardTitle>
                   <CardDescription>
-                    Your company's subscription plan
+                    Your company&apos;s subscription plan
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

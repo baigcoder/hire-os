@@ -17,12 +17,7 @@ import {
   revokeSession,
   revokeAllSessions,
 } from "../controllers/user.controller.js";
-// TODO: Uncomment after npm install
-// import {
-//     forgotPassword,
-//     verifyResetToken,
-//     resetPassword
-// } from "../controllers/passwordReset.controller.js";
+import { forgotPassword, verifyResetToken, resetPassword } from "../controllers/passwordReset.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { singleUpload } from "../middlewares/mutler.js";
 import {
@@ -38,13 +33,7 @@ import {
   syncLimiter,
 } from "../middlewares/rateLimiters.js";
 import { auditMiddleware, auditActions } from "../utils/auditLogger.js";
-// TODO: Uncomment after npm install
-// import {
-//     validate,
-//     forgotPasswordSchema,
-//     resetPasswordSchema,
-//     changePasswordSchema
-// } from "../middlewares/validation.schemas.js";
+import { validate, forgotPasswordSchema, resetPasswordSchema } from "../middlewares/validation.schemas.js";
 
 const router = express.Router();
 
@@ -66,10 +55,10 @@ router.route("/unlock-account").post(authLimiter, unlockAccount); // Reset faile
 // Token refresh - public (uses refresh token cookie)
 router.route("/refresh-token").post(refreshToken);
 
-// Password reset routes (public) - TODO: Uncomment after npm install
-// router.route("/forgot-password").post(passwordResetLimiter, validate(forgotPasswordSchema), forgotPassword);
-// router.route("/verify-reset-token/:token").get(verifyResetToken);
-// router.route("/reset-password").post(passwordResetLimiter, validate(resetPasswordSchema), resetPassword);
+// Password reset (public): a one-hour link by email
+router.route("/forgot-password").post(passwordResetLimiter, validate(forgotPasswordSchema), forgotPassword);
+router.route("/verify-reset-token/:token").get(verifyResetToken);
+router.route("/reset-password").post(passwordResetLimiter, validate(resetPasswordSchema), resetPassword);
 
 // Supabase authentication sync (public - called after Supabase auth)
 router.route("/supabase-sync").post(syncLimiter, supabaseSync);

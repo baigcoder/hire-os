@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Card } from "../ui/card";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Input } from "../ui/input";
 import {
   Mic,
@@ -19,7 +18,6 @@ import {
   Users,
   Settings,
   Send,
-  Loader2,
   WifiOff,
   Wifi,
   Copy,
@@ -53,9 +51,7 @@ const LiveInterview = () => {
 
   // Supabase Realtime hook for room management and chat (replaces Socket.io)
   const {
-    channel,
     isConnected,
-    connectionError,
     roomState,
     participants,
     messages,
@@ -108,7 +104,6 @@ const LiveInterview = () => {
     isVideoOn,
     isScreenSharing,
     connectionState,
-    callError,
     initializeMedia,
     createOffer,
     toggleAudio,
@@ -329,6 +324,18 @@ const LiveInterview = () => {
       onContinue={() => setJoinWithoutMonitoring(true)}
     />
   ) : null;
+
+  // Not allowed in (yet): say why instead of waiting on a room we didn't join
+  if (callConfig.status === "denied") {
+    return (
+      <div className="h-screen bg-background text-white flex flex-col items-center justify-center gap-4 px-4 text-center">
+        <p className="text-lg">{callConfig.message || "You can't join this interview."}</p>
+        {callConfig.code === "MCQ_REQUIRED" && (
+          <Button onClick={() => navigate(`/interview/mcq/${interviewId}`)}>Go to the MCQ test</Button>
+        )}
+      </div>
+    );
+  }
 
   // Waiting Room
   if (isWaiting) {

@@ -30,13 +30,20 @@ const IntegrityReportPage = () => {
   const navigate = useNavigate();
   const [state, setState] = useState({ loading: true });
   const [role, setRole] = useState(null);
+  const [live, setLive] = useState(null);
   const [dispute, setDispute] = useState("");
   const [sending, setSending] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const [summary, data] = await Promise.all([integrityApi.get(id), integrityApi.getReport(id)]);
+      const summary = await integrityApi.get(id);
       setRole(summary.role);
+      setLive(summary);
+      // No report yet while the interview runs; the live card covers that
+      const data = await integrityApi.getReport(id).catch((error) => {
+        if (error?.response?.status === 404) return { status: "none" };
+        throw error;
+      });
       setState({ loading: false, ...data });
     } catch (error) {
       setState({
@@ -50,12 +57,13 @@ const IntegrityReportPage = () => {
     load();
   }, [load]);
 
-  // Poll while the report is being generated
+  // Poll while the report is being generated, or while monitoring is live
+  const monitoring = role === "recruiter" && live?.status === "active";
   useEffect(() => {
-    if (state.status !== "queued") return undefined;
-    const timer = setInterval(load, 4000);
+    if (state.status !== "queued" && !monitoring) return undefined;
+    const timer = setInterval(load, monitoring ? 5000 : 4000);
     return () => clearInterval(timer);
-  }, [state.status, load]);
+  }, [state.status, monitoring, load]);
 
   const regenerate = async () => {
     try {
@@ -114,7 +122,32 @@ const IntegrityReportPage = () => {
           </p>
         )}
         {state.status === "failed" && <p className="text-red-400">The report couldn&apos;t be generated. Try again.</p>}
-        {!state.loading && !state.error && state.status === "none" && (
+        {monitoring && (
+          <Card title="Live monitoring">
+            <div className="flex flex-wrap items-baseline gap-4 mb-3">
+              <span className="text-3xl font-bold">{live.risk?.score ?? 0}</span>
+              <span className="text-xs text-gray-400">
+                risk now · peak {live.risk?.peak ?? 0}/100 ·{" "}
+                {live.candidateDetector?.alive ? "candidate's monitoring is running" : (
+                  <span className="text-red-300">candidate&apos;s monitoring is silent</span>
+                )}
+              </span>
+            </div>
+            {live.recent?.length ? (
+              <ul className="space-y-1 text-sm" aria-live="polite">
+                {live.recent.map((e) => (
+                  <li key={`${e.type}-${e.at}`} className="flex justify-between gap-3 border-t border-white/5 pt-1">
+                    <span className={e.kind === "tamper" ? "text-red-300" : "text-gray-200"}>{e.label}</span>
+                    <span className="text-xs text-gray-500">{new Date(e.at).toLocaleTimeString()}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-400">No signals so far.</p>
+            )}
+          </Card>
+        )}
+        {!state.loading && !state.error && state.status === "none" && !monitoring && (
           <p className="text-gray-400">No report yet. It&apos;s generated when the interview ends.</p>
         )}
 

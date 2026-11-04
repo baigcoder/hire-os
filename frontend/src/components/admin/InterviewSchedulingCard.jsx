@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Card,
   CardContent,
@@ -9,7 +8,7 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Clock, User, Briefcase, ArrowRight } from "lucide-react";
+import { Calendar, User, Briefcase, ArrowRight } from "lucide-react";
 
 const InterviewSchedulingCard = ({ interviews = [] }) => {
   const navigate = useNavigate();

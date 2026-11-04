@@ -1,0 +1,70 @@
+/* The kit for pages written before it.
+   Pages inside the app frame that still carry their own utility classes
+   (a zero radius, a white/10 line, 12px text, a resting shadow) are mapped
+   onto the app's tokens here, so every screen in the frame reads as one
+   product. New screens use app.css directly; when an older page is rebuilt,
+   it stops needing this file. Scoped to .app-canvas: nothing outside the
+   frame changes. */
+
+.app-canvas {
+  --k-surface: #151515;
+  --k-raised: #1c1c1c;
+  --k-line: #222222;
+  --k-control: #444444;
+  --k-muted: #a3a3a3;
+  --k-faint: #8f8f8f;
+}
+
+/* Panels: one tone off the ground, no line, a 12px corner */
+.app-canvas div:is(.bg-card, [class*="bg-card/"]) {
+  background-color: var(--k-surface);
+  border-color: transparent;
+  border-radius: 12px;
+}
+.app-canvas div:is(.bg-white\/5, .bg-black\/40, .bg-black\/20):not(button) {
+  background-color: var(--k-raised);
+}
+.app-canvas div.border-white\/10,
+.app-canvas div.border-white\/5 {
+  border-color: var(--k-line);
+}
+.app-canvas div.rounded-sm {
+  border-radius: 10px;
+}
+
+/* Controls: the kit's 36px fields and pill buttons */
+.app-canvas :is(input, textarea, select, button[role="combobox"]):is(.border-white\/10, .border-white\/5) {
+  border-color: var(--k-control);
+}
+.app-canvas :is(input, select, button[role="combobox"]).rounded-sm,
+.app-canvas textarea.rounded-sm {
+  border-radius: 8px;
+}
+.app-canvas :is(input, button[role="combobox"]).h-12 {
+  height: 40px;
+}
+/* Small text buttons become pills; large option and full-width buttons keep a panel corner */
+.app-canvas button.rounded-sm:not([role="combobox"]) {
+  border-radius: 999px;
+}
+.app-canvas button.rounded-sm:is(.w-full, .flex-1, [class*="p-4"], [class*="p-3"], [class*="py-3"], [class*="py-4"], [class*="py-6"]),
+.app-canvas button.rounded-sm:has(> div, > p) {
+  border-radius: 10px;
+}
+
+/* Type: nothing under 13px, and secondary text that can still be read */
+.app-canvas .text-xs {
+  font-size: 13px;
+  line-height: 18px;
+}
+.app-canvas :is(.text-gray-600, .text-gray-700) {
+  color: var(--k-faint);
+}
+.app-canvas .text-gray-500 {
+  color: var(--k-muted);
+}
+
+/* Nothing at rest casts a shadow; only what floats does (menus, dialogs) */
+.app-canvas [class*="shadow-"]:not([role="dialog"]):not([role="menu"]):not([role="listbox"]) {
+  box-shadow: none;
+}

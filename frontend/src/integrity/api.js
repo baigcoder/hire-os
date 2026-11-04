@@ -24,9 +24,8 @@ export const integrityApi = {
  * one). Calls onEvent(name, data); resolves when the stream ends.
  */
 export const streamIntegrity = async (interviewId, { onEvent, signal }) => {
-  const token = localStorage.getItem("token");
   const res = await fetch(`${api.defaults.baseURL}${base(interviewId)}/live`, {
-    headers: { Accept: "text/event-stream", ...(token && { Authorization: `Bearer ${token}` }) },
+    headers: { Accept: "text/event-stream" },
     credentials: "include",
     signal,
   });

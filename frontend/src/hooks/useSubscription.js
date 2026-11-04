@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import api from "@/utils/api";
 import { toast } from "sonner";
 import { setUser } from "@/redux/authSlice";

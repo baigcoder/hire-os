@@ -63,6 +63,8 @@ const integritySessionSchema = new mongoose.Schema(
     },
     // Last counted time per "source:type" (debounce state)
     lastCounted: { type: mongoose.Schema.Types.Mixed, default: {} },
+    // signal type → when staff were last notified about it (throttles alerts)
+    notifiedAt: { type: mongoose.Schema.Types.Mixed, default: {} },
     // Recent counted occurrences for the decayed score (capped)
     scored: [
       {

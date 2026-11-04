@@ -1178,3 +1178,13 @@ textarea.app-input {
 .app-strip-legend li.is-focus .app-strip-count {
   color: var(--hue);
 }
+
+/* A page from the app shown to signed-out visitors: the same tokens, no sidebar */
+.app.app-standalone {
+  display: block;
+  padding-top: 64px;
+}
+.app.app-standalone .app-canvas {
+  max-width: 1200px;
+  margin: 0 auto;
+}

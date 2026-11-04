@@ -91,8 +91,12 @@ for (const [i, n] of names.entries()) others.push(await person(n, `c${i}@demo.te
 
 const apply = (who, j, status, daysAgo, extra = {}) =>
   Application.create({ job: j._id, applicant: who._id, company: company._id, status, createdAt: at(-daysAgo * D), ...extra });
-const interview = (app, who, j, rec, fields) =>
-  Interview.create({ applicationId: app._id, jobId: j._id, companyId: company._id, studentId: who._id, recruiterId: rec._id, ...fields });
+// Linked both ways, as the real scheduler does (application.interviewId)
+const interview = async (app, who, j, rec, fields) => {
+  const iv = await Interview.create({ applicationId: app._id, jobId: j._id, companyId: company._id, studentId: who._id, recruiterId: rec._id, ...fields });
+  await Application.updateOne({ _id: app._id }, { interviewId: iv._id });
+  return iv;
+};
 
 // Amina, the demo candidate: interviewing for backend (today), applied to ops
 const aminaBackend = await apply(candidate, backend, "video_scheduled", 9);

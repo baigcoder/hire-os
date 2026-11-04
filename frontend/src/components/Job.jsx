@@ -1,6 +1,5 @@
 import { Button } from "./ui/button";
 import {
-  Bookmark,
   MapPin,
   Clock,
   DollarSign,
@@ -77,15 +76,6 @@ const Job = ({ job, viewMode = "grid" }) => {
                   </span>
                 </div>
               </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // TODO: Save job functionality
-                }}
-                className="p-2 rounded-full bg-white/5 hover:bg-yellow-500/20 hover:text-yellow-500 transition-all text-gray-400"
-              >
-                <Bookmark size={20} />
-              </button>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-3 sm:mt-4 text-xs sm:text-sm text-gray-400">
@@ -166,15 +156,6 @@ const Job = ({ job, viewMode = "grid" }) => {
             </p>
           </div>
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            // TODO: Save functionality
-          }}
-          className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-yellow-500 hover:text-black transition-all text-gray-500"
-        >
-          <Bookmark size={16} />
-        </button>
       </div>
 
       {/* Title & Desc */}

@@ -1277,3 +1277,17 @@ Each screen below was captured at 1440×900 as its role, critiqued and fixed.
   - interview cards say "Not scheduled yet" instead of "Invalid Date".
 
 **Checks:** backend **339/339**, frontend **16/16**, lint 0 errors, build clean. All 30 screens were captured for the three roles after the changes.
+
+## 30. Applications and Jobs on the kit
+
+- **Applications:** one table with stage tabs and counts (All, In review, Interviewing, Offer or hired, Closed). Each row shows the job, its company and city, and the next step, or the interview time. It has a stage pill, the date applied and one action: Join from 15 minutes before an interview, Practise before that, otherwise View job.
+  - `GET /application/get` now includes each application's interview (time and status).
+  - The demo seed links interviews to their applications, as the real scheduler does.
+  - The old interview card is removed. Its refresh after a live "interview scheduled" read a field the API never sends.
+- **Jobs:** one list instead of a card grid. Each row shows title, company, city, type, pay with its period, age, and a real Save (`POST /job/save/:id`, with saved state from `/job/saved`).
+  - Filters use the jobs' own location and type, so every option matches something.
+  - The old filter card applied only the first ticked box, as a text search, and is gone.
+  - Signed-out visitors see the same page under the public bar.
+  - The fake bookmark buttons on the Browse cards (their handler was a TODO) are removed.
+
+**Checks:** backend **339/339**, frontend **16/16**, lint 0 errors, build clean. Captured as candidate and signed out.

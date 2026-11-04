@@ -1291,3 +1291,13 @@ Each screen below was captured at 1440×900 as its role, critiqued and fixed.
   - The fake bookmark buttons on the Browse cards (their handler was a TODO) are removed.
 
 **Checks:** backend **339/339**, frontend **16/16**, lint 0 errors, build clean. Captured as candidate and signed out.
+
+## 31. Honest public pages
+
+- **About** no longer shows invented figures. It says why HIRE.OS exists, links owners to plans and job seekers to jobs, and lists four promises the product keeps today.
+- **Press** and **Careers** dropped fake coverage, press-kit downloads and invented openings. Press is a fact sheet; Careers points to our jobs on HIRE.OS.
+- **Contact** is a working form: `POST /api/v1/contact` validates, escapes and emails the message to `CONTACT_EMAIL` (or the SMTP account), 5 per hour per IP. Without SMTP it answers 503 instead of pretending.
+- **Footer** lost its placeholder phone and email.
+- **Pricing** (`/company/pricing`) is a plain comparison table on the app kit with a monthly/yearly switch.
+- `/browse` redirects to `/jobs`; the unused `Browse`, `Job` and `HeroSection` components are gone.
+- Still old: Help and Privacy keep their earlier layout and copy.

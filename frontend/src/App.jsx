@@ -15,7 +15,6 @@ import AppShell from "./components/app/AppShell";
 import { useSelector } from "react-redux";
 import FeaturesPage from "./components/FeaturesPage";
 import Jobs from "./components/Jobs";
-import Browse from "./components/Browse";
 import Profile from "./components/Profile";
 import ProfilePage from "./components/ProfilePage";
 import SettingsPage from "./components/SettingsPage";
@@ -277,8 +276,8 @@ const appRouter = createBrowserRouter([
     element: <FeaturesPage />,
   },
   {
-    path: "/browse",
-    element: <Browse />,
+    path: "/browse", // the same list as /jobs
+    element: <Navigate to="/jobs" replace />,
   },
   {
     path: "/profile",

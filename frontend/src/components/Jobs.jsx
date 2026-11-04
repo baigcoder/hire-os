@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Search } from "lucide-react";
 import { toast } from "sonner";
@@ -30,7 +30,8 @@ const Jobs = () => {
   const inShell = useInShell();
   const { allJobs, searchedQuery } = useSelector((s) => s.job);
   const { user } = useSelector((s) => s.auth);
-  const [q, setQ] = useState(searchedQuery || "");
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(params.get("q") || searchedQuery || "");
   const [place, setPlace] = useState("all");
   const [type, setType] = useState("all");
   const [sort, setSort] = useState("newest");

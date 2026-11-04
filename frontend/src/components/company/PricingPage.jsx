@@ -1,27 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import {
-  Crown,
-  Check,
-  X,
-  Zap,
-  Building2,
-  Users,
-  Briefcase,
-  Video,
-  Brain,
-  BarChart3,
-  Shield,
-  Star,
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import axios from "axios";
 import { SUBSCRIPTION_API_END_POINT } from "@/utils/constant";
 import Navbar from "../shared/Navbar";
+import "../app/app.css";
+import "../shared/navbar.css";
 
 const PricingPage = () => {
   const navigate = useNavigate();
@@ -104,248 +87,89 @@ const PricingPage = () => {
     });
   };
 
-  const featuresList = [
-    { key: "maxJobPostings", label: "Job Postings", icon: Briefcase },
-    { key: "maxRecruiters", label: "Team Members", icon: Users },
-    { key: "videoInterviews", label: "Video Interviews", icon: Video },
-    { key: "mcqTests", label: "MCQ Tests", icon: Brain },
-    { key: "advancedAnalytics", label: "Analytics", icon: BarChart3 },
-    { key: "aiRecommendations", label: "AI Matching", icon: Sparkles },
-    { key: "prioritySupport", label: "Priority Support", icon: Shield },
-    { key: "apiAccess", label: "API Access", icon: Zap },
+  // What the plans differ by, in the words a buyer uses
+  const ROWS = [
+    ["maxJobPostings", "Job posts"],
+    ["maxRecruiters", "Recruiter seats"],
+    ["videoInterviews", "Video interviews with the copilot"],
+    ["mcqTests", "Assessments"],
+    ["advancedAnalytics", "Analytics"],
+    ["aiRecommendations", "Candidate matching"],
+    ["prioritySupport", "Priority support"],
+    ["apiAccess", "API access"],
   ];
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-PK", {
-      style: "currency",
-      currency: "PKR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const calculateDiscount = (monthly, current) => {
-    const monthlyTotal = monthly * (billingCycle === "quarterly" ? 3 : 12);
-    const discount = ((monthlyTotal - current) / monthlyTotal) * 100;
-    return Math.round(discount);
-  };
+  const cell = (v) => (v === true ? "Included" : v === false || v == null ? <span className="app-meta">—</span> : v === -1 ? "Unlimited" : String(v));
+  const pkr = (n) => new Intl.NumberFormat("en-PK", { style: "currency", currency: "PKR", maximumFractionDigits: 0 }).format(n);
+  const title = (n = "") => n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+  const yearly = billingCycle === "yearly";
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <Navbar />
+      <div className="app app-standalone">
+        <main className="app-canvas" style={{ paddingTop: 72 }}>
+          <header className="info-head">
+            <h1 className="info-h1">Plans</h1>
+            <p className="info-lead">Choose by how many jobs and recruiters you need, and whether you run video interviews with the copilot.</p>
+          </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto mb-12"
-          >
-            <Badge className="mb-6 px-3 py-1 bg-primary/10 text-primary border-primary/30 rounded-sm text-xs">
-              <Crown className="w-3 h-3 mr-1" />
-              Subscription Plans
-            </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 uppercase tracking-tight">
-              Select Your
-              <span className="text-primary"> Plan</span>
-            </h1>
-            <p className="text-gray-500 text-sm">
-              Industrial-grade recruitment tools for every scale
-            </p>
-          </motion.div>
-
-          {/* Billing Toggle */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex items-center justify-center gap-2 mb-12"
-          >
-            <button
-              onClick={() => setBillingCycle("monthly")}
-              className={`px-4 py-2 rounded-sm font-medium text-xs transition-all ${
-                billingCycle === "monthly"
-                  ? "bg-primary text-black"
-                  : "bg-card text-gray-500 hover:bg-white/10 border border-white/10"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBillingCycle("yearly")}
-              className={`px-4 py-2 rounded-sm font-medium text-xs transition-all ${
-                billingCycle === "yearly"
-                  ? "bg-primary text-black"
-                  : "bg-card text-gray-500 hover:bg-white/10 border border-white/10"
-              }`}
-            >
-              Yearly
-            </button>
-            {billingCycle === "yearly" && (
-              <Badge className="bg-accent/10 text-accent border-accent/30 rounded-sm text-xs">
-                Save 20%
-              </Badge>
-            )}
-          </motion.div>
-
-          {/* Pricing Cards */}
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {plans.map((plan, index) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + index * 0.1 }}
-                className="relative"
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                    <Badge className="bg-primary text-black px-3 py-0.5 rounded-sm text-xs font-bold">
-                      <Star className="w-3 h-3 mr-1" /> Recommended
-                    </Badge>
-                  </div>
-                )}
-
-                <div
-                  className={`h-full transition-all duration-300 rounded-sm border overflow-hidden ${
-                    plan.popular
-                      ? "bg-card border-primary/50 shadow-[0_0_30px_rgba(255,215,0,0.1)]"
-                      : "bg-card border-white/10 hover:border-primary/30"
-                  }`}
-                >
-                  {/* HUD Corner Accents */}
-                  <div
-                    className={`absolute top-0 right-0 w-4 h-4 border-t border-r ${plan.popular ? "border-primary/50" : "border-white/10"}`}
-                  />
-                  <div
-                    className={`absolute bottom-0 left-0 w-4 h-4 border-b border-l ${plan.popular ? "border-primary/50" : "border-white/10"}`}
-                  />
-
-                  {/* Header */}
-                  <div className="text-center p-6 border-b border-white/5">
-                    <div
-                      className={`w-12 h-12 mx-auto mb-3 rounded-sm flex items-center justify-center ${
-                        plan.popular
-                          ? "bg-primary"
-                          : "bg-white/5 border border-white/10"
-                      }`}
-                    >
-                      {plan.id === "basic" && (
-                        <Building2
-                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-primary"}`}
-                        />
-                      )}
-                      {plan.id === "professional" && (
-                        <Crown
-                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-primary"}`}
-                        />
-                      )}
-                      {plan.id === "enterprise" && (
-                        <Zap
-                          className={`w-6 h-6 ${plan.popular ? "text-black" : "text-primary"}`}
-                        />
-                      )}
-                    </div>
-                    <h3 className="text-lg font-bold text-white">
-                      {plan.name}
-                    </h3>
-                    <p className="text-gray-600 text-xs uppercase">
-                      {plan.description}
-                    </p>
-
-                    <div className="mt-4">
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-3xl font-bold text-white">
-                          {formatPrice(plan.prices[billingCycle])}
-                        </span>
-                      </div>
-                      <span className="text-gray-600 text-xs">
-                        /{billingCycle === "yearly" ? "year" : "month"}
-                      </span>
-                      {billingCycle === "yearly" && (
-                        <p className="text-xs text-accent mt-1">
-                          SAVE{" "}
-                          {calculateDiscount(
-                            plan.prices.monthly,
-                            plan.prices.yearly,
-                          )}
-                          %
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Features */}
-                  <div className="p-6 space-y-3">
-                    {featuresList.map((feature) => {
-                      const value = plan.features[feature.key];
-                      const hasFeature =
-                        value === true ||
-                        typeof value === "number" ||
-                        value === "Unlimited";
-
-                      return (
-                        <div
-                          key={feature.key}
-                          className={`flex items-center gap-2 ${hasFeature ? "text-gray-400" : "text-gray-700"}`}
-                        >
-                          {hasFeature ? (
-                            <div className="w-4 h-4 rounded-sm bg-accent/10 flex items-center justify-center">
-                              <Check className="w-2.5 h-2.5 text-accent" />
-                            </div>
-                          ) : (
-                            <div className="w-4 h-4 rounded-sm bg-white/5 flex items-center justify-center">
-                              <X className="w-2.5 h-2.5 text-gray-700" />
-                            </div>
-                          )}
-                          <feature.icon className="w-3 h-3" />
-                          <span className="text-xs">
-                            {typeof value === "number" || value === "Unlimited"
-                              ? `${value} ${feature.label}`
-                              : feature.label}
-                          </span>
-                        </div>
-                      );
-                    })}
-
-                    <Button
-                      onClick={() => handleSelectPlan(plan)}
-                      className={`w-full mt-6 py-5 font-bold text-xs rounded-sm transition-all ${
-                        plan.popular
-                          ? "bg-primary hover:bg-[#FFE44D] text-black shadow-[0_0_20px_rgba(255,215,0,0.2)]"
-                          : "bg-white/5 hover:bg-white/10 text-white border border-white/10"
-                      }`}
-                    >
-                      Initialize
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+          <div className="app-tabs" role="radiogroup" aria-label="Billing" style={{ marginBottom: 20 }}>
+            {[
+              ["monthly", "Monthly"],
+              ["yearly", "Yearly"],
+            ].map(([id, label]) => (
+              <button key={id} type="button" role="radio" aria-checked={billingCycle === id} className={billingCycle === id ? "is-active" : ""} onClick={() => setBillingCycle(id)}>
+                {label}
+              </button>
             ))}
           </div>
 
-          {/* Trust Badges */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-16 text-center"
-          >
-            <div className="flex items-center justify-center gap-6 text-gray-600 text-xs">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-accent" />
-                <span>Secure</span>
-              </div>
-              <span className="text-gray-800">|</span>
-              <span>Cancel Anytime</span>
-              <span className="text-gray-800">|</span>
-              <span>24/7 Support</span>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-    </div>
+          <section className="app-panel" aria-label="Plans compared" style={{ overflowX: "auto" }}>
+            <table className="app-table" style={{ minWidth: 720 }}>
+              <thead>
+                <tr>
+                  <th scope="col">
+                    <span className="sr-only">Feature</span>
+                  </th>
+                  {plans.map((plan) => (
+                    <th scope="col" key={plan.id} style={{ verticalAlign: "top", textAlign: "left", paddingBottom: 16 }}>
+                      <div className="app-row-title" style={{ fontSize: 18, display: "flex", gap: 8, alignItems: "center" }}>
+                        {title(plan.name)}
+                        {plan.popular && <span className="app-pill app-pill-positive">Most chosen</span>}
+                      </div>
+                      <div className="num" style={{ fontSize: 28, lineHeight: "36px", color: "var(--text)", margin: "8px 0 2px", fontWeight: 500 }}>
+                        {pkr(plan.prices[billingCycle])}
+                      </div>
+                      <div className="app-meta" style={{ fontWeight: 400 }}>
+                        {yearly ? `a year · saves ${pkr(plan.prices.monthly * 12 - plan.prices.yearly)}` : "a month"}
+                      </div>
+                      <button type="button" className={`app-btn app-btn-sm ${plan.popular ? "app-btn-primary" : ""}`} style={{ marginTop: 12 }} onClick={() => handleSelectPlan(plan)}>
+                        Choose {title(plan.name)}
+                      </button>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {ROWS.map(([key, label]) => (
+                  <tr key={key}>
+                    <th scope="row" style={{ fontWeight: 400, color: "var(--muted)" }}>
+                      {label}
+                    </th>
+                    {plans.map((plan) => (
+                      <td key={plan.id}>{cell(plan.features?.[key])}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+          <p className="app-meta" style={{ marginTop: 16 }}>
+            Prices in Pakistani rupees. Job seekers never pay to apply.
+          </p>
+        </main>
+      </div>
+    </>
   );
 };
 

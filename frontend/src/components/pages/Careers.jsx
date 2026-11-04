@@ -1,143 +1,26 @@
+import { Link } from "react-router-dom";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
-import {
-  ArrowRight,
-  Code,
-  Terminal,
-  Shield,
-  Cpu,
-} from "lucide-react";
-import { Button } from "../ui/button";
 
-const Careers = () => {
-  const openings = [
-    {
-      role: "Senior Full Stack Engineer",
-      dept: "Product Engineering",
-      loc: "Remote / Lahore",
-      type: "Full-time",
-      icon: Code,
-    },
-    {
-      role: "AI Research Scientist",
-      dept: "Artificial Intelligence",
-      loc: "Remote",
-      type: "Full-time",
-      icon: Cpu,
-    },
-    {
-      role: "DevOps Engineer",
-      dept: "Infrastructure",
-      loc: "Lahore",
-      type: "Full-time",
-      icon: Terminal,
-    },
-    {
-      role: "Security Analyst",
-      dept: "Security",
-      loc: "Remote",
-      type: "Contract",
-      icon: Shield,
-    },
-  ];
-
-  const benefits = [
-    "Competitive Equity Packages",
-    "Remote-First Culture",
-    "Premium Hardware Setup",
-    "Learning Stipend",
-    "Health & Wellness",
-    "Annual Retreats",
-  ];
-
-  return (
-    <IndustrialPageLayout
-      title="Join the Crew"
-      subtitle="Help us build the operating system for the global workforce."
-    >
-      {/* Openings List */}
-      <div className="mb-20">
-        <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
-          <h2 className="text-2xl font-bold text-white">
-            Open Positions
-          </h2>
-          <span className="text-sm text-primary">
-            {openings.length} POSITIONS ACTIVE
-          </span>
-        </div>
-
-        <div className="space-y-4">
-          {openings.map((job, idx) => (
-            <div
-              key={idx}
-              className="group relative bg-card p-6 border border-white/10 rounded-sm hover:border-primary/50 transition-all cursor-pointer"
-            >
-              <div className="absolute top-0 right-0 w-0 h-full bg-primary/5 group-hover:w-full transition-all duration-300" />
-
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-white/5 rounded-sm flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
-                    <job.icon size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">
-                      {job.role}
-                    </h3>
-                    <div className="flex gap-3 text-xs text-gray-500 uppercase">
-                      <span>{job.dept}</span>
-                      <span className="text-white/20">|</span>
-                      <span>{job.loc}</span>
-                      <span className="text-white/20">|</span>
-                      <span>{job.type}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Button className="bg-transparent border border-white/20 text-white hover:bg-primary hover:text-black hover:border-transparent transition-all text-xs font-bold">
-                  Apply Now <ArrowRight size={14} className="ml-2" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+/** Careers: our own openings are posted on HIRE.OS like anyone else's. */
+const Careers = () => (
+  <IndustrialPageLayout title="Careers" subtitle="When we hire, we post the job on HIRE.OS and interview the way the product does: structured, scored, decided on evidence.">
+    <section className="app-panel" style={{ maxWidth: 760 }} aria-labelledby="open-h">
+      <h2 className="app-h2" id="open-h" style={{ marginBottom: 8 }}>
+        Open roles
+      </h2>
+      <p className="app-meta" style={{ margin: "0 0 16px" }}>
+        Every opening is listed with the other jobs, with its location, type and pay.
+      </p>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <Link className="app-btn app-btn-primary" to="/jobs?q=HIRE.OS">
+          See open jobs
+        </Link>
+        <Link className="app-btn" to="/contact?topic=General">
+          Ask a question
+        </Link>
       </div>
-
-      {/* Benefits Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-12">
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-6">
-            Why HIRE.OS?
-          </h2>
-          <p className="text-gray-400 leading-relaxed mb-8">
-            We are a team of builders, dreamers, and doers. We don&apos;t just write
-            code; we architect solutions to complex human problems. Join us and
-            do the best work of your career.
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            {benefits.map((benefit, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2 text-sm text-gray-300"
-              >
-                <div className="w-1.5 h-1.5 bg-accent rounded-full" />
-                {benefit}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="h-64 bg-card border border-white/10 rounded-sm relative overflow-hidden group">
-          {/* Abstract Visual */}
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-20 grayscale group-hover:opacity-30 transition-opacity" />
-          <div className="absolute inset-0" />
-          <div className="absolute bottom-6 left-6">
-            <p className="text-primary text-xs mb-1">CULTURE.SYS</p>
-            <h3 className="text-white font-bold text-xl uppercase">
-              Success is a Team Sport
-            </h3>
-          </div>
-        </div>
-      </div>
-    </IndustrialPageLayout>
-  );
-};
+    </section>
+  </IndustrialPageLayout>
+);
 
 export default Careers;

@@ -1,153 +1,44 @@
+import { Link } from "react-router-dom";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
-import { Newspaper, Download, ExternalLink, Award } from "lucide-react";
 
-const Press = () => {
-  const pressMentions = [
-    {
-      source: "TechCrunch",
-      date: "Nov 15, 2024",
-      title:
-        "HIRE.OS raises $50M Series B to revolutionize enterprise hiring with AI.",
-      link: "#",
-    },
-    {
-      source: "Forbes",
-      date: "Oct 22, 2024",
-      title:
-        "The Future of Work is precise, data-driven, and powered by HIRE.OS.",
-      link: "#",
-    },
-    {
-      source: "Wired",
-      date: "Sep 10, 2024",
-      title:
-        "How one startup is eliminating bias from the recruitment process.",
-      link: "#",
-    },
-  ];
+// Facts a journalist can use, each true of the product as it ships
+const FACTS = [
+  ["What it is", "Hiring software built around structured interviews: each skill is rated from 1 to 4 against what the candidate said, and the company's owner makes the final call."],
+  ["Who it's for", "Companies hiring through a team of recruiters, and job seekers, who apply free."],
+  ["Plans", "Basic at Rs 5,000, Professional at Rs 15,000 and Enterprise at Rs 40,000 a month."],
+  ["Privacy", "Interviews are transcribed only with consent; audio is never stored, and transcripts are deleted after 90 days."],
+];
 
-  const assets = [
-    { label: "Brand Guidelines", type: "PDF", size: "2.4 MB" },
-    { label: "Logo Pack (Light/Dark)", type: "ZIP", size: "15 MB" },
-    { label: "Executive Headshots", type: "ZIP", size: "45 MB" },
-    { label: "Product Screenshots", type: "ZIP", size: "32 MB" },
-  ];
-
-  return (
-    <IndustrialPageLayout
-      title="Press Room"
-      subtitle="Latest transmissions, media assets, and company announcements."
-    >
-      {/* Featured Mentions */}
-      <div className="mb-20">
-        <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">
-          <Newspaper size={20} className="text-primary" />
-          In the News
+/** Press: the facts, and how to reach us. */
+const Press = () => (
+  <IndustrialPageLayout title="Press" subtitle="Facts about HIRE.OS, and how to reach the team for a story.">
+    <div className="app-grid">
+      <section className="app-panel span-8" aria-labelledby="facts-h">
+        <h2 className="app-h2" id="facts-h">
+          Fact sheet
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {pressMentions.map((item, idx) => (
-            <div
-              key={idx}
-              className="bg-card p-6 border border-white/10 rounded-sm group hover:border-primary/30 transition-all flex flex-col justify-between h-full"
-            >
-              <div>
-                <div className="flex justify-between items-start mb-4">
-                  <span className="text-primary text-xs font-bold">
-                    {item.source}
-                  </span>
-                  <span className="text-gray-600 text-xs">
-                    {item.date}
-                  </span>
-                </div>
-                <h3 className="text-white font-bold leading-relaxed mb-4 group-hover:text-gray-200 transition-colors">
-                  {item.title}
-                </h3>
-              </div>
-              <a
-                href={item.link}
-                className="inline-flex items-center text-xs text-gray-500 hover:text-primary transition-colors mt-4"
-              >
-                Read Article <ExternalLink size={12} className="ml-2" />
-              </a>
+        <dl className="app-dl">
+          {FACTS.map(([k, v]) => (
+            <div key={k}>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Media Kit / Downloads */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 border-t border-white/10 pt-12">
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-6">
-            Media Assets
-          </h2>
-          <p className="text-gray-400 leading-relaxed mb-8">
-            Official logos, product screenshots, and executive team photos for
-            media use. Please adhere to our brand guidelines when using these
-            materials.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {assets.map((asset, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-4 bg-card border border-white/10 rounded-sm hover:border-primary/30 transition-colors cursor-pointer group"
-              >
-                <span className="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">
-                  {asset.label}
-                </span>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-600 uppercase">
-                    {asset.type}
-                  </span>
-                  <Download
-                    size={14}
-                    className="text-gray-500 group-hover:text-primary transition-colors"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-card p-8 border border-white/10 rounded-sm">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Award size={20} className="text-primary" />
-            Recognition
-          </h2>
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl font-black text-white/10">01</div>
-              <div>
-                <h4 className="text-white font-bold">
-                  Best Enterprise SaaS 2024
-                </h4>
-                <p className="text-gray-500 text-xs">
-                  Cloud Awards International
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-4xl font-black text-white/10">02</div>
-              <div>
-                <h4 className="text-white font-bold">Top AI Innovation</h4>
-                <p className="text-gray-500 text-xs">
-                  Future of Work Summit
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-4xl font-black text-white/10">03</div>
-              <div>
-                <h4 className="text-white font-bold">
-                  Fastest Growing Startup
-                </h4>
-                <p className="text-gray-500 text-xs">Tech 500 Asia</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </IndustrialPageLayout>
-  );
-};
+        </dl>
+      </section>
+      <section className="app-panel span-4" aria-labelledby="ask-h">
+        <h2 className="app-h2" id="ask-h" style={{ marginBottom: 8 }}>
+          Press enquiries
+        </h2>
+        <p className="app-meta" style={{ margin: "0 0 16px" }}>
+          Send us a message with Press as the topic and we&apos;ll reply by email.
+        </p>
+        <Link className="app-btn app-btn-primary" to="/contact?topic=Press">
+          Contact us
+        </Link>
+      </section>
+    </div>
+  </IndustrialPageLayout>
+);
 
 export default Press;

@@ -1,78 +1,29 @@
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
-import { motion } from "framer-motion";
+import "../app/app.css";
+import "../app/legacy.css";
 
-const IndustrialPageLayout = ({ children, title, subtitle }) => {
-  return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
-      <Navbar />
-
-      {/* Industrial Background Grid */}
-      <div
-        className="fixed inset-0 opacity-20 pointer-events-none z-0"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-          backgroundSize: "50px 50px",
-        }}
-      />
-
-      {/* Ambient Glow */}
-
-      <div className="relative z-10 flex-1 pt-24 pb-16">
-        <div className="container mx-auto px-4">
-          {/* Header Section */}
-          {(title || subtitle) && (
-            <div className="mb-12 max-w-4xl">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 mb-4 px-3 py-1 bg-white/5 border border-white/10 rounded-full"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <span className="text-xs text-primary">
-                  System Page // {title?.toUpperCase()}
-                </span>
-              </motion.div>
-
-              {title && (
-                <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tight"
-                >
-                  {title}
-                </motion.h1>
-              )}
-
-              {subtitle && (
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-xl text-gray-400 max-w-2xl leading-relaxed"
-                >
-                  {subtitle}
-                </motion.p>
-              )}
-            </div>
-          )}
-
-          {/* Main Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            {children}
-          </motion.div>
-        </div>
-      </div>
-
-      <Footer />
+/**
+ * The frame for the public information pages: the public bar, a plain title
+ * in the brand's display face with one sentence under it, the content in the
+ * app's type and colours, and the footer. No grid backdrop, no label.
+ */
+const IndustrialPageLayout = ({ children, title, subtitle }) => (
+  <>
+    <Navbar />
+    <div className="app app-standalone">
+      <main className="app-canvas" style={{ paddingTop: 72 }}>
+        {(title || subtitle) && (
+          <header className="info-head">
+            {title && <h1 className="info-h1">{title}</h1>}
+            {subtitle && <p className="info-lead">{subtitle}</p>}
+          </header>
+        )}
+        {children}
+      </main>
     </div>
-  );
-};
+    <Footer />
+  </>
+);
 
 export default IndustrialPageLayout;

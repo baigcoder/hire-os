@@ -475,6 +475,14 @@ export const refreshToken = async (req, res) => {
 };
 
 // =============== SESSION MANAGEMENT ===============
+// "Chrome on Windows" from a user agent string; null when it can't tell
+const describeDevice = (ua = "") => {
+  if (!ua) return null;
+  const browser = /Edg\//.test(ua) ? "Edge" : /OPR\//.test(ua) ? "Opera" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : null;
+  const os = /Windows/.test(ua) ? "Windows" : /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iOS" : /Mac OS X/.test(ua) ? "macOS" : /Linux/.test(ua) ? "Linux" : null;
+  return [browser, os].filter(Boolean).join(" on ") || null;
+};
+
 // Get all active sessions for current user
 export const getActiveSessions = async (req, res) => {
   try {
@@ -488,14 +496,18 @@ export const getActiveSessions = async (req, res) => {
     }
 
     // Map sessions to safe response (without refresh tokens)
-    const sessions = (user.activeSessions || []).map((session, index) => ({
-      id: session.sessionId,
-      deviceInfo: session.deviceInfo,
-      ipAddress: session.ipAddress?.replace(/(\d+)\.(\d+)\.(\d+)\.(\d+)/, "$1.$2.***.**"),
-      createdAt: session.createdAt,
-      lastUsed: session.lastUsed,
-      isCurrent: false, // Will be set by frontend comparing session IDs
-    }));
+    // The refresh cookie reaches /user routes, so this device's session can be marked
+    const current = req.cookies?.refreshToken ? jwt.decode(req.cookies.refreshToken)?.sessionId : null;
+    const sessions = (user.activeSessions || [])
+      .filter((session) => !session.expiresAt || session.expiresAt > new Date())
+      .map((session) => ({
+        id: session.sessionId,
+        device: describeDevice(session.userAgent) ?? session.deviceInfo,
+        ipAddress: session.ipAddress?.replace(/(\d+)\.(\d+)\.(\d+)\.(\d+)/, "$1.$2.***.**"),
+        createdAt: session.createdAt,
+        lastUsed: session.lastUsed,
+        isCurrent: session.sessionId === current,
+      }));
 
     return res.status(200).json({
       sessions,
@@ -566,7 +578,9 @@ export const revokeSession = async (req, res) => {
 // Revoke all sessions except current
 export const revokeAllSessions = async (req, res) => {
   try {
-    const currentSessionId = req.body.currentSessionId;
+    // This device's session comes from its refresh cookie; the page can't read it
+    const currentSessionId =
+      req.body?.currentSessionId ?? (req.cookies?.refreshToken ? jwt.decode(req.cookies.refreshToken)?.sessionId : null);
     const user = await User.findById(req.id);
 
     if (!user) {

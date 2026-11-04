@@ -4,21 +4,11 @@
  */
 
 import { useState, useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
+import { Skeleton } from "../app/blocks";
 import axios from "axios";
 import { toast } from "sonner";
-import {
-  Mail,
-  Plus,
-  Edit2,
-  Trash2,
-  Copy,
-  Eye,
-  RefreshCw,
-  Search,
-} from "lucide-react";
+import { Mail, Eye, Search } from "lucide-react";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
@@ -62,123 +52,6 @@ const TYPE_COLORS = {
 };
 
 // Template Card Component
-const TemplateCard = ({
-  template,
-  onEdit,
-  onDelete,
-  onPreview,
-  onDuplicate,
-}) => {
-  const typeStyle = TYPE_COLORS[template.type] || TYPE_COLORS.custom;
-
-  return (
-    <div
-     
-     
-      className="relative p-5 bg-card border border-white/10 rounded-sm group hover:border-[#f2f2f2]/30 transition-all"
-    >
-
-      {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-sm font-semibold text-white">
-              {template.name}
-            </h3>
-            {template.isDefault && (
-              <Badge className="text-xs bg-white/10 text-gray-400">
-                Default
-              </Badge>
-            )}
-          </div>
-          <Badge className={`text-xs ${typeStyle.bg} ${typeStyle.text}`}>
-            {typeStyle.label}
-          </Badge>
-        </div>
-
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => onPreview(template)}
-          >
-            <Eye className="w-3.5 h-3.5 text-gray-400" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => onDuplicate(template)}
-          >
-            <Copy className="w-3.5 h-3.5 text-gray-400" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => onEdit(template)}
-          >
-            <Edit2 className="w-3.5 h-3.5 text-[#f2f2f2]" />
-          </Button>
-          {!template.isDefault && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => onDelete(template)}
-            >
-              <Trash2 className="w-3.5 h-3.5 text-red-400" />
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Subject Preview */}
-      <p className="text-xs text-gray-400 mb-2 truncate">
-        <span className="text-gray-600">Subject:</span> {template.subject}
-      </p>
-
-      {/* Body Preview */}
-      <p className="text-xs text-gray-500 line-clamp-2">
-        {template.body.replace(/{{.*?}}/g, "[...]").substring(0, 100)}...
-      </p>
-
-      {/* Variables */}
-      {template.variables?.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-3">
-          {template.variables.slice(0, 3).map((variable, idx) => (
-            <code
-              key={idx}
-              className="text-xs bg-[#f2f2f2]/10 text-[#f2f2f2] px-1.5 py-0.5 rounded"
-            >
-              {`{{${variable}}}`}
-            </code>
-          ))}
-          {template.variables.length > 3 && (
-            <span className="text-xs text-gray-600">
-              +{template.variables.length - 3} more
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Usage Stats */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
-        <span className="text-xs text-gray-600">
-          Used {template.usageCount || 0} times
-        </span>
-        {template.lastUsedAt && (
-          <span className="text-xs text-gray-600">
-            Last used: {new Date(template.lastUsedAt).toLocaleDateString()}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Template Editor Modal
 const TemplateEditor = ({ isOpen, template, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -447,6 +320,7 @@ const EmailTemplates = () => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [openId, setOpenId] = useState(null);
 
   useEffect(() => {
     fetchTemplates();
@@ -538,133 +412,121 @@ const EmailTemplates = () => {
     return true;
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="w-16 h-16 border-2 border-[#f2f2f2]/30 rounded-sm" />
-            <div className="absolute top-0 left-0 w-16 h-16 border-2 border-transparent border-t-[#f2f2f2] rounded-sm animate-spin" />
-          </div>
-          <p className="text-[#f2f2f2]/70 text-sm">
-            Loading Templates...
-          </p>
-        </div>
-      </div>
+  const open = filteredTemplates.find((t) => t._id === openId) ?? filteredTemplates[0];
+
+  // {{candidateName}} shown as a marked placeholder inside the real text
+  const withVars = (text = "") =>
+    text.split(/({{.*?}})/g).map((part, k) =>
+      /^{{.*}}$/.test(part) ? (
+        <span key={k} className="app-chip" style={{ height: 22, padding: "0 6px", margin: "0 1px" }}>
+          {part.slice(2, -2)}
+        </span>
+      ) : (
+        part
+      ),
     );
-  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <div className="app-title-row">
+        <h1 className="app-h1">Email templates</h1>
+        <button type="button" className="app-btn app-btn-primary" onClick={handleCreate}>
+          New template
+        </button>
+      </div>
 
-      <div className="relative">
-        <div className="app-title-row">
-          <h1 className="app-h1">Email templates</h1>
+      <div className="app-toolbar">
+        <label className="app-search">
+          <Search aria-hidden="true" />
+          <input placeholder="Search templates" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} aria-label="Search templates" />
+        </label>
+        <select className="app-select" value={filterType} onChange={(e) => setFilterType(e.target.value)} aria-label="Type">
+          <option value="all">All types</option>
+          {Object.entries(TYPE_COLORS).map(([key, value]) => (
+            <option key={key} value={key}>
+              {value.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {loading ? (
+        <Skeleton rows={6} />
+      ) : filteredTemplates.length === 0 ? (
+        <div className="app-panel" style={{ maxWidth: 560 }}>
+          <p className="app-row-title">{searchQuery || filterType !== "all" ? "Nothing matches" : "No templates yet"}</p>
+          <p className="app-meta" style={{ margin: "6px 0 16px" }}>
+            Write an invitation or an update once, then send it with the candidate&apos;s details filled in.
+          </p>
           <button type="button" className="app-btn app-btn-primary" onClick={handleCreate}>
             New template
           </button>
         </div>
-
-        {/* Filters */}
-        <div
-         
-         
-         
-          className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-card border border-white/10 rounded-sm"
-        >
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-            <Input
-              placeholder="Search templates..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-background border-white/10 text-white"
-            />
-          </div>
-
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[150px] bg-background border-white/10 text-white">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent className="bg-card border-white/10">
-              <SelectItem value="all" className="text-gray-300">
-                All Types
-              </SelectItem>
-              {Object.entries(TYPE_COLORS).map(([key, value]) => (
-                <SelectItem key={key} value={key} className="text-gray-300">
-                  {value.label}
-                </SelectItem>
+      ) : (
+        <div className="app-grid">
+          <section className="app-panel span-5" aria-label="Templates" style={{ padding: 0 }}>
+            <ul className="app-list" role="listbox" aria-label="Templates">
+              {filteredTemplates.map((t) => (
+                <li key={t._id} role="option" aria-selected={open?._id === t._id}>
+                  <button type="button" className={`app-row app-pick ${open?._id === t._id ? "is-picked" : ""}`} onClick={() => setOpenId(t._id)} style={{ padding: "12px 20px" }}>
+                    <span className="app-row-main">
+                      <span className="app-row-title" style={{ display: "block" }}>
+                        {t.name}
+                      </span>
+                      <span className="app-row-sub" style={{ display: "block" }}>
+                        {t.subject}
+                      </span>
+                    </span>
+                    <span className="app-row-end">
+                      <span className="app-pill">{(TYPE_COLORS[t.type] || TYPE_COLORS.custom).label}</span>
+                    </span>
+                  </button>
+                </li>
               ))}
-            </SelectContent>
-          </Select>
+            </ul>
+          </section>
 
-          <Button
-            variant="outline"
-            className="border-white/10 text-gray-400"
-            onClick={fetchTemplates}
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
+          {open && (
+            <section className="app-panel span-7 app-sticky" aria-labelledby="tpl-h">
+              <div className="app-panel-head">
+                <h2 className="app-h2" id="tpl-h">
+                  {open.name}
+                </h2>
+                <span className="app-meta">
+                  {open.isDefault ? "Default" : "Yours"} · used {open.usageCount || 0} times
+                </span>
+              </div>
+              <dl className="app-dl">
+                <div>
+                  <dt>Subject</dt>
+                  <dd>{withVars(open.subject)}</dd>
+                </div>
+              </dl>
+              <div style={{ whiteSpace: "pre-wrap", lineHeight: "24px", padding: "12px 0 16px" }}>{withVars(open.body)}</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button type="button" className="app-btn app-btn-primary" onClick={() => handleEdit(open)}>
+                  Edit
+                </button>
+                <button type="button" className="app-btn" onClick={() => handleDuplicate(open)}>
+                  Duplicate
+                </button>
+                <button type="button" className="app-btn" onClick={() => handlePreview(open)}>
+                  Preview with sample data
+                </button>
+                {!open.isDefault && (
+                  <button type="button" className="app-btn app-btn-danger" onClick={() => handleDelete(open)}>
+                    Delete
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
         </div>
+      )}
 
-        {/* Templates Grid */}
-        {filteredTemplates.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <AnimatePresence>
-              {filteredTemplates.map((template, idx) => (
-                <TemplateCard
-                  key={template._id}
-                  template={template}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onPreview={handlePreview}
-                  onDuplicate={handleDuplicate}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div
-           
-           
-            className="text-center py-16"
-          >
-            <Mail className="w-16 h-16 mx-auto mb-4 text-gray-700" />
-            <h3 className="text-xl font-bold text-white mb-2">
-              No templates yet
-            </h3>
-            <p className="text-gray-500 mb-6">
-              {searchQuery || filterType !== "all"
-                ? "Nothing matches"
-                : ""}
-            </p>
-            <Button
-              onClick={handleCreate}
-              className="bg-[#f2f2f2] text-black hover:bg-[#e6e6e6]"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Template
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Editor Modal */}
-      <TemplateEditor
-        isOpen={editorOpen}
-        template={selectedTemplate}
-        onClose={() => setEditorOpen(false)}
-        onSave={handleSave}
-      />
-
-      {/* Preview Modal */}
-      <PreviewModal
-        isOpen={previewOpen}
-        template={selectedTemplate}
-        onClose={() => setPreviewOpen(false)}
-      />
-    </div>
+      <TemplateEditor isOpen={editorOpen} template={selectedTemplate} onClose={() => setEditorOpen(false)} onSave={handleSave} />
+      <PreviewModal isOpen={previewOpen} template={selectedTemplate} onClose={() => setPreviewOpen(false)} />
+    </>
   );
 };
 

@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import api from "@/utils/api";
 import AppShell from "../app/AppShell";
-import { Skeleton, ErrorBlock } from "../app/blocks";
+import { Skeleton, ErrorBlock, PipelineStrip } from "../app/blocks";
 import DecisionQueue from "./DecisionQueue";
 
 /** Today for the company's owner: the decisions waiting on them, and their open jobs. */
@@ -45,10 +45,22 @@ const CompanyAdminDashboard = () => {
         <ErrorBlock what="today" onRetry={load} />
       ) : (
         <div className="app-grid">
-          <div className="span-8">
+          <div className="span-8 app-col">
             <DecisionQueue onDecided={load} />
+            <section className="app-panel" aria-labelledby="pipe-h">
+              <div className="app-panel-head">
+                <h2 className="app-h2" id="pipe-h">
+                  Pipeline
+                </h2>
+                <Link to="/admin/applications" className="app-link">
+                  All applicants
+                </Link>
+              </div>
+              {!data ? <Skeleton rows={2} /> : <PipelineStrip pipeline={data.pipeline} focus="decision" />}
+            </section>
           </div>
-          <section className="span-4" aria-labelledby="jobs-h">
+          <div className="span-4 app-col">
+          <section aria-labelledby="jobs-h">
             <div className="app-side-head">
               <h2 className="app-h2 app-side-h" id="jobs-h">
                 Open jobs
@@ -76,6 +88,29 @@ const CompanyAdminDashboard = () => {
               </ul>
             )}
           </section>
+          {data?.company && (
+            <section className="app-panel" aria-labelledby="plan-h">
+              <div className="app-panel-head">
+                <h2 className="app-h2" id="plan-h">
+                  {data.company.plan} plan
+                </h2>
+                <Link to="/company/billing" className="app-link">
+                  Billing
+                </Link>
+              </div>
+              <dl className="app-dl">
+                <div>
+                  <dt>Job posts</dt>
+                  <dd className="num">{data.usage.maxJobs == null ? `${data.usage.activeJobs} · unlimited` : `${data.usage.activeJobs} of ${data.usage.maxJobs}`}</dd>
+                </div>
+                <div>
+                  <dt>Recruiter seats</dt>
+                  <dd className="num">{data.usage.maxRecruiters == null ? `${data.usage.recruiters} · unlimited` : `${data.usage.recruiters} of ${data.usage.maxRecruiters}`}</dd>
+                </div>
+              </dl>
+            </section>
+          )}
+          </div>
         </div>
       )}
     </AppShell>

@@ -107,21 +107,11 @@ const InterviewCard = ({ application = {} }) => {
   };
 
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString(undefined, {
-      month: 'short',
-      day: '2-digit',
-      year: 'numeric'
-    }).toUpperCase();
-  };
-
-  const formatTime = (dateString) => {
-    return new Date(dateString).toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
-    });
-  };
+  // An interview scheduled through the newer flow has no date on the application yet
+  const valid = (d) => d && !Number.isNaN(new Date(d).getTime());
+  const formatDate = (d) =>
+    valid(d) ? new Date(d).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : "Not scheduled yet";
+  const formatTime = (d) => (valid(d) ? new Date(d).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "—");
 
   const status = isInterviewTime();
   const appStatus = application.status?.toLowerCase();
@@ -180,7 +170,7 @@ const InterviewCard = ({ application = {} }) => {
           <div className="bg-white/5 border border-white/5 p-3 rounded-sm">
             <div className="flex items-center gap-2 mb-1 opacity-40">
               <Calendar className="h-3 w-3 text-primary" />
-              <span className="text-xs text-white">DATE</span>
+              <span className="text-xs text-white">Date</span>
             </div>
             <div className="text-sm font-bold text-white">
               {formatDate(application.interviewDetails?.date)}
@@ -189,7 +179,7 @@ const InterviewCard = ({ application = {} }) => {
           <div className="bg-white/5 border border-white/5 p-3 rounded-sm">
             <div className="flex items-center gap-2 mb-1 opacity-40">
               <Clock className="h-3 w-3 text-primary" />
-              <span className="text-xs text-white">SYSTEM CLOCK</span>
+              <span className="text-xs text-white">Time</span>
             </div>
             <div className="text-sm font-bold text-white">
               {formatTime(application.interviewDetails?.date)}

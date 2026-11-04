@@ -30,7 +30,8 @@ const Job = ({ job, viewMode = "grid" }) => {
 
   const formatSalary = (salary) => {
     if (!salary) return "Competitive";
-    return `${salary}LPA`;
+    const per = { yearly: "a year", monthly: "a month", hourly: "an hour" }[job?.salaryType] ?? "a year";
+    return `Rs ${Number(salary).toLocaleString("en-PK")} ${per}`;
   };
 
   // List view layout

@@ -3,11 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { toast } from "sonner";
 import {
-  Video,
   Mic,
-  MicOff,
-  VideoOff,
-  Play,
   RefreshCw,
   MessageSquare,
   User,
@@ -17,8 +13,6 @@ import {
   Star,
   Award,
   Volume2,
-  VolumeX,
-  Sparkles,
   Brain,
   StopCircle,
 } from "lucide-react";
@@ -585,105 +579,61 @@ const MockInterview = () => {
            
             className="space-y-4 sm:space-y-6"
           >
-            {/* Interview Type Selection */}
-            <div className="bg-card border border-white/10 rounded-md p-4 sm:p-6">
-              <label className="text-xs text-gray-500 mb-4 block">
-                Select Interview Type
-              </label>
-              <div className="grid grid-cols-1 gap-3">
-                {interviewTypes.map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => setInterviewType(type.id)}
-                    className={`p-4 rounded-sm border transition-all text-left ${interviewType === type.id ? "bg-primary/10 border-primary/50 text-white" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
-                  >
-                    <div className="font-semibold text-sm">{type.name}</div>
-                    <div
-                      className={`text-xs mt-1 ${interviewType === type.id ? "text-gray-300" : "text-gray-500"}`}
-                    >
-                      {type.description}
+            <section className="app-panel" aria-labelledby="setup-h" style={{ maxWidth: 760 }}>
+              <h2 className="app-h2" id="setup-h">
+                Set up a practice interview
+              </h2>
+              <dl className="app-dl">
+                <div>
+                  <dt>Kind</dt>
+                  <dd>
+                    <div className="app-tabs" role="radiogroup" aria-label="Kind of interview" style={{ marginBottom: 6 }}>
+                      {interviewTypes.map((type) => (
+                        <button key={type.id} type="button" role="radio" aria-checked={interviewType === type.id} className={interviewType === type.id ? "is-active" : ""} onClick={() => setInterviewType(type.id)}>
+                          {type.name}
+                        </button>
+                      ))}
                     </div>
-                  </button>
+                    <span className="app-meta">{interviewTypes.find((t) => t.id === interviewType)?.description}</span>
+                  </dd>
+                </div>
+                {[
+                  ["Camera", videoEnabled, () => setVideoEnabled(!videoEnabled)],
+                  ["Microphone", audioEnabled, () => setAudioEnabled(!audioEnabled)],
+                  ["Read questions aloud", voiceEnabled, () => setVoiceEnabled(!voiceEnabled)],
+                ].map(([label, on, toggle]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>
+                      <button type="button" className="app-btn app-btn-sm" aria-pressed={on} onClick={toggle} style={{ minWidth: 64 }}>
+                        {on ? "On" : "Off"}
+                      </button>
+                    </dd>
+                  </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Media Settings */}
-            <div className="bg-card border border-white/10 rounded-md p-4 sm:p-6">
-              <label className="text-xs text-gray-500 mb-4 block">
-                Recording Settings
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                <button
-                  onClick={() => setVideoEnabled(!videoEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${videoEnabled ? "bg-primary/10 border-primary/50 text-primary" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
-                >
-                  {videoEnabled ? (
-                    <Video className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                  <span className="hidden xs:inline">Video</span> {videoEnabled ? "On" : "Off"}
-                </button>
-                <button
-                  onClick={() => setAudioEnabled(!audioEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${audioEnabled ? "bg-primary/10 border-primary/50 text-primary" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
-                >
-                  {audioEnabled ? (
-                    <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                  <span className="hidden xs:inline">Mic</span> {audioEnabled ? "On" : "Off"}
-                </button>
-                <button
-                  onClick={() => setVoiceEnabled(!voiceEnabled)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${voiceEnabled ? "bg-purple-500/10 border-purple-500/50 text-purple-400" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
-                >
-                  {voiceEnabled ? (
-                    <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                  <span className="hidden xs:inline">AI</span> {voiceEnabled ? "On" : "Off"}
-                </button>
-                <button
-                  onClick={() =>
-                    setConversationMode(
-                      conversationMode === "live" ? "manual" : "live",
-                    )
-                  }
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2.5 sm:py-3 rounded-sm border text-xs sm:text-sm font-medium ${conversationMode === "live" ? "bg-primary/10 border-primary/50 text-primary" : "bg-white/5 border-white/10 text-gray-400 hover:border-white/20" }`}
-                >
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                  {conversationMode === "live" ? "Live" : "Manual"}
+                <div>
+                  <dt>Pace</dt>
+                  <dd>
+                    <div className="app-tabs" role="radiogroup" aria-label="Pace" style={{ marginBottom: 6 }}>
+                      {[
+                        ["live", "Live"],
+                        ["manual", "Manual"],
+                      ].map(([id, label]) => (
+                        <button key={id} type="button" role="radio" aria-checked={conversationMode === id} className={conversationMode === id ? "is-active" : ""} onClick={() => setConversationMode(id)}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    <span className="app-meta">{conversationMode === "live" ? "The interviewer speaks, listens and moves on by itself." : "You move to the next question when you're ready."}</span>
+                  </dd>
+                </div>
+              </dl>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                <button type="button" className="app-btn app-btn-primary" onClick={generateQuestions} disabled={loading}>
+                  {loading ? "Preparing questions…" : "Start interview"}
                 </button>
               </div>
-              <p className="text-xs sm:text-xs text-gray-500 mt-3">
-                {conversationMode === "live"
-                  ? "🔴 LIVE: AI speaks, listens, and auto-advances"
-                  : "💡 MANUAL: You control the pace"}
-              </p>
-            </div>
-
-            {/* Start Button */}
-            <Button
-              onClick={generateQuestions}
-              disabled={loading}
-              className="w-full py-4 sm:py-6 bg-primary text-black hover:bg-[#e6e6e6] font-bold text-xs sm:text-sm flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Preparing Interview...
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" />
-                  Start Voice Interview
-                </>
-              )}
-            </Button>
+            </section>
           </div>
         )}
 

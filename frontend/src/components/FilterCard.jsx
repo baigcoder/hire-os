@@ -4,7 +4,6 @@ import { setSearchedQuery } from "@/redux/jobSlice";
 import {
   MapPin,
   Briefcase,
-  DollarSign,
   Clock,
   X,
   RotateCcw,
@@ -19,12 +18,12 @@ const filterData = [
     icon: MapPin,
     options: [
       "Remote",
-      "Delhi NCR",
-      "Bangalore",
-      "Hyderabad",
-      "Pune",
-      "Mumbai",
-      "Chennai",
+      "Lahore",
+      "Karachi",
+      "Islamabad",
+      "Rawalpindi",
+      "Faisalabad",
+      "Peshawar",
     ],
   },
   {
@@ -43,11 +42,6 @@ const filterData = [
       "Design",
       "Sales",
     ],
-  },
-  {
-    filterType: "Salary Range",
-    icon: DollarSign,
-    options: ["0-5 LPA", "5-10 LPA", "10-20 LPA", "20-50 LPA", "50+ LPA"],
   },
 ];
 

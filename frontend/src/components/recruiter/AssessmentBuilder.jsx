@@ -18,7 +18,6 @@ import {
   Award,
   Activity,
   Box,
-  FolderPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -314,14 +313,12 @@ const AssessmentBuilder = () => {
                                     <div
                                        
                                        
-                                        className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/5 border-dashed rounded-sm"
+                                        className="flex flex-col items-start py-6"
                                     >
-                                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6">
-                                            <FolderPlus className="h-8 w-8 text-gray-700" />
-                                        </div>
-                                        <h3 className="text-gray-300 font-bold mb-2">
+                                        <h3 className="text-white text-base font-medium mb-1">
                                             No assessments yet
                                         </h3>
+<p className="app-meta" style={{ margin: "0 0 16px" }}>Short tests candidates take before the interview, scored automatically.</p>
                                         <p className="text-gray-600 text-xs max-w-xs text-center mb-6">
                                             
                                         </p>
@@ -360,7 +357,7 @@ const AssessmentBuilder = () => {
                                         </p>
                                     </div>
                                 ) : filtered.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/5 border-dashed rounded-sm">
+                                    <div className="flex flex-col items-start py-6">
                                         <Globe className="h-12 w-12 text-gray-800 mb-4" />
                                         <p className="text-gray-500 text-sm">
                                             Nothing matches

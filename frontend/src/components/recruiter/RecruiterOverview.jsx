@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "@/utils/api";
 import AppShell from "../app/AppShell";
-import { Skeleton, ErrorBlock } from "../app/blocks";
+import { Skeleton, ErrorBlock, PipelineStrip } from "../app/blocks";
 import { recruiterTasks } from "../app/today.js";
 import { TaskList } from "../app/TaskList";
 
@@ -35,13 +35,26 @@ const RecruiterOverview = () => {
         <ErrorBlock what="today" onRetry={load} />
       ) : (
         <div className="app-grid">
-          <div className="span-8">
-            {!data ? <Skeleton rows={6} /> : <TaskList tasks={tasks} empty="Nothing needs you right now." />}
-            {more > 0 && (
-              <Link to="/recruiter/applicants" className="app-link app-more-link">
-                {more} more waiting for review
-              </Link>
-            )}
+          <div className="span-8 app-col">
+            <div>
+              {!data ? <Skeleton rows={6} /> : <TaskList tasks={tasks} empty="Nothing needs you right now." />}
+              {more > 0 && (
+                <Link to="/recruiter/applicants" className="app-link app-more-link">
+                  {more} more waiting for review
+                </Link>
+              )}
+            </div>
+            <section className="app-panel" aria-labelledby="pipe-h">
+              <div className="app-panel-head">
+                <h2 className="app-h2" id="pipe-h">
+                  Pipeline
+                </h2>
+                <Link to="/recruiter/pipeline" className="app-link">
+                  Open board
+                </Link>
+              </div>
+              {!data ? <Skeleton rows={2} /> : <PipelineStrip pipeline={data.pipeline} focus="new" />}
+            </section>
           </div>
           <section className="span-4" aria-labelledby="later-h">
             <h2 className="app-h2 app-side-h" id="later-h">

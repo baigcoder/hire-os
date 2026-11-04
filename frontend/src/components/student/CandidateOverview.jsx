@@ -92,7 +92,10 @@ const CandidateOverview = () => {
                     <li className="app-task" key={a.id}>
                       <div className="app-task-main">
                         <span className="app-task-title">{a.job}</span>
-                        <span className="app-task-sub">{a.company}</span>
+                        <span className="app-task-sub">
+                          {a.company}
+                          {a.nextStep ? ` · ${a.nextStep}` : ""}
+                        </span>
                       </div>
                       <span className={`app-pill ${STAGE[a.stage][1]}`}>{STAGE[a.stage][0]}</span>
                     </li>

@@ -728,11 +728,8 @@ const RecruiterMessagesPage = () => {
                       </>
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-center">
-                        <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                          <MessageSquare className="w-10 h-10 text-gray-600" />
-                        </div>
-                        <h3 className="text-gray-400 font-bold text-lg mb-2">
-                          Start a Conversation
+                        <h3 className="text-white text-base font-medium mb-1">
+                          No messages yet
                         </h3>
                         <p className="text-gray-600 text-sm max-w-xs">
                           Send a message to {activeContact.fullname}
@@ -924,11 +921,8 @@ const RecruiterMessagesPage = () => {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-              <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                <MessageSquare className="w-12 h-12 text-gray-600" />
-              </div>
-              <h3 className="text-gray-400 font-bold text-xl mb-2">
-                No Chat Selected
+              <h3 className="text-white text-base font-medium mb-1">
+                Pick a conversation
               </h3>
               <p className="text-gray-600 text-sm max-w-xs">
                 Select a contact from the sidebar to start messaging

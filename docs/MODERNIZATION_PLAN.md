@@ -1247,3 +1247,33 @@ The brief: simple purpose, simple architecture, simple design. Cut taglines, hel
 - **Sidebar scope:** the sidebar names its workspace under the mark, for example "Northwind Logistics · Recruiter", or "Job search · Candidate". `companyName` now comes with the user at sign-in.
 - **Talent pool** with no pools shows one empty state with its action, instead of two empty panes.
 - **Checks:** all 28 sidebar pages for the three roles render with the scope, no resting shadows, no text under 13px and no errors. Backend **339/339**, frontend **16/16**, lint 0 errors, build clean.
+
+## 29. The weak screens, rebuilt on the kit
+
+Each screen below was captured at 1440×900 as its role, critiqued and fixed.
+
+- **Profile:**
+  - a person header with a photo you can change;
+  - About, Details, Skills and Links, edited in one mode;
+  - Resume, a completeness bar that names what's missing, and application counts from the same pipeline as Today.
+  - "Member since: N/A" and the icon stat tiles are gone.
+- **Settings (both):** one page, no inner menu. Account, Password, Signed-in devices (names each device and marks this one; sign out one or everywhere else) and Close account (confirmed with your password).
+  - The Notifications, Privacy and Appearance toggles saved nothing, and "Delete account" said it deleted without deleting. They are gone; every control left is backed by the API.
+  - The owner's page adds the company profile.
+  - `GET /user/sessions` marks the current session and names devices; `revoke-all` keeps this device by its refresh cookie.
+- **Billing:** the plan with price, start, renewal and what's included; usage against the plan's limits; payments as a table.
+- **Email templates:** a list beside the open template, its subject and body with placeholders marked, plus Edit, Duplicate, Preview and Delete. The card grid is gone.
+- **Interview practice:** one setup panel. Kind and pace are segmented; camera, microphone and voice are On/Off; no emoji, no purple.
+- **Career coach:** topics, recent conversations and suggested questions as plain lists. The second `h1`, icon tiles and avatar welcome are gone.
+- **Messages and empty states:** one quiet line instead of large icon placeholders.
+- **Today:**
+  - owner and recruiter: a pipeline strip (stage shares, with the stage you act on in the data hue);
+  - owner: plan usage;
+  - candidate: each application's next step.
+- **Data fixes:**
+  - salaries read "Rs 350,000 a year", not "350000LPA";
+  - location filters list Pakistani cities;
+  - the salary-band filter, which could never match, is removed;
+  - interview cards say "Not scheduled yet" instead of "Invalid Date".
+
+**Checks:** backend **339/339**, frontend **16/16**, lint 0 errors, build clean. All 30 screens were captured for the three roles after the changes.

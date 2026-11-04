@@ -3,15 +3,11 @@ import api from "@/utils/api";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Bot,
   Send,
   Loader2,
-  MessageCircle,
   Target,
-  Sparkles,
   Plus,
   Clock,
-  Zap,
   Brain,
   TrendingUp,
   Briefcase,
@@ -159,17 +155,7 @@ const AICareerCoach = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 h-[calc(100vh-80px)] flex flex-col">
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 flex-shrink-0">
-                <div>
-                    <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-card">
-                            <Bot className="h-4 w-4 text-white" />
-                        </div>
-                        AI Career Coach
-                    </h1>
-                    <p className="text-muted-foreground text-sm">
-                        Get personalized career advice powered by AI
-                    </p>
-                </div>
+                <h2 className="app-h2">Career coach</h2>
                 {activeSession && (
                     <Button
                         variant="outline"
@@ -185,34 +171,18 @@ const AICareerCoach = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-1 min-h-0 overflow-hidden">
                 {/* Sidebar - Hidden on mobile when session active */}
                 <div className={`lg:col-span-1 flex flex-col gap-3 overflow-hidden ${activeSession ? 'hidden lg:flex' : 'flex'}`}>
-                    {/* Quick Start Topics */}
-                    <Card className="flex-shrink-0">
-                        <CardHeader className="pb-2 pt-3 px-3">
-                            <CardTitle className="text-xs font-medium flex items-center gap-2">
-                                <Zap className="h-3 w-3 text-primary" />
-                                Quick Start
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid grid-cols-2 gap-1.5 px-3 pb-3">
-                            {TOPICS.map((topic) => {
-                                const Icon = topic.icon;
-                                return (
-                                    <Button
-                                        key={topic.id}
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-auto py-2 px-2 flex flex-col items-center gap-1 hover:border-primary/50 transition-all"
-                                        onClick={() => startNewSession(topic.id)}
-                                    >
-                                        <div className={`w-6 h-6 rounded-md bg-card ${topic.color} flex items-center justify-center`}>
-                                            <Icon className="w-3 h-3 text-white" />
-                                        </div>
-                                        <span className="text-xs text-center leading-tight">{topic.label}</span>
-                                    </Button>
-                                );
-                            })}
-                        </CardContent>
-                    </Card>
+                    <section className="app-panel" aria-labelledby="topics-h">
+                        <h3 className="app-row-sub" id="topics-h" style={{ marginBottom: 6 }}>Start a conversation about</h3>
+                        <ul className="app-list">
+                            {TOPICS.map((topic) => (
+                                <li key={topic.id}>
+                                    <button type="button" className="app-row app-pick" onClick={() => startNewSession(topic.id)} style={{ padding: "8px 0" }}>
+                                        <span className="app-row-title">{topic.label}</span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
 
                     {/* Recent Sessions */}
                     <Card className="flex-1 min-h-0 flex flex-col overflow-hidden">
@@ -225,27 +195,19 @@ const AICareerCoach = () => {
                         <CardContent className="flex-1 overflow-hidden px-3 pb-3">
                             <ScrollArea className="h-full">
                                 {sessions.length === 0 ? (
-                                    <div className="text-center py-4">
-                                        <MessageCircle className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
-                                        <p className="text-xs text-muted-foreground">No sessions yet</p>
-                                    </div>
+                                    <p className="app-meta">No conversations yet.</p>
                                 ) : (
                                     <div className="space-y-2">
                                         {sessions.map((session) => {
-                                            const topicInfo = getTopicInfo(session.topic);
-                                            const Icon = topicInfo.icon;
                                             return (
                                                 <button
                                                     key={session._id}
                                                     onClick={() => loadSession(session._id)}
                                                     className={`w-full group text-left p-3 rounded-lg border transition-all flex items-start gap-3 ${activeSession?._id === session._id
-                                                        ? "border-primary bg-primary/5"
-                                                        : "border-border hover:border-primary/50 hover:bg-muted/50"
+                        ? "border-transparent bg-white/10"
+                                                        : "border-transparent hover:bg-white/5"
                                                         }`}
                                                 >
-                                                    <div className={`w-9 h-9 rounded-lg bg-card ${topicInfo.color} flex items-center justify-center flex-shrink-0`}>
-                                                        <Icon className="w-4 h-4 text-white" />
-                                                    </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-sm font-medium truncate">
                                                             {session.title || session.topic.replace(/_/g, ' ')}
@@ -284,59 +246,27 @@ const AICareerCoach = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 className="text-center max-w-lg"
                             >
-                                {/* AI Avatar */}
-                                <div className="relative w-20 h-20 mx-auto mb-6">
-                                    <div className="absolute inset-0 rounded-2xl animate-pulse" />
-                                    <div className="absolute inset-1 rounded-xl bg-background flex items-center justify-center">
-                                        <Sparkles className="w-8 h-8 text-primary" />
-                                    </div>
-                                </div>
+                                <h3 className="app-h2" style={{ marginBottom: 6 }}>Ask about your next step</h3>
+                                <p className="app-meta" style={{ marginBottom: 20 }}>Resumes, interviews, pay and where to go next.</p>
 
-                                <h2 className="text-2xl font-bold mb-2">
-                                    Your AI Career Coach
-                                </h2>
-                                <p className="text-muted-foreground mb-8">
-                                    Get personalized career advice, interview preparation, resume feedback, and salary negotiation tips.
-                                </p>
-
-                                {/* Feature Cards */}
-                                <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8">
-                                    {TOPICS.slice(0, 3).map((topic) => {
-                                        const Icon = topic.icon;
-                                        return (
-                                            <Button
-                                                key={topic.id}
-                                                variant="outline"
-                                                className="h-auto py-3 sm:py-4 flex flex-col gap-1 sm:gap-2 hover:border-primary/50 group"
-                                                onClick={() => startNewSession(topic.id)}
+                                <ul className="app-list" style={{ textAlign: "left" }}>
+                                    {QUICK_PROMPTS.map((prompt) => (
+                                        <li key={prompt}>
+                                            <button
+                                                type="button"
+                                                className="app-row app-pick"
+                                                style={{ padding: "10px 0" }}
+                                                onClick={() => {
+                                                    startNewSession("career_path").then(() => {
+                                                        setTimeout(() => sendMessage(prompt), 500);
+                                                    });
+                                                }}
                                             >
-                                                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-card ${topic.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                                                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                                                </div>
-                                                <span className="text-xs sm:text-xs font-medium text-center leading-tight">{topic.label}</span>
-                                            </Button>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Quick Prompts */}
-                                <p className="text-xs text-muted-foreground mb-3">Or try asking...</p>
-                                <div className="flex flex-wrap justify-center gap-2">
-                                    {QUICK_PROMPTS.map((prompt, idx) => (
-                                        <Badge
-                                            key={idx}
-                                            variant="secondary"
-                                            className="cursor-pointer hover:bg-primary/10 transition-all text-xs py-1.5 px-3"
-                                            onClick={() => {
-                                                startNewSession("career_path").then(() => {
-                                                    setTimeout(() => sendMessage(prompt), 500);
-                                                });
-                                            }}
-                                        >
-                                            {prompt}
-                                        </Badge>
+                                                <span className="app-row-title">{prompt}</span>
+                                            </button>
+                                        </li>
                                     ))}
-                                </div>
+                                </ul>
                             </motion.div>
                         </CardContent>
                     ) : (

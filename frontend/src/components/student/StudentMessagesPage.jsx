@@ -18,7 +18,6 @@ import { format } from "date-fns";
 import {
   MessageSquare,
   Send,
-  User,
   Search,
   RefreshCw,
   Building,
@@ -332,7 +331,6 @@ const StudentMessagesPage = () => {
                 ))
               ) : (
                 <div className="p-8 text-center">
-                  <User className="w-12 h-12 text-gray-700 mx-auto mb-3" />
                   <p className="text-gray-500 text-sm">No contacts found</p>
                   <p className="text-gray-600 text-xs mt-1">
                     Apply to jobs to connect with recruiters
@@ -444,9 +442,8 @@ const StudentMessagesPage = () => {
                     </>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center">
-                      <MessageSquare className="w-16 h-16 text-gray-700 mb-4" />
-                      <h3 className="text-gray-400 font-bold">
-                        Start a Conversation
+                      <h3 className="text-white text-base font-medium mb-1">
+                        No messages yet
                       </h3>
                       <p className="text-gray-600 text-sm mt-1">
                         Send a message to {activeContact.fullname}
@@ -506,9 +503,8 @@ const StudentMessagesPage = () => {
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
-                  <MessageSquare className="w-20 h-20 text-gray-700 mx-auto mb-4" />
-                  <h2 className="text-gray-400 font-bold text-lg">
-                    Select a Contact
+                  <h2 className="text-white text-base font-medium mb-1">
+                    Pick a conversation
                   </h2>
                   <p className="text-gray-600 text-sm mt-2">
                     Choose a recruiter to start messaging

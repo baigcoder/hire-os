@@ -328,14 +328,12 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                     <div
                                        
                                        
-                                        className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/5 border-dashed rounded-sm"
+                                        className="flex flex-col items-start py-6"
                                     >
-                                        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-8">
-                                            <LayoutTemplate className="h-10 w-10 text-gray-700" />
-                                        </div>
-                                        <h3 className="text-gray-300 font-bold text-lg mb-2">
+                                        <h3 className="text-white text-base font-medium mb-1">
                                             No templates yet
                                         </h3>
+<p className="app-meta" style={{ margin: "0 0 16px" }}>Save a job you post often and post it again in one step.</p>
                                         <p className="text-gray-600 text-xs max-w-sm text-center mb-8">
                                             
                                         </p>
@@ -375,7 +373,7 @@ const JobTemplateManager = ({ onSelectTemplate, mode = "manage" }) => {
                                         </p>
                                     </div>
                                 ) : filteredTemplates.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/5 border-dashed rounded-sm">
+                                    <div className="flex flex-col items-start py-6">
                                         <Globe className="h-14 w-14 text-gray-800 mb-6" />
                                         <p className="text-gray-500 text-sm">
                                             Nothing matches

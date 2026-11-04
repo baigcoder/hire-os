@@ -174,6 +174,17 @@ const TalentPoolManager = () => {
 
                 
 {/* Main Content Area */}
+                {pools.length === 0 && !loading ? (
+                    <div className="app-panel" style={{ maxWidth: 560 }}>
+                        <p className="app-row-title">No pools yet</p>
+                        <p className="app-meta" style={{ margin: "6px 0 16px" }}>
+                            Group strong candidates you can&apos;t hire now, ready for the next opening.
+                        </p>
+                        <button type="button" className="app-btn app-btn-primary" onClick={() => setShowCreateModal(true)}>
+                            New pool
+                        </button>
+                    </div>
+                ) : (
                 <div className="flex-1 flex gap-6 overflow-hidden mb-4">
                     {/* Left Sidebar - Pools List */}
                     <div
@@ -441,6 +452,7 @@ const TalentPoolManager = () => {
                         </div>
                     </div>
                 </div>
+                )}
             </div>
 
             {/* MODALS */}

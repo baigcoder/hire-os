@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import { Company } from "../models/company.model.js";
 import { startSession, clearSessionCookies, endAllSessions, recruiterAccessProblem, signAccessToken, signRefreshToken, newSessionId, accessCookie, refreshCookie } from "../utils/session.js";
 import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
@@ -16,6 +17,10 @@ import logger from "../utils/logger.js";
 import { blacklistToken, isTokenBlacklisted } from "../utils/tokenBlacklist.js";
 
 // Sessions (tokens, cookies, refresh) live in utils/session.js
+
+// The company a recruiter or owner works in, named in the app's sidebar
+const companyNameOf = async (user) =>
+  user.companyId ? (await Company.findById(user.companyId).select("name").lean())?.name ?? null : null;
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
 // Extract device info from request
@@ -267,6 +272,7 @@ export const login = async (req, res) => {
       phoneNumber: user.phoneNumber,
       role: user.role,
       companyId: user.companyId || null, // Include companyId for registration status check
+      companyName: await companyNameOf(user),
       profile: user.profile,
       lastLogin: user.lastLogin,
       mustChangePassword: user.mustChangePassword || false,
@@ -1297,6 +1303,7 @@ export const supabaseSync = async (req, res) => {
       phoneNumber: user.phoneNumber,
       role: user.role,
       companyId: user.companyId || null,
+      companyName: await companyNameOf(user),
       profile: user.profile,
       createdAt: user.createdAt,
       // Include subscription/trial info

@@ -77,6 +77,44 @@
   height: 12px;
   background: #b11226;
 }
+/* Scope: the workspace this sidebar belongs to */
+.app-scope {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 12px 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+.app-scope-mark {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #2c1a20;
+  color: #f2b3bd;
+  font-weight: 600;
+  font-size: 13px;
+}
+.app-scope-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.app-scope-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app-scope-role {
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--faint);
+}
 .app-nav {
   padding: 16px 12px;
   display: flex;
@@ -89,7 +127,7 @@
   flex-direction: column;
 }
 .app-nav-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--faint);
   padding: 0 8px 8px;
 }
@@ -313,7 +351,7 @@
   color: var(--text);
 }
 .app-meta {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--faint);
 }
 .app-link {
@@ -355,7 +393,7 @@
   margin-left: 4px;
 }
 .app-kpi-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--faint);
 }
 
@@ -404,7 +442,7 @@
   border-collapse: collapse;
 }
 .app-table th {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
   color: var(--faint);
   text-align: left;
@@ -440,7 +478,7 @@
   height: 22px;
   padding: 0 8px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   background: var(--raised);
   color: var(--muted);
@@ -878,7 +916,7 @@
   padding: 12px;
 }
 .app-facts dt {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--faint);
 }
 .app-facts dd {

@@ -59,9 +59,9 @@ export const ROLES = [
 
 // The real plans (backend models/company.model.js SUBSCRIPTION_PLANS), monthly in PKR
 export const PLANS = [
-  { id: "basic", name: "Basic", price: 5000 },
-  { id: "professional", name: "Professional", price: 15000, recommended: true },
-  { id: "enterprise", name: "Enterprise", price: 40000 },
+  { id: "basic", name: "Basic", price: 5000, says: "Up to five job posts and one recruiter seat, with email support. Video interviews with the copilot start on Professional." },
+  { id: "professional", name: "Professional", price: 15000, recommended: true, says: "Twenty job posts and five recruiter seats. Video interviews with the copilot, and priority support." },
+  { id: "enterprise", name: "Enterprise", price: 40000, says: "Unlimited job posts and recruiter seats, video interviews with the copilot, API access and a dedicated support contact." },
 ];
 
 export const PLAN_ROWS = [
@@ -74,7 +74,55 @@ export const PLAN_ROWS = [
 
 
 export const FAQ = [
-  ["Does the AI decide who gets hired?", "No. It transcribes and drafts. The interviewer rates, and the company's owner decides."],
-  ["Is the interview recorded?", "Only as text, with the candidate's consent. Audio is never stored; transcripts are deleted after 90 days."],
-  ["Is it free for job seekers?", "Applying is. Resume analysis and interview practice are free for the first 30 days."],
+  ["Does the AI decide who gets hired?", "No. It transcribes the interview and drafts the report. The interviewer rates each skill, and the company's owner makes the decision."],
+  ["What does a score mean?", "Each skill is rated from 1 to 4, and must-haves count double. The total runs from 0 to 100; 80 or more is a strong recommendation."],
+  ["Is the interview recorded?", "Only as text, and only with the candidate's consent. Audio is never stored, and transcripts are deleted after 90 days."],
+  ["How do recruiters join?", "The company's owner invites them by email. Each plan includes a number of recruiter seats."],
+  ["Is it free for job seekers?", "Applying is always free. Resume analysis and interview practice are free for the first 30 days."],
 ];
+
+// The live scorecard on the landing page: a role in, a drafted scorecard out.
+// Each entry: words that match a title, then must-haves and nice-to-haves as [skill, opening question].
+const DRAFTS = [
+  [["backend", "server", "api", "node", "java", "python", "golang"],
+    [["API design", "Walk me through an API you designed. What would you change now?"], ["Databases", "Tell me about a slow query you fixed. How did you find it?"]],
+    [["System design", "How would you keep checkout working if the payment provider is down?"], ["Cloud", "What have you run in production on AWS or GCP?"]]],
+  [["frontend", "react", "web developer", "ui engineer"],
+    [["React", "Show me a component you're proud of. Why is it shaped that way?"], ["Web performance", "How did you make a slow page fast?"]],
+    [["Accessibility", "How do you test a screen with a keyboard and a screen reader?"], ["Testing", "What do you test, and what do you deliberately not?"]]],
+  [["designer", "design", "ux", "ui designer", "ux designer"],
+    [["Interaction design", "Take me through a flow you simplified. What did you remove?"], ["User research", "When did research change your mind?"]],
+    [["Design systems", "How did you get other teams to use shared components?"], ["Prototyping", "When do you prototype instead of drawing screens?"]]],
+  [["sales", "account", "business development"],
+    [["Discovery", "How do you find out what the buyer actually needs?"], ["Negotiation", "Tell me about a deal where you held the price."]],
+    [["Forecasting", "How close were your forecasts last year?"], ["CRM hygiene", "What do you write down after every call?"]]],
+  [["data", "analyst", "analytics", "scientist"],
+    [["SQL", "Write the query for monthly active users, out loud."], ["Analysis", "Tell me about a finding that changed a decision."]],
+    [["Python", "What do you reach for when SQL isn't enough?"], ["Dashboards", "Which dashboard did people actually use, and why?"]]],
+  [["product manager", "product owner", "pm"],
+    [["Prioritisation", "What did you say no to last quarter, and how?"], ["Discovery", "How do you know a problem is worth solving?"]],
+    [["Metrics", "Which number did your last launch move?"], ["Stakeholders", "Tell me about a roadmap fight you resolved."]]],
+  [["marketing", "growth", "content", "seo"],
+    [["Campaigns", "Take me through a campaign from brief to result."], ["Measurement", "How do you know which channel worked?"]],
+    [["Copywriting", "Rewrite our headline in one line."], ["SEO", "What did you change that moved search traffic?"]]],
+  [["support", "customer service", "success"],
+    [["Customer empathy", "Tell me about your hardest customer and how it ended."], ["Problem solving", "How do you handle a bug you can't reproduce?"]],
+    [["Written clarity", "Explain a refund policy in three sentences."], ["Tooling", "Which support tools have you set up?"]]],
+  [["accountant", "finance", "accounts", "bookkeeper"],
+    [["Reconciliation", "Walk me through a month-end close."], ["Reporting", "Which report do you produce that someone acts on?"]],
+    [["Tax", "What changed in tax rules that affected your last employer?"], ["Spreadsheets", "What's the most complex model you've built?"]]],
+];
+
+const GENERIC = [
+  [["Role skills", "What part of this job are you best at? Give me an example."], ["Problem solving", "Tell me about a problem nobody else could fix."]],
+  [["Communication", "Explain your last project to someone outside your field."], ["Ownership", "What did you take on that wasn't your job?"]],
+];
+
+/** A drafted scorecard for any job title: known roles get their skills, others a sound generic draft. */
+export const draftScorecard = (title) => {
+  const t = ` ${title.toLowerCase().replace(/[^a-z]+/g, " ")} `;
+  // Whole words only: "pm" must not match "development", nor "ui" "building"
+  const hit = DRAFTS.find(([words]) => words.some((w) => t.includes(` ${w} `)));
+  const [must, nice] = hit ? hit.slice(1) : GENERIC;
+  return { matched: Boolean(hit), must, nice };
+};

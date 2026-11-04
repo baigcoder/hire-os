@@ -33,6 +33,7 @@ import { useAuth } from "../../context/AuthContext";
 import { NotificationBell } from "../notifications/NotificationCenter";
 import { ShellContext } from "./shellContext";
 import "./app.css";
+import "./legacy.css";
 
 /**
  * Navigation per role: the daily work first, everything else under More.
@@ -87,6 +88,8 @@ const NAV = {
   },
 };
 
+const ROLE_LABEL = { company_admin: "Owner", recruiter: "Recruiter", student: "Candidate" };
+
 export const Mark = () => (
   <span className="app-wordmark">
     <span className="app-mark" aria-hidden="true" />
@@ -135,6 +138,21 @@ const AppShell = ({ title, children }) => {
     }
   };
 
+  // Whose workspace this is: the company and your part in it, or your own job search
+  const scopeName = user?.role === "student" ? "Job search" : user?.companyName ?? "Your company";
+  const scopeRole = ROLE_LABEL[user?.role] ?? "";
+  const scope = (
+    <div className="app-scope">
+      <span className="app-scope-mark" aria-hidden="true">
+        {scopeName[0]}
+      </span>
+      <span className="app-scope-text">
+        <span className="app-scope-name">{scopeName}</span>
+        <span className="app-scope-role">{scopeRole}</span>
+      </span>
+    </div>
+  );
+
   const navigation = (
     <nav aria-label="Main" className="app-nav">
       <div className="app-nav-group">{nav.main.map(NavItem)}</div>
@@ -167,6 +185,7 @@ const AppShell = ({ title, children }) => {
         <NavLink to="/" className="app-brand" aria-label="HIRE.OS home">
           <Mark />
         </NavLink>
+        {scope}
         {navigation}
         {foot}
       </aside>

@@ -1211,3 +1211,39 @@ The brief: simple purpose, simple architecture, simple design. Cut taglines, hel
   - renewal works;
   - a forged write gets 403;
   - an ended session signs the page out.
+
+## 28. The dark room: the landing page, and one kit for the app
+
+**Landing page** (design-taste-frontend, direction "The dark room", seed 121445876):
+- **Idea:** one black field, and in it the lit things: the candidate's own words, the evidence each score rests on.
+- **Hero:** "Hire on / evidence." runs from the top edge to the bottom edge. Between the two lines, an interview transcript lights one answer at a time, each with its skill, rating and timestamp.
+- **Sections:**
+  - **Hiring, until now:** two public-domain prints (Bettelheim 1935–36, The Met; Keene 1870–91, Art Institute of Chicago), lit as exhibits.
+  - **Type any role:** the one live thing. The heading is an input, and HIRE.OS drafts that role's scorecard: must-haves, nice-to-haves and the opening question for each (`draftScorecard`, tested).
+  - **How a hire happens:** what you give and what comes back, three times.
+  - **The index:** pointing at a capability lights its description and preview.
+  - **Pricing:** plan names with one live figure.
+  - **FAQ:** five real questions, open.
+  - **Close:** a crimson field holding the "New job" dialog, then a curtain footer with the full-width wordmark.
+- **Redraws, with reasons:**
+  - the hero (the dealt one had no display headline);
+  - pricing (three plans, not one);
+  - proof dropped (no real customer names to show).
+- **Checks:** inspector **0 FAIL** at 1440, 768 and 390 on the production build. One warning: no footage, since no honest clip of a structured interview exists.
+
+**App: one kit:**
+- **Shared primitives** (`components/ui`) take the app's look:
+  - pill buttons with neutral hovers (outline and ghost used to turn green, the status colour);
+  - 36px fields with an 8px radius;
+  - flat 12px cards with no line and no shadow;
+  - quiet badges, pill tabs, and dialogs that alone cast a shadow.
+- **`app/legacy.css`** maps the older pages' own utilities onto the same tokens, scoped to the app canvas:
+  - zero radius becomes 10–12px, and white/10 lines become tone steps;
+  - 12px text becomes 13px;
+  - `text-gray-600` (about 2.5:1 on black) becomes readable;
+  - resting shadows are removed.
+  
+  A page rebuilt on `app.css` stops needing this file.
+- **Sidebar scope:** the sidebar names its workspace under the mark, for example "Northwind Logistics · Recruiter", or "Job search · Candidate". `companyName` now comes with the user at sign-in.
+- **Talent pool** with no pools shows one empty state with its action, instead of two empty panes.
+- **Checks:** all 28 sidebar pages for the three roles render with the scope, no resting shadows, no text under 13px and no errors. Backend **339/339**, frontend **16/16**, lint 0 errors, build clean.

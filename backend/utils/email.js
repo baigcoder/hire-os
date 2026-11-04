@@ -564,9 +564,9 @@ export const sendPasswordResetEmail = async (email, fullname, resetUrl) => {
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"JobPortal" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
     to: email,
-    subject: `Reset Your Password - JobPortal`,
+    subject: `Reset Your Password - HIRE.OS`,
     html: `
             <!DOCTYPE html>
             <html>
@@ -595,7 +595,7 @@ export const sendPasswordResetEmail = async (email, fullname, resetUrl) => {
                                             Hi ${fullname},
                                         </h2>
                                         <p style="margin: 0 0 20px; color: #a1a1aa; font-size: 16px; line-height: 1.6;">
-                                            We received a request to reset your password for your JobPortal account. Click the button below to set a new password:
+                                            We received a request to reset your password for your HIRE.OS account. Click the button below to set a new password:
                                         </p>
                                         
                                         <!-- Reset Button -->
@@ -625,7 +625,7 @@ export const sendPasswordResetEmail = async (email, fullname, resetUrl) => {
                                 <tr>
                                     <td style="background-color: #0a0a0a; padding: 20px 40px; border-radius: 0 0 16px 16px; border: 1px solid #27272a; border-top: none;">
                                         <p style="margin: 0; color: #52525b; font-size: 12px; text-align: center;">
-                                            © ${new Date().getFullYear()} JobPortal. All rights reserved.
+                                            © ${new Date().getFullYear()} HIRE.OS. All rights reserved.
                                         </p>
                                     </td>
                                 </tr>

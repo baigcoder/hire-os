@@ -11,7 +11,7 @@ const PAGES = {
       ["How do I start hiring?", "Choose a plan, create your company, then invite your recruiters.", "/company/pricing", "Choose a plan"],
       ["How do I apply for a job?", "Create a free account, then apply from any job's page.", "/jobs", "Browse jobs"],
       ["Where can I see my applications?", "Applications lists each one with its stage and any interview.", "/applied-jobs", "Applications"],
-      ["I forgot my password.", "Write to us from the email on your account and we'll help you back in.", "/contact?topic=Support", "Contact us"],
+      ["I forgot my password.", "Choose Forgot password on the sign-in page and we'll email you a link that works for an hour.", "/forgot-password", "Reset password"],
       ["Something else?", "Write to us and we'll reply by email.", "/contact?topic=Support", "Contact us"],
     ],
   },

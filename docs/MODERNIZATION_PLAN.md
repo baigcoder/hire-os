@@ -1301,4 +1301,4 @@ Each screen below was captured at 1440×900 as its role, critiqued and fixed.
 - **Pricing** (`/company/pricing`) is a plain comparison table on the app kit with a monthly/yearly switch.
 - `/browse` redirects to `/jobs`; the unused `Browse`, `Job` and `HeroSection` components are gone.
 - **Help, Privacy, Terms, Cookies** and the job-seeker resource pages (`/resume`, `/salary`, `/tips`) now state only what the product does (90-day transcript retention, the two sign-in cookies, which AI providers see what text) and link to real screens. The invented document IDs, encryption claims, 24/7 support line and dead category cards are gone.
-- Known gap: the password-reset routes in `user.route.js` are commented out, so Forgot password calls a missing endpoint; Help sends people to Contact until it is wired.
+- **Password reset** works again: the forgot, verify and reset routes are wired, resets follow the sign-up password rules, and every session ends after a reset. Without SMTP the forgot step answers 503 for every address, so it never reveals which emails have accounts.

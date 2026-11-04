@@ -1,136 +1,60 @@
+import { Link } from "react-router-dom";
 import IndustrialPageLayout from "../layout/IndustrialPageLayout";
-import { Shield, FileText, Lock } from "lucide-react";
 
+// Each statement describes how the product works today; change it when the code changes.
+const PAGES = {
+  privacy: {
+    title: "Privacy",
+    subtitle: "What HIRE.OS keeps about you, why, and for how long.",
+    sections: [
+      ["What we collect", "What you give us: your name, email, phone, profile, resume and applications. For companies, the company details and the people invited to it."],
+      ["Interviews", "Interviews are transcribed only with the candidate's consent. Audio is never stored. Transcripts, and the integrity checks made during an interview, are deleted after 90 days."],
+      ["AI processing", "Resume analysis, interview reports and matching send the relevant text to the AI providers we use (such as Groq and Google Gemini) to produce the result. We don't sell your data or use it for advertising."],
+      ["Who sees what", "Your applications are seen by the company you applied to: its recruiters and its owner. Other companies don't see them."],
+      ["Your choices", "You can edit your profile and resume at any time. To get a copy of your data or have your account deleted, write to us and we'll handle it by email."],
+    ],
+  },
+  terms: {
+    title: "Terms",
+    subtitle: "The rules for using HIRE.OS.",
+    sections: [
+      ["Your account", "Keep your sign-in details to yourself. Recruiters get access only through their company's owner, and lose it when the owner removes them or the subscription ends."],
+      ["What you post", "Jobs, profiles and messages must be accurate and lawful. We may remove content or close accounts that mislead candidates or companies."],
+      ["Decisions", "The AI drafts transcripts, reports and match scores. Hiring decisions are made by people at the company, who are responsible for them."],
+      ["Plans", "Companies pay for a plan monthly or yearly. Job seekers never pay to apply."],
+      ["The service", "We work to keep HIRE.OS available and correct, but it is provided as is, and features may change."],
+    ],
+  },
+  cookies: {
+    title: "Cookies",
+    subtitle: "HIRE.OS uses cookies only to keep you signed in.",
+    sections: [
+      ["Sign-in cookies", "Two cookies that the page's scripts can't read: a 15-minute access cookie, and a 7-day refresh cookie sent only when your session is renewed. Signing out removes both."],
+      ["What we don't use", "No advertising or cross-site tracking cookies."],
+    ],
+  },
+};
+
+/** Privacy, terms and cookies: short, plain, and true of the product as it ships. */
 const LegalPage = ({ type }) => {
-  const getContent = () => {
-    switch (type) {
-      case "privacy":
-        return {
-          title: "Privacy Protocol",
-          subtitle:
-            "Data protection standards and information handling procedures.",
-          icon: Lock,
-          sections: [
-            {
-              heading: "1. Data Collection",
-              content:
-                "We collect information you provide directly to us, including but not limited to your name, email address, professional history, and resume data. Our systems also automatically log telemetry data regarding your usage of the HIRE.OS platform.",
-            },
-            {
-              heading: "2. Usage of Information",
-              content:
-                "Your data is used solely for the purpose of matching talent with opportunity. We do not sell personal data to third-party advertisers. All matching algorithms operate within strict ethical boundaries.",
-            },
-            {
-              heading: "3. Data Security",
-              content:
-                "We implement industrial-grade encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Access controls are strictly enforced on a need-to-know basis.",
-            },
-          ],
-        };
-      case "terms":
-        return {
-          title: "Terms of Service",
-          subtitle: "Operational agreement and usage guidelines.",
-          icon: FileText,
-          sections: [
-            {
-              heading: "1. Acceptance of Terms",
-              content:
-                "By accessing or using HIRE.OS, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site.",
-            },
-            {
-              heading: "2. User License",
-              content:
-                "Permission is granted to temporarily download one copy of the materials (information or software) on HIRE.OS for personal, non-commercial transitory viewing only.",
-            },
-            {
-              heading: "3. Disclaimer",
-              content:
-                "The materials on HIRE.OS are provided on an 'as is' basis. HIRE.OS makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties.",
-            },
-          ],
-        };
-      case "cookies":
-        return {
-          title: "Cookie Policy",
-          subtitle: "Tracking technologies and session management.",
-          icon: Shield,
-          sections: [
-            {
-              heading: "1. What Are Cookies",
-              content:
-                "Cookies are small text files that are placed on your computer by websites that you visit. They are widely used in order to make websites work, or work more efficiently, as well as to provide information to the owners of the site.",
-            },
-            {
-              heading: "2. How We Use Cookies",
-              content:
-                "We use cookies to authenticate users, prevent fraudulent use of user accounts, and improved website performance. We do not use cookies for behavioral advertising.",
-            },
-          ],
-        };
-      default:
-        return {
-          title: "Legal Document",
-          subtitle: "System documentation.",
-          icon: FileText,
-          sections: [],
-        };
-    }
-  };
-
-  const content = getContent();
-
+  const page = PAGES[type] || PAGES.privacy;
   return (
-    <IndustrialPageLayout title={content.title} subtitle={content.subtitle}>
-      <div className="flex gap-8 items-start">
-        <div className="hidden lg:block w-64 flex-shrink-0 sticky top-32">
-          <div className="bg-card p-6 border border-white/10 rounded-sm">
-            <div className="w-12 h-12 bg-primary/10 rounded-sm flex items-center justify-center text-primary mb-4">
-              <content.icon size={24} />
+    <IndustrialPageLayout title={page.title} subtitle={page.subtitle}>
+      <section className="app-panel" style={{ maxWidth: 860 }} aria-label={page.title}>
+        <dl className="app-dl">
+          {page.sections.map(([k, v]) => (
+            <div key={k}>
+              <dt style={{ color: "var(--text)", fontWeight: 500 }}>{k}</dt>
+              <dd className="app-meta" style={{ fontSize: 15 }}>
+                {v}
+              </dd>
             </div>
-            <h3 className="text-white font-bold mb-2">
-              Document Status
-            </h3>
-            <p className="text-xs text-accent mb-4">
-              ● EFFECTIVE: DEC 2024
-            </p>
-            <hr className="border-white/10 mb-4" />
-            <ul className="space-y-2 text-xs text-gray-500">
-              <li>REF: LEG-2024-001</li>
-              <li>VER: 2.1.0</li>
-              <li>AUTH: LEGAL_OPS</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="flex-1 max-w-3xl">
-          <div className="space-y-12">
-            {content.sections.map((section, idx) => (
-              <div key={idx} className="group">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-                  <span className="text-primary text-sm opacity-50 group-hover:opacity-100 transition-opacity">
-                    {(idx + 1).toString().padStart(2, "0")}
-                  </span>
-                  {section.heading}
-                </h3>
-                <div className="bg-card p-6 md:p-8 border border-white/10 rounded-sm group-hover:border-primary/20 transition-colors">
-                  <p className="text-gray-400 leading-relaxed text-sm md:text-base">
-                    {section.content}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 p-6 bg-primary/5 border border-primary/10 rounded-sm">
-            <p className="text-gray-400 text-xs text-center">
-              This document is legally binding. For specific inquiries, contact
-              legal@hire.os.
-            </p>
-          </div>
-        </div>
-      </div>
+          ))}
+        </dl>
+        <p className="app-meta" style={{ margin: "16px 0 0" }}>
+          Questions? <Link to="/contact?topic=General">Write to us</Link>.
+        </p>
+      </section>
     </IndustrialPageLayout>
   );
 };

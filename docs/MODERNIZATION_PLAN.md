@@ -1300,4 +1300,5 @@ Each screen below was captured at 1440×900 as its role, critiqued and fixed.
 - **Footer** lost its placeholder phone and email.
 - **Pricing** (`/company/pricing`) is a plain comparison table on the app kit with a monthly/yearly switch.
 - `/browse` redirects to `/jobs`; the unused `Browse`, `Job` and `HeroSection` components are gone.
-- Still old: Help and Privacy keep their earlier layout and copy.
+- **Help, Privacy, Terms, Cookies** and the job-seeker resource pages (`/resume`, `/salary`, `/tips`) now state only what the product does (90-day transcript retention, the two sign-in cookies, which AI providers see what text) and link to real screens. The invented document IDs, encryption claims, 24/7 support line and dead category cards are gone.
+- Known gap: the password-reset routes in `user.route.js` are commented out, so Forgot password calls a missing endpoint; Help sends people to Contact until it is wired.

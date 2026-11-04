@@ -30,18 +30,22 @@ import DashboardLoader from "../shared/DashboardLoader";
 
 // Chart-like Bar Component (simulating chart without external library)
 const BarChart = ({ data, maxHeight = 150 }) => {
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
 
   return (
-    <div className="flex items-end justify-between gap-2 h-[150px]">
+    <div className="flex justify-between gap-2">
       {data.map((item, idx) => (
         <div key={idx} className="flex flex-col items-center flex-1">
+          {/* The bars' own area, so the tallest never reaches the heading above */}
+          <div className="w-full flex items-end" style={{ height: maxHeight }}>
           <div
            
            
            
             className="w-full rounded-t-sm"
-            style={{ backgroundColor: item.color || "#f2f2f2" }}
+            style={{ height: `${(item.value / maxValue) * maxHeight}px`, backgroundColor: item.color || "#f2f2f2" }}
           />
+          </div>
           <p className="text-xs text-gray-500 mt-2 text-center truncate w-full">
             {item.label}
           </p>

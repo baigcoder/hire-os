@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -32,6 +32,7 @@ import { logout } from "@/redux/authSlice";
 import { useAuth } from "../../context/AuthContext";
 import { NotificationBell } from "../notifications/NotificationCenter";
 import { ShellContext } from "./shellContext";
+import { Skeleton } from "./blocks";
 import "./app.css";
 import "./legacy.css";
 
@@ -199,7 +200,10 @@ const AppShell = ({ title, children }) => {
       </header>
 
       <main className="app-canvas" id="main">
-        <ShellContext.Provider value={true}>{children}</ShellContext.Provider>
+        <ShellContext.Provider value={true}>
+          {/* Pages load lazily; while one does, the frame stays and the canvas shows its skeleton */}
+          <Suspense fallback={<Skeleton rows={6} />}>{children}</Suspense>
+        </ShellContext.Provider>
       </main>
 
       {menuOpen && (

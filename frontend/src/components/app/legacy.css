@@ -43,11 +43,13 @@
 .app-canvas :is(input, button[role="combobox"]).h-12 {
   height: 40px;
 }
-.app-canvas button.rounded-sm:not([role="tab"]):not([role="combobox"]) {
+/* Small text buttons become pills; large option and full-width buttons keep a panel corner */
+.app-canvas button.rounded-sm:not([role="combobox"]) {
   border-radius: 999px;
 }
-.app-canvas button[role="tab"].rounded-sm {
-  border-radius: 999px;
+.app-canvas button.rounded-sm:is(.w-full, .flex-1, [class*="p-4"], [class*="p-3"], [class*="py-3"], [class*="py-4"], [class*="py-6"]),
+.app-canvas button.rounded-sm:has(> div, > p) {
+  border-radius: 10px;
 }
 
 /* Type: nothing under 13px, and secondary text that can still be read */

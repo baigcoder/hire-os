@@ -136,7 +136,7 @@ const Jobs = () => {
               return (
                 <li key={j._id}>
                   <div
-                    className="app-row app-pick"
+                    className="app-row app-pick app-job-row"
                     role="link"
                     tabIndex={0}
                     onClick={() => navigate(`/description/${j._id}`)}

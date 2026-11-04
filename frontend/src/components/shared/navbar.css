@@ -1,0 +1,58 @@
+/* The public bar: the landing page's wordmark and links on the page ground.
+   Fixed and 64px tall, as the public pages' top offsets expect. */
+
+.pub-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(16px, 2.3vw, 32px);
+  background: #0a0a0a;
+  color: #ececec;
+  font-family: "General Sans", system-ui, sans-serif;
+  font-size: 15px;
+}
+.pub-nav-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #ececec;
+  text-decoration: none;
+  font-family: "Gambarino", Georgia, serif;
+  font-size: 22px;
+}
+.pub-nav-square {
+  width: 11px;
+  height: 11px;
+  background: #b11226;
+}
+.pub-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.pub-nav-link {
+  color: #8c8c8c;
+  text-decoration: none;
+  transition: color 140ms;
+}
+.pub-nav-link:hover,
+.pub-nav-link.is-active,
+.pub-nav-strong {
+  color: #ececec;
+}
+.pub-nav :focus-visible {
+  outline: 2px solid #ececec;
+  outline-offset: 3px;
+}
+@media (max-width: 480px) {
+  .pub-nav-links {
+    gap: 16px;
+  }
+  .pub-nav-mark {
+    font-size: 19px;
+  }
+}

@@ -1188,3 +1188,13 @@ textarea.app-input {
   max-width: 1200px;
   margin: 0 auto;
 }
+/* On a phone a job's pay, age and save drop under its title, so the title is never cut */
+@media (max-width: 640px) {
+  .app-job-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 8px;
+  }
+  .app-job-row .app-row-end {
+    justify-content: space-between;
+  }
+}

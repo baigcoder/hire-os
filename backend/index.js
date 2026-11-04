@@ -51,6 +51,7 @@ import resumeFileRoute from "./routes/resumeFile.route.js";
 import discoverRoute from "./routes/discover.route.js";
 import integrityRoute from "./routes/integrity.route.js";
 import realtimeRoute from "./routes/realtime.route.js";
+import callRoute from "./routes/call.route.js";
 import copilotRoute from "./routes/copilot.route.js";
 import overviewRoute from "./routes/overview.route.js";
 import isAuthenticated, {
@@ -374,6 +375,7 @@ app.use("/api/v1/screening", screeningRoute); // Blind recruiter screening
 app.use("/api/v1/resumes", resumeFileRoute); // Private resume files (signed URLs)
 app.use("/api/v1/discover", discoverRoute); // Semantic job & talent search
 app.use("/api/v1/integrity", integrityRoute); // Live-interview integrity monitoring
+app.use("/api/v1/calls", callRoute); // One-to-one calls from Messages
 app.use("/api/v1/realtime", realtimeRoute); // Private realtime channels + TURN call config
 app.use("/api/v1/copilot", copilotRoute); // Interview transcripts, scorecards, live copilot
 app.use("/api/v1/overview", overviewRoute); // Role-aware dashboard overview

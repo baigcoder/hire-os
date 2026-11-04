@@ -1302,3 +1302,12 @@ Each screen below was captured at 1440×900 as its role, critiqued and fixed.
 - `/browse` redirects to `/jobs`; the unused `Browse`, `Job` and `HeroSection` components are gone.
 - **Help, Privacy, Terms, Cookies** and the job-seeker resource pages (`/resume`, `/salary`, `/tips`) now state only what the product does (90-day transcript retention, the two sign-in cookies, which AI providers see what text) and link to real screens. The invented document IDs, encryption claims, 24/7 support line and dead category cards are gone.
 - **Password reset** works again: the forgot, verify and reset routes are wired, resets follow the sign-up password rules, and every session ends after a reset. Without SMTP the forgot step answers 503 for every address, so it never reveals which emails have accounts.
+
+## 32. Messages, calls and integrity alerts
+
+- **Who can talk to whom** lives in one place, `backend/modules/messaging/contacts.js`: owner and recruiters of one company, and a candidate with that company's staff once an interview is scheduled for them (any status but cancelled). Send, reply and the new `GET /message/contacts` all use it; the Messages screens list only those people. Before, anyone could message anyone, and an owner's broadcast reached every user of a role on the platform; it now reaches only their own recruiters.
+- **Live messages** are pushed by the API on the recipient's private `user:<id>` topic after the message is saved, so a sender's name can't be faked in the browser.
+- **Calls** (`/api/v1/calls`): the API checks the same rule, rings the callee on their private topic, and gives both sides TURN credentials and a token for a private `call:<id>` topic. Voice calls never open the camera. Unanswered calls become missed after 45 s. `CallCenter` replaces `CallDialog`, which signalled on public channels with STUN only.
+- **Video interview after the MCQ**: starting it already required a passed MCQ; joining and the call config now do too (`MCQ_REQUIRED`), and the call screen says why and links to the test.
+- **Anti-cheat alerts**: when monitoring counts a signal (tab hidden, looking away, phone, another person, …) or a tamper flag, the interview's recruiter and the company owner get a `fraud_alert` notification and a live toast, at most once per signal type every 5 minutes per interview. The integrity page shows the live risk and recent signals while the interview runs.
+- **Supabase**: re-run `docs/supabase/realtime-private-channels.sql`; the send policy now allows `call:%` topics as well as `interview:%`.

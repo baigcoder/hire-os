@@ -185,14 +185,25 @@ describe("S18 platform-admin actions", () => {
   });
 
   it("lets only the recipient reply to a message", async () => {
-    const sender = await createUser({ email: "a@a.test", role: "recruiter" });
-    const receiver = await createUser({ email: "b@b.test", role: "student" });
+    // Owner and recruiter of one company: allowed to message each other
+    const receiver = await createUser({ email: "b@b.test", role: "company_admin" });
+    const company = await Company.create({
+      subscription: { status: "active" },
+      name: "Acme",
+      email: "hr@acme.test",
+      description: "Acme builds logistics software for everyone.",
+      website: "https://acme.test",
+      location: "Remote",
+      adminUser: receiver._id,
+    });
+    await User.updateOne({ _id: receiver._id }, { companyId: company._id });
+    const sender = await createUser({ email: "a@a.test", role: "recruiter", companyId: company._id });
     const outsider = await createUser({ email: "c@c.test", role: "student" });
     const original = await Message.create({
       senderId: sender._id,
       senderRole: "recruiter",
       receiverId: receiver._id,
-      receiverRole: "student",
+      receiverRole: "company_admin",
       subject: "Offer details",
       content: "Private",
     });

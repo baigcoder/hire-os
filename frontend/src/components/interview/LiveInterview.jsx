@@ -325,6 +325,18 @@ const LiveInterview = () => {
     />
   ) : null;
 
+  // Not allowed in (yet): say why instead of waiting on a room we didn't join
+  if (callConfig.status === "denied") {
+    return (
+      <div className="h-screen bg-background text-white flex flex-col items-center justify-center gap-4 px-4 text-center">
+        <p className="text-lg">{callConfig.message || "You can't join this interview."}</p>
+        {callConfig.code === "MCQ_REQUIRED" && (
+          <Button onClick={() => navigate(`/interview/mcq/${interviewId}`)}>Go to the MCQ test</Button>
+        )}
+      </div>
+    );
+  }
+
   // Waiting Room
   if (isWaiting) {
     return (

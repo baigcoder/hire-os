@@ -47,7 +47,7 @@ import AnalysisResult from "./components/student/AnalysisResult";
 import CompanyReport from "./components/admin/CompanyReport";
 import CEOReportReview from "./components/admin/CEOReportReview";
 import MockInterview from "./components/student/MockInterview";
-import CallDialog from "./components/shared/CallDialog";
+import CallCenter from "./components/calls/CallCenter";
 import {
   AlertCircle,
   ArrowLeft,
@@ -913,7 +913,7 @@ function App() {
     <ErrorBoundary>
       <RealtimeProvider>
         <RouterProvider router={appRouter} />
-        <CallDialog />
+        <CallCenter />
         <Toaster />
       </RealtimeProvider>
     </ErrorBoundary>

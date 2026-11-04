@@ -6,7 +6,7 @@
  * - Online/offline presence tracking
  * - Real-time direct messaging
  * - Typing indicators
- * - Call signaling (WebRTC via Supabase broadcast)
+ * - Calls: rung by the API, WebRTC on a private "call:<id>" topic (CallCenter)
  */
 
 import {
@@ -18,7 +18,10 @@ import {
   useCallback,
 } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "sonner";
 import { supabase } from "../lib/supabase";
+import api from "../utils/api";
+import { useUserTopic } from "../hooks/useUserTopic";
 
 const RealtimeContext = createContext(null);
 
@@ -50,8 +53,8 @@ export const RealtimeProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState(new Map()); // userId -> presence data
   const [typingUsers, setTypingUsers] = useState(new Map()); // chatId -> [userIds typing]
   const [incomingCall, setIncomingCall] = useState(null);
-  const [outgoingCall, setOutgoingCall] = useState(null);
-  const [callSignal, setCallSignal] = useState(null);
+  const [activeCall, setActiveCall] = useState(null); // { config, role, peerName }
+  const [callUpdate, setCallUpdate] = useState(null);
   const [newMessage, setNewMessage] = useState(null);
 
   // Clear typing indicator after timeout
@@ -118,19 +121,27 @@ export const RealtimeProvider = ({ children }) => {
     };
   }, [user?._id, user?.fullname, user?.role]);
 
-  // Initialize user-specific message channel
+  // Server pushes on the private "user:<id>" topic: messages, calls, alerts.
+  // Senders can't fake these; the API checked who may contact whom.
+  useUserTopic(user?._id, {
+    "new-message": (payload) => setNewMessage(payload),
+    "incoming-call": (payload) => setIncomingCall(payload),
+    "call-update": (payload) => setCallUpdate(payload),
+    "integrity-alert": (payload) =>
+      toast.warning(payload.title, {
+        description: payload.message,
+        action: { label: "Open", onClick: () => window.location.assign(payload.actionUrl) },
+      }),
+  });
+
+  // Typing indicators: a public topic, sent by the other browser
   useEffect(() => {
     if (!user?._id) return;
 
     const userId = user?._id;
-
-    // Channel for receiving messages, calls, typing notifications
-    const userChannel = supabase.channel(`user:${userId}`);
+    const userChannel = supabase.channel(`user:${userId}:typing`);
 
     userChannel
-      .on("broadcast", { event: "new-message" }, ({ payload }) => {
-        setNewMessage(payload);
-      })
       .on("broadcast", { event: "typing" }, ({ payload }) => {
         const { chatId, senderId, senderName, isTyping } = payload;
 
@@ -178,17 +189,6 @@ export const RealtimeProvider = ({ children }) => {
           });
         }
       })
-      .on("broadcast", { event: "incoming-call" }, ({ payload }) => {
-        console.log("📞 Incoming call:", payload);
-        setIncomingCall(payload);
-      })
-      .on("broadcast", { event: "call-ended" }, () => {
-        setIncomingCall(null);
-        setCallSignal(null);
-      })
-      .on("broadcast", { event: "call-signal" }, ({ payload }) => {
-        setCallSignal(payload);
-      })
       .subscribe();
 
     channelRef.current = userChannel;
@@ -199,56 +199,8 @@ export const RealtimeProvider = ({ children }) => {
     };
   }, [user?._id]);
 
-  // Send a message to another user via broadcast
-  const sendRealtimeMessage = useCallback(
-    async (recipientId, message) => {
-      if (!user?._id) return false;
-
-      try {
-        const recipientChannel = supabase.channel(`user:${recipientId}`);
-
-        // Wait for subscription to complete
-        await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => reject(new Error('Subscription timeout')), 5000);
-
-          recipientChannel.subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-              clearTimeout(timeout);
-              resolve();
-            } else if (status === 'CHANNEL_ERROR') {
-              clearTimeout(timeout);
-              reject(new Error('Channel error'));
-            }
-          });
-        });
-
-        // Send the message
-        await recipientChannel.send({
-          type: "broadcast",
-          event: "new-message",
-          payload: {
-            senderId: user?._id,
-            senderName: user?.fullname || 'Unknown',
-            senderRole: user?.role || 'unknown',
-            receiverId: recipientId,
-            content: message,
-            timestamp: new Date().toISOString(),
-          },
-        });
-
-        // Cleanup channel after a longer delay to ensure message is delivered
-        setTimeout(() => {
-          supabase.removeChannel(recipientChannel);
-        }, 1000);
-
-        return true;
-      } catch (error) {
-        console.error('Failed to send realtime message:', error);
-        return false;
-      }
-    },
-    [user],
-  );
+  // Sending is the API's POST /message/send, which also pushes it live
+  const sendRealtimeMessage = useCallback(async () => true, []);
 
   // Typing indicators
   const startTyping = useCallback(
@@ -299,134 +251,54 @@ export const RealtimeProvider = ({ children }) => {
     [user],
   );
 
-  // Initiate a call with improved reliability
-  const initiateCall = useCallback(
-    async (recipientId, callType = "video") => {
-      if (!user?._id) return null;
+  // Calls go through the API (routes/call.route.js): it checks who may call
+  // whom, rings the callee and hands both sides TURN + a private call topic.
+  const initiateCall = useCallback(async (recipientId, callType = "video", peerName = "") => {
+    try {
+      const { data } = await api.post("/calls", { calleeId: recipientId, type: callType });
+      setActiveCall({ config: data, role: "caller", peerName });
+      return data.call._id;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Couldn't start the call");
+      return null;
+    }
+  }, []);
 
-      const callId = `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      try {
-        const recipientChannel = supabase.channel(`user:${recipientId}`);
-
-        // Wait for subscription to complete before sending
-        await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => reject(new Error('Subscription timeout')), 5000);
-
-          recipientChannel.subscribe((status) => {
-            if (status === "SUBSCRIBED") {
-              clearTimeout(timeout);
-              resolve();
-            } else if (status === "CHANNEL_ERROR") {
-              clearTimeout(timeout);
-              reject(new Error('Channel error'));
-            }
-          });
-        });
-
-        // Send the incoming call event
-        await recipientChannel.send({
-          type: "broadcast",
-          event: "incoming-call",
-          payload: {
-            callId,
-            callerId: user?._id,
-            callerName: user?.fullname || 'Unknown',
-            callType,
-            timestamp: new Date().toISOString(),
-          },
-        });
-
-        console.log("📞 Call initiated to:", recipientId, "callId:", callId);
-
-        // Cleanup channel after a delay
-        setTimeout(() => supabase.removeChannel(recipientChannel), 1000);
-
-        setOutgoingCall({
-          callId,
-          recipientId,
-          callType,
-          status: "calling",
-        });
-
-        return callId;
-      } catch (error) {
-        console.error("Failed to initiate call:", error);
-        return null;
-      }
-    },
-    [user],
-  );
-
-  // Send WebRTC Signal (SDP or ICE candidate)
-  const sendCallSignal = useCallback(
-    (recipientId, type, payload) => {
-      if (!user?._id) return;
-
-      const recipientChannel = supabase.channel(`user:${recipientId}`);
-      recipientChannel.subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          recipientChannel.send({
-            type: "broadcast",
-            event: "call-signal",
-            payload: {
-              senderId: user?._id,
-              type, // 'offer', 'answer', 'ice-candidate'
-              data: payload,
-            },
-          });
-          setTimeout(() => recipientChannel.unsubscribe(), 500);
-        }
-      });
-    },
-    [user],
-  );
-
-  // Accept call
-  const acceptCall = useCallback(() => {
+  const acceptCall = useCallback(async () => {
     if (!incomingCall) return;
-    // WebRTC connection would be established here
-    // For now, just clear the incoming call
+    const call = incomingCall;
     setIncomingCall(null);
+    try {
+      const { data } = await api.post(`/calls/${call.callId}/accept`);
+      setActiveCall({ config: data, role: "callee", peerName: call.caller?.fullname });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "This call has ended");
+    }
   }, [incomingCall]);
 
-  // Reject call
   const rejectCall = useCallback(() => {
     if (!incomingCall) return;
-
-    const callerChannel = supabase.channel(`user:${incomingCall.callerId}`);
-    callerChannel.subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        callerChannel.send({
-          type: "broadcast",
-          event: "call-rejected",
-          payload: { callId: incomingCall.callId },
-        });
-        setTimeout(() => callerChannel.unsubscribe(), 500);
-      }
-    });
-
+    api.post(`/calls/${incomingCall.callId}/decline`).catch(() => {});
     setIncomingCall(null);
   }, [incomingCall]);
 
-  // End call
-  const endCall = useCallback((callId, recipientId) => {
-    const recipientChannel = supabase.channel(`user:${recipientId}`);
-    recipientChannel.subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        recipientChannel.send({
-          type: "broadcast",
-          event: "call-ended",
-          payload: { callId },
-        });
-        setTimeout(() => recipientChannel.unsubscribe(), 500);
-      }
-    });
-
-    setIncomingCall(null);
-    setOutgoingCall(null);
-    setCallSignal(null);
+  const activeCallRef = useRef(null);
+  activeCallRef.current = activeCall;
+  const endCall = useCallback(() => {
+    const current = activeCallRef.current;
+    if (current) api.post(`/calls/${current.config.call._id}/end`).catch(() => {});
+    setActiveCall(null);
   }, []);
+
+  // The other side declined, missed or hung up
+  useEffect(() => {
+    if (!callUpdate) return;
+    if (incomingCall?.callId === callUpdate.callId && callUpdate.status !== "accepted") setIncomingCall(null);
+    if (activeCall?.config.call._id === callUpdate.callId && ["declined", "missed", "ended"].includes(callUpdate.status)) {
+      if (callUpdate.status === "declined") toast("Call declined");
+      setActiveCall(null);
+    }
+  }, [callUpdate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if user is online
   const isUserOnline = useCallback(
@@ -466,9 +338,7 @@ export const RealtimeProvider = ({ children }) => {
     rejectCall,
     endCall,
     incomingCall,
-    outgoingCall,
-    callSignal,
-    sendCallSignal,
+    activeCall,
     newMessage,
   };
 

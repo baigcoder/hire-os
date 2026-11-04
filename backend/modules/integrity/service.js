@@ -23,6 +23,8 @@ import {
 } from "../../utils/supabase.js";
 import queue from "../../platform/queue/index.js";
 import logger from "../../utils/logger.js";
+import { Notification } from "../../models/notification.model.js";
+import { broadcastPrivate, userTopic } from "../../platform/realtime/index.js";
 import {
   BEHAVIOR_SIGNALS,
   TAMPER_SIGNALS,
@@ -276,6 +278,64 @@ const alertsFrom = (outcomes) =>
       evidenceId: o.evidenceId,
     }));
 
+// ─── Staff alerts ──────────────────────────────────────────────────────
+
+export const ALERT_EVERY_MS = 5 * 60 * 1000;
+
+/**
+ * Tells the interview's recruiter and the company's owner when a signal
+ * fires: a notification plus a push on their private topic. At most once
+ * per signal type per interview every ALERT_EVERY_MS, claimed atomically so
+ * two API instances can't both send it. Never throws.
+ */
+export const notifyStaff = async (session, items, now = Date.now()) => {
+  try {
+    const due = [];
+    for (const item of items) {
+      const type = item.signal ?? item.type;
+      if (!type) continue;
+      const claimed = await IntegritySession.updateOne(
+        {
+          _id: session._id,
+          $or: [{ [`notifiedAt.${type}`]: { $exists: false } }, { [`notifiedAt.${type}`]: { $lte: now - ALERT_EVERY_MS } }],
+        },
+        { $set: { [`notifiedAt.${type}`]: now } },
+      );
+      if (claimed.modifiedCount === 1) due.push(item.label ?? type);
+    }
+    if (!due.length) return 0;
+
+    const [candidate, owners] = await Promise.all([
+      User.findById(session.candidateId).select("fullname").lean(),
+      session.companyId ? User.find({ role: "company_admin", companyId: session.companyId }).select("_id").lean() : [],
+    ]);
+    const recipients = [...new Set([session.recruiterId, ...owners.map((o) => o._id)].filter(Boolean).map(String))];
+    const title = `Integrity alert: ${candidate?.fullname ?? "Candidate"}`;
+    const message = due.join(", ");
+    const actionUrl = `/interview/${session.interviewId}/integrity`;
+    await Notification.insertMany(
+      recipients.map((userId) => ({
+        userId,
+        type: "fraud_alert",
+        title,
+        message,
+        priority: "high",
+        actionUrl,
+        relatedEntities: { interviewId: session.interviewId },
+      })),
+    );
+    await Promise.all(
+      recipients.map((userId) =>
+        broadcastPrivate(userTopic(userId), "integrity-alert", { interviewId: String(session.interviewId), title, message, actionUrl }),
+      ),
+    );
+    return recipients.length;
+  } catch (error) {
+    logger.warn("Integrity staff alert failed", { interviewId: String(session.interviewId), error: error.message });
+    return 0;
+  }
+};
+
 // ─── Candidate ingest ──────────────────────────────────────────────────
 
 /**
@@ -388,6 +448,7 @@ export const ingestCandidateBatch = async (interview, batch, now = Date.now()) =
     tamper,
     candidateAlive: true,
   });
+  await notifyStaff(session, [...result.alerts, ...tamper], now);
   return { accepted: result.accepted, rejected: result.rejected, nextSeq: batch.seq + 1 };
 };
 
@@ -446,6 +507,7 @@ export const ingestRecruiterBatch = async (interview, batch, now = Date.now()) =
   const tamper = [...result.reportedTamper];
   await runCrossCheck(session, now, tamper);
   publish(String(interview._id), { kind: "update", risk: result.risk, alerts: result.alerts, tamper });
+  await notifyStaff(session, [...result.alerts, ...tamper], now);
   return { accepted: result.accepted, rejected: result.rejected };
 };
 

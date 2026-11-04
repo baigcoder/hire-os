@@ -3,6 +3,8 @@ import { User } from "../models/user.model.js";
 import { Notification } from "../models/notification.model.js";
 import { sendEmail } from "../utils/emailService.js";
 import logger from "../utils/logger.js";
+import { canContact } from "../modules/messaging/contacts.js";
+import { broadcastPrivate, userTopic } from "../platform/realtime/index.js";
 
 /**
  * Send a message to a user
@@ -50,6 +52,14 @@ export const sendMessage = async (req, res) => {
       });
     }
 
+    // Same 404 as a missing user, so the rule doesn't reveal who exists
+    if (!(await canContact(senderId, receiverId))) {
+      return res.status(404).json({
+        message: "Receiver not found",
+        success: false,
+      });
+    }
+
     // Create message
     const message = await Message.create({
       senderId,
@@ -61,6 +71,17 @@ export const sendMessage = async (req, res) => {
       type,
       priority,
       relatedTo,
+    });
+
+    // Live delivery from the server, so the sender's name can't be faked
+    broadcastPrivate(userTopic(receiverId), "new-message", {
+      _id: String(message._id),
+      senderId: String(senderId),
+      senderName: sender.fullname,
+      senderRole: sender.role,
+      receiverId: String(receiverId),
+      content,
+      timestamp: message.createdAt,
     });
 
     // Create notification for receiver
@@ -422,6 +443,14 @@ export const replyToMessage = async (req, res) => {
       });
     }
 
+    // The contact rule can lapse after the first message (e.g. interview cancelled)
+    if (!(await canContact(senderId, originalMessage.senderId._id))) {
+      return res.status(403).json({
+        message: "You can no longer message this person",
+        success: false,
+      });
+    }
+
     // Get sender info
     const sender = await User.findById(senderId).select("fullname role");
 
@@ -479,15 +508,15 @@ export const sendBroadcast = async (req, res) => {
     const {
       subject,
       content,
-      targetRole = "student", // Who to send to
       priority = "normal",
     } = req.body;
+    const targetRole = "recruiter";
 
-    // Validate sender is admin or CEO
-    const sender = await User.findById(senderId).select("fullname role");
-    if (!["admin", "ceo", "company_admin"].includes(sender.role)) {
+    // A company owner can announce to their own recruiters, nobody else
+    const sender = await User.findById(senderId).select("fullname role companyId");
+    if (sender?.role !== "company_admin" || !sender.companyId) {
       return res.status(403).json({
-        message: "Only admins can send broadcast messages",
+        message: "Only a company owner can send announcements",
         success: false,
       });
     }
@@ -500,7 +529,7 @@ export const sendBroadcast = async (req, res) => {
     }
 
     // Get all users of target role
-    const targetUsers = await User.find({ role: targetRole }).select(
+    const targetUsers = await User.find({ role: targetRole, companyId: sender.companyId }).select(
       "_id role",
     );
 

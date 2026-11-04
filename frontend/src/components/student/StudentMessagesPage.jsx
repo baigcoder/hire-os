@@ -31,9 +31,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Navbar from "../shared/Navbar";
 import {
   MESSAGE_API_END_POINT,
-  APPLICATION_API_END_POINT,
 } from "@/utils/constant";
 import { useRealtime } from "@/context/SocketContext";
+import api from "@/utils/api";
 
 const StudentMessagesPage = () => {
   const { user } = useSelector((store) => store.auth);
@@ -94,50 +94,26 @@ const StudentMessagesPage = () => {
     }
   }, [newMessage, activeContact, user?._id]);
 
-  // Fetch contacts (recruiters from application history)
+  // Contacts: the people the API lets this candidate message (recruiters
+  // and owners at companies with an interview scheduled for them)
   useEffect(() => {
-    const fetchContacts = async () => {
-      setLoading(true);
-      try {
-        // Get applications to find recruiters
-        const res = await axios.get(`${APPLICATION_API_END_POINT}/get`, {
-          withCredentials: true,
-        });
-
-        if (res.data.success) {
-          const applications = res.data.application || [];
-
-          // Extract unique recruiters from applications
-          const recruiterMap = new Map();
-          applications.forEach((app) => {
-            if (app.job?.createdBy) {
-              const recruiterId = app.job.createdBy._id || app.job.createdBy;
-              if (!recruiterMap.has(recruiterId)) {
-                recruiterMap.set(recruiterId, {
-                  _id: recruiterId,
-                  fullname: app.job.createdBy.fullname || "Recruiter",
-                  profile: app.job.createdBy.profile,
-                  companyName: app.job.company?.name,
-                  jobTitle: app.job.title,
-                  applicationStatus: app.status,
-                });
-              }
-            }
-          });
-
-          setContacts(Array.from(recruiterMap.values()));
-        }
-      } catch (error) {
-        console.error("Failed to fetch contacts:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user?._id) {
-      fetchContacts();
-    }
-  }, [user]);
+    if (!user?._id) return;
+    setLoading(true);
+    api
+      .get("/message/contacts")
+      .then((res) =>
+        setContacts(
+          (res.data.contacts || []).map((c) => ({
+            ...c,
+            profile: { profilePhoto: c.photo },
+            companyName: c.companyName,
+            jobTitle: c.role === "company_admin" ? `Owner, ${c.companyName || "company"}` : c.jobTitle,
+          })),
+        ),
+      )
+      .catch((error) => console.error("Failed to fetch contacts:", error))
+      .finally(() => setLoading(false));
+  }, [user?._id]);
 
   // Load conversation
   const loadConversation = async (contactId) => {
@@ -226,12 +202,7 @@ const StudentMessagesPage = () => {
   const handleCall = (type) => {
     if (!activeContact) return;
 
-    const callId = initiateCall(activeContact._id, type);
-    if (callId) {
-      toast.success(`Calling ${activeContact.fullname}...`);
-    } else {
-      toast.error("Connection not available");
-    }
+    initiateCall(activeContact._id, type, activeContact.fullname);
   };
 
   // Auto-scroll
@@ -378,6 +349,7 @@ const StudentMessagesPage = () => {
                       size="sm"
                       variant="ghost"
                       onClick={() => handleCall("audio")}
+                      aria-label="Voice call"
                       className="text-gray-400 hover:text-white w-10 h-10 p-0"
                     >
                       <Phone className="w-5 h-5" />
@@ -386,6 +358,7 @@ const StudentMessagesPage = () => {
                       size="sm"
                       variant="ghost"
                       onClick={() => handleCall("video")}
+                      aria-label="Video call"
                       className="text-gray-400 hover:text-white w-10 h-10 p-0"
                     >
                       <Video className="w-5 h-5" />

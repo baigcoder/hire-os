@@ -62,6 +62,8 @@ describe("realtime call config", () => {
       studentId: candidate._id,
       recruiterId: recruiter._id,
       scheduledAt: new Date(),
+      // No MCQ round, so the candidate may join the video room straight away
+      mcqTest: { enabled: false },
     });
   });
 

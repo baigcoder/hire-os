@@ -41,10 +41,9 @@ import { Textarea } from "../ui/textarea";
 import Navbar from "../shared/Navbar";
 import {
   MESSAGE_API_END_POINT,
-  COMPANY_API_END_POINT,
-  INTERVIEW_API_END_POINT,
 } from "@/utils/constant";
 import { useRealtime } from "@/context/SocketContext";
+import api from "@/utils/api";
 
 const RecruiterMessagesPage = () => {
   const { user } = useSelector((store) => store.auth);
@@ -81,8 +80,6 @@ const RecruiterMessagesPage = () => {
   const [ceoContact, setCeoContact] = useState(null);
 
   // Call state
-  const [, setIsCallActive] = useState(false);
-  const [, setCallType] = useState(null); // 'audio' or 'video'
 
   // Filtered contacts based on search query
   const filteredTeamMembers = useMemo(() => {
@@ -169,121 +166,44 @@ const RecruiterMessagesPage = () => {
     setLoading(false);
   };
 
+  // Contacts come from the API, which applies the messaging rule: the
+  // company's team, and candidates with an interview at the company
   const fetchContacts = async () => {
     try {
-      const isCompanyAdmin = user?.role === "company_admin";
+      const res = await api.get("/message/contacts");
+      const all = (res.data.contacts || []).map((c) => ({ ...c, profile: { profilePhoto: c.photo } }));
+      const team = all.filter((c) => c.team);
+      const candidates = all
+        .filter((c) => !c.team)
+        .map((c) => ({ ...c, jobTitle: c.jobTitle || "Candidate", interviewDate: c.interviewAt }));
 
-      // Fetch companies
-      const companyRes = await axios.get(`${COMPANY_API_END_POINT}/get`, {
-        withCredentials: true,
-      });
-
-      if (companyRes.data.success && companyRes.data.companies?.length > 0) {
-        const company = companyRes.data.companies[0];
-
-        // Fetch company by ID to get populated data
-        const detailRes = await axios.get(
-          `${COMPANY_API_END_POINT}/get/${company._id}`,
-          {
-            withCredentials: true,
-          },
-        );
-
-        if (detailRes.data.success) {
-          const companyData = detailRes.data.company;
-
-          if (isCompanyAdmin) {
-            // For CEO/Admin: Show recruiters as team members
-            const recruiters = (companyData.recruiters || [])
-              .filter(r => r.userId?._id !== user?._id) // Exclude self
-              .map(r => ({
-                _id: String(r.userId?._id),
-                fullname: String(r.userId?.fullname || "Recruiter"),
-                email: String(r.userId?.email || ""),
-                role: "recruiter",
-                isRecruiter: true,
-                profile: r.userId?.profile || {},
-                companyName: String(company.name),
-              }));
-
-            setTeamMembers(recruiters);
-
-            // Set first recruiter as default contact if no active contact
-            if (recruiters.length > 0 && !activeContact) {
-              setActiveContact(recruiters[0]);
-              loadConversation(recruiters[0]._id);
-            }
-          } else {
-            // For Recruiters: Show CEO as default contact
-            if (companyData.adminUser) {
-              const ceo = companyData.adminUser;
-              const ceoData = {
-                _id: String(ceo._id),
-                fullname: String(ceo.fullname || "Company Admin"),
-                email: String(ceo.email || ""),
-                role: "company_admin",
-                isCEO: true,
-                profile: ceo.profile || {},
-                companyName: String(company.name),
-              };
-              setCeoContact(ceoData);
-              // Default to CEO chat if no active contact
-              if (!activeContact) {
-                setActiveContact(ceoData);
-                loadConversation(ceoData._id);
-              }
-            }
+      if (user?.role === "company_admin") {
+        const recruiters = team.map((c) => ({ ...c, isRecruiter: true }));
+        setTeamMembers(recruiters);
+        if (recruiters.length > 0 && !activeContact) {
+          setActiveContact(recruiters[0]);
+          loadConversation(recruiters[0]._id);
+        }
+      } else {
+        const owner = team.find((c) => c.role === "company_admin");
+        if (owner) {
+          const ceoData = { ...owner, isCEO: true };
+          setCeoContact(ceoData);
+          if (!activeContact) {
+            setActiveContact(ceoData);
+            loadConversation(ceoData._id);
           }
         }
       }
-
-      // Fetch interview candidates (for both roles)
-      const interviewRes = await axios.get(
-        `${INTERVIEW_API_END_POINT}/recruiter/my-interviews`,
-        {
-          withCredentials: true,
-        },
-      );
-
-      if (interviewRes.data.success) {
-        const candidates = (interviewRes.data.interviews || [])
-          .filter((int) => int.studentId)
-          .map((int) => ({
-            _id: String(int.studentId._id),
-            fullname: String(int.studentId.fullname),
-            email: String(int.studentId.email || ""),
-            role: "student",
-            jobTitle: String(int.jobId?.title || "Candidate"),
-            profile: int.studentId.profile || {},
-            interviewDate: int.scheduledAt,
-          }));
-
-        const uniqueCandidates = candidates.filter(
-          (c, i, arr) => arr.findIndex((x) => x._id === c._id) === i,
-        );
-
-        setContacts(uniqueCandidates);
-      }
+      setContacts(candidates);
     } catch (error) {
       console.error("Failed to fetch contacts:", error);
-      // Don't toast error here to avoid annoyance if just empty
     }
   };
 
   const handleCall = (type) => {
     if (!activeContact) return;
-
-    // In a real implementation, this would open a call modal/overlay
-    // For now, we'll simulate the signaling
-    const callId = initiateCall(activeContact._id, type);
-    if (callId) {
-      setCallType(type);
-      setIsCallActive(true);
-      toast.success(`Calling ${activeContact.fullname}...`);
-      // Here you would mount the WebRTC component with callId
-    } else {
-      toast.error("Connection not available. Attempting to reconnect...");
-    }
+    initiateCall(activeContact._id, type, activeContact.fullname);
   };
 
   const loadConversation = async (contactId) => {
@@ -645,6 +565,7 @@ const RecruiterMessagesPage = () => {
                     size="sm"
                     variant="ghost"
                     onClick={() => handleCall("audio")}
+                      aria-label="Voice call"
                     className="text-gray-500 hover:text-white w-10 h-10 p-0"
                   >
                     <Phone className="w-5 h-5" />
@@ -653,6 +574,7 @@ const RecruiterMessagesPage = () => {
                     size="sm"
                     variant="ghost"
                     onClick={() => handleCall("video")}
+                      aria-label="Video call"
                     className="text-gray-500 hover:text-white w-10 h-10 p-0"
                   >
                     <Video className="w-5 h-5" />

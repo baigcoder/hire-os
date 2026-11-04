@@ -37,6 +37,6 @@ with check (
   realtime.messages.extension in ('broadcast', 'presence')
   -- "user:<id>" topics are receive-only for clients: only the API (service
   -- role) pushes to them, so one user can't fake another's notifications
-  and (select realtime.topic()) like 'interview:%'
+  and ((select realtime.topic()) like 'interview:%' or (select realtime.topic()) like 'call:%')
   and coalesce(auth.jwt() -> 'hireos_topics', '[]'::jsonb) ? (select realtime.topic())
 );

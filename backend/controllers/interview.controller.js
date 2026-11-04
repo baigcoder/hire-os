@@ -965,6 +965,15 @@ export const joinVideoInterview = async (req, res) => {
       });
     }
 
+    // The video round opens only after a passed MCQ, when the interview has one
+    if (isStudent && interview.mcqTest?.enabled && interview.mcqTest.status !== "passed") {
+      return res.status(403).json({
+        success: false,
+        code: "MCQ_REQUIRED",
+        message: "Pass the MCQ test to join the video interview",
+      });
+    }
+
     if (isStudent) {
       interview.videoInterview.studentJoinedAt = new Date();
       // Tell only this interview's recruiter, on their private topic

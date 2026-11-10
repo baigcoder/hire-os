@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ROLES, PLANS, FAQ, draftScorecard } from "./data";
+import { ROLES, PLANS, PLAN_ROWS, FAQ, draftScorecard } from "./data";
 import "./landing.css";
 
 /*
@@ -375,23 +375,54 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Hiring until now: the old room, two archival prints lit as exhibits */}
+        {/* Hiring until now: the old room under one lamp, against the record HIRE.OS keeps */}
         <section className="lp-then" aria-labelledby="then-h">
           <figure className="lp-then-a" data-reveal>
-            <img src="/landing/employment-office-1935.jpg" alt="Lithograph of three applicants waiting at an employment office counter under a single lamp" width="1100" height="1426" loading="lazy" />
-            <figcaption>Employment Office, Jolan Gross Bettelheim, 1935–36</figcaption>
+            <img
+              src="/landing/employment-office-1400.jpg"
+              srcSet="/landing/employment-office-800.jpg 800w, /landing/employment-office-1400.jpg 1400w"
+              sizes="(max-width: 860px) 100vw, 55vw"
+              alt="Three applicants wait at an employment office counter under a single hanging lamp"
+              width="1400"
+              height="1825"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>Employment Office, Jolán Gross-Bettelheim, 1935–36. The Metropolitan Museum of Art.</figcaption>
           </figure>
           <div className="lp-then-say">
             <h2 className="lp-h2" id="then-h" data-reveal>
               Hiring, until now.
             </h2>
             <p className="lp-statement" data-reveal>
-              For a century it was a counter and an impression. Now the evidence is written down.
+              A counter, a lamp, an impression. Nothing said was kept.
             </p>
-            <figure className="lp-then-b" data-reveal>
-              <img src="/landing/at-the-employment-office.jpg" alt="Ink drawing of a young applicant standing before two women seated at a desk" width="1400" height="941" loading="lazy" />
-              <figcaption>At the Employment Office, Charles Samuel Keene, 1870–91</figcaption>
-            </figure>
+            <p className="lp-then-now" data-reveal>
+              Now every rating keeps the answer it came from, and the minute it was said.
+            </p>
+            <div className="ui ui-record" data-ui data-reveal aria-label={`${AMINA.candidate}'s scorecard, with the answer behind each rating`}>
+              <div className="ui-row ui-head">
+                <span className="ui-title">
+                  {AMINA.candidate} · {AMINA.label}
+                </span>
+                <span className="ui-faint">Scorecard</span>
+              </div>
+              <ul className="ui-record-rows">
+                {AMINA.competencies.map((c) => (
+                  <li key={c.name}>
+                    <div className="ui-record-top">
+                      <span className="ui-name">{c.name}</span>
+                      <span className={c.rating ? "" : "ui-faint"}>{c.rating ? `${c.rating} of 4` : "Not asked yet"}</span>
+                    </div>
+                    {c.quote && (
+                      <p className="ui-record-quote">
+                        &ldquo;{c.quote}&rdquo; <span className="ui-faint num">{c.at}</span>
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -471,8 +502,8 @@ const Landing = () => {
 
         {/* Pricing: plan names, one live figure */}
         <section className="lp-pricing" id="pricing" aria-labelledby="plans-h">
-          <h2 className="sr-only" id="plans-h">
-            Pricing
+          <h2 className="lp-h2 lp-pricing-h" id="plans-h" data-reveal>
+            Plans.
           </h2>
           <div className="lp-plan-names" role="tablist" aria-label="Plans" data-reveal>
             {PLANS.map((p, i) => (
@@ -496,7 +527,14 @@ const Landing = () => {
                 <p className="lp-price num">{pkr(PLANS[plan].price)}</p>
                 <span className="lp-period">a month</span>
               </div>
-              <p className="lp-plan-says">{PLANS[plan].says}</p>
+              <dl className="lp-plan-rows">
+                {PLAN_ROWS.map(([label, ...values]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{values[plan]}</dd>
+                  </div>
+                ))}
+              </dl>
               <Link to="/company/pricing" className="lp-btn">
                 Choose {PLANS[plan].name}
               </Link>
@@ -507,7 +545,7 @@ const Landing = () => {
         {/* Questions: large on the left, answered beside */}
         <section className="lp-faq" aria-labelledby="faq-h">
           <div className="lp-faq-row" data-reveal>
-            <h2 className="lp-q lp-q-soft" id="faq-h">
+            <h2 className="lp-h2 lp-faq-h" id="faq-h">
               Questions.
             </h2>
           </div>
@@ -593,7 +631,7 @@ const Landing = () => {
             </text>
           </svg>
           <p>
-            © {new Date().getFullYear()} HIRE.OS · Prints: Jolan Gross Bettelheim, The Met; Charles Samuel Keene, Art Institute of Chicago. Public domain.
+            © {new Date().getFullYear()} HIRE.OS · Print: Jolán Gross-Bettelheim, The Metropolitan Museum of Art, public domain (CC0).
           </p>
         </div>
       </footer>

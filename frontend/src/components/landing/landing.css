@@ -228,7 +228,12 @@
   display: block;
   width: 100%;
   height: auto;
-  filter: grayscale(1) brightness(0.86) contrast(1.06);
+  /* Keep the lamp and the three faces; the lower half is only the dark counter */
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: 50% 0;
+  /* The lithograph is already monochrome; dim the paper white so it sits in the dark room */
+  filter: grayscale(1) brightness(0.84) contrast(1.08);
 }
 .lp-then figcaption {
   margin-top: 12px;
@@ -236,22 +241,47 @@
   color: var(--soft);
 }
 .lp-then-a {
-  grid-column: 1 / 6;
+  grid-column: 1 / 8;
 }
 .lp-then-say {
-  grid-column: 7 / -1;
-  padding-top: 12vw;
+  grid-column: 9 / -1;
+  align-self: center;
 }
 .lp-statement {
   margin-top: 24px !important;
   font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem);
   line-height: 1.25;
-  max-width: 24ch;
+  max-width: 30ch;
 }
-.lp-then-b {
-  width: 62%;
-  margin-top: 96px !important;
-  margin-left: auto !important;
+.lp-then-now {
+  margin-top: 48px !important;
+  max-width: 34ch;
+  font-size: var(--step-body);
+  color: var(--ink);
+}
+.ui-record {
+  margin-top: 20px;
+}
+.ui-record-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ui-record-rows li {
+  padding: 14px 18px;
+}
+.ui-record-rows li + li {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.ui-record-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ui-record-quote {
+  margin: 6px 0 0;
+  color: var(--soft);
+  line-height: 1.5;
 }
 
 /* ── The live thing: the headline is an input ── */
@@ -419,8 +449,11 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   column-gap: var(--gap);
-  min-height: 80svh;
-  align-items: center;
+  align-items: start;
+}
+.lp-pricing-h {
+  grid-column: 1 / -1;
+  margin-bottom: 48px !important;
 }
 .lp-plan-names {
   grid-column: 1 / 7;
@@ -471,9 +504,22 @@
 .lp-period {
   color: var(--soft);
 }
-.lp-plan-says {
-  margin: 24px 0 32px !important;
-  max-width: 40ch;
+.lp-plan-rows {
+  margin: 28px 0 32px;
+  max-width: 44ch;
+}
+.lp-plan-rows div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+}
+.lp-plan-rows dt {
+  color: var(--soft);
+}
+.lp-plan-rows dd {
+  margin: 0;
+  text-align: right;
 }
 
 /* ── Questions: large on the left, answered beside ── */
@@ -489,13 +535,16 @@
 .lp-faq-row + .lp-faq-row {
   margin-top: 80px;
 }
+.lp-faq-h {
+  grid-column: 1 / -1;
+}
+.lp-faq-row:first-child + .lp-faq-row {
+  margin-top: 48px;
+}
 .lp-q {
   grid-column: 1 / 7;
   font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
   line-height: 1.1;
-}
-.lp-q-soft {
-  color: var(--soft);
 }
 .lp-a {
   grid-column: 8 / -1;
@@ -690,9 +739,8 @@
   .lp-then-say {
     padding-top: 40px;
   }
-  .lp-then-b {
-    width: 80%;
-    margin-top: 48px !important;
+  .lp-statement {
+    max-width: none;
   }
   .lp-plan-names,
   .lp-plan-stage,
@@ -755,6 +803,12 @@
     grid-column: 1 / 6;
   }
   .lp-hero-ui {
+    grid-column: 7 / -1;
+  }
+  .lp-then-a {
+    grid-column: 1 / 6;
+  }
+  .lp-then-say {
     grid-column: 7 / -1;
   }
 }

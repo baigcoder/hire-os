@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,40 +35,23 @@ import { PAYMENT_API_END_POINT } from "@/utils/constant";
 import Navbar from "../shared/Navbar";
 
 // ========== STEP INDICATOR ==========
+// The steps as words: where you are, what's done, what's left
 const StepIndicator = ({ currentStep, steps }) => (
-  <div className="flex items-center justify-center mb-10 px-4 overflow-x-auto">
+  <ol className="flex flex-wrap gap-x-6 gap-y-2 mb-10 text-sm" aria-label="Sign-up steps">
     {steps.map((step, index) => (
-      <React.Fragment key={index}>
-        <div className="flex flex-col items-center flex-shrink-0">
-          <div
-            className={`w-10 h-10 md:w-12 md:h-12 rounded-sm flex items-center justify-center font-bold text-sm transition-all border ${
-              index < currentStep
-                ? "bg-accent/20 border-accent/50 text-accent"
-                : index === currentStep
-                  ? "bg-primary border-primary text-black"
-                  : "bg-white/5 border-white/10 text-gray-600"
-            }`}
-          >
-            {index < currentStep ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              String(index + 1).padStart(2, "0")
-            )}
-          </div>
-          <span
-            className={`mt-2 text-xs md:text-xs text-center max-w-[80px] ${index <= currentStep ? "text-white" : "text-gray-600"}`}
-          >
-            {step}
-          </span>
-        </div>
-        {index < steps.length - 1 && (
-          <div
-            className={`w-8 md:w-16 h-px mx-1 md:mx-2 flex-shrink-0 ${index < currentStep ? "bg-accent" : "bg-white/10"}`}
-          />
-        )}
-      </React.Fragment>
+      <li
+        key={step}
+        aria-current={index === currentStep ? "step" : undefined}
+        className={`flex items-center gap-1.5 ${
+          index === currentStep ? "text-white font-medium" : index < currentStep ? "text-gray-300" : "text-gray-400"
+        }`}
+      >
+        {index < currentStep && <Check className="w-4 h-4 text-accent" aria-hidden="true" />}
+        {index < currentStep && <span className="sr-only">Done: </span>}
+        {step}
+      </li>
     ))}
-  </div>
+  </ol>
 );
 
 // ========== PLAN CARD ==========
@@ -116,12 +99,12 @@ const PlanCard = ({ plan, selected, onSelect, billingCycle }) => {
       <h3 className="text-lg font-bold text-white mb-1">
         {plan.name}
       </h3>
-      <p className="text-gray-600 text-xs mb-4">{plan.description}</p>
+      <p className="text-gray-400 text-xs mb-4">{plan.description}</p>
       <div className="flex items-baseline gap-1 mb-4">
         <span className="text-2xl md:text-3xl font-bold text-white">
           Rs {price.toLocaleString()}
         </span>
-        <span className="text-gray-600 text-xs">
+        <span className="text-gray-400 text-xs">
           /
           {billingCycle === "yearly"
             ? "year"
@@ -134,7 +117,7 @@ const PlanCard = ({ plan, selected, onSelect, billingCycle }) => {
         {plan.features.slice(0, 5).map((feature, idx) => (
           <li
             key={idx}
-            className="flex items-center gap-2 text-gray-500 text-xs"
+            className="flex items-center gap-2 text-gray-400 text-xs"
           >
             <Check className="w-3 h-3 text-accent flex-shrink-0" />
             <span className="truncate">{feature}</span>
@@ -158,7 +141,7 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
     )}
     <div className="grid md:grid-cols-2 gap-3">
       <div>
-        <Label className="text-xs text-gray-500 mb-1 block">
+        <Label className="text-xs text-gray-400 mb-1 block">
           Name *
         </Label>
         <Input
@@ -169,7 +152,7 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
         />
       </div>
       <div>
-        <Label className="text-xs text-gray-500 mb-1 block">
+        <Label className="text-xs text-gray-400 mb-1 block">
           Email *
         </Label>
         <Input
@@ -195,12 +178,12 @@ const AdminSignupFlow = () => {
 
   // Dynamic steps based on login state
   const steps = isLoggedIn
-    ? ["Select Plan", "Company Details", "Add Team", "Payment"]
+    ? ["Choose a plan", "Company details", "Invite your team", "Payment"]
     : [
-        "Create Account",
-        "Select Plan",
-        "Company Details",
-        "Add Team",
+        "Your account",
+        "Choose a plan",
+        "Company details",
+        "Invite your team",
         "Payment",
       ];
 
@@ -213,7 +196,7 @@ const AdminSignupFlow = () => {
   const plans = [
     {
       id: "basic",
-      name: "Starter",
+      name: "Basic",
       description: "Perfect for startups",
       monthlyPrice: 5000,
       quarterlyPrice: 13500,
@@ -230,7 +213,7 @@ const AdminSignupFlow = () => {
     },
     {
       id: "professional",
-      name: "Pro",
+      name: "Professional",
       description: "For growing companies",
       monthlyPrice: 15000,
       quarterlyPrice: 40500,
@@ -508,7 +491,7 @@ const AdminSignupFlow = () => {
             <h1 className="text-3xl font-bold text-white mb-4">
               Welcome to Hire.OS
             </h1>
-            <p className="text-gray-500 mb-8">
+            <p className="text-gray-400 mb-8">
               Your company has been successfully registered. You can now start
               posting jobs!
             </p>
@@ -529,23 +512,18 @@ const AdminSignupFlow = () => {
     <div className="min-h-screen bg-background text-white">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
+      <div className="container mx-auto px-4 pt-24 pb-12 md:pt-28 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-4xl mx-auto"
         >
           {/* Header */}
-          <div className="text-center mb-6">
-            <Badge className="mb-3 px-3 py-1 bg-primary/10 text-primary border-primary/20 text-xs">
-              <Building2 className="w-3 h-3 mr-1.5" /> Company Registration
-            </Badge>
-            <h1 className="text-2xl md:text-4xl font-bold uppercase tracking-tight mb-2">
-              Start <span className="text-primary">Hiring</span> Today
+          <div className="mb-8">
+            <h1 className="info-h1" style={{ fontSize: "clamp(2.25rem, 1.6rem + 2vw, 3.25rem)" }}>
+              Set up your company
             </h1>
-            <p className="text-gray-600 text-xs md:text-sm">
-              Complete the steps below to set up your recruitment platform
-            </p>
+            <p className="info-lead">Create your account, choose a plan, add your company and invite your recruiters.</p>
           </div>
 
           <StepIndicator currentStep={currentStep} steps={steps} />
@@ -562,18 +540,15 @@ const AdminSignupFlow = () => {
               {!isLoggedIn && currentStep === 0 && (
                 <div className="bg-card border border-white/10 rounded-sm p-6 md:p-8 relative">
 
-                  <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <Crown className="w-5 h-5 text-primary" />
-                    Create Admin Account
-                  </h2>
+                  <h2 className="text-lg font-bold text-white mb-6">Your account</h2>
 
                   <div className="grid md:grid-cols-2 gap-5">
                     <div className="md:col-span-2">
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
-                        Full Name *
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
+                        Full name *
                       </Label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           placeholder="Your full name"
                           value={adminInfo.fullname}
@@ -586,11 +561,11 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Email *
                       </Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           type="email"
                           placeholder="admin@company.com"
@@ -604,11 +579,11 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Phone
                       </Label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           type="tel"
                           placeholder="+92 300 1234567"
@@ -622,11 +597,11 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Password *
                       </Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="Min 8 characters"
@@ -639,7 +614,7 @@ const AdminSignupFlow = () => {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
                         >
                           {showPassword ? (
                             <EyeOff className="w-4 h-4" />
@@ -651,11 +626,11 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
-                        Confirm Password *
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
+                        Confirm password *
                       </Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="Re-enter password"
@@ -669,10 +644,10 @@ const AdminSignupFlow = () => {
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-600 mt-4">
+                  <p className="text-xs text-gray-400 mt-4">
                     Already have an account?{" "}
                     <a href="/login" className="text-primary hover:underline">
-                      Login here
+                      Sign in
                     </a>
                   </p>
                 </div>
@@ -696,7 +671,7 @@ const AdminSignupFlow = () => {
                           className={`px-4 py-2 text-xs transition-all rounded-sm ${
                             billingCycle === cycle
                               ? "bg-primary text-black"
-                              : "text-gray-500 hover:text-white"
+                              : "text-gray-400 hover:text-white"
                           }`}
                         >
                           {cycle}
@@ -739,7 +714,7 @@ const AdminSignupFlow = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <Camera className="w-6 h-6 text-gray-600" />
+                        <Camera className="w-6 h-6 text-gray-400" />
                       )}
                     </div>
                     <div>
@@ -755,7 +730,7 @@ const AdminSignupFlow = () => {
                           Upload Logo
                         </span>
                       </label>
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-gray-400 mt-1">
                         Max 2MB, JPG/PNG
                       </p>
                     </div>
@@ -763,7 +738,7 @@ const AdminSignupFlow = () => {
 
                   <div className="grid md:grid-cols-2 gap-5">
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Company Name *
                       </Label>
                       <Input
@@ -777,7 +752,7 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Website
                       </Label>
                       <Input
@@ -791,7 +766,7 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Location *
                       </Label>
                       <Input
@@ -805,7 +780,7 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Industry
                       </Label>
                       <select
@@ -846,7 +821,7 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Company Size
                       </Label>
                       <select
@@ -881,7 +856,7 @@ const AdminSignupFlow = () => {
                     </div>
 
                     <div>
-                      <Label className="text-xs text-gray-500 mb-1.5 block">
+                      <Label className="text-xs text-gray-400 mb-1.5 block">
                         Tagline
                       </Label>
                       <Input
@@ -896,7 +871,7 @@ const AdminSignupFlow = () => {
                   </div>
 
                   <div className="mt-5">
-                    <Label className="text-xs text-gray-500 mb-1.5 block">
+                    <Label className="text-xs text-gray-400 mb-1.5 block">
                       Description
                     </Label>
                     <Textarea
@@ -923,7 +898,7 @@ const AdminSignupFlow = () => {
                     </h3>
                     <div className="grid md:grid-cols-3 gap-3">
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-xs text-gray-600 uppercase mb-0.5">
+                        <p className="text-xs text-gray-400 mb-0.5">
                           Name
                         </p>
                         <p className="text-white text-sm truncate">
@@ -931,7 +906,7 @@ const AdminSignupFlow = () => {
                         </p>
                       </div>
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-xs text-gray-600 uppercase mb-0.5">
+                        <p className="text-xs text-gray-400 mb-0.5">
                           Email
                         </p>
                         <p className="text-white text-sm truncate">
@@ -939,7 +914,7 @@ const AdminSignupFlow = () => {
                         </p>
                       </div>
                       <div className="p-3 bg-white/5 rounded-sm">
-                        <p className="text-xs text-gray-600 uppercase mb-0.5">
+                        <p className="text-xs text-gray-400 mb-0.5">
                           Role
                         </p>
                         <p className="text-primary text-sm">
@@ -961,7 +936,7 @@ const AdminSignupFlow = () => {
                           : selectedPlan?.maxRecruiters - 1 || 0}
                       </Badge>
                     </h3>
-                    <p className="text-gray-600 text-xs mb-4">
+                    <p className="text-gray-400 text-xs mb-4">
                       Add recruiters who&apos;ll help manage job postings and
                       candidates
                     </p>
@@ -985,12 +960,12 @@ const AdminSignupFlow = () => {
                       type="button"
                       onClick={addRecruiter}
                       variant="outline"
-                      className="w-full border-dashed border-white/20 text-gray-500 hover:text-white hover:border-white/40 rounded-sm text-xs"
+                      className="w-full border-dashed border-white/20 text-gray-400 hover:text-white hover:border-white/40 rounded-sm text-xs"
                     >
                       <Plus className="w-4 h-4 mr-2" /> Add Recruiter
                     </Button>
 
-                    <p className="text-xs text-gray-600 mt-3 text-center">
+                    <p className="text-xs text-gray-400 mt-3 text-center">
                       💡 You can skip this and invite team members later
                     </p>
                   </div>
@@ -1010,25 +985,25 @@ const AdminSignupFlow = () => {
                   <div className="p-5 bg-white/5 rounded-sm mb-6">
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Plan</span>
+                        <span className="text-gray-400">Plan</span>
                         <span className="text-white">
                           {selectedPlan?.name}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Billing</span>
+                        <span className="text-gray-400">Billing</span>
                         <span className="text-white capitalize">
                           {billingCycle}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Company</span>
+                        <span className="text-gray-400">Company</span>
                         <span className="text-white">
                           {companyInfo.name}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">
+                        <span className="text-gray-400">
                           Team Size
                         </span>
                         <span className="text-white">
@@ -1059,7 +1034,7 @@ const AdminSignupFlow = () => {
                         Secure Payment
                       </span>
                     </div>
-                    <ul className="space-y-1 text-xs text-gray-500">
+                    <ul className="space-y-1 text-xs text-gray-400">
                       <li className="flex items-center gap-2">
                         <Check className="w-3 h-3 text-accent" />{" "}
                         Credit/Debit Cards
@@ -1093,7 +1068,7 @@ const AdminSignupFlow = () => {
                     )}
                   </Button>
 
-                  <p className="text-center text-gray-600 text-xs mt-4">
+                  <p className="text-center text-gray-400 text-xs mt-4">
                     By completing, you agree to our Terms of Service and Privacy
                     Policy
                   </p>

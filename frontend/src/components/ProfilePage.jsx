@@ -1,3 +1,4 @@
+import { safeHttpUrl } from "@/utils/safeUrl";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -230,8 +231,8 @@ const ProfilePage = () => {
                   <dd>
                     {editing ? (
                       <input className="app-input" value={form[key]} onChange={set(key)} type="url" placeholder="https://" aria-label={label} />
-                    ) : user?.profile?.socialLinks?.[key] ? (
-                      <a className="app-link" href={user.profile.socialLinks[key]} target="_blank" rel="noreferrer">
+                    ) : safeHttpUrl(user?.profile?.socialLinks?.[key]) ? (
+                      <a className="app-link" href={safeHttpUrl(user.profile.socialLinks[key])} target="_blank" rel="noreferrer">
                         {user.profile.socialLinks[key].replace(/^https?:\/\/(www\.)?/, "")}
                       </a>
                     ) : (

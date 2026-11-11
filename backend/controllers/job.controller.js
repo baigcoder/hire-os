@@ -1,3 +1,4 @@
+import { escapeRegex } from "../utils/safeInput.js";
 import { Job } from "../models/job.model.js";
 import { canManageJob } from "../utils/jobAccess.js";
 import { User } from "../models/user.model.js";
@@ -263,8 +264,12 @@ export const getJobById = async (req, res) => {
       );
     }
 
+    // The public page only needs how many applied: never other people's application/applicant ids
+    const publicJob = job.toObject();
+    publicJob.applications = (publicJob.applications || []).map(() => ({}));
+
     return res.status(200).json({
-      job,
+      job: publicJob,
       hasApplied,
       success: true,
     });
@@ -525,6 +530,18 @@ export const deleteJob = async (req, res) => {
       });
     }
 
+    // A job with candidates in the offer/decision stages must be closed, not erased
+    const inFlight = await Application.exists({
+      job: jobId,
+      status: { $in: ["pending_ceo_approval", "offer_pending", "offer_sent", "offer_accepted", "hired"] },
+    });
+    if (inFlight) {
+      return res.status(409).json({
+        message: "This job has candidates awaiting a decision or an offer. Close the job instead of deleting it.",
+        success: false,
+      });
+    }
+
     // Delete associated applications
     await Application.deleteMany({ job: jobId });
 
@@ -690,7 +707,10 @@ export const getRecommendedJobs = async (req, res) => {
     if (user.jobPreferences?.locations?.length > 0) {
       orConditions.push({
         location: {
-          $in: user.jobPreferences.locations.map((l) => new RegExp(l, "i")),
+          $in: user.jobPreferences.locations
+            .filter((l) => typeof l === "string" && l)
+            .slice(0, 5)
+            .map((l) => new RegExp(escapeRegex(l.slice(0, 60)), "i")),
         },
       });
     }

@@ -78,6 +78,12 @@ export const broadcastPrivate = async (topic, event, payload) => {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const url = supabaseUrl();
   if (!serviceKey || !url) return false;
+  // Fail closed: without the signing secret the topic would be public (readable by anyone
+  // holding the anon key), and these payloads carry message content and call signaling.
+  if (!privateChannelsEnabled() && process.env.NODE_ENV === "production") {
+    logger.warn("Realtime broadcast skipped: SUPABASE_JWT_SECRET is not set", { topic, event });
+    return false;
+  }
   try {
     const res = await fetchImpl(`${url}/realtime/v1/api/broadcast`, {
       method: "POST",

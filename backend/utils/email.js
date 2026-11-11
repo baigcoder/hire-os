@@ -1,5 +1,21 @@
 import nodemailer from "nodemailer";
 
+// User-controlled values are interpolated into HTML mail sent from the platform's trusted
+// sender, so they must be escaped (no injected links/markup) and links limited to http(s).
+const esc = (v) =>
+  typeof v === "string"
+    ? v.replace(/[\r\n]+/g, " ").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c])
+    : v;
+const escAll = (o) =>
+  o && typeof o === "object" && !Array.isArray(o)
+    ? Object.fromEntries(
+        Object.entries(o).map(([k, v]) => [
+          k,
+          typeof v !== "string" ? v : /link|url/i.test(k) ? (/^https?:\/\//i.test(v.trim()) ? esc(v.trim()) : "") : esc(v),
+        ]),
+      )
+    : o;
+
 // Create transporter
 const createTransporter = () => {
   const email = process.env.SMTP_USER || process.env.EMAIL_USER;
@@ -159,6 +175,7 @@ export const sendOTPEmail = async (email, otp, purpose = "verification") => {
 
 // Send welcome email
 export const sendWelcomeEmail = async (email, fullname) => {
+  fullname = esc(fullname);
   const transporter = createTransporter();
 
   const mailOptions = {
@@ -258,6 +275,7 @@ export const sendRecruiterInvitation = async (
   password,
   loginUrl,
 ) => {
+  recruiterName = esc(recruiterName); companyName = esc(companyName);
   const transporter = createTransporter();
 
   const mailOptions = {
@@ -396,171 +414,8 @@ export const sendRecruiterInvitation = async (
   }
 };
 
-// Send payment invoice email to admin
-export const sendPaymentInvoice = async (
-  adminEmail,
-  adminName,
-  invoiceData,
-) => {
-  const transporter = createTransporter();
-  const {
-    companyName,
-    planName,
-    amount,
-    transactionId,
-    paymentDate,
-    billingCycle,
-    validUntil,
-  } = invoiceData;
-
-  const mailOptions = {
-    from: `"JobPortal" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-    to: adminEmail,
-    subject: `✅ Payment Confirmed - Invoice for ${companyName}`,
-    html: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            </head>
-            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0a0a;">
-                <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                        <td align="center" style="padding: 40px 0;">
-                            <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse;">
-                                <!-- Header -->
-                                <tr>
-                                    <td style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 30px 40px; border-radius: 16px 16px 0 0;">
-                                        <table style="width: 100%;">
-                                            <tr>
-                                                <td>
-                                                    <h1 style="margin: 0; color: #fff; font-size: 28px; font-weight: 700;">
-                                                        JobPortal
-                                                    </h1>
-                                                </td>
-                                                <td style="text-align: right;">
-                                                    <span style="background: #fff; color: #16a34a; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">
-                                                        ✓ PAID
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                
-                                <!-- Body -->
-                                <tr>
-                                    <td style="background-color: #18181b; padding: 40px;">
-                                        <h2 style="margin: 0 0 10px; color: #fff; font-size: 24px; font-weight: 600;">
-                                            Payment Successful! 🎉
-                                        </h2>
-                                        <p style="margin: 0 0 30px; color: #a1a1aa; font-size: 16px;">
-                                            Thank you for your payment, ${adminName}. Your subscription is now active.
-                                        </p>
-                                        
-                                        <!-- Invoice Details -->
-                                        <div style="background-color: #27272a; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-                                            <h3 style="margin: 0 0 20px; color: #F59E0B; font-size: 16px; font-weight: 600; border-bottom: 1px solid #3f3f46; padding-bottom: 15px;">
-                                                📄 INVOICE
-                                            </h3>
-                                            <table style="width: 100%;">
-                                                <tr>
-                                                    <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Transaction ID:</td>
-                                                    <td style="padding: 8px 0; color: #fff; font-size: 14px; text-align: right; font-family: monospace;">${transactionId}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Date:</td>
-                                                    <td style="padding: 8px 0; color: #fff; font-size: 14px; text-align: right;">${new Date(paymentDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Company:</td>
-                                                    <td style="padding: 8px 0; color: #fff; font-size: 14px; text-align: right;">${companyName}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Plan:</td>
-                                                    <td style="padding: 8px 0; color: #F59E0B; font-size: 14px; text-align: right; font-weight: 600;">${planName}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Billing Cycle:</td>
-                                                    <td style="padding: 8px 0; color: #fff; font-size: 14px; text-align: right; text-transform: capitalize;">${billingCycle}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 8px 0; color: #71717a; font-size: 14px;">Valid Until:</td>
-                                                    <td style="padding: 8px 0; color: #22c55e; font-size: 14px; text-align: right; font-weight: 600;">${new Date(validUntil).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td>
-                                                </tr>
-                                            </table>
-                                            
-                                            <div style="border-top: 2px solid #3f3f46; margin-top: 20px; padding-top: 20px;">
-                                                <table style="width: 100%;">
-                                                    <tr>
-                                                        <td style="color: #fff; font-size: 18px; font-weight: 700;">Total Paid:</td>
-                                                        <td style="color: #22c55e; font-size: 24px; font-weight: 700; text-align: right;">Rs ${amount.toLocaleString()}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Dashboard Button -->
-                                        <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/company/admin/dashboard" 
-                                           style="display: inline-block; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #000; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;">
-                                            Go to Dashboard →
-                                        </a>
-                                        
-                                        <hr style="border: none; border-top: 1px solid #27272a; margin: 30px 0;">
-                                        
-                                        <p style="margin: 0; color: #52525b; font-size: 12px; line-height: 1.6;">
-                                            This is your payment confirmation and invoice. Please keep this email for your records. If you have any questions about your subscription, please contact our support team.
-                                        </p>
-                                    </td>
-                                </tr>
-                                
-                                <!-- Footer -->
-                                <tr>
-                                    <td style="background-color: #0a0a0a; padding: 20px 40px; border-radius: 0 0 16px 16px; border: 1px solid #27272a; border-top: none;">
-                                        <p style="margin: 0; color: #52525b; font-size: 12px; text-align: center;">
-                                            © ${new Date().getFullYear()} JobPortal. All rights reserved.
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </body>
-            </html>
-        `,
-  };
-
-  try {
-    console.log(`Sending payment invoice to ${adminEmail}...`);
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Payment invoice sent. MessageID:", info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("❌ Payment invoice email error:", error);
-
-    // Development fallback
-    if (process.env.NODE_ENV === "development") {
-      console.log("\n" + "=".repeat(60));
-      console.log("📧 PAYMENT INVOICE EMAIL - DEVELOPMENT MODE");
-      console.log("=".repeat(60));
-      console.log(`📨 To: ${adminEmail}`);
-      console.log(`👤 Admin: ${adminName}`);
-      console.log(`🏢 Company: ${companyName}`);
-      console.log(`💳 Transaction: ${transactionId}`);
-      console.log(`💰 Amount: Rs ${amount}`);
-      console.log(`📅 Plan: ${planName} (${billingCycle})`);
-      console.log("=".repeat(60) + "\n");
-      return { success: true, messageId: "dev-mode-console-log" };
-    }
-
-    return { success: false, error: error.message };
-  }
-};
-
-// Send password reset email
 export const sendPasswordResetEmail = async (email, fullname, resetUrl) => {
+  fullname = esc(fullname);
   const transporter = createTransporter();
 
   const mailOptions = {
@@ -668,6 +523,7 @@ export const sendInterviewReminder = async (
   candidateName,
   interviewDetails,
 ) => {
+  candidateName = esc(candidateName); interviewDetails = escAll(interviewDetails);
   const transporter = createTransporter();
   const {
     jobTitle,
@@ -863,6 +719,7 @@ export const sendMCQTestInvitation = async (
   candidateName,
   testDetails,
 ) => {
+  candidateName = esc(candidateName); testDetails = escAll(testDetails);
   const transporter = createTransporter();
   const {
     jobTitle,
@@ -949,281 +806,11 @@ export const sendMCQTestInvitation = async (
 
 // =============== TRIAL & SUBSCRIPTION EMAILS ===============
 
-// Send Trial Welcome Email to Students
-export const sendTrialWelcomeEmail = async (email, fullname, trialEndDate) => {
-  const transporter = createTransporter();
-  const formattedEndDate = new Date(trialEndDate).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const mailOptions = {
-    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "🎉 Welcome to HIRE.OS - Your Free Trial Has Started!",
-    html: `
-            <!DOCTYPE html>
-            <html>
-            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a;">
-                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 40px 20px;">
-                    <tr>
-                        <td align="center">
-                            <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%); border: 1px solid #FFD700; border-radius: 16px;">
-                                <tr>
-                                    <td style="padding: 40px; text-align: center;">
-                                        <h1 style="color: #FFD700; margin: 0 0 10px; font-size: 32px;">HIRE.OS</h1>
-                                        <p style="color: #666; margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Your Career Command Center</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 0 40px 40px;">
-                                        <h2 style="color: #fff; margin: 0 0 20px;">Welcome, ${fullname}! 🚀</h2>
-                                        <p style="color: #aaa; font-size: 16px; line-height: 1.6;">
-                                            Your <strong style="color: #FFD700;">30-day FREE trial</strong> has officially started!
-                                        </p>
-                                        
-                                        <div style="background: #000; border: 1px solid #FFD700; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                                            <p style="color: #FFD700; margin: 0 0 10px; font-weight: bold;">🎁 FULL ACCESS UNLOCKED</p>
-                                            <ul style="color: #ccc; margin: 0; padding-left: 20px; line-height: 1.8;">
-                                                <li>AI Resume Analyzer</li>
-                                                <li>Mock MCQ Tests with Gemini AI</li>
-                                                <li>AI Mock Interviews</li>
-                                                <li>Job Applications & Tracking</li>
-                                                <li>Career Insights & Analytics</li>
-                                            </ul>
-                                        </div>
-                                        
-                                        <p style="color: #888; font-size: 14px;">
-                                            ⏰ Your trial ends on <strong style="color: #FFD700;">${formattedEndDate}</strong>
-                                        </p>
-                                        
-                                        <div style="text-align: center; margin: 30px 0;">
-                                            <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/student/dashboard" style="display: inline-block; background: #FFD700; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; text-transform: uppercase;">
-                                                Go to Dashboard →
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="background: #000; padding: 20px; border-radius: 0 0 16px 16px; text-align: center;">
-                                        <p style="color: #666; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} HIRE.OS - Industrial Grade Hiring</p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </body>
-            </html>
-        `,
-  };
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Trial welcome email sent to", email);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("❌ Trial welcome email error:", error);
-    throw error;
-  }
-};
-
-// Send Trial Expiry Warning Email
-export const sendTrialExpiryEmail = async (
-  email,
-  fullname,
-  daysLeft,
-  companyName = null,
-) => {
-  const transporter = createTransporter();
-  const subject = companyName
-    ? `⚠️ ${companyName} Subscription Expiring in ${daysLeft} Days`
-    : `⚠️ Your HIRE.OS Trial Ends in ${daysLeft} Days`;
-
-  const mailOptions = {
-    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-    to: email,
-    subject,
-    html: `
-            <!DOCTYPE html>
-            <html>
-            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a;">
-                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 40px 20px;">
-                    <tr>
-                        <td align="center">
-                            <table width="600" cellpadding="0" cellspacing="0" style="background: #111; border: 1px solid #F59E0B; border-radius: 16px;">
-                                <tr>
-                                    <td style="padding: 40px; text-align: center;">
-                                        <h1 style="color: #F59E0B; margin: 0 0 20px; font-size: 48px;">⏰</h1>
-                                        <h2 style="color: #fff; margin: 0;">Your ${companyName ? "Subscription" : "Trial"} Expires Soon</h2>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 0 40px 40px;">
-                                        <p style="color: #aaa; font-size: 16px; line-height: 1.6;">
-                                            Hi ${fullname},<br><br>
-                                            You have <strong style="color: #F59E0B; font-size: 24px;">${daysLeft} days</strong> left on your ${companyName ? `${companyName} subscription` : "free trial"}.
-                                        </p>
-                                        
-                                        <p style="color: #888; font-size: 14px;">
-                                            Don't lose access to all the powerful features you've been using!
-                                        </p>
-                                        
-                                        <div style="text-align: center; margin: 30px 0;">
-                                            <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/company/pricing" style="display: inline-block; background: #F59E0B; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                                                Upgrade Now →
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </body>
-            </html>
-        `,
-  };
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Trial expiry warning sent to", email);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("❌ Trial expiry email error:", error);
-    throw error;
-  }
-};
-
-// Send Trial Expired Email
-export const sendTrialExpiredEmail = async (email, fullname) => {
-  const transporter = createTransporter();
-
-  const mailOptions = {
-    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "🔒 Your HIRE.OS Trial Has Ended",
-    html: `
-            <!DOCTYPE html>
-            <html>
-            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a;">
-                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 40px 20px;">
-                    <tr>
-                        <td align="center">
-                            <table width="600" cellpadding="0" cellspacing="0" style="background: #111; border: 1px solid #EF4444; border-radius: 16px;">
-                                <tr>
-                                    <td style="padding: 40px; text-align: center;">
-                                        <h1 style="color: #EF4444; margin: 0 0 20px; font-size: 48px;">🔒</h1>
-                                        <h2 style="color: #fff; margin: 0;">Your Trial Has Expired</h2>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 0 40px 40px;">
-                                        <p style="color: #aaa; font-size: 16px; line-height: 1.6;">
-                                            Hi ${fullname},<br><br>
-                                            Your 30-day free trial has ended. Your account access has been restricted.
-                                        </p>
-                                        
-                                        <p style="color: #888; font-size: 14px;">
-                                            We hope HIRE.OS helped you in your career journey!
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </body>
-            </html>
-        `,
-  };
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Trial expired email sent to", email);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("❌ Trial expired email error:", error);
-    throw error;
-  }
-};
-
-// Send Subscription Expired Email to CEO
-export const sendSubscriptionExpiryEmail = async (
-  email,
-  fullname,
-  companyName,
-) => {
-  const transporter = createTransporter();
-
-  const mailOptions = {
-    from: `"HIRE.OS" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
-    to: email,
-    subject: `🔒 ${companyName} Subscription Has Expired`,
-    html: `
-            <!DOCTYPE html>
-            <html>
-            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #0a0a0a;">
-                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 40px 20px;">
-                    <tr>
-                        <td align="center">
-                            <table width="600" cellpadding="0" cellspacing="0" style="background: #111; border: 1px solid #EF4444; border-radius: 16px;">
-                                <tr>
-                                    <td style="padding: 40px; text-align: center;">
-                                        <h1 style="color: #EF4444; margin: 0 0 20px; font-size: 48px;">⚠️</h1>
-                                        <h2 style="color: #fff; margin: 0;">Subscription Expired</h2>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 0 40px 40px;">
-                                        <p style="color: #aaa; font-size: 16px; line-height: 1.6;">
-                                            Hi ${fullname},<br><br>
-                                            The subscription for <strong style="color: #FFD700;">${companyName}</strong> has expired.
-                                        </p>
-                                        
-                                        <div style="background: #000; border: 1px solid #EF4444; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                                            <p style="color: #EF4444; margin: 0;">
-                                                ⛔ All team members have lost access to HIRE.OS features.
-                                            </p>
-                                        </div>
-                                        
-                                        <div style="text-align: center; margin: 30px 0;">
-                                            <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}/company/pricing" style="display: inline-block; background: #FFD700; color: #000; padding: 16px 40px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                                                Renew Subscription →
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </body>
-            </html>
-        `,
-  };
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Subscription expiry email sent to", email);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error("❌ Subscription expiry email error:", error);
-    throw error;
-  }
-};
-
 export default {
   sendOTPEmail,
   sendWelcomeEmail,
   sendRecruiterInvitation,
-  sendPaymentInvoice,
   sendPasswordResetEmail,
   sendInterviewReminder,
   sendMCQTestInvitation,
-  sendTrialWelcomeEmail,
-  sendTrialExpiryEmail,
-  sendTrialExpiredEmail,
-  sendSubscriptionExpiryEmail,
 };

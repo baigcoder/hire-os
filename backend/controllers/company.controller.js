@@ -6,13 +6,9 @@ import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import { startSession } from "../utils/session.js";
-import { sendRecruiterInvitation, sendPaymentInvoice } from "../utils/email.js";
-import {
-  getPendingTransaction,
-  markPendingTransaction,
-} from "./paddle.controller.js";
-
+import { startSession, verifyAccessToken } from "../utils/session.js";
+import { isTokenBlacklisted } from "../utils/tokenBlacklist.js";
+import { sendRecruiterInvitation } from "../utils/email.js";
 // Generate secure random password (alphanumeric only to avoid email copy-paste issues)
 const generateSecurePassword = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
@@ -24,27 +20,33 @@ const generateSecurePassword = () => {
 };
 
 // Register company with subscription plan
-/**
- * A payment that a signature-verified webhook marked completed, consumed so
- * one payment can't activate several companies. Payment intents live in
- * process memory today (SafePay: global.pendingTransactions, Paddle: the
- * controller map); see docs §17 for moving them to the database.
- */
-const consumeVerifiedPayment = (token) => {
-  const safepay = global.pendingTransactions?.[token];
-  if (safepay?.status === "completed") {
-    safepay.status = "consumed";
-    return { provider: "safepay", ...pick(safepay) };
+// Only http(s) URLs may be stored as links (blocks javascript:/data: URLs rendered as hrefs).
+const safeHttpUrl = (value) => {
+  if (typeof value !== "string") return undefined;
+  try {
+    const u = new URL(value.trim());
+    return u.protocol === "http:" || u.protocol === "https:" ? u.href : undefined;
+  } catch {
+    return undefined;
   }
-  const paddle = getPendingTransaction(token);
-  if (paddle?.status === "completed") {
-    markPendingTransaction(token, { status: "consumed" });
-    return { provider: "paddle", ...pick(paddle) };
-  }
-  return null;
 };
 
-const pick = ({ planId, billingCycle, amount }) => ({ planId, billingCycle, amount });
+// registerCompany is public, so it must never treat an email address as proof of
+// identity. Returns the caller's user id only when a valid, unrevoked access token is sent.
+const callerIdFromToken = async (req) => {
+  const bearer = req.headers.authorization?.startsWith("Bearer ")
+    ? req.headers.authorization.slice(7)
+    : null;
+  const token = req.cookies?.token || bearer || req.headers["x-auth-token"];
+  if (!token) return null;
+  try {
+    const decoded = verifyAccessToken(token);
+    if (!decoded?.userId || (await isTokenBlacklisted(token))) return null;
+    return String(decoded.userId);
+  } catch {
+    return null;
+  }
+};
 
 export const registerCompany = async (req, res) => {
   try {
@@ -64,9 +66,6 @@ export const registerCompany = async (req, res) => {
       adminPassword,
       adminPhone,
       // Subscription details
-      planId,
-      billingCycle,
-      paymentToken,
       // Recruiters to invite
       recruitersToInvite,
     } = req.body;
@@ -76,9 +75,6 @@ export const registerCompany = async (req, res) => {
       companyName,
       adminEmail,
       hasPassword: !!adminPassword,
-      planId,
-      billingCycle,
-      paymentToken: paymentToken?.substring(0, 10) + "...",
       recruitersCount: recruitersToInvite?.length || 0,
     });
 
@@ -92,12 +88,18 @@ export const registerCompany = async (req, res) => {
       });
     }
 
+    const callerId = await callerIdFromToken(req);
+
     // Check if company exists
     let existingCompany = await Company.findOne({ name: companyName });
     if (existingCompany) {
-      // Check if this is the same admin trying to re-register (idempotent behavior)
+      // Idempotent re-register only for the authenticated admin of this company
       const existingAdmin = await User.findOne({ email: adminEmail.toLowerCase() });
-      if (existingAdmin && existingCompany.adminUser?.toString() === existingAdmin._id.toString()) {
+      if (
+        existingAdmin &&
+        callerId === String(existingAdmin._id) &&
+        existingCompany.adminUser?.toString() === existingAdmin._id.toString()
+      ) {
         // This is the same admin - return success with existing data (idempotent behavior)
         console.log("ℹ️ Idempotent registration - company already exists for this admin");
 
@@ -141,7 +143,13 @@ export const registerCompany = async (req, res) => {
     let adminUser = await User.findOne({ email: adminEmail.toLowerCase() });
 
     if (adminUser) {
-      // Admin already exists from signup - use their existing account
+      // Existing account: only its owner (valid session) may attach a company to it
+      if (callerId !== String(adminUser._id)) {
+        return res.status(401).json({
+          message: "Please log in to your admin account before registering a company.",
+          success: false,
+        });
+      }
       console.log("✅ Using existing admin user from signup:", adminUser.email);
 
       // Verify they are a company_admin
@@ -177,30 +185,17 @@ export const registerCompany = async (req, res) => {
         phoneNumber: adminPhone,
         password: hashedPassword,
         role: "company_admin",
-        isEmailVerified: true, // Assuming email verified via payment/registration flow
+        // Not verified: nobody has proven they own this address. (Linking a verified
+        // Supabase identity later rotates the password, see supabaseSync.)
+        isEmailVerified: false,
       });
       console.log("✅ Created new admin user:", adminUser.email);
     }
 
-    // SECURITY (S17): a subscription is only active when the payment was
-    // confirmed by a signature-verified webhook. Previously any non-empty
-    // paymentToken activated any plan. The plan and cycle come from the
-    // verified payment, not the request body.
-    const verifiedPayment = paymentToken
-      ? consumeVerifiedPayment(paymentToken)
-      : null;
-    const paidPlan = verifiedPayment?.planId || planId || "basic";
-    const paidCycle = verifiedPayment?.billingCycle || billingCycle || "monthly";
-
-    // Get plan details
-    const selectedPlan =
-      SUBSCRIPTION_PLANS[paidPlan] || SUBSCRIPTION_PLANS.basic;
+    // The platform is free: every company gets the full feature set, permanently active.
+    const selectedPlan = SUBSCRIPTION_PLANS.enterprise;
     const subscriptionEndDate = new Date();
-    if (paidCycle === "yearly") {
-      subscriptionEndDate.setFullYear(subscriptionEndDate.getFullYear() + 1);
-    } else {
-      subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
-    }
+    subscriptionEndDate.setFullYear(subscriptionEndDate.getFullYear() + 100);
 
     // Create company
     const company = await Company.create({
@@ -208,44 +203,27 @@ export const registerCompany = async (req, res) => {
       email: email?.toLowerCase().trim() || adminEmail.toLowerCase().trim(),
       phone,
       description,
-      website,
+      website: safeHttpUrl(website),
       location,
       industry,
       companySize,
       adminUser: adminUser._id,
       userId: adminUser._id, // Legacy support
       subscription: {
-        plan: paidPlan,
-        type: paidCycle,
-        status: verifiedPayment ? "active" : "pending",
+        plan: "enterprise",
+        type: "yearly",
+        status: "active",
         startDate: new Date(),
         endDate: subscriptionEndDate,
         nextPaymentDate: subscriptionEndDate,
       },
       features: selectedPlan.features,
-      payments: verifiedPayment
-        ? [
-          {
-            transactionId: paymentToken,
-            amount:
-              verifiedPayment.amount ||
-              selectedPlan.prices?.[paidCycle] ||
-              selectedPlan.prices?.monthly,
-            currency: "PKR",
-            plan: paidPlan,
-            duration: paidCycle,
-            paymentDate: new Date(),
-            paymentMethod: verifiedPayment.provider,
-            status: "completed",
-          },
-        ]
-        : [],
+      payments: [],
     });
 
     // Update admin user with company reference and subscription status
     adminUser.companyId = company._id;
-    // Set subscriptionStatus based on payment - CRITICAL for dashboard access
-    adminUser.subscriptionStatus = verifiedPayment ? "active" : "pending";
+    adminUser.subscriptionStatus = "active";
     await adminUser.save();
 
     // Track invited recruiters
@@ -253,13 +231,16 @@ export const registerCompany = async (req, res) => {
     const loginUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`;
 
     // Process recruiters to invite
+    // Only the logged-in admin of this account may invite during registration (anonymous
+    // callers could otherwise make the platform email credentials to arbitrary addresses);
+    // capped to bound abuse. Admins can also invite later from the dashboard.
     if (
-      recruitersToInvite &&
+      callerId === String(adminUser._id) &&
       Array.isArray(recruitersToInvite) &&
       recruitersToInvite.length > 0
     ) {
-      for (const recruiter of recruitersToInvite) {
-        if (!recruiter.email || !recruiter.name) continue;
+      for (const recruiter of recruitersToInvite.slice(0, 10)) {
+        if (!recruiter?.email || !recruiter?.name) continue;
 
         // Check if email already exists
         const existingRecruiter = await User.findOne({
@@ -272,13 +253,6 @@ export const registerCompany = async (req, res) => {
 
         // Generate password for recruiter
         const recruiterPassword = generateSecurePassword();
-        console.log(
-          "📝 Generated password for recruiter:",
-          recruiter.email,
-          "=",
-          recruiterPassword,
-        );
-
         const hashedRecruiterPassword = await bcrypt.hash(
           recruiterPassword,
           12,
@@ -348,34 +322,6 @@ export const registerCompany = async (req, res) => {
       // Update recruiter count and save
       company.recruiterCount = company.recruiters.length + 1; // +1 for admin
       await company.save();
-    }
-
-    // Send payment invoice to admin
-    if (paymentToken) {
-      try {
-        await sendPaymentInvoice(
-          adminEmail,
-          adminName || companyName + " Admin",
-          {
-            companyName: companyName,
-            planName: selectedPlan.name || planId,
-            amount:
-              selectedPlan.prices?.[billingCycle] ||
-              selectedPlan.prices?.monthly ||
-              5000,
-            transactionId: paymentToken,
-            paymentDate: new Date(),
-            billingCycle: billingCycle || "monthly",
-            validUntil: subscriptionEndDate,
-          },
-        );
-        console.log(`✅ Payment invoice sent to ${adminEmail}`);
-      } catch (emailError) {
-        console.error(
-          `❌ Failed to send invoice to ${adminEmail}:`,
-          emailError,
-        );
-      }
     }
 
     // Generate token for auto-login
@@ -482,15 +428,36 @@ export const getCompany = async (req, res) => {
 export const getCompanyById = async (req, res) => {
   try {
     const companyId = req.params.id;
-    const company = await Company.findById(companyId)
+    const found = await Company.findById(companyId)
       .populate("adminUser", "fullname email")
       .populate("recruiters.userId", "fullname email profile.profilePhoto");
 
-    if (!company) {
+    if (!found) {
       return res.status(404).json({
         message: "Company not found.",
         success: false,
       });
+    }
+
+    // Staff emails are only for the company's own admin; everyone else (incl. anonymous
+    // visitors on the public route) gets names only, so emails can't be harvested or
+    // used as account-lookup keys.
+    const company = found.toObject();
+    const callerId = await callerIdFromToken(req);
+    if (callerId !== String(company.adminUser?._id)) {
+      if (company.adminUser) delete company.adminUser.email;
+      for (const r of company.recruiters || []) {
+        delete r.email;
+        if (r.userId) delete r.userId.email;
+      }
+    }
+    // Billing history is never part of a public/other-user company view
+    delete company.payments;
+    if (callerId !== String(company.adminUser?._id)) delete company.subscription;
+    // Invitation tokens are secrets for the invitee only, never for any reader.
+    for (const r of company.recruiters || []) {
+      delete r.invitationToken;
+      delete r.invitationExpiresAt;
     }
 
     return res.status(200).json({
@@ -541,7 +508,7 @@ export const updateCompany = async (req, res) => {
     const updateData = {
       ...(name && { name }),
       ...(description && { description }),
-      ...(website && { website }),
+      ...(safeHttpUrl(website) && { website: safeHttpUrl(website) }),
       ...(location && { location }),
       ...(phone && { phone }),
       ...(industry && { industry }),
@@ -551,6 +518,7 @@ export const updateCompany = async (req, res) => {
 
     const company = await Company.findByIdAndUpdate(companyId, updateData, {
       new: true,
+      runValidators: true,
     });
 
     if (!company) {
@@ -577,6 +545,26 @@ export const updateCompany = async (req, res) => {
 // ========== RECRUITER MANAGEMENT ==========
 
 // Invite recruiter to company
+// Creates the recruiter's account with a one-time password and emails it (the recruiter
+// must change it at first sign-in). Used by invites: there is no token-accept page.
+const provisionRecruiter = async ({ company, admin, email, name, permissions }) => {
+  const password = generateSecurePassword();
+  const user = await User.create({
+    fullname: String(name || email.split("@")[0]).slice(0, 100),
+    email,
+    password: await bcrypt.hash(password, 12),
+    role: "recruiter",
+    companyId: company._id,
+    isEmailVerified: true, // the address received the credentials; first sign-in forces a new password
+    mustChangePassword: true,
+    permissions,
+    invitation: { invitedBy: admin?._id, invitedAt: new Date(), status: "accepted", acceptedAt: new Date() },
+  });
+  const loginUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`;
+  await sendRecruiterInvitation(email, user.fullname, company.name, password, loginUrl);
+  return user;
+};
+
 export const inviteRecruiter = async (req, res) => {
   try {
     const { email, name, permissions } = req.body;
@@ -622,37 +610,35 @@ export const inviteRecruiter = async (req, res) => {
       });
     }
 
-    // Generate invitation token
-    const invitationToken = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const cleanEmail = String(email).toLowerCase().trim();
+    if (await User.exists({ email: cleanEmail })) {
+      return res.status(409).json({
+        message: "An account with this email already exists. Ask the person to use a different work email.",
+        success: false,
+      });
+    }
 
-    // Add to company recruiters
+    const perms = Array.isArray(permissions) && permissions.length
+      ? permissions.filter((p) => ["post_jobs", "view_applications", "schedule_interviews"].includes(p))
+      : ["post_jobs", "view_applications", "schedule_interviews"];
+
+    const recruiterUser = await provisionRecruiter({ company, admin, email: cleanEmail, name, permissions: perms });
+
     company.recruiters.push({
-      email: email.toLowerCase().trim(),
-      name: name || "",
-      status: "invited",
-      invitationToken,
-      invitationExpiresAt: expiresAt,
+      userId: recruiterUser._id,
+      email: cleanEmail,
+      name: recruiterUser.fullname,
+      status: "active",
+      joinedAt: new Date(),
       invitedAt: new Date(),
-      permissions: permissions || [
-        "post_jobs",
-        "view_applications",
-        "schedule_interviews",
-      ],
+      permissions: perms,
     });
-
+    company.recruiterCount = company.recruiters.length + 1;
     await company.save();
 
-    // TODO: Send invitation email
-    const inviteLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/recruiter/accept-invite?token=${invitationToken}&company=${company._id}`;
-
-    console.log(`📧 Recruiter Invitation Link for ${email}: ${inviteLink}`);
-
     return res.status(200).json({
-      message: `Invitation sent to ${email}`,
+      message: `${cleanEmail} was added and emailed their sign-in details`,
       success: true,
-      inviteLink:
-        process.env.NODE_ENV === "development" ? inviteLink : undefined,
     });
   } catch (error) {
     console.error("Invite recruiter error:", error);
@@ -709,13 +695,13 @@ export const acceptRecruiterInvitation = async (req, res) => {
     let user = await User.findOne({ email: recruiterInvite.email });
 
     if (user) {
-      // Update existing user
-      user.role = "recruiter";
-      user.companyId = company._id;
-      user.invitation = {
-        status: "accepted",
-        acceptedAt: new Date(),
-      };
+      // An invite token must never log in as, or re-role, an existing account
+      // (it would bypass the password and could demote an admin).
+      return res.status(409).json({
+        message:
+          "An account with this email already exists. Please contact the company admin to invite a different email.",
+        success: false,
+      });
     } else {
       // Create new user
       const hashedPassword = await bcrypt.hash(password, 12);
@@ -1104,25 +1090,30 @@ export const resendInvitation = async (req, res) => {
       });
     }
 
-    // Generate new token
-    const newToken = crypto.randomBytes(32).toString("hex");
-    company.recruiters[recruiterIndex].invitationToken = newToken;
-    company.recruiters[recruiterIndex].invitationExpiresAt = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
-    );
-    company.recruiters[recruiterIndex].invitedAt = new Date();
-
+    // Legacy pending invites: provision the account now and email the sign-in details
+    const pending = company.recruiters[recruiterIndex];
+    if (await User.exists({ email: pending.email })) {
+      return res.status(409).json({
+        message: "An account with this email already exists. Remove this invite and use a different email.",
+        success: false,
+      });
+    }
+    const recruiterUser = await provisionRecruiter({
+      company,
+      admin: { _id: adminId },
+      email: pending.email,
+      name: pending.name,
+      permissions: pending.permissions,
+    });
+    pending.userId = recruiterUser._id;
+    pending.status = "active";
+    pending.joinedAt = new Date();
+    pending.invitationToken = undefined;
     await company.save();
 
-    const inviteLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/recruiter/accept-invite?token=${newToken}&company=${company._id}`;
-
-    console.log(`📧 Resent Invitation Link: ${inviteLink}`);
-
     return res.status(200).json({
-      message: "Invitation resent successfully",
+      message: "Sign-in details sent",
       success: true,
-      inviteLink:
-        process.env.NODE_ENV === "development" ? inviteLink : undefined,
     });
   } catch (error) {
     console.error("Resend invitation error:", error);
@@ -1226,7 +1217,7 @@ export const updateCompanyProfile = async (req, res) => {
     const updateData = {
       ...(name && user.role === "company_admin" && { name }),
       ...(description && { description }),
-      ...(website && { website }),
+      ...(safeHttpUrl(website) && { website: safeHttpUrl(website) }),
       ...(location && { location }),
       ...(phone && { phone }),
       ...(industry && { industry }),
@@ -1237,7 +1228,7 @@ export const updateCompanyProfile = async (req, res) => {
     const updatedCompany = await Company.findByIdAndUpdate(
       company._id,
       updateData,
-      { new: true },
+      { new: true, runValidators: true },
     );
 
     return res.status(200).json({

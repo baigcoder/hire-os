@@ -20,6 +20,21 @@ import {
 import { forgotPassword, verifyResetToken, resetPassword } from "../controllers/passwordReset.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { singleUpload } from "../middlewares/mutler.js";
+import rateLimit from "express-rate-limit";
+import { sharedStore } from "../middlewares/rateLimiters.js";
+
+// Guessing the current password with a stolen session: 5 wrong tries per 15 minutes per user
+const passwordAttemptLimiter = rateLimit({
+  store: sharedStore("pw-attempt"),
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => String(req.id || req.ip),
+  skip: () => process.env.NODE_ENV === "test",
+  message: { success: false, message: "Too many attempts. Please try again later." },
+});
 import {
   validateRegistration,
   validateLogin,
@@ -43,9 +58,10 @@ router.use(auditMiddleware);
 // Public routes - WITH RATE LIMITING for security 🔒
 router
   .route("/register")
-  .post(authLimiter, singleUpload, validateRegistration, register);
+  .post(singleUpload, authLimiter, validateRegistration, register);
 router.route("/login").post(authLimiter, validateLogin, login);
-router.route("/logout").get(logout);
+// POST: a cross-site GET (image tag, link) must not be able to sign someone out
+router.route("/logout").post(logout);
 router
   .route("/change-initial-password")
   // Requires the session from logging in with the temporary password (S14)
@@ -77,8 +93,8 @@ router
 router
   .route("/profile/photo")
   .post(isAuthenticated, uploadLimiter, singleUpload, updateProfilePhoto);
-router.route("/change-password").post(isAuthenticated, changePassword);
-router.route("/delete-account").post(isAuthenticated, deleteAccount);
+router.route("/change-password").post(isAuthenticated, passwordAttemptLimiter, changePassword);
+router.route("/delete-account").post(isAuthenticated, passwordAttemptLimiter, deleteAccount);
 
 // =============== SESSION MANAGEMENT ROUTES ===============
 router.route("/sessions").get(isAuthenticated, getActiveSessions);

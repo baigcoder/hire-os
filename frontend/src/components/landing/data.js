@@ -57,28 +57,18 @@ export const ROLES = [
   },
 ];
 
-// The real plans (backend models/company.model.js SUBSCRIPTION_PLANS), monthly in PKR
-export const PLANS = [
-  { id: "basic", name: "Basic", price: 5000, says: "Up to five job posts and one recruiter seat, with email support. Video interviews with the copilot start on Professional." },
-  { id: "professional", name: "Professional", price: 15000, recommended: true, says: "Twenty job posts and five recruiter seats. Video interviews with the copilot, and priority support." },
-  { id: "enterprise", name: "Enterprise", price: 40000, says: "Unlimited job posts and recruiter seats, video interviews with the copilot, API access and a dedicated support contact." },
-];
-
-export const PLAN_ROWS = [
-  ["Job posts", "5", "20", "Unlimited"],
-  ["Recruiter seats", "1", "5", "Unlimited"],
-  ["Video interviews with the copilot", "—", "Included", "Included"],
-  ["API access", "—", "—", "Included"],
-  ["Support", "Email", "Priority", "Dedicated"],
-];
-
+// Everything is free: one list of what every account gets
+export const FREE_FOR_ALL = {
+  companies: "Unlimited job posts and recruiter seats, video interviews with the copilot, MCQ tests and assessments, blind screening and the owner's decision queue.",
+  seekers: "Apply to any job, analyse your resume, practise interviews, ask the career coach and message the companies you interview with.",
+};
 
 export const FAQ = [
   ["Does the AI decide who gets hired?", "No. It transcribes the interview and drafts the report. The interviewer rates each skill, and the company's owner makes the decision."],
   ["What does a score mean?", "Each skill is rated from 1 to 4, and must-haves count double. The total runs from 0 to 100; 80 or more is a strong recommendation."],
   ["Is the interview recorded?", "Only as text, and only with the candidate's consent. Audio is never stored, and transcripts are deleted after 90 days."],
-  ["How do recruiters join?", "The company's owner invites them by email. Each plan includes a number of recruiter seats."],
-  ["Is it free for job seekers?", "Applying is always free. Resume analysis and interview practice are free for the first 30 days."],
+  ["How do recruiters join?", "The company's owner invites them by email. There is no seat limit."],
+  ["Is it free for job seekers?", "Yes. Everything is free: applying, resume analysis, interview practice and the career coach. There is no trial that ends."],
 ];
 
 // The live scorecard on the landing page: a role in, a drafted scorecard out.

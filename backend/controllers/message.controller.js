@@ -10,6 +10,9 @@ import { broadcastPrivate, userTopic } from "../platform/realtime/index.js";
  * Send a message to a user
  * If sender is recruiter and receiver is company_admin (CEO), send email notification
  */
+const escapeHtml = (v) =>
+  String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
 export const sendMessage = async (req, res) => {
   try {
     const senderId = req.id;
@@ -17,10 +20,12 @@ export const sendMessage = async (req, res) => {
       receiverId,
       subject,
       content,
-      type = "general",
       priority = "normal",
-      relatedTo = {},
     } = req.body;
+    // Clients can't mint announcement/interview-type messages or attach other people's
+    // application/interview ids: type is fixed and the link context is server-side only.
+    const type = "general";
+    const relatedTo = {};
 
     // Validate required fields
     if (!receiverId || !subject || !content) {
@@ -105,7 +110,7 @@ export const sendMessage = async (req, res) => {
       try {
         await sendEmail({
           to: receiver.email,
-          subject: `📨 New Message from ${sender.fullname} - HIRE.OS`,
+          subject: `📨 New Message from ${String(sender.fullname).replace(/[\r\n]+/g, " ")} - HIRE.OS`,
           html: `
                         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; color: #fff; padding: 40px; border-radius: 12px;">
                             <div style="text-align: center; margin-bottom: 30px;">
@@ -114,11 +119,11 @@ export const sendMessage = async (req, res) => {
                             </div>
                             
                             <div style="background: #111; border: 1px solid #333; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
-                                <h2 style="color: #fff; margin: 0 0 10px 0; font-size: 18px;">Message from ${sender.fullname}</h2>
+                                <h2 style="color: #fff; margin: 0 0 10px 0; font-size: 18px;">Message from ${escapeHtml(sender.fullname)}</h2>
                                 <p style="color: #888; margin: 0 0 20px 0; font-size: 12px;">Recruiter</p>
                                 
                                 <div style="background: #1a1a1a; border-left: 3px solid #FFD700; padding: 16px; border-radius: 4px;">
-                                    <p style="color: #ccc; margin: 0; font-size: 14px; line-height: 1.6;">${content.substring(0, 500)}${content.length > 500 ? "..." : ""}</p>
+                                    <p style="color: #ccc; margin: 0; font-size: 14px; line-height: 1.6;">${escapeHtml(content.substring(0, 500))}${content.length > 500 ? "..." : ""}</p>
                                 </div>
                             </div>
                             

@@ -1,3 +1,4 @@
+import { safeHttpUrl } from "@/utils/safeUrl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -36,7 +37,9 @@ const openResume = async (url) => {
       const res = await api.get(url.replace(/^.*\/api\/v1/, ""), { responseType: "blob" });
       window.open(URL.createObjectURL(res.data), "_blank", "noopener");
     } else {
-      window.open(url, "_blank", "noopener");
+      const safe = safeHttpUrl(url);
+      if (!safe) throw new Error("unsafe resume link");
+      window.open(safe, "_blank", "noopener");
     }
   } catch {
     toast.error("Couldn't open the resume");

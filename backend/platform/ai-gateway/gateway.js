@@ -66,6 +66,7 @@ export const createAiGateway = ({
   providers,
   limiter,
   cache = null,
+  userBudget = null,
   recordRun = () => {},
   getContext = () => undefined,
   logger = null,
@@ -178,6 +179,9 @@ export const createAiGateway = ({
     const estimated =
       estimateTokens(messages, maxOutputTokens) +
       (tools?.length ? Math.ceil(JSON.stringify(tools).length / 4) : 0);
+
+    // Per-user allowance (calls/minute, tokens/day): only charged when a model will be called
+    if (userBudget) await userBudget.charge(telemetryBase.userId, estimated);
 
     for (const [index, { provider: providerName, model }] of chain.entries()) {
       const provider = providers[providerName];

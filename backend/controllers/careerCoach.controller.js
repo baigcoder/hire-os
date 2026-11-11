@@ -52,8 +52,11 @@ export const sendMessage = async (req, res) => {
         const userId = req.id;
         const { sessionId, message } = req.body;
 
-        if (!message || !message.trim()) {
+        if (typeof message !== "string" || !message.trim()) {
             return res.status(400).json({ success: false, message: "Message required" });
+        }
+        if (message.length > 2000) {
+            return res.status(400).json({ success: false, message: "Message is too long (max 2000 characters)" });
         }
 
         const session = await CareerCoachSession.findOne({ _id: sessionId, user: userId, status: "active" });
@@ -61,17 +64,24 @@ export const sendMessage = async (req, res) => {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
 
+        // A session is bounded so its document can't grow toward the 16 MB limit
+        if (session.messages.length >= 200) {
+            return res.status(400).json({ success: false, message: "This session is full. Start a new one." });
+        }
+
         // Add user message
         session.messages.push({ role: "user", content: message.trim() });
 
-        // Prepare messages for AI (trim to last 20 messages to stay within token limits)
-        const recentMessages = session.messages.slice(-20);
+        // Prepare messages for AI: the opening (system) message always, then the last 19
+        const recentMessages = session.messages.length > 20
+            ? [session.messages[0], ...session.messages.slice(-19)]
+            : session.messages;
         const aiMessages = recentMessages.map(m => ({ role: m.role, content: m.content }));
 
         // Call AI with retry logic
         let aiResponse;
         let retryCount = 0;
-        const maxRetries = 3;
+        const maxRetries = 2; // callAI already falls back across providers
 
         while (retryCount < maxRetries) {
             try {

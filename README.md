@@ -86,7 +86,7 @@ Smart job recommendations:
 - Interview report review and approval workflow
 - Team management and recruiter permissions
 - Company branding and profile customization
-- Subscription and billing management
+- Free for everyone: no plans, payments or trials
 
 ---
 
@@ -135,7 +135,6 @@ Smart job recommendations:
 | **Realtime** | Supabase Realtime (WebSocket) |
 | **Video** | WebRTC, PeerJS |
 | **Storage** | Cloudinary |
-| **Payments** | Paddle (Subscriptions) |
 | **Deployment** | Vercel (Frontend + Serverless Backend) |
 
 ### AI Model Strategy
@@ -235,7 +234,6 @@ Open [http://localhost:5173](http://localhost:5173)
 - AI analysis & coaching
 - Real-time messaging
 - Analytics & reporting
-- Payments & subscriptions
 
 ---
 

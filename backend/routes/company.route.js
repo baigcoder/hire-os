@@ -1,3 +1,4 @@
+import { authLimiter } from "../middlewares/rateLimiters.js";
 import express from "express";
 import isAuthenticated, {
   isCompanyAdmin,
@@ -34,7 +35,7 @@ router.route("/featured").get(getFeaturedCompanies);
 router.route("/public/:id").get(getCompanyById);  // Public company profile view
 
 // Company registration (creates both company and admin user)
-router.route("/register").post(registerCompany);
+router.route("/register").post(authLimiter, registerCompany);
 
 // Protected routes
 router.route("/get").get(isAuthenticated, getCompany);

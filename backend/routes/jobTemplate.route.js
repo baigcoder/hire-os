@@ -1,5 +1,5 @@
 import express from "express";
-import isAuthenticated from "../middlewares/isAuthenticated.js";
+import isAuthenticated, { isCompanyAdmin } from "../middlewares/isAuthenticated.js";
 import {
     createTemplate,
     getCompanyTemplates,
@@ -25,7 +25,8 @@ router.put("/:id", updateTemplate);
 router.delete("/:id", deleteTemplate);
 
 // Template usage
-router.post("/:id/use", createJobFromTemplate);
+// Posting jobs is company_admin-only (same as POST /job/post)
+router.post("/:id/use", isCompanyAdmin, createJobFromTemplate);
 router.post("/save-from-job", saveJobAsTemplate);
 
 export default router;

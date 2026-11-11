@@ -58,27 +58,21 @@ export const forgotPassword = async (req, res, next) => {
     // Create reset URL
     const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password?token=${resetToken}`;
 
-    try {
-      await sendPasswordResetEmail(user.email, user.fullname, resetUrl);
-
-      return res.status(200).json({
-        success: true,
-        message:
-          "If an account with that email exists, a password reset link has been sent.",
-      });
-    } catch (emailError) {
-      // Reset the token fields if email fails
-      user.passwordResetToken = undefined;
-      user.passwordResetExpires = undefined;
-      await user.save({ validateBeforeSave: false });
-
+    // Send in the background and answer the same way for every address: a slow or failing
+    // mail send must not reveal (by timing or by a 500) that the account exists.
+    sendPasswordResetEmail(user.email, user.fullname, resetUrl).catch(async (emailError) => {
       console.error("Email send error:", emailError);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send reset email. Please try again later.",
-        code: "EMAIL_SEND_FAILED",
-      });
-    }
+      await User.updateOne(
+        { _id: user._id, passwordResetToken: hashedToken },
+        { $unset: { passwordResetToken: 1, passwordResetExpires: 1 } },
+      ).catch(() => {});
+    });
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
+    });
   } catch (error) {
     console.error("Forgot password error:", error);
     return res.status(500).json({

@@ -3,6 +3,7 @@
  * Provides real-time analytics endpoints for recruiter dashboards
  */
 
+import { canManageJob } from "../utils/jobAccess.js";
 import express from "express";
 import isAuthenticated, {
   isRecruiter,
@@ -517,7 +518,8 @@ router.get(
       const userId = req.id;
 
       const job = await Job.findById(jobId).populate("company", "adminUser");
-      if (!job) {
+      // Only managers of this job's company may see its numbers (404, not 403: no probing)
+      if (!job || !canManageJob(req.user ?? (await User.findById(userId).select("role companyId").lean()), job)) {
         return res
           .status(404)
           .json({ success: false, message: "Job not found" });

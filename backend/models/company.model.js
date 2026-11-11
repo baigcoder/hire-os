@@ -441,11 +441,8 @@ companySchema.index({ industry: 1 });
 companySchema.index({ location: 1 });
 
 // Virtual for checking if subscription is active
-companySchema.virtual("isSubscriptionActive").get(function () {
-  if (this.subscription.status !== "active") return false;
-  if (!this.subscription.endDate) return false;
-  return new Date() < this.subscription.endDate;
-});
+// The platform is free: no company is ever blocked by a subscription state.
+companySchema.virtual("isSubscriptionActive").get(() => true);
 
 // Virtual for days until subscription expires
 companySchema.virtual("daysUntilExpiry").get(function () {
@@ -460,24 +457,13 @@ companySchema.virtual("activeRecruitersCount").get(function () {
 });
 
 // Method to check if can post more jobs
-companySchema.methods.canPostJob = function () {
-  if (this.features.maxJobPostings === -1) return true; // Unlimited
-  return this.usage.activeJobs < this.features.maxJobPostings;
-};
+companySchema.methods.canPostJob = () => true;
 
 // Method to check if can add more recruiters
-companySchema.methods.canAddRecruiter = function () {
-  if (this.features.maxRecruiters === -1) return true; // Unlimited
-  const activeCount = this.recruiters.filter(
-    (r) => r.status === "active" || r.status === "invited",
-  ).length;
-  return activeCount < this.features.maxRecruiters;
-};
+companySchema.methods.canAddRecruiter = () => true;
 
 // Method to check feature access
-companySchema.methods.hasFeature = function (featureName) {
-  return this.features[featureName] === true;
-};
+companySchema.methods.hasFeature = () => true;
 
 // Method to update features based on plan
 companySchema.methods.updateFeaturesFromPlan = function (planName) {
@@ -496,7 +482,18 @@ companySchema.pre("save", function (next) {
 });
 
 // Ensure virtuals are included in JSON
-companySchema.set("toJSON", { virtuals: true });
+// Invitation tokens are bearer secrets for the invitee: never serialized into any API response
+// (public job/company reads populate whole Company documents).
+companySchema.set("toJSON", {
+  virtuals: true,
+  transform: (_doc, ret) => {
+    for (const r of ret.recruiters || []) {
+      delete r.invitationToken;
+      delete r.invitationExpiresAt;
+    }
+    return ret;
+  },
+});
 companySchema.set("toObject", { virtuals: true });
 
 export const Company = mongoose.model("Company", companySchema);

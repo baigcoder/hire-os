@@ -1,7 +1,8 @@
+import { safeHttpUrl, cleanStringList } from "../utils/safeInput.js";
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { Company } from "../models/company.model.js";
-import { startSession, clearSessionCookies, endAllSessions, recruiterAccessProblem, signAccessToken, signRefreshToken, newSessionId, accessCookie, refreshCookie } from "../utils/session.js";
+import { hashToken, startSession, clearSessionCookies, endAllSessions, recruiterAccessProblem, signAccessToken, signRefreshToken, newSessionId, accessCookie, refreshCookie } from "../utils/session.js";
 import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
@@ -12,7 +13,6 @@ import {
   verifySupabaseAccessToken,
 } from "../utils/supabase.js";
 import { resumeLinkFor } from "../utils/resumeFiles.js";
-import { initializeStudentTrial } from "../utils/trialService.js";
 import logger from "../utils/logger.js";
 import { blacklistToken, isTokenBlacklisted } from "../utils/tokenBlacklist.js";
 
@@ -36,12 +36,9 @@ const getDeviceInfo = (req) => {
 };
 
 // Get client IP address
-const getClientIp = (req) => {
-  return req.headers["x-forwarded-for"]?.split(",")[0]?.trim()
-    || req.connection?.remoteAddress
-    || req.ip
-    || "Unknown";
-};
+// req.ip honours the configured `trust proxy` hop count: a raw X-Forwarded-For header is
+// client-controlled and must never be trusted directly.
+const getClientIp = (req) => req.ip || req.connection?.remoteAddress || "Unknown";
 
 export const register = async (req, res) => {
   try {
@@ -103,18 +100,6 @@ export const register = async (req, res) => {
     // Generate token and auto-login after registration
     const token = await startSession(res, newUser._id, req);
 
-    // Initialize 30-day free trial for students
-    let trialInfo = null;
-    if (role === "student") {
-      try {
-        trialInfo = await initializeStudentTrial(newUser._id);
-        logger.info(`🎉 Trial started for new student: ${email}`);
-      } catch (trialError) {
-        logger.error("Trial initialization failed:", trialError);
-        // Don't fail registration if trial init fails
-      }
-    }
-
     const userResponse = {
       _id: newUser._id,
       fullname: newUser.fullname,
@@ -123,16 +108,12 @@ export const register = async (req, res) => {
       role: newUser.role,
       profile: newUser.profile,
       createdAt: newUser.createdAt,
-      trialInfo, // Include trial info in response
     };
 
     return res
       .status(201)
       .json({
-        message:
-          role === "student"
-            ? "Account created! Your 30-day free trial has started."
-            : "Account created successfully! Welcome to Hire.iOS.",
+        message: "Account created successfully! Welcome to Hire.iOS.",
         user: userResponse,
         token,
         success: true,
@@ -146,14 +127,15 @@ export const register = async (req, res) => {
   }
 };
 
+// A real bcrypt hash of a random value: compared against when the email is unknown
+const DUMMY_HASH = bcrypt.hashSync(crypto.randomBytes(16).toString("hex"), 12);
+
 export const login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
 
-    logger.debug("🔐 Login attempt:", { email, role, hasPassword: !!password });
-
     // The account knows its role; one sent by older clients must still match it
-    if (!email || !password) {
+    if (!email || !password || typeof email !== "string" || typeof password !== "string") {
       return res.status(400).json({
         message: "Please fill in all fields",
         success: false,
@@ -162,42 +144,41 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
-    logger.debug(
-      "👤 User found:",
-      user
-        ? {
-          id: user._id,
-          email: user.email,
-          role: user.role,
-        }
-        : "NOT FOUND",
-    );
-
     if (!user) {
+      // Same work as a real account, so timing doesn't reveal which emails exist
+      await bcrypt.compare(password, DUMMY_HASH);
       return res.status(401).json({
         message: "Invalid email or password.",
         success: false,
       });
     }
 
-    logger.debug("🔑 Comparing passwords:", {
-      inputPassword: "***", // Don't log actual password
-      inputLength: password?.length,
-      storedHashLength: user.password?.length,
-      hashStartsWith: user.password?.substring(0, 7),
-    });
+    // A locked account stays locked for 15 minutes from the 5th failure: attempts during
+    // the lock don't extend it (anyone could otherwise keep a victim locked out forever).
+    const LOCK_MS = 15 * 60 * 1000;
+    const lockedNow = user.failedLoginAttempts >= 5 && user.lastFailedLogin && Date.now() - user.lastFailedLogin.getTime() < LOCK_MS;
+    if (lockedNow) {
+      return res.status(423).json({
+        message: "Account temporarily locked due to multiple failed login attempts. Please try again later or reset your password.",
+        success: false,
+        code: "ACCOUNT_LOCKED",
+      });
+    }
 
     const isPasswordMatch = await bcrypt.compare(password, user.password);
-    logger.debug("🔑 Password match result:", isPasswordMatch);
 
     if (!isPasswordMatch) {
-      // Track failed login attempts
-      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
-      user.lastFailedLogin = new Date();
-      await user.save();
+      // Atomic count (an expired lock starts a fresh count)
+      const expired = user.failedLoginAttempts >= 5;
+      const updated = await User.findOneAndUpdate(
+        { _id: user._id },
+        expired
+          ? { $set: { failedLoginAttempts: 1, lastFailedLogin: new Date() } }
+          : { $inc: { failedLoginAttempts: 1 }, $set: { lastFailedLogin: new Date() } },
+        { new: true },
+      );
 
-      // Lock account after 5 failed attempts
-      if (user.failedLoginAttempts >= 5) {
+      if (updated?.failedLoginAttempts >= 5) {
         return res.status(423).json({
           message:
             "Account temporarily locked due to multiple failed login attempts. Please try again later or reset your password.",
@@ -212,18 +193,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // Check if account is locked
-    if (user.failedLoginAttempts >= 5 && user.lastFailedLogin) {
-      const lockDuration = 15 * 60 * 1000; // 15 minutes
-      if (Date.now() - user.lastFailedLogin.getTime() < lockDuration) {
-        return res.status(423).json({
-          message: "Account temporarily locked. Please try again later.",
-          success: false,
-          code: "ACCOUNT_LOCKED",
-        });
-      }
-    }
-
     // Check role
     if (role && role !== user.role) {
       return res.status(400).json({
@@ -232,30 +201,8 @@ export const login = async (req, res) => {
       });
     }
 
-    // =============== SUBSCRIPTION/TRIAL CHECK ===============
-    // Check for expired student trial
-    if (user.role === "student" && user.trialExpired) {
-      return res.status(403).json({
-        message: "Your free trial has expired. Access has been restricted.",
-        success: false,
-        code: "TRIAL_EXPIRED",
-        trialExpired: true,
-      });
-    }
-
-    // Owners can always sign in: renewing happens inside the app
-    if (user.role !== "company_admin" && user.subscriptionStatus === "expired") {
-      return res.status(403).json({
-        message: "Your subscription has expired. Please renew to continue.",
-        success: false,
-        code: "SUBSCRIPTION_EXPIRED",
-        subscriptionExpired: true,
-      });
-    }
-
     const blocked = await recruiterAccessProblem(user);
     if (blocked) return res.status(403).json({ ...blocked, success: false });
-    // =============== END SUBSCRIPTION CHECK ===============
 
     // Reset failed login attempts on successful login
     user.failedLoginAttempts = 0;
@@ -310,22 +257,23 @@ export const logout = async (req, res) => {
         ? req.headers.authorization.substring(7)
         : null);
 
-    // Blacklist the current access token and refresh token
+    // Only tokens with a valid signature are acted on: an unsigned/forged cookie must not
+    // be able to grow the revocation list or pull someone else's session.
+    const verifyLoose = (value) => {
+      try {
+        return jwt.verify(value, process.env.SECRET_KEY, { algorithms: ["HS256"], ignoreExpiration: true });
+      } catch {
+        return null;
+      }
+    };
     for (const value of [token, req.cookies.refreshToken]) {
       if (!value) continue;
-      try {
-        const decoded = jwt.decode(value);
-        if (decoded?.exp) {
-          await blacklistToken(value, decoded.exp);
-          logger.info(`🔒 Token blacklisted for logout`);
-        }
-      } catch (e) {
-        // Token might be invalid, but we still clear cookies
-      }
+      const decoded = verifyLoose(value);
+      if (decoded?.exp) await blacklistToken(value, decoded.exp);
     }
 
-    // End this device's session so its refresh token can't be used again
-    const refresh = req.cookies.refreshToken && jwt.decode(req.cookies.refreshToken);
+    // End this device's session so its tokens can't be used again
+    const refresh = req.cookies.refreshToken && verifyLoose(req.cookies.refreshToken);
     if (refresh?.userId && refresh.sessionId) {
       await User.updateOne({ _id: refresh.userId }, { $pull: { activeSessions: { sessionId: refresh.sessionId } } });
     }
@@ -440,12 +388,13 @@ export const refreshToken = async (req, res) => {
     }
 
     // Generate new tokens (rotate both for security)
-    const newAccessToken = signAccessToken(user._id);
     const nextSessionId = newSessionId();
+    const newAccessToken = signAccessToken(user._id, nextSessionId);
     const newRefreshToken = signRefreshToken(user._id, nextSessionId);
 
     // Update session with new refresh token
-    user.activeSessions[sessionIndex].refreshToken = newRefreshToken;
+    user.activeSessions[sessionIndex].refreshToken = hashToken(newRefreshToken);
+    user.activeSessions[sessionIndex].prevSessionId = decoded.sessionId;
     user.activeSessions[sessionIndex].sessionId = nextSessionId;
     user.activeSessions[sessionIndex].lastUsed = new Date();
     user.activeSessions[sessionIndex].expiresAt = new Date(Date.now() + REFRESH_TOKEN_MAX_AGE);
@@ -580,7 +529,7 @@ export const revokeAllSessions = async (req, res) => {
   try {
     // This device's session comes from its refresh cookie; the page can't read it
     const currentSessionId =
-      req.body?.currentSessionId ?? (req.cookies?.refreshToken ? jwt.decode(req.cookies.refreshToken)?.sessionId : null);
+      req.cookies?.refreshToken ? jwt.decode(req.cookies.refreshToken)?.sessionId : null;
     const user = await User.findById(req.id);
 
     if (!user) {
@@ -594,13 +543,8 @@ export const revokeAllSessions = async (req, res) => {
     let revokedCount = 0;
     for (const session of user.activeSessions || []) {
       if (session.sessionId !== currentSessionId) {
-        try {
-          const decoded = jwt.decode(session.refreshToken);
-          if (decoded?.exp) {
-            await blacklistToken(session.refreshToken, decoded.exp);
-            revokedCount++;
-          }
-        } catch (e) { }
+        // Removing the session below is what revokes it (refresh tokens are stored hashed)
+        revokedCount++;
       }
     }
 
@@ -832,11 +776,16 @@ export const updateProfile = async (req, res) => {
     }
 
     // Update fields
-    if (fullname) user.fullname = fullname.trim();
-    if (email) user.email = email.toLowerCase().trim();
+    if (fullname) user.fullname = String(fullname).trim().slice(0, 100);
+    if (email) {
+      const nextEmail = String(email).toLowerCase().trim();
+      // A changed address is unproven until the owner confirms it again
+      if (nextEmail !== user.email) user.isEmailVerified = false;
+      user.email = nextEmail;
+    }
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio.trim();
-    if (skillsArray) user.profile.skills = skillsArray;
+    if (skillsArray) user.profile.skills = cleanStringList(skillsArray, 50, 50);
 
     // Handle location - convert string to object format
     if (location) {
@@ -863,12 +812,14 @@ export const updateProfile = async (req, res) => {
           incoming = {};
         }
       }
+      // Links are rendered as hrefs: keep http(s) only ("" clears a link)
+      const pick = (next, current) =>
+        next === undefined || next === null ? current : next === "" ? "" : safeHttpUrl(next) ?? current;
       user.profile.socialLinks = {
-        linkedin: incoming.linkedin ?? currentLinks.linkedin,
-        github: incoming.github ?? currentLinks.github,
-        twitter: incoming.twitter ?? currentLinks.twitter,
-        portfolio:
-          incoming.website ?? incoming.portfolio ?? currentLinks.portfolio,
+        linkedin: pick(incoming.linkedin, currentLinks.linkedin),
+        github: pick(incoming.github, currentLinks.github),
+        twitter: pick(incoming.twitter, currentLinks.twitter),
+        portfolio: pick(incoming.website ?? incoming.portfolio, currentLinks.portfolio),
       };
     }
 
@@ -909,7 +860,7 @@ export const updateProfile = async (req, res) => {
 export const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.id).select(
-      "-password -failedLoginAttempts -lastFailedLogin",
+      "-password -failedLoginAttempts -lastFailedLogin -activeSessions",
     );
 
     if (!user) {
@@ -1000,6 +951,15 @@ export const changePassword = async (req, res) => {
 };
 
 // Delete account
+// The Cloudinary id of the user's own uploaded photo (hireos/users/<id>/<file>), else null.
+// Never derived from an arbitrary stored URL: that could point at someone else's image.
+const ownPhotoPublicId = (url, userId) => {
+  if (typeof url !== "string" || !/^https:\/\/res\.cloudinary\.com\//i.test(url)) return null;
+  const m = url.match(/\/((?:jobportal\/profiles|hireos\/users\/[^/]+)\/[^/.]+)(?:\.[a-z0-9]+)?$/i);
+  if (!m) return null;
+  return m[1].startsWith("hireos/users/") && !m[1].startsWith(`hireos/users/${userId}/`) ? null : m[1];
+};
+
 export const deleteAccount = async (req, res) => {
   try {
     const { password } = req.body;
@@ -1028,23 +988,43 @@ export const deleteAccount = async (req, res) => {
       });
     }
 
-    // Delete user profile photo from cloudinary if exists
-    if (user.profile.profilePhoto) {
-      // Extract public_id from URL and delete
+    // Delete the user's own profile photo from cloudinary
+    const photoId = ownPhotoPublicId(user.profile?.profilePhoto, userId);
+    if (photoId) {
       try {
-        const publicId = user.profile.profilePhoto
-          .split("/")
-          .pop()
-          .split(".")[0];
-        await cloudinary.uploader.destroy(`jobportal/profiles/${publicId}`);
+        await cloudinary.uploader.destroy(photoId);
       } catch (e) {
         logger.warn("Error deleting profile photo:", e);
       }
     }
 
+    // Erase the personal data derived from this account (resume file, screening profile,
+    // embeddings, integrity sessions) so it isn't left visible to recruiters.
+    try {
+      const { deletePrivateFile, RESUME_BUCKET } = await import("../utils/supabase.js");
+      const { Application } = await import("../models/application.model.js");
+      const { ApplicantScreening } = await import("../models/applicantScreening.model.js");
+      const { Embedding } = await import("../models/embedding.model.js");
+      const { IntegritySession } = await import("../models/integritySession.model.js");
+      if (user.profile?.resumePath) await deletePrivateFile(RESUME_BUCKET, user.profile.resumePath).catch(() => {});
+      const applicationIds = await Application.find({ applicant: userId }).distinct("_id");
+      await Promise.all([
+        ApplicantScreening.deleteMany({ applicantId: userId }),
+        Embedding.deleteMany({ $or: [{ kind: "resume", refId: userId }, { kind: "applicant", refId: { $in: applicationIds } }] }),
+        IntegritySession.deleteMany({ candidateId: userId }),
+      ]);
+    } catch (e) {
+      logger.warn("Error erasing derived account data:", e);
+    }
+
     await User.findByIdAndDelete(userId);
 
-    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+    // End the session now: revoke the access token used for this request and clear cookies
+    const presented = req.cookies?.token || req.headers.authorization?.replace(/^Bearer /, "");
+    if (presented) await blacklistToken(presented, req.tokenExp).catch(() => {});
+    clearSessionCookies(res);
+
+    return res.status(200).json({
       message: "Account deleted successfully",
       success: true,
     });
@@ -1080,13 +1060,10 @@ export const updateProfilePhoto = async (req, res) => {
     }
 
     // Delete old photo if exists
-    if (user.profile.profilePhoto) {
+    const oldPhotoId = ownPhotoPublicId(user.profile.profilePhoto, userId);
+    if (oldPhotoId) {
       try {
-        const publicId = user.profile.profilePhoto
-          .split("/")
-          .pop()
-          .split(".")[0];
-        await cloudinary.uploader.destroy(`jobportal/profiles/${publicId}`);
+        await cloudinary.uploader.destroy(oldPhotoId);
       } catch (e) {
         logger.warn("Error deleting old photo:", e);
       }
@@ -1118,7 +1095,13 @@ export const updateProfilePhoto = async (req, res) => {
 // Sync Supabase user with MongoDB
 export const supabaseSync = async (req, res) => {
   try {
-    const { accessToken, fullname, profilePhoto, pendingRole } = req.body;
+    const { accessToken, fullname, profilePhoto: rawPhoto, pendingRole } = req.body;
+    // Provider avatar only: an https URL that isn't one of our own Cloudinary assets
+    // (otherwise a later delete could be pointed at someone else's image).
+    const profilePhoto =
+      typeof rawPhoto === "string" && /^https:\/\//i.test(rawPhoto) && !/res\.cloudinary\.com/i.test(rawPhoto)
+        ? rawPhoto.slice(0, 500)
+        : "";
 
     // SECURITY: identity comes only from a Supabase session verified with
     // Supabase. Trusting a body email let anyone mint a session for any
@@ -1186,6 +1169,13 @@ export const supabaseSync = async (req, res) => {
         user.fullname = fullname;
       }
 
+      // Linking a verified identity to an account whose email was never verified: that account
+      // may have been pre-created by someone else, so drop its password and sessions.
+      if (linkingNewIdentity && verified.emailConfirmed && !user.isEmailVerified) {
+        user.password = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 12);
+        user.activeSessions = [];
+      }
+
       if (verified.emailConfirmed) user.isEmailVerified = true;
       user.authProvider = provider || user.authProvider || "email";
 
@@ -1198,7 +1188,7 @@ export const supabaseSync = async (req, res) => {
       ) {
         console.log(`📦 Upgrading user ${email} from student to company_admin`);
         user.role = "company_admin";
-        user.subscriptionStatus = "none"; // Reset subscription for owner flow
+        user.subscriptionStatus = "active"; // free platform
         isNewUser = true; // Treat as new user to trigger pricing flow
       }
 
@@ -1216,11 +1206,6 @@ export const supabaseSync = async (req, res) => {
 
       isNewUser = true;
 
-      // Set trial period for students (30 days)
-      if (userRole === "student") {
-        trialEndDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-      }
-
       user = await User.create({
         supabaseId,
         email: email.toLowerCase(),
@@ -1234,35 +1219,13 @@ export const supabaseSync = async (req, res) => {
         lastLogin: new Date(),
         lastLoginIp: getClientIp(req),
         lastLoginDevice: getDeviceInfo(req),
-        // Trial fields for students
-        trialEndDate: trialEndDate,
-        subscriptionStatus: userRole === "student" ? "trial" : "none",
+        subscriptionStatus: "active", // free platform
         // Generate random password for Supabase users (won't be used)
         password: await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 12),
       });
 
       console.log(`🎉 New ${userRole} user created: ${email}`);
 
-      // Send welcome email with trial info for new students
-      if (userRole === "student" && trialEndDate) {
-        try {
-          const emailModule = await import("../utils/email.js");
-          if (emailModule.sendTrialWelcomeEmail) {
-            emailModule
-              .sendTrialWelcomeEmail(
-                email,
-                fullname || email.split("@")[0],
-                trialEndDate,
-              )
-              .then(() => console.log("✅ Trial welcome email sent to:", email))
-              .catch((err) =>
-                console.log("⚠️ Email send failed:", err.message),
-              );
-          }
-        } catch (emailErr) {
-          console.log("⚠️ Email module not available:", emailErr.message);
-        }
-      }
     }
 
     const blocked = await recruiterAccessProblem(user);

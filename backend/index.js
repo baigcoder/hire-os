@@ -14,9 +14,6 @@ import jobRoute from "./routes/job.route.js";
 import applicationRoute from "./routes/application.route.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
 import otpRoute from "./routes/otp.route.js";
-import subscriptionRoute from "./routes/subscription.route.js";
-import paymentRoute from "./routes/payment.route.js";
-import paddleRoute from "./routes/paddle.route.js";
 import notificationRoute from "./routes/notification.route.js";
 import interviewRoute from "./routes/interview.route.js";
 import mcqRoute from "./routes/mcq.route.js";
@@ -25,7 +22,6 @@ import practiceRoute from "./routes/practice.route.js";
 import mockInterviewRoute from "./routes/mockInterviewRoutes.js";
 import liveInterviewRoute from "./routes/liveInterview.route.js";
 import practiceHistoryRoute from "./routes/practiceHistory.route.js";
-import trialRoute from "./routes/trial.route.js";
 import insightsRoute from "./routes/insights.route.js";
 import aiRoute from "./routes/ai.route.js";
 import uploadRoute from "./routes/upload.route.js";
@@ -159,15 +155,10 @@ app.use(
 
 // Body parser middleware
 app.use(
-  express.json({
-    limit: "10mb",
-    // Keep the exact bytes of webhook bodies for signature verification
-    verify: (req, res, buf) => {
-      if (req.originalUrl.includes("/webhook")) req.rawBody = buf;
-    },
-  }),
+  // 2 MB: the largest legitimate JSON body is a base64 evidence frame (<=120 KB) or pasted resume text.
+  express.json({ limit: "2mb" }),
 );
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
 
 // CORS configuration: only this project's own frontends (see utils/corsOrigins.js)
@@ -221,13 +212,11 @@ app.use("/api", (req, res, next) => {
 // WebRTC signaling, chat, presence, and dashboard updates are handled by Supabase Realtime on the frontend
 // Cloud Redis (Upstash) can still be used for caching via REDIS_URL environment variable
 
-// Import subscription monitor for trial/subscription expiry checking
-let subscriptionMonitor = null;
-try {
-  const monitorModule = await import("./utils/subscriptionMonitor.js");
-  subscriptionMonitor = monitorModule.subscriptionMonitor;
-} catch (err) {
-  console.log("⚠️ Subscription monitor not loaded");
+// A short signing secret makes every session token guessable offline
+// Refuse to start in production with a weak signing secret: every session token would be
+// guessable offline. (Generate one with: node -e "console.log(require('crypto').randomBytes(48).toString('hex'))")
+if (process.env.NODE_ENV === "production" && (process.env.SECRET_KEY || "").length < 32) {
+  throw new Error("SECRET_KEY must be set to a random value of at least 32 characters in production");
 }
 
 // Request logging middleware
@@ -249,7 +238,6 @@ app.use("/api", rateLimiter);
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "HIRE.OS Backend API is live",
-    env: process.env.NODE_ENV,
     version: "1.0.0",
   });
 });
@@ -270,15 +258,13 @@ app.get("/health", (req, res) => {
 app.get("/health/db", async (req, res) => {
   try {
     const dbHealth = await checkDBHealth();
+    // Public endpoint: up/down only (no host, database name or driver error text)
     res.status(dbHealth.isConnected ? 200 : 503).json({
       status: dbHealth.isConnected ? "OK" : "ERROR",
-      database: dbHealth,
     });
   } catch (error) {
-    res.status(503).json({
-      status: "ERROR",
-      error: error.message,
-    });
+    logger.error({ err: error }, "DB health check failed");
+    res.status(503).json({ status: "ERROR" });
   }
 });
 
@@ -316,18 +302,7 @@ app.get("/api/v1/health", async (req, res) => {
     success: true,
     message: "HIRE.OS API Health Check",
     timestamp: new Date().toISOString(),
-    db: dbHealth,
-    env: {
-      NODE_ENV: process.env.NODE_ENV,
-      hasSecretKey: !!process.env.SECRET_KEY,
-      hasMongoUri: !!process.env.MONGO_URI,
-      hasSupabaseUrl: !!process.env.SUPABASE_URL,
-      hasFrontendUrl: !!process.env.FRONTEND_URL,
-    },
-    vercel: {
-      isVercel: !!process.env.VERCEL,
-      region: process.env.VERCEL_REGION,
-    },
+    dbConnected: !!dbHealth.isConnected,
   });
 });
 
@@ -339,9 +314,6 @@ app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
 app.use("/api/v1/resume", resumeRoutes);
 app.use("/api/v1/otp", otpRoute);
-app.use("/api/v1/subscription", subscriptionRoute);
-app.use("/api/v1/payment", paymentRoute);
-app.use("/api/v1/paddle", paddleRoute);
 app.use("/api/v1/notification", notificationRoute);
 app.use("/api/v1/interview", interviewRoute);
 app.use("/api/v1/mcq", mcqRoute);
@@ -350,7 +322,6 @@ app.use("/api/v1/practice", practiceRoute);
 app.use("/api/v1/mock-interview", mockInterviewRoute);
 app.use("/api/v1/live-interview", liveInterviewRoute); // ElevenLabs real-time voice interview
 app.use("/api/v1/practice-history", practiceHistoryRoute); // Practice history tracking
-app.use("/api/v1/trial", trialRoute);
 app.use("/api/v1/insights", insightsRoute);
 app.use("/api/v1/ai", aiRoute);
 app.use("/api/v1/upload", uploadRoute);
@@ -442,10 +413,21 @@ app.use((err, req, res, next) => {
     });
   }
 
+  // Upload rejections (size/type) are the caller's mistake, not a server error
+  if (err.name === "MulterError" || /^Unsupported file type/.test(err.message || "")) {
+    return res.status(err.code === "LIMIT_FILE_SIZE" ? 413 : 400).json({
+      success: false,
+      message: err.code === "LIMIT_FILE_SIZE" ? "That file is too large (max 5 MB)." : err.message,
+    });
+  }
+
   // Default error
-  res.status(err.status || 500).json({
+  const status = err.status || 500;
+  if (status >= 500) logger.error({ err }, "Unhandled error");
+  res.status(status).json({
     success: false,
-    message: err.message || "Internal server error",
+    // Internal error text (driver/SMTP/etc.) is never sent to clients on 5xx
+    message: status >= 500 ? "Internal server error" : err.message || "Request failed",
     ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 });
@@ -481,12 +463,6 @@ if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
       if (shouldRunWorkerInApi()) {
         registerJobs(queue);
         queue.start();
-      }
-
-      // Start subscription monitor if available
-      if (subscriptionMonitor) {
-        subscriptionMonitor.start();
-        console.log("🔄 Subscription Monitor started");
       }
 
       logger.info("JobPortal API Server started", {

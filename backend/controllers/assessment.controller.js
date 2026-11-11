@@ -5,6 +5,16 @@ import { User } from "../models/user.model.js";
 import mongoose from "mongoose";
 import { canManageJob } from "../utils/jobAccess.js";
 
+// Answer keys must never reach a candidate before grading
+const stripAnswers = (assessment) => {
+    const data = assessment?.toObject ? assessment.toObject() : assessment;
+    if (!data?.questions) return data;
+    return {
+        ...data,
+        questions: data.questions.map((q) => ({ ...q, correctAnswer: undefined, explanation: undefined })),
+    };
+};
+
 // Create a new assessment
 export const createAssessment = async (req, res) => {
     try {
@@ -152,6 +162,15 @@ export const getAssessment = async (req, res) => {
             assessment: id,
             candidate: userId,
         });
+
+        // Private assessments: only the owning company or an assigned candidate
+        if (!assessment.isPublic && !submission) {
+            const viewer = await User.findById(userId).select("companyId").lean();
+            const owner = assessment.company?._id ?? assessment.company;
+            if (!viewer?.companyId || String(viewer.companyId) !== String(owner)) {
+                return res.status(404).json({ success: false, message: "Assessment not found" });
+            }
+        }
 
         // If taking the test, hide correct answers
         const assessmentData = assessment.toObject();
@@ -352,7 +371,7 @@ export const startAssessment = async (req, res) => {
                 _id: submission._id,
                 status: submission.status,
                 startedAt: submission.startedAt,
-                assessment: submission.assessment,
+                assessment: stripAnswers(submission.assessment),
                 timeRemaining: submission.timeRemaining,
             },
         });
@@ -379,6 +398,11 @@ export const submitAnswer = async (req, res) => {
             return res.status(404).json({ success: false, message: "Active submission not found" });
         }
 
+        // The clock runs on the server: no new answers once time is up
+        if (submission.timeRemaining <= 0) {
+            return res.status(400).json({ success: false, message: "Time is up for this assessment" });
+        }
+
         // Find the question
         const question = submission.assessment.questions.find((q) => q._id.toString() === questionId);
         if (!question) {
@@ -393,11 +417,10 @@ export const submitAnswer = async (req, res) => {
             isCorrect = answer === question.correctAnswer;
             points = isCorrect ? question.points : 0;
         } else if (question.type === "code") {
-            // For coding, we'd run test cases here (simplified for now)
-            // In production, integrate with Judge0 or similar
-            points = question.points; // Placeholder
+            // Not auto-graded: scores 0 until a reviewer grades it (never free full marks)
+            points = 0;
         } else if (question.type === "text") {
-            points = question.points; // Manual grading needed
+            points = 0; // Manual grading needed
         }
 
         // Update or add answer
@@ -490,9 +513,13 @@ export const getSubmissionResults = async (req, res) => {
             return res.status(403).json({ success: false, message: "Access denied" });
         }
 
+        const result = submission.toObject();
+        if (isCandidate && submission.status !== "graded") {
+            result.assessment = stripAnswers(result.assessment);
+        }
         return res.status(200).json({
             success: true,
-            submission,
+            submission: result,
         });
     } catch (error) {
         console.error("Get results error:", error);

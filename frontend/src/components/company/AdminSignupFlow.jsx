@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
@@ -8,7 +8,6 @@ import {
   Check,
   ArrowRight,
   ArrowLeft,
-  CreditCard,
   User,
   Mail,
   Phone,
@@ -16,11 +15,9 @@ import {
   Eye,
   EyeOff,
   Users,
-  Shield,
   Upload,
   Plus,
   Trash2,
-  CheckCircle,
   Loader2,
   Camera,
 } from "lucide-react";
@@ -30,8 +27,8 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
-import axios from "axios";
-import { PAYMENT_API_END_POINT } from "@/utils/constant";
+import api from "@/utils/api";
+import { setUser } from "@/redux/authSlice";
 import Navbar from "../shared/Navbar";
 
 // ========== STEP INDICATOR ==========
@@ -70,80 +67,6 @@ const StepIndicator = ({ currentStep, steps }) => (
     ))}
   </div>
 );
-
-// ========== PLAN CARD ==========
-const PlanCard = ({ plan, selected, onSelect, billingCycle }) => {
-  const price =
-    billingCycle === "yearly"
-      ? plan.yearlyPrice
-      : billingCycle === "quarterly"
-        ? plan.quarterlyPrice
-        : plan.monthlyPrice;
-  const savings =
-    billingCycle === "yearly"
-      ? "20% OFF"
-      : billingCycle === "quarterly"
-        ? "10% OFF"
-        : null;
-
-  return (
-    <div
-      onClick={() => onSelect(plan)}
-      className={`relative p-5 md:p-6 rounded-sm cursor-pointer transition-all border ${
-        selected
-          ? "border-primary bg-primary/5 shadow-[0_0_30px_rgba(255,215,0,0.1)]"
-          : "border-white/10 bg-card hover:border-white/20"
-      }`}
-    >
-      <div
-        className={`absolute top-0 right-0 w-5 h-5 border-t border-r ${selected ? "border-primary/50" : "border-white/10"}`}
-      />
-      <div
-        className={`absolute bottom-0 left-0 w-5 h-5 border-b border-l ${selected ? "border-primary/50" : "border-white/10"}`}
-      />
-
-      {plan.popular && (
-        <Badge className="absolute -top-px right-4 bg-primary text-black text-xs font-bold px-2 py-0.5 rounded-b-sm rounded-t-none">
-          Popular
-        </Badge>
-      )}
-      {savings && (
-        <Badge className="absolute top-2 left-2 bg-accent/20 text-accent text-xs font-bold px-1.5 py-0.5 rounded-sm">
-          {savings}
-        </Badge>
-      )}
-
-      <h3 className="text-lg font-bold text-white mb-1">
-        {plan.name}
-      </h3>
-      <p className="text-gray-600 text-xs mb-4">{plan.description}</p>
-      <div className="flex items-baseline gap-1 mb-4">
-        <span className="text-2xl md:text-3xl font-bold text-white">
-          Rs {price.toLocaleString()}
-        </span>
-        <span className="text-gray-600 text-xs">
-          /
-          {billingCycle === "yearly"
-            ? "year"
-            : billingCycle === "quarterly"
-              ? "qtr"
-              : "mo"}
-        </span>
-      </div>
-      <ul className="space-y-2">
-        {plan.features.slice(0, 5).map((feature, idx) => (
-          <li
-            key={idx}
-            className="flex items-center gap-2 text-gray-500 text-xs"
-          >
-            <Check className="w-3 h-3 text-accent flex-shrink-0" />
-            <span className="truncate">{feature}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
 
 // ========== RECRUITER FORM ==========
 const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
@@ -187,85 +110,20 @@ const RecruiterForm = ({ recruiter, index, onChange, onRemove, canRemove }) => (
 // ========== MAIN COMPONENT ==========
 const AdminSignupFlow = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const preSelectedPlan = location.state?.plan;
+  const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
   const isLoggedIn = !!user;
 
-  // Dynamic steps based on login state
+  // Free platform: no plan or payment steps. Logged-in owners can invite their team here;
+  // new owners create the account first and invite from the dashboard afterwards.
   const steps = isLoggedIn
-    ? ["Select Plan", "Company Details", "Add Team", "Payment"]
-    : [
-        "Create Account",
-        "Select Plan",
-        "Company Details",
-        "Add Team",
-        "Payment",
-      ];
+    ? ["Company Details", "Add Team"]
+    : ["Create Account", "Company Details"];
 
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [billingCycle, setBillingCycle] = useState("monthly");
-
-  // Plan data
-  const plans = [
-    {
-      id: "basic",
-      name: "Starter",
-      description: "Perfect for startups",
-      monthlyPrice: 5000,
-      quarterlyPrice: 13500,
-      yearlyPrice: 48000,
-      paddlePriceId: "pri_01kc2k2hnr4re5yn3fevrkj9ty",
-      features: [
-        "5 Job Postings",
-        "1 Recruiter",
-        "Basic Analytics",
-        "Email Support",
-        "30-day Trial",
-      ],
-      maxRecruiters: 1,
-    },
-    {
-      id: "professional",
-      name: "Pro",
-      description: "For growing companies",
-      monthlyPrice: 15000,
-      quarterlyPrice: 40500,
-      yearlyPrice: 144000,
-      paddlePriceId: "pri_01kc2k3tyv04ysgqjqbwk7z46f",
-      popular: true,
-      features: [
-        "20 Job Postings",
-        "5 Recruiters",
-        "Video Interviews",
-        "MCQ Tests",
-        "AI Matching",
-        "Priority Support",
-      ],
-      maxRecruiters: 5,
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise",
-      description: "For large organizations",
-      monthlyPrice: 40000,
-      quarterlyPrice: 108000,
-      yearlyPrice: 384000,
-      paddlePriceId: "pri_01kc2k4xnpav2hmzd5h8vncxfm",
-      features: [
-        "Unlimited Jobs",
-        "Unlimited Recruiters",
-        "API Access",
-        "Dedicated Manager",
-        "Custom Branding",
-        "SLA Support",
-      ],
-      maxRecruiters: -1,
-    },
-  ];
 
   // Form state
   const [adminInfo, setAdminInfo] = useState({
@@ -275,10 +133,6 @@ const AdminSignupFlow = () => {
     password: "",
     confirmPassword: "",
   });
-
-  const [selectedPlan, setSelectedPlan] = useState(
-    plans.find((p) => p.id === preSelectedPlan) || null,
-  );
 
   const [companyInfo, setCompanyInfo] = useState({
     name: "",
@@ -295,7 +149,6 @@ const AdminSignupFlow = () => {
   });
 
   const [recruiters, setRecruiters] = useState([]);
-  const [registrationComplete] = useState(false);
 
   // Handle admin info changes
   const handleAdminChange = (field, value) =>
@@ -331,11 +184,8 @@ const AdminSignupFlow = () => {
   };
 
   const addRecruiter = () => {
-    const maxAllowed = selectedPlan?.maxRecruiters || 1;
-    if (maxAllowed !== -1 && recruiters.length >= maxAllowed - 1) {
-      toast.error(
-        `Your plan allows max ${maxAllowed} recruiters (including you)`,
-      );
+    if (recruiters.length >= 10) {
+      toast.error("You can invite up to 10 recruiters here; add more later from the dashboard");
       return;
     }
     setRecruiters((prev) => [...prev, { name: "", email: "" }]);
@@ -374,18 +224,8 @@ const AdminSignupFlow = () => {
       return true;
     }
 
-    // Plan selection
-    const planStepIndex = isLoggedIn ? 0 : 1;
-    if (stepIndex === planStepIndex) {
-      if (!selectedPlan) {
-        toast.error("Please select a plan");
-        return false;
-      }
-      return true;
-    }
-
     // Company info
-    const companyStepIndex = isLoggedIn ? 1 : 2;
+    const companyStepIndex = isLoggedIn ? 0 : 1;
     if (stepIndex === companyStepIndex) {
       if (!companyInfo.name || !companyInfo.location) {
         toast.error("Company name and location are required");
@@ -405,125 +245,39 @@ const AdminSignupFlow = () => {
 
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
-  // Handle final payment/registration
-  const handlePayment = async () => {
+  // Create the company (free: no payment step)
+  const handleRegister = async () => {
+    if (!companyInfo.name || !companyInfo.location) {
+      toast.error("Company name and location are required");
+      return;
+    }
     setLoading(true);
     try {
-      const validRecruiters = recruiters.filter((r) => r.name && r.email);
-
-      // Create FormData for logo upload
-      const formData = new FormData();
-      formData.append("companyName", companyInfo.name);
-      formData.append("email", companyInfo.email || adminInfo.email);
-      formData.append("phone", companyInfo.phone);
-      formData.append("description", companyInfo.description);
-      formData.append("website", companyInfo.website);
-      formData.append("location", companyInfo.location);
-      formData.append("industry", companyInfo.industry);
-      formData.append("companySize", companyInfo.size);
-      formData.append("planId", selectedPlan.id);
-      formData.append("billingCycle", billingCycle);
-      formData.append("adminName", adminInfo.fullname);
-      formData.append("adminEmail", adminInfo.email);
-      formData.append("adminPassword", adminInfo.password);
-      formData.append("adminPhone", adminInfo.phone);
-
-      if (companyInfo.logo) {
-        formData.append("file", companyInfo.logo);
-      }
-
-      // Initiate payment first
-      const paymentResponse = await axios.post(
-        `${PAYMENT_API_END_POINT}/initiate`,
-        {
-          planId: selectedPlan.id,
-          billingCycle,
-          amount:
-            billingCycle === "yearly"
-              ? selectedPlan.yearlyPrice
-              : billingCycle === "quarterly"
-                ? selectedPlan.quarterlyPrice
-                : selectedPlan.monthlyPrice,
-          companyData: {
-            name: companyInfo.name,
-            adminEmail: adminInfo.email,
-          },
-        },
-      );
-
-      if (!paymentResponse.data.success) {
-        throw new Error(paymentResponse.data.message);
-      }
-
-      const { transactionId } = paymentResponse.data;
-
-      // Store registration data for after payment
-      const registrationData = {
-        company: companyInfo,
-        admin: adminInfo,
-        plan: selectedPlan,
-        billingCycle,
-        recruiters: validRecruiters,
-      };
-      sessionStorage.setItem(
-        "pendingRegistration",
-        JSON.stringify(registrationData),
-      );
-      sessionStorage.setItem("pendingTransactionId", transactionId);
-
-      // Redirect to payment
-      const price =
-        billingCycle === "yearly"
-          ? selectedPlan.yearlyPrice
-          : billingCycle === "quarterly"
-            ? selectedPlan.quarterlyPrice
-            : selectedPlan.monthlyPrice;
-
-      window.location.href = `/company/payment/paddle?ref=${transactionId}&amount=${price}&plan=${selectedPlan.name}&priceId=${selectedPlan.paddlePriceId}`;
+      const res = await api.post("/company/register", {
+        companyName: companyInfo.name,
+        email: companyInfo.email || adminInfo.email,
+        phone: companyInfo.phone,
+        description: companyInfo.description,
+        website: companyInfo.website,
+        location: companyInfo.location,
+        industry: companyInfo.industry,
+        companySize: companyInfo.size,
+        adminName: adminInfo.fullname,
+        adminEmail: adminInfo.email,
+        adminPassword: adminInfo.password,
+        adminPhone: adminInfo.phone,
+        recruitersToInvite: recruiters.filter((r) => r.name && r.email),
+      });
+      if (!res.data.success) throw new Error(res.data.message);
+      if (res.data.user) dispatch(setUser(res.data.user));
+      toast.success("Your company is ready. Welcome to HIRE.OS!");
+      navigate("/company/admin/dashboard", { replace: true });
     } catch (error) {
-      console.error("Registration error:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "Registration failed. Please try again.",
-      );
+      toast.error(error.response?.data?.message || error.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  // Success Screen
-  if (registrationComplete) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-16 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <div className="w-20 h-20 mx-auto mb-8 rounded-sm bg-accent/10 border border-accent/30 flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-accent" />
-            </div>
-            <h1 className="text-3xl font-bold text-white mb-4">
-              Welcome to Hire.OS
-            </h1>
-            <p className="text-gray-500 mb-8">
-              Your company has been successfully registered. You can now start
-              posting jobs!
-            </p>
-            <Button
-              onClick={() => navigate("/admin/dashboard")}
-              className="px-8 py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
-            >
-              Go to Dashboard <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
-
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -678,50 +432,9 @@ const AdminSignupFlow = () => {
                 </div>
               )}
 
-              {/* Step: Plan Selection */}
+              {/* Step: Company Info */}
               {((isLoggedIn && currentStep === 0) ||
                 (!isLoggedIn && currentStep === 1)) && (
-                <div>
-                  <h2 className="text-lg font-bold text-white mb-4 text-center">
-                    Choose Your Plan
-                  </h2>
-
-                  {/* Billing Toggle */}
-                  <div className="flex justify-center mb-6">
-                    <div className="inline-flex bg-white/5 border border-white/10 rounded-sm p-1">
-                      {["monthly", "quarterly", "yearly"].map((cycle) => (
-                        <button
-                          key={cycle}
-                          onClick={() => setBillingCycle(cycle)}
-                          className={`px-4 py-2 text-xs transition-all rounded-sm ${
-                            billingCycle === cycle
-                              ? "bg-primary text-black"
-                              : "text-gray-500 hover:text-white"
-                          }`}
-                        >
-                          {cycle}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-3 gap-4 md:gap-6">
-                    {plans.map((plan) => (
-                      <PlanCard
-                        key={plan.id}
-                        plan={plan}
-                        selected={selectedPlan?.id === plan.id}
-                        onSelect={setSelectedPlan}
-                        billingCycle={billingCycle}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Step: Company Info */}
-              {((isLoggedIn && currentStep === 1) ||
-                (!isLoggedIn && currentStep === 2)) && (
                 <div className="bg-card border border-white/10 rounded-sm p-6 md:p-8 relative">
 
                   <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
@@ -912,8 +625,7 @@ const AdminSignupFlow = () => {
               )}
 
               {/* Step: Add Team/Recruiters */}
-              {((isLoggedIn && currentStep === 2) ||
-                (!isLoggedIn && currentStep === 3)) && (
+              {isLoggedIn && currentStep === 1 && (
                 <div className="space-y-6">
                   {/* Admin Preview */}
                   <div className="bg-card border border-white/10 rounded-sm p-5 relative">
@@ -955,10 +667,7 @@ const AdminSignupFlow = () => {
                       <Users className="w-4 h-4 text-primary" /> Invite Team
                       Members
                       <Badge className="ml-auto bg-white/10 text-gray-400 text-xs">
-                        {recruiters.length}/
-                        {selectedPlan?.maxRecruiters === -1
-                          ? "∞"
-                          : selectedPlan?.maxRecruiters - 1 || 0}
+                        {recruiters.length}/10
                       </Badge>
                     </h3>
                     <p className="text-gray-600 text-xs mb-4">
@@ -997,108 +706,6 @@ const AdminSignupFlow = () => {
                 </div>
               )}
 
-              {/* Step: Payment */}
-              {((isLoggedIn && currentStep === 3) ||
-                (!isLoggedIn && currentStep === 4)) && (
-                <div className="bg-card border border-white/10 rounded-sm p-6 md:p-8 relative">
-
-                  <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-primary" /> Order
-                    Summary
-                  </h2>
-
-                  <div className="p-5 bg-white/5 rounded-sm mb-6">
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Plan</span>
-                        <span className="text-white">
-                          {selectedPlan?.name}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Billing</span>
-                        <span className="text-white capitalize">
-                          {billingCycle}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Company</span>
-                        <span className="text-white">
-                          {companyInfo.name}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">
-                          Team Size
-                        </span>
-                        <span className="text-white">
-                          {recruiters.filter((r) => r.name && r.email).length +
-                            1}
-                        </span>
-                      </div>
-                      <div className="border-t border-white/10 my-3" />
-                      <div className="flex justify-between text-lg font-bold">
-                        <span className="text-white">Total</span>
-                        <span className="text-primary">
-                          Rs{" "}
-                          {(billingCycle === "yearly"
-                            ? selectedPlan?.yearlyPrice
-                            : billingCycle === "quarterly"
-                              ? selectedPlan?.quarterlyPrice
-                              : selectedPlan?.monthlyPrice
-                          )?.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-sm mb-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Shield className="w-4 h-4 text-primary" />
-                      <span className="text-white font-bold text-sm">
-                        Secure Payment
-                      </span>
-                    </div>
-                    <ul className="space-y-1 text-xs text-gray-500">
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-accent" />{" "}
-                        Credit/Debit Cards
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-accent" /> Bank
-                        Transfer
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-accent" /> 30-day
-                        Money Back Guarantee
-                      </li>
-                    </ul>
-                  </div>
-
-                  <Button
-                    onClick={handlePayment}
-                    disabled={loading}
-                    className="w-full py-5 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        Complete Registration
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </>
-                    )}
-                  </Button>
-
-                  <p className="text-center text-gray-600 text-xs mt-4">
-                    By completing, you agree to our Terms of Service and Privacy
-                    Policy
-                  </p>
-                </div>
-              )}
             </motion.div>
           </AnimatePresence>
 
@@ -1113,12 +720,24 @@ const AdminSignupFlow = () => {
               <ArrowLeft className="w-4 h-4 mr-2" /> Previous
             </Button>
 
-            {currentStep < steps.length - 1 && (
+            {currentStep < steps.length - 1 ? (
               <Button
                 onClick={nextStep}
                 className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold"
               >
                 Continue <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => validateStep() && handleRegister()}
+                disabled={loading}
+                className="bg-primary text-black hover:bg-[#FFE44D] rounded-sm text-xs font-bold"
+              >
+                {loading ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating...</>
+                ) : (
+                  <>Create my company <ArrowRight className="w-4 h-4 ml-2" /></>
+                )}
               </Button>
             )}
           </div>

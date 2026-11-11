@@ -7,8 +7,8 @@ const PAGES = {
     title: "Help",
     subtitle: "Answers to the common questions, and how to reach us for the rest.",
     rows: [
-      ["How do I join as a recruiter?", "Your company's owner invites you by email. Recruiters can't sign up on their own.", "/company/pricing", "See plans"],
-      ["How do I start hiring?", "Choose a plan, create your company, then invite your recruiters.", "/company/pricing", "Choose a plan"],
+      ["How do I join as a recruiter?", "Your company's owner invites you by email. Recruiters can't sign up on their own.", "/company/pricing", "See pricing"],
+      ["How do I start hiring?", "Create your company, then invite your recruiters. It is free.", "/company/signup", "Create your company"],
       ["How do I apply for a job?", "Create a free account, then apply from any job's page.", "/jobs", "Browse jobs"],
       ["Where can I see my applications?", "Applications lists each one with its stage and any interview.", "/applied-jobs", "Applications"],
       ["I forgot my password.", "Choose Forgot password on the sign-in page and we'll email you a link that works for an hour.", "/forgot-password", "Reset password"],
@@ -18,7 +18,7 @@ const PAGES = {
   resume: {
     title: "Resume analysis",
     subtitle: "Upload your resume and get feedback on how it reads to a recruiter.",
-    rows: [["Check your resume", "Free with a job seeker account for the first 30 days.", "/student/career", "Open career tools"]],
+    rows: [["Check your resume", "Free with a job seeker account.", "/student/career", "Open career tools"]],
   },
   salary: {
     title: "Salaries",

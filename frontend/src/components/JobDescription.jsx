@@ -26,6 +26,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { safeHttpUrl } from "../utils/safeUrl";
 
 const JobDescription = () => {
   const { id } = useParams();
@@ -534,9 +535,9 @@ const JobDescription = () => {
                   )}
                 </div>
 
-                {job.company?.website && (
+                {safeHttpUrl(job.company?.website) && (
                   <a
-                    href={job.company.website}
+                    href={safeHttpUrl(job.company.website)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-white/5 border border-white/10 rounded text-sm text-gray-400 hover:text-yellow-500 hover:border-yellow-500/30 transition-all"

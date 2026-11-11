@@ -93,7 +93,7 @@ export const uploadCompanyLogoController = async (req, res) => {
     // Check if user is admin or recruiter of this company
     const isAdmin = company.adminUser.toString() === userId;
     const isRecruiter = company.recruiters.some(
-      (r) => r.userId.toString() === userId,
+      (r) => r.userId?.toString() === userId,
     );
 
     if (!isAdmin && !isRecruiter) {
@@ -216,11 +216,15 @@ export const uploadGenericImage = async (req, res) => {
       });
     }
 
+    // Single flat folder name only: no slashes, so a caller can't write into another
+    // user's or company's folder.
+    const safeFolder = typeof folder === "string" && /^[a-z0-9_-]{1,32}$/i.test(folder) ? folder : "general";
+
     // Convert file to data URI
     const fileUri = getDataUri(file);
 
     // Upload to Cloudinary
-    const result = await uploadImage(fileUri.content, folder || "general");
+    const result = await uploadImage(fileUri.content, safeFolder);
 
     if (!result.success) {
       return res.status(500).json({
@@ -256,6 +260,21 @@ export const deleteUploadedImage = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Public ID is required",
+      });
+    }
+
+    // Callers may only delete assets under their own user folder, or the folder of the
+    // company they administer. Public IDs are visible in public image URLs, so knowing
+    // one must not be enough.
+    let owned = typeof publicId === "string" && publicId.startsWith(`hireos/users/${req.id}/`);
+    if (!owned && typeof publicId === "string" && publicId.startsWith("hireos/companies/")) {
+      const company = await Company.findOne({ adminUser: req.id }).select("_id");
+      owned = !!company && publicId.startsWith(`hireos/companies/${company._id}/`);
+    }
+    if (!owned || publicId.includes("..")) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own images",
       });
     }
 

@@ -73,15 +73,9 @@ const TeamPage = () => {
     <>
       <div className="app-title-row">
         <h1 className="app-h1">Team</h1>
-        {full ? (
-          <Link to="/company/billing" className="app-btn">
-            All {usage.maxRecruiters} seats used · Upgrade
-          </Link>
-        ) : (
-          <button type="button" className="app-btn app-btn-primary" onClick={() => setInvite({ email: "", name: "" })}>
-            Invite recruiter
-          </button>
-        )}
+        <button type="button" className="app-btn app-btn-primary" onClick={() => setInvite({ email: "", name: "" })}>
+          Invite recruiter
+        </button>
       </div>
 
       {error ? (

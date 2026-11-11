@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ROLES, PLANS, FAQ, draftScorecard } from "./data";
+import { ROLES, FREE_FOR_ALL, FAQ, draftScorecard } from "./data";
 import "./landing.css";
 
 /*
@@ -11,7 +11,6 @@ import "./landing.css";
  * HIRE.OS drafts for whatever role the visitor types.
  */
 
-const pkr = (n) => `Rs ${n.toLocaleString("en-PK")}`;
 
 const dashboardPath = (user) =>
   !user ? null : user.role === "company_admin" ? "/company/admin/dashboard" : user.role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard";
@@ -303,7 +302,7 @@ const GROUPS = [
       ["Team", "Invite recruiters and see their interviews, reports and hires."],
       ["Jobs", "Post, edit and close jobs."],
       ["Analytics", "Time to hire and where your applicants come from."],
-      ["Billing", "Your plan, seats and invoices."],
+      ["Reviews", "What candidates and the team say about working with you."],
     ],
   },
   {
@@ -328,10 +327,9 @@ const Landing = () => {
   const root = useRef(null);
   useReveal(root);
   const dash = dashboardPath(user);
-  const startHiring = user?.role === "company_admin" ? dash : "/company/pricing";
+  const startHiring = user?.role === "company_admin" ? dash : "/company/signup";
 
   const [feature, setFeature] = useState([0, 0]);
-  const [plan, setPlan] = useState(1);
   const [jobTitle, setJobTitle] = useState("Backend engineer");
   const [where, setWhere] = useState("On-site");
   const group = GROUPS[feature[0]];
@@ -469,36 +467,21 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Pricing: plan names, one live figure */}
+        {/* Pricing: there isn't any */}
         <section className="lp-pricing" id="pricing" aria-labelledby="plans-h">
           <h2 className="sr-only" id="plans-h">
             Pricing
           </h2>
-          <div className="lp-plan-names" role="tablist" aria-label="Plans" data-reveal>
-            {PLANS.map((p, i) => (
-              <button
-                key={p.id}
-                type="button"
-                role="tab"
-                aria-selected={plan === i}
-                aria-controls="plan-stage"
-                className={plan === i ? "is-on" : ""}
-                onClick={() => setPlan(i)}
-                onFocus={() => setPlan(i)}
-              >
-                {p.name}
-              </button>
-            ))}
-          </div>
-          <div className="lp-plan-stage" id="plan-stage" role="tabpanel" data-reveal>
-            <div key={plan} className="lp-plan-fade">
+          <div className="lp-plan-stage" data-reveal>
+            <div className="lp-plan-fade">
               <div className="lp-price-row">
-                <p className="lp-price num">{pkr(PLANS[plan].price)}</p>
-                <span className="lp-period">a month</span>
+                <p className="lp-price num">Free</p>
+                <span className="lp-period">for everyone, with no end date</span>
               </div>
-              <p className="lp-plan-says">{PLANS[plan].says}</p>
-              <Link to="/company/pricing" className="lp-btn">
-                Choose {PLANS[plan].name}
+              <p className="lp-plan-says">For companies: {FREE_FOR_ALL.companies}</p>
+              <p className="lp-plan-says">For job seekers: {FREE_FOR_ALL.seekers}</p>
+              <Link to="/company/signup" className="lp-btn">
+                Create your company
               </Link>
             </div>
           </div>
@@ -525,7 +508,7 @@ const Landing = () => {
             <h2 className="lp-cta-h" id="cta-h">
               Post your first job.
             </h2>
-            <p>Next you choose a plan and set up your company. Job seekers apply free.</p>
+            <p>Next you set up your company. It is free, and so is applying for job seekers.</p>
           </div>
           <form
             className="ui ui-dialog"

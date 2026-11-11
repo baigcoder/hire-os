@@ -2,19 +2,21 @@ import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { sendOTPEmail, sendWelcomeEmail } from "../utils/email.js";
 import { issueCode, checkCode } from "../utils/emailCode.js";
-import { startSession, recruiterAccessProblem } from "../utils/session.js";
+import { startSession, recruiterAccessProblem, endAllSessions } from "../utils/session.js";
+import { validatePassword } from "../middlewares/validation.js";
+import crypto from "crypto";
+
+const PURPOSES = ["signup", "login"];
+const isEmail = (v) => typeof v === "string" && v.length <= 254 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
 
 // Send OTP for signup/login
 export const sendOTP = async (req, res) => {
   try {
-    console.log(
-      `📨 Received OTP request for email: ${req.body.email}, purpose: ${req.body.purpose}`,
-    );
     const { email, purpose = "signup" } = req.body;
 
-    if (!email) {
+    if (!isEmail(email) || !PURPOSES.includes(purpose)) {
       return res.status(400).json({
-        message: "Email is required",
+        message: "A valid email is required",
         success: false,
       });
     }
@@ -53,7 +55,7 @@ export const sendOTP = async (req, res) => {
   } catch (error) {
     console.error("Send OTP error:", error);
     return res.status(500).json({
-      message: error.message || "Failed to send verification code",
+      message: "Failed to send verification code",
       success: false,
     });
   }
@@ -71,9 +73,17 @@ export const verifySignupOTP = async (req, res) => {
       role = "student",
     } = req.body;
 
-    if (!email || !otp || !fullname || !password) {
+    if (!isEmail(email) || !otp || typeof fullname !== "string" || typeof password !== "string" || !fullname.trim()) {
       return res.status(400).json({
         message: "All fields are required",
+        success: false,
+      });
+    }
+    // Same password rules as every other way of setting one (bcrypt only reads 72 bytes)
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length || Buffer.byteLength(password) > 72) {
+      return res.status(400).json({
+        message: passwordErrors[0] || "Password is too long (max 72 bytes)",
         success: false,
       });
     }
@@ -107,15 +117,11 @@ export const verifySignupOTP = async (req, res) => {
     // Create user
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Calculate trial dates for students
-    const trialStartDate = new Date();
-    const trialEndDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-
     // Build user data
     const userData = {
       fullname: fullname.trim(),
       email: email.toLowerCase().trim(),
-      phoneNumber: phone || null,
+      ...(phone ? { phoneNumber: phone } : {}),
       password: hashedPassword,
       role,
       authProvider: "email",
@@ -123,40 +129,13 @@ export const verifySignupOTP = async (req, res) => {
       lastLogin: new Date(),
     };
 
-    // Add trial fields for students
-    if (role === "student") {
-      userData.trialStartDate = trialStartDate;
-      userData.trialEndDate = trialEndDate;
-      userData.subscriptionStatus = "trial";
-      userData.hasUsedTrial = true;
-      userData.trialExpired = false;
-      userData.subscriptionEvents = [
-        {
-          event: "trial_started",
-          date: trialStartDate,
-          details: "30-day free trial activated on signup",
-        },
-      ];
-    }
+    userData.subscriptionStatus = "active"; // free platform
 
     const newUser = await User.create(userData);
 
     const token = await startSession(res, newUser._id, req);
 
-    // Send appropriate welcome email
-    if (role === "student") {
-      // Import and send trial welcome email
-      import("../utils/email.js")
-        .then((emailModule) => {
-          emailModule
-            .sendTrialWelcomeEmail(email, fullname, trialEndDate)
-            .catch(console.error);
-        })
-        .catch(console.error);
-    } else {
-      // Send regular welcome email
-      sendWelcomeEmail(email, fullname).catch(console.error);
-    }
+    sendWelcomeEmail(email, fullname).catch(console.error);
 
     const userResponse = {
       _id: newUser._id,
@@ -166,33 +145,20 @@ export const verifySignupOTP = async (req, res) => {
       role: newUser.role,
       profile: newUser.profile,
       createdAt: newUser.createdAt,
-      // Include trial info for students
-      ...(role === "student" && {
-        subscriptionStatus: newUser.subscriptionStatus,
-        trialStartDate: newUser.trialStartDate,
-        trialEndDate: newUser.trialEndDate,
-        isTrialActive: true,
-      }),
     };
 
     return res
       .status(201)
       .json({
-        message:
-          role === "student"
-            ? `Welcome ${fullname}! Your 30-day free trial has started.`
-            : "Account created successfully! Welcome to JobPortal.",
+        message: "Account created successfully! Welcome to JobPortal.",
         user: userResponse,
         token,
         success: true,
-        // Flag for frontend to show trial welcome modal
-        showTrialWelcome: role === "student",
-        trialEndDate: role === "student" ? trialEndDate : undefined,
       });
   } catch (error) {
     console.error("Verify signup OTP error:", error);
     return res.status(500).json({
-      message: error.message || "Failed to create account",
+      message: "Failed to create account",
       success: false,
     });
   }
@@ -228,6 +194,13 @@ export const verifyLoginOTP = async (req, res) => {
       });
     }
 
+    // An account whose email was never proven may have been pre-created by someone else with
+    // their own password: the real owner just proved the address, so those credentials end.
+    if (!user.isEmailVerified) {
+      user.password = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 12);
+      await endAllSessions(user._id);
+    }
+
     // Update last login
     user.lastLogin = new Date();
     user.isEmailVerified = true;
@@ -259,7 +232,7 @@ export const verifyLoginOTP = async (req, res) => {
   } catch (error) {
     console.error("Verify login OTP error:", error);
     return res.status(500).json({
-      message: error.message || "Failed to verify OTP",
+      message: "Failed to verify OTP",
       success: false,
     });
   }
@@ -270,11 +243,16 @@ export const resendOTP = async (req, res) => {
   try {
     const { email, purpose = "signup" } = req.body;
 
-    if (!email) {
+    if (!isEmail(email) || !PURPOSES.includes(purpose)) {
       return res.status(400).json({
-        message: "Email is required",
+        message: "A valid email is required",
         success: false,
       });
+    }
+    // A sign-in code only goes to an address that has an account (the reply is identical
+    // either way), so this endpoint can't be used to mail arbitrary addresses.
+    if (purpose === "login" && !(await User.exists({ email: email.toLowerCase() }))) {
+      return res.status(200).json({ message: "If this email has an account, a code is on its way.", success: true, expiresInSeconds: 600 });
     }
 
     // Generate new OTP
@@ -295,7 +273,7 @@ export const resendOTP = async (req, res) => {
   } catch (error) {
     console.error("Resend OTP error:", error);
     return res.status(500).json({
-      message: error.message || "Failed to resend verification code",
+      message: "Failed to resend verification code",
       success: false,
     });
   }

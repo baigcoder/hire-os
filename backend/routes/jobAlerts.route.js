@@ -3,6 +3,7 @@
  * Daily personalized job alerts and notification preferences
  */
 
+import { cleanStringList } from "../utils/safeInput.js";
 import express from "express";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { User } from "../models/user.model.js";
@@ -57,14 +58,14 @@ router.put("/preferences", isAuthenticated, async (req, res) => {
 
     const updateData = {
       "notifications.jobAlerts": emailAlerts,
-      "jobPreferences.locations": locations,
-      "jobPreferences.jobTypes": jobTypes,
+      "jobPreferences.locations": cleanStringList(locations),
+      "jobPreferences.jobTypes": cleanStringList(jobTypes, 10, 40),
       "jobPreferences.salaryMin": salaryMin,
       "jobPreferences.salaryMax": salaryMax,
-      "jobPreferences.industries": industries,
+      "jobPreferences.industries": cleanStringList(industries),
     };
 
-    await User.findByIdAndUpdate(userId, updateData);
+    await User.findByIdAndUpdate(userId, updateData, { runValidators: true });
 
     res.status(200).json({
       success: true,

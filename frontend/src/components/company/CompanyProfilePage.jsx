@@ -30,6 +30,7 @@ import { Badge } from "../ui/badge";
 import Navbar from "../shared/Navbar";
 import { COMPANY_API_END_POINT, JOB_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
+import { safeHttpUrl } from "@/utils/safeUrl";
 
 const CompanyProfilePage = () => {
   const { id } = useParams();
@@ -212,10 +213,10 @@ const CompanyProfilePage = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            {company.website && (
+            {safeHttpUrl(company.website) && (
               <Button
                 variant="outline"
-                onClick={() => window.open(company.website, "_blank")}
+                onClick={() => window.open(safeHttpUrl(company.website), "_blank", "noopener,noreferrer")}
                 className="border-white/10 text-gray-400 hover:bg-white/5"
               >
                 <Globe className="w-4 h-4 mr-2" />
@@ -430,9 +431,9 @@ const CompanyProfilePage = () => {
                     {company.phone}
                   </a>
                 )}
-                {company.website && (
+                {safeHttpUrl(company.website) && (
                   <a
-                    href={company.website}
+                    href={safeHttpUrl(company.website)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 text-gray-400 hover:text-primary transition-colors"
@@ -460,12 +461,12 @@ const CompanyProfilePage = () => {
                   <div className="flex flex-wrap gap-3">
                     {Object.entries(company.socialLinks).map(
                       ([platform, url]) => {
-                        if (!url) return null;
+                        if (!safeHttpUrl(url)) return null;
                         const Icon = socialIcons[platform];
                         return (
                           <a
                             key={platform}
-                            href={url}
+                            href={safeHttpUrl(url)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-10 h-10 bg-white/5 rounded-sm flex items-center justify-center text-gray-400 hover:bg-primary/20 hover:text-primary transition-colors"

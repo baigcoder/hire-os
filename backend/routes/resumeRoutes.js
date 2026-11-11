@@ -196,7 +196,7 @@ function escapeRegex(value) {
 }
 
 // Route to analyze resume text (for student dashboard)
-router.post("/analyze-text", isAuthenticated, async (req, res) => {
+router.post("/analyze-text", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const { resumeText, jobDescription } = req.body;
 
@@ -359,7 +359,7 @@ router.post(
  * @desc Fast JavaScript-only analysis (instant, no API calls)
  * @access Private
  */
-router.post("/quick-analyze", isAuthenticated, async (req, res) => {
+router.post("/quick-analyze", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const { resumeText, jobDescription } = req.body;
 
@@ -590,7 +590,7 @@ async function analyzeWithFlaskOrFallback(resumeText, jobDescription = null) {
 
 // Enhanced analyze endpoint - uses the unified multi-engine analyzer
 // Industrial-standard: JavaScript Regex + LLM
-router.post("/enhanced-analyze", isAuthenticated, async (req, res) => {
+router.post("/enhanced-analyze", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const { resumeText, jobDescription } = req.body;
     let candidateName = null;
@@ -682,7 +682,7 @@ router.post("/enhanced-analyze", isAuthenticated, async (req, res) => {
 });
 
 // Compare resume to specific job
-router.post("/compare-to-job", isAuthenticated, async (req, res) => {
+router.post("/compare-to-job", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const { resumeText, jobDescription } = req.body;
 
@@ -758,7 +758,7 @@ router.get("/my-analysis", isAuthenticated, async (req, res) => {
 });
 
 // Health check for Flask API
-router.get("/flask-status", async (req, res) => {
+router.get("/flask-status", isAuthenticated, async (req, res) => {
   try {
     const response = await axios.get(`${FLASK_API_URL}/health`, {
       timeout: 3000,
@@ -803,6 +803,7 @@ const pdfUpload = multer({
 router.post(
   "/analyze-pdf",
   isAuthenticated,
+  aiLimiter,
   pdfUpload.single("resume"),
   async (req, res) => {
     try {
@@ -815,7 +816,7 @@ router.post(
 
       let pdfData;
       try {
-        pdfData = await pdfParse(req.file.buffer);
+        pdfData = await pdfParse(req.file.buffer, { max: 30 });
       } catch (pdfError) {
         console.error("PDF parse error:", pdfError);
         return res.status(400).json({

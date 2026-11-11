@@ -106,7 +106,7 @@ router.get("/:id/config", async (req, res, next) => {
 
 const transition = (action) => async (req, res, next) => {
   try {
-    const call = await loadCall(req, res);
+    let call = await loadCall(req, res);
     if (!call) return;
     const isCallee = String(call.calleeId) === String(req.id);
     if (action === "accept" || action === "decline") {
@@ -114,15 +114,25 @@ const transition = (action) => async (req, res, next) => {
       if (call.status !== "ringing") {
         return res.status(409).json({ success: false, code: "CALL_OVER", status: call.status, message: "This call is no longer ringing" });
       }
-      call.status = action === "accept" ? "accepted" : "declined";
-      if (action === "accept") call.answeredAt = new Date();
-      else call.endedAt = new Date();
-    } else if (["ringing", "accepted"].includes(call.status)) {
+      // Conditional update: a concurrent hang-up and answer can't both win
+      const now = new Date();
+      const next = await Call.findOneAndUpdate(
+        { _id: call._id, calleeId: req.id, status: "ringing" },
+        { $set: action === "accept" ? { status: "accepted", answeredAt: now } : { status: "declined", endedAt: now } },
+        { new: true },
+      );
+      if (!next) {
+        return res.status(409).json({ success: false, code: "CALL_OVER", message: "This call is no longer ringing" });
+      }
+      call = next;
+    } else {
       // The caller hanging up before an answer makes it a missed call for the callee
-      call.status = call.status === "ringing" ? "missed" : "ended";
-      call.endedAt = new Date();
+      const now = new Date();
+      call =
+        (await Call.findOneAndUpdate({ _id: call._id, status: "ringing" }, { $set: { status: "missed", endedAt: now } }, { new: true })) ||
+        (await Call.findOneAndUpdate({ _id: call._id, status: "accepted" }, { $set: { status: "ended", endedAt: now } }, { new: true })) ||
+        call;
     }
-    await call.save();
     await broadcastPrivate(userTopic(otherParty(call, req.id)), "call-update", { callId: String(call._id), status: call.status });
     if (action === "accept") return res.set("Cache-Control", "no-store").json(await configFor(call, req.id));
     res.json({ success: true, call: { _id: String(call._id), status: call.status } });

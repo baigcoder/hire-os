@@ -350,7 +350,7 @@ const FeaturesPage = () => {
                   className="px-8 py-5 text-sm font-bold border-white/20 text-white hover:bg-white/5 rounded-sm"
                 >
                   <Crown className="w-4 h-4 mr-2" />
-                  View Pricing
+                  Free for everyone
                 </Button>
               </Link>
             </div>
@@ -405,7 +405,7 @@ const FeaturesPage = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/signup">
                 <Button className="px-10 py-6 text-sm font-bold bg-primary text-black hover:bg-[#FFE44D] rounded-sm">
-                  Start Free Trial
+                  Get started free
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>

@@ -13,10 +13,6 @@ import { Message } from "../../models/message.model.js";
 import { Referral } from "../../models/referral.model.js";
 import { Assessment } from "../../models/assessment.model.js";
 import { setSessionVerifierForTests } from "../../utils/supabase.js";
-import {
-  getPendingTransaction,
-  setPendingTransactionForTests,
-} from "../../controllers/paddle.controller.js";
 
 process.env.SECRET_KEY = process.env.SECRET_KEY || "test-secret-key";
 
@@ -217,70 +213,5 @@ describe("S18 platform-admin actions", () => {
       .set(auth(receiver))
       .send({ content: "thanks" });
     expect(allowed.status).toBe(201);
-  });
-});
-
-describe("S16/S19 Paddle payments", () => {
-  const SECRET = "whsec_test";
-  const sign = (body, ts = Math.floor(Date.now() / 1000)) =>
-    `ts=${ts};h1=${crypto.createHmac("sha256", SECRET).update(`${ts}:${body}`).digest("hex")}`;
-
-  beforeEach(() => {
-    process.env.PADDLE_WEBHOOK_SECRET = SECRET;
-  });
-  afterEach(() => {
-    delete process.env.PADDLE_WEBHOOK_SECRET;
-  });
-
-  it("prices the plan on the server", async () => {
-    const bad = await request(app)
-      .post("/api/v1/paddle/initiate")
-      .send({ planId: "platinum", billingCycle: "monthly" });
-    expect(bad.status).toBe(400);
-
-    const res = await request(app)
-      .post("/api/v1/paddle/initiate")
-      .send({
-        planId: "basic",
-        billingCycle: "monthly",
-        paddlePriceId: "pri_attacker_choice",
-      });
-    expect(res.status).toBe(200);
-    expect(res.body.paddlePriceId).not.toBe("pri_attacker_choice");
-  });
-
-  it("rejects an unsigned webhook", async () => {
-    const body = JSON.stringify({ event_type: "transaction.completed", data: {} });
-    const res = await request(app)
-      .post("/api/v1/paddle/webhook")
-      .set("Content-Type", "application/json")
-      .set("paddle-signature", "ts=1;h1=deadbeef")
-      .send(body);
-    expect(res.status).toBe(401);
-  });
-
-  it("won't complete a payment made with another plan's price", async () => {
-    setPendingTransactionForTests("TXN_1", {
-      planId: "enterprise",
-      billingCycle: "monthly",
-      paddlePriceId: "pri_enterprise",
-      createdAt: new Date(),
-      status: "pending",
-    });
-    const body = JSON.stringify({
-      event_type: "transaction.completed",
-      data: {
-        id: "txn_paddle_1",
-        custom_data: { transactionRef: "TXN_1" },
-        items: [{ price: { id: "pri_basic" } }],
-      },
-    });
-    const res = await request(app)
-      .post("/api/v1/paddle/webhook")
-      .set("Content-Type", "application/json")
-      .set("paddle-signature", sign(body))
-      .send(body);
-    expect(res.status).toBe(200);
-    expect(getPendingTransaction("TXN_1").status).toBe("price_mismatch");
   });
 });

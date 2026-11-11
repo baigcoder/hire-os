@@ -3,6 +3,7 @@
  * Live AI-powered interview practice with GPT-5
  */
 
+import { aiLimiter } from "../middlewares/rateLimiters.js";
 import express from "express";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import {
@@ -18,7 +19,7 @@ const router = express.Router();
  * Generate interview questions dynamically
  * POST /api/v1/mock-interview/generate-questions
  */
-router.post("/generate-questions", isAuthenticated, async (req, res) => {
+router.post("/generate-questions", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const {
       type = "behavioral",
@@ -95,7 +96,7 @@ Also include an introduction as the first item:
  * Get AI feedback for a candidate's response
  * POST /api/v1/mock-interview/feedback
  */
-router.post("/feedback", isAuthenticated, async (req, res) => {
+router.post("/feedback", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const { question, answer, jobContext = "", previousQA = [] } = req.body;
 
@@ -131,7 +132,7 @@ router.post("/feedback", isAuthenticated, async (req, res) => {
  * Get overall interview assessment
  * POST /api/v1/mock-interview/assessment
  */
-router.post("/assessment", isAuthenticated, async (req, res) => {
+router.post("/assessment", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const { responses, interviewType = "mixed" } = req.body;
 
@@ -199,7 +200,7 @@ Provide overall assessment JSON:
  * Real-time conversational AI response
  * POST /api/v1/mock-interview/chat
  */
-router.post("/chat", isAuthenticated, async (req, res) => {
+router.post("/chat", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const { message, context = "", conversationHistory = [] } = req.body;
 

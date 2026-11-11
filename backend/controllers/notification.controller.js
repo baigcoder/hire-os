@@ -98,7 +98,9 @@ export const getInterviewNotifications = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(20)
       .populate("relatedEntities.jobId", "title company")
-      .populate("relatedEntities.interviewId");
+      // Candidate-safe fields only: the full document holds the answer key, the internal
+      // hiring report and fraud flags.
+      .populate("relatedEntities.interviewId", "status scheduledAt timezone videoInterview.status videoInterview.scheduledAt mcqTest.enabled mcqTest.status");
 
     // Also get upcoming interviews from applications
     const upcomingInterviews = await Application.find({
@@ -109,7 +111,8 @@ export const getInterviewNotifications = async (req, res) => {
       .sort({ "interviewDetails.date": 1 })
       .populate({
         path: "job",
-        populate: { path: "company" },
+        select: "title location jobType",
+        populate: { path: "company", select: "name logo" },
       });
 
     return res.status(200).json({

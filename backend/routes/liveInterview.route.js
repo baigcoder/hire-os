@@ -8,6 +8,7 @@
  * - Natural interviewer personality
  */
 
+import { createSessionStore } from "../utils/sessionStore.js";
 import express from "express";
 import crypto from "crypto";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
@@ -27,13 +28,15 @@ import {
 } from "../utils/elevenLabsService.js";
 import PracticeHistory from "../models/practiceHistory.model.js";
 
+// A session is only visible to the user who started it
+const ownedSession = (session, req) =>
+  session && String(session.userId) === String(req.id) ? session : undefined;
+
 const router = express.Router();
 
-// In-memory session storage (use Redis in production)
-const interviewSessions = new Map();
-
-// Session timeout (30 minutes)
-const SESSION_TIMEOUT = 30 * 60 * 1000;
+// Sessions live in Redis when it is connected (any server can answer the next request),
+// otherwise in this process. They expire 30 minutes after the last write.
+const interviewSessions = createSessionStore("live-interview", 30 * 60);
 
 // AI Interviewer personas
 const INTERVIEWER_PERSONAS = {
@@ -194,10 +197,7 @@ Return JSON: { "question": "...", "category": "...", "tips": "..." }`;
       lastActivity: Date.now(),
     };
 
-    interviewSessions.set(sessionId, session);
-
-    // Clean up old sessions
-    cleanupOldSessions();
+    await interviewSessions.set(sessionId, session);
 
     console.log(`✅ [LiveInterview] Session ${sessionId} created`);
 
@@ -241,7 +241,7 @@ router.post("/respond", isAuthenticated, async (req, res) => {
       });
     }
 
-    const session = interviewSessions.get(sessionId);
+    const session = ownedSession(await interviewSessions.get(sessionId), req);
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -357,6 +357,8 @@ Return JSON: { "question": "...", "category": "...", "tips": "..." }`,
       }
     }
 
+    await interviewSessions.set(sessionId, session);
+
     res.json({
       success: true,
       aiResponse: {
@@ -392,7 +394,7 @@ router.post("/end", isAuthenticated, async (req, res) => {
   try {
     const { sessionId } = req.body;
 
-    const session = interviewSessions.get(sessionId);
+    const session = ownedSession(await interviewSessions.get(sessionId), req);
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -545,7 +547,7 @@ Provide JSON:
     }
 
     // Clean up session
-    interviewSessions.delete(sessionId);
+    await interviewSessions.delete(sessionId);
 
     res.json({
       success: true,
@@ -576,7 +578,7 @@ Provide JSON:
  * GET /api/v1/live-interview/status/:sessionId
  */
 router.get("/status/:sessionId", isAuthenticated, async (req, res) => {
-  const session = interviewSessions.get(req.params.sessionId);
+  const session = ownedSession(await interviewSessions.get(req.params.sessionId), req);
 
   if (!session) {
     return res.json({ success: false, active: false });
@@ -692,10 +694,13 @@ router.post("/stream", isAuthenticated, async (req, res) => {
       stylePreset = "professional",
     } = req.body;
 
-    if (!text) {
+    if (!hasCharacterBudget(typeof text === "string" ? text.length : 0)) {
+      return res.status(429).json({ success: false, message: "Voice is unavailable right now. Please try again later." });
+    }
+    if (!text || typeof text !== "string" || text.length > 1500) {
       return res.status(400).json({
         success: false,
-        message: "Text is required for streaming",
+        message: "Text is required (max 1500 characters)",
       });
     }
 
@@ -749,23 +754,5 @@ router.post("/stream", isAuthenticated, async (req, res) => {
     });
   }
 });
-
-/**
- * Clean up expired sessions
- */
-function cleanupOldSessions() {
-  const now = Date.now();
-  for (const [sessionId, session] of interviewSessions.entries()) {
-    if (now - session.lastActivity > SESSION_TIMEOUT) {
-      console.log(
-        `🧹 [LiveInterview] Cleaning up expired session ${sessionId}`,
-      );
-      interviewSessions.delete(sessionId);
-    }
-  }
-}
-
-// Cleanup every 5 minutes
-setInterval(cleanupOldSessions, 5 * 60 * 1000);
 
 export default router;

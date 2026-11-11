@@ -85,17 +85,13 @@ const Signup = () => {
       }
 
       if (form.role === "company_admin") {
-        navigate("/company/pricing", {
+        navigate("/company/register", {
           replace: true,
           state: { fromSignup: true, userId: data.user?._id, fullname: form.fullname, email: form.email },
         });
         return;
       }
-      if (data.showTrialWelcome) {
-        localStorage.setItem("showTrialWelcome", "true");
-        localStorage.setItem("trialEndDate", data.trialEndDate);
-      }
-      toast.success("Your 30-day free trial has started.");
+      toast.success("Welcome to HIRE.OS. It is free for everyone.");
       navigate(homeFor(data.user ?? { role: form.role, fullname: form.fullname }), { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || "That code didn't work.");

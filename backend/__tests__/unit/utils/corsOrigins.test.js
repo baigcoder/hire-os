@@ -48,6 +48,8 @@ describe("buildOriginChecker", () => {
   it.each([
     // Other projects / other accounts
     "https://other-app-abc123-baigcoders-projects.vercel.app",
+    // Attacker-named project that mimics the preview shape (not hash/git-branch)
+    "https://hire-os-evil-baigcoders-projects.vercel.app",
     "https://hire-os-abc123-attacker.vercel.app",
     "https://hire-os-abc123-baigcoders-projects-x.vercel.app",
     // Lookalikes and non-https

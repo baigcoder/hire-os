@@ -406,7 +406,7 @@ const PostJob = () => {
                 </p>
               </div>
               <Button
-                onClick={() => navigate("/company/pricing")}
+                onClick={() => navigate("/company/register")}
                 className="ml-auto bg-primary hover:bg-[#FFE44D] text-black rounded-sm"
               >
                 Setup Company

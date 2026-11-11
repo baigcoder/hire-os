@@ -51,7 +51,7 @@ export const buildOriginChecker = (env = process.env) => {
   const previewHost =
     project && scope
       ? new RegExp(
-          `^${escapeRegex(project)}-[a-z0-9-]+-${escapeRegex(scope)}\\.vercel\\.app$`,
+          `^${escapeRegex(project)}-(?:[a-z0-9]{9}|git-[a-z0-9-]+)-${escapeRegex(scope)}\\.vercel\\.app$`,
         )
       : null;
 

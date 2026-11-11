@@ -4,7 +4,7 @@ import { Company } from "../models/company.model.js";
 import { User } from "../models/user.model.js";
 import { Application } from "../models/application.model.js";
 import { Review } from "../models/review.model.js";
-import isAuthenticated from "../middlewares/isAuthenticated.js";
+import isAuthenticated, { isRecruiter } from "../middlewares/isAuthenticated.js";
 
 const router = express.Router();
 
@@ -129,7 +129,7 @@ router.get("/my-review", isAuthenticated, async (req, res) => {
  */
 router.get("/reviews", async (req, res) => {
   try {
-    const { limit = 6 } = req.query;
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 6, 1), 20);
 
     // Fetch reviews with 4+ star ratings, public, and approved
     const reviews = await Review.find({
@@ -189,10 +189,12 @@ router.post("/reviews", isAuthenticated, async (req, res) => {
       rating,
       title,
       comment,
-      type = "platform",
-      companyId,
-      jobId,
     } = req.body;
+    // This endpoint is for platform reviews only; company reviews have their own,
+    // eligibility-checked route. Never let a caller attach a review to a company/job here.
+    const type = "platform";
+    const companyId = undefined;
+    const jobId = undefined;
 
     if (!rating || !comment) {
       return res.status(400).json({
@@ -201,7 +203,7 @@ router.post("/reviews", isAuthenticated, async (req, res) => {
       });
     }
 
-    if (rating < 1 || rating > 5) {
+    if (!Number.isInteger(Number(rating)) || rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
         message: "Rating must be between 1 and 5",
@@ -266,7 +268,7 @@ router.post("/reviews", isAuthenticated, async (req, res) => {
  * GET /api/v1/stats/recruiter
  * Returns analytics for recruiters/company admins
  */
-router.get("/recruiter", isAuthenticated, async (req, res) => {
+router.get("/recruiter", isAuthenticated, isRecruiter, async (req, res) => {
   try {
     const userId = req.id;
     const { period = "30d" } = req.query;

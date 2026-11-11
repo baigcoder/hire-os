@@ -1,5 +1,6 @@
 import express from "express";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
+import { aiLimiter } from "../middlewares/rateLimiters.js";
 import {
   GEMINI_MODELS,
   geminiGenerateUrl,
@@ -15,9 +16,12 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
  * Generate AI content using Gemini
  * Used for job description suggestions, requirements, salary recommendations, etc.
  */
-router.post("/generate", isAuthenticated, async (req, res) => {
+router.post("/generate", isAuthenticated, aiLimiter, async (req, res) => {
   try {
-    const { prompt, maxTokens = 500 } = req.body;
+    const { prompt: rawPrompt, maxTokens: rawMax = 500 } = req.body;
+    // Server-side caps: this endpoint spends the platform's Gemini quota
+    const prompt = typeof rawPrompt === "string" ? rawPrompt.slice(0, 4000) : "";
+    const maxTokens = Math.min(Math.max(Number(rawMax) || 500, 1), 800);
 
     if (!prompt) {
       return res.status(400).json({
@@ -90,7 +94,7 @@ router.post("/generate", isAuthenticated, async (req, res) => {
 /**
  * Generate job posting suggestions
  */
-router.post("/job-suggestions", isAuthenticated, async (req, res) => {
+router.post("/job-suggestions", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const { title, type, experience, company } = req.body;
 

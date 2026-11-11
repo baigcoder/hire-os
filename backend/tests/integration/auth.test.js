@@ -143,10 +143,9 @@ describe("Auth Integration Tests", () => {
       expect(res.body.user.role).toBe("recruiter");
     });
 
-    it("keeps a recruiter out when the company's subscription has lapsed", async () => {
+    it("lets a recruiter in whatever the company's old subscription state is (the platform is free)", async () => {
       const res = await recruiterIn({ status: "expired" });
-      expect(res.statusCode).toBe(403);
-      expect(res.body.code).toBe("COMPANY_SUBSCRIPTION_INACTIVE");
+      expect(res.statusCode).toBe(200);
     });
 
     it("keeps a recruiter with no company out", async () => {

@@ -4,6 +4,7 @@
  * Returns match percentage, skill gap analysis, and similar candidate insights
  */
 
+import { escapeRegex } from "./safeInput.js";
 import { User } from "../models/user.model.js";
 import { Job } from "../models/job.model.js";
 import { getResumeAnalysisContext } from "./vectorStore.js";
@@ -447,7 +448,7 @@ export async function getMatchedJobsForStudent(studentId, options = {}) {
           .map((loc) => (typeof loc === "string" ? loc.trim() : ""))
           .filter(Boolean)
           .slice(0, 5)
-          .map((loc) => ({ location: new RegExp(loc, "i") }));
+          .map((loc) => ({ location: new RegExp(escapeRegex(loc), "i") }));
       }
     }
 
@@ -468,14 +469,14 @@ export async function getMatchedJobsForStudent(studentId, options = {}) {
         .map((i) => (typeof i === "string" ? i.trim() : ""))
         .filter(Boolean)
         .slice(0, 5)
-        .map((i) => new RegExp(i, "i"));
+        .map((i) => new RegExp(escapeRegex(i), "i"));
       if (rx.length > 0) {
         preferredQuery.industry = { $in: rx };
       }
     }
 
     if (options.location)
-      preferredQuery.location = new RegExp(options.location, "i");
+      preferredQuery.location = new RegExp(escapeRegex(String(options.location).slice(0, 60)), "i");
     if (options.jobType) preferredQuery.jobType = options.jobType;
 
     const jobs = await Job.find(preferredQuery)

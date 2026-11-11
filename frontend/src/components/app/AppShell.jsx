@@ -53,7 +53,6 @@ const NAV = {
     more: [
       ["Analytics", "/admin/analytics", BarChart3],
       ["Settings", "/company/settings", Settings],
-      ["Billing", "/company/billing", CreditCard],
     ],
   },
   recruiter: {
@@ -129,7 +128,7 @@ const AppShell = ({ title, children }) => {
   const signOutHandler = async () => {
     try {
       await signOut();
-      await api.get(`${USER_API_END_POINT}/logout`).catch(() => {});
+      await api.post(`${USER_API_END_POINT}/logout`).catch(() => {});
     } finally {
       dispatch(logout());
       localStorage.removeItem("token");

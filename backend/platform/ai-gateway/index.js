@@ -20,10 +20,12 @@ import logger, { getLogContext } from "../../utils/logger.js";
 import { AiRun } from "../../models/aiRun.model.js";
 import { createAiGateway } from "./gateway.js";
 import { ModelRateLimiter } from "./rateLimiter.js";
+import { createUserBudget } from "./userBudget.js";
 import { createGroqProvider, createGeminiProvider } from "./providers.js";
 
 export { AiGatewayError } from "./gateway.js";
 export { RateLimitedError } from "./rateLimiter.js";
+export { UserBudgetError } from "./userBudget.js";
 
 const recordRun = (run) => {
   // Skip when disconnected: mongoose would buffer the write for 10s
@@ -43,6 +45,7 @@ const getGateway = () => {
     },
     limiter: new ModelRateLimiter(),
     cache,
+    userBudget: createUserBudget({ cache }),
     recordRun,
     getContext: getLogContext,
     logger,

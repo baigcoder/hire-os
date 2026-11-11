@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { scorecardScore, band, ROLES, PLAN_ROWS, PLANS } from "./data.js";
+import { scorecardScore, band, ROLES, FREE_FOR_ALL } from "./data.js";
 
 test("score follows the backend rule: must-haves double, 1–4 mapped to 0–100", () => {
   const c = ROLES[0].competencies;
@@ -12,8 +12,9 @@ test("score follows the backend rule: must-haves double, 1–4 mapped to 0–100
   assert.equal(band(79), "Recommend");
 });
 
-test("every plan row has one answer per plan", () => {
-  for (const row of PLAN_ROWS) assert.equal(row.length, PLANS.length + 1);
+test("the landing page promises everything free, for both audiences", () => {
+  assert.ok(FREE_FOR_ALL.companies.length > 0);
+  assert.ok(FREE_FOR_ALL.seekers.length > 0);
 });
 
 test("a typed role gets its own draft, anything else a generic one", async () => {

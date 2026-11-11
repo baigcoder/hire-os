@@ -1,3 +1,10 @@
+// voiceId is interpolated into the upstream URL path: accept only a plain id so callers
+// can't traverse to other API paths with the server's key.
+const assertVoiceId = (voiceId) => {
+  if (!/^[A-Za-z0-9]{10,40}$/.test(String(voiceId))) throw new Error("Invalid voice id");
+  return voiceId;
+};
+
 /**
  * ElevenLabs TTS Service - Real-time Voice Generation
  *
@@ -187,7 +194,7 @@ export const textToSpeech = async (text, options = {}) => {
 
   try {
     const response = await fetch(
-      `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}`,
+      `${ELEVENLABS_API_URL}/text-to-speech/${assertVoiceId(voiceId)}`,
       {
         method: "POST",
         headers: {
@@ -265,7 +272,7 @@ export const textToSpeechStream = async (text, options = {}) => {
   characterUsage.used += text.length;
 
   const response = await fetch(
-    `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}/stream`,
+    `${ELEVENLABS_API_URL}/text-to-speech/${assertVoiceId(voiceId)}/stream`,
     {
       method: "POST",
       headers: {

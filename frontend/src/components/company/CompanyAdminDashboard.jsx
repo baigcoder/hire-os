@@ -14,13 +14,13 @@ const CompanyAdminDashboard = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
 
-  // Owners who never finished registration go back to pricing
+  // Owners who never finished registration go back to company setup
   useEffect(() => {
     if (user?.role !== "company_admin" || user?.companyId) return;
     if (sessionStorage.getItem("pendingCompanyRegistration") || sessionStorage.getItem("pendingRegistration")) return;
     const t = setTimeout(() => {
       toast.error("Please complete your company registration first");
-      navigate("/company/pricing", { replace: true, state: { fromIncompleteRegistration: true } });
+      navigate("/company/register", { replace: true, state: { fromIncompleteRegistration: true } });
     }, 500);
     return () => clearTimeout(t);
   }, [user, navigate]);
@@ -92,11 +92,8 @@ const CompanyAdminDashboard = () => {
             <section className="app-panel" aria-labelledby="plan-h">
               <div className="app-panel-head">
                 <h2 className="app-h2" id="plan-h">
-                  {data.company.plan} plan
+                  Free plan
                 </h2>
-                <Link to="/company/billing" className="app-link">
-                  Billing
-                </Link>
               </div>
               <dl className="app-dl">
                 <div>

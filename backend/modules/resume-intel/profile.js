@@ -27,11 +27,15 @@ export const extractProfile = async (ai, text, { cacheKey } = {}) => {
     cacheKey,
     messages: [
       { role: "system", content: SYSTEM },
-      { role: "user", content: `<resume>\n${text}\n</resume>` },
+      { role: "user", content: `<resume>\n${defang(text)}\n</resume>` },
     ],
   });
   return { profile: assignIds(result.data), meta: pickMeta(result) };
 };
+
+// Text inside <resume>...</resume> is data. Strip any tag that could close or reopen a
+// delimiter so a resume line can't break out and pose as instructions.
+const defang = (text) => String(text).replace(/<\/?\s*(resume|resume_profile|job_description|transcript|system|assistant)\b[^>]*>/gi, "");
 
 export const pickMeta = (result) => ({
   model: result.model,

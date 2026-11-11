@@ -68,7 +68,7 @@ const AuthCallback = () => {
 
             if (response.data.success) {
               const user = response.data.user;
-              const { isNewUser, redirectTo, requiresRegistration, trialInfo, token } = response.data;
+              const { isNewUser, redirectTo, requiresRegistration, token } = response.data;
 
               // CRITICAL: Store the JWT token for API authentication
               if (token) {
@@ -79,13 +79,6 @@ const AuthCallback = () => {
 
               // Clear pending role
               localStorage.removeItem("pendingSignupRole");
-
-              // Store trial info for welcome modal (students)
-              if (trialInfo && trialInfo.isNewUser) {
-                localStorage.setItem("showTrialWelcome", "true");
-                localStorage.setItem("trialEndDate", trialInfo.endDate);
-                localStorage.setItem("trialDaysRemaining", trialInfo.daysRemaining);
-              }
 
               setStatus("success");
 
@@ -112,7 +105,7 @@ const AuthCallback = () => {
                   // Fallback: determine redirect based on role
                   if (user.role === "company_admin") {
                     if (isNewUser || !user.companyId) {
-                      navigate("/company/pricing", { replace: true, state: { fromSignup: true } });
+                      navigate("/company/register", { replace: true, state: { fromSignup: true } });
                     } else {
                       navigate("/company/admin/dashboard", { replace: true });
                     }

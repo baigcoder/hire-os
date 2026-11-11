@@ -35,6 +35,42 @@ export const normalizeText = (text) =>
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
+// A DOCX is a ZIP: a few KB can declare gigabytes of XML. Read the central directory and
+// refuse archives whose declared uncompressed size or entry count is implausible for a
+// resume, before anything is inflated.
+const MAX_ZIP_ENTRIES = 1000;
+const MAX_ZIP_UNCOMPRESSED = 30 * 1024 * 1024;
+
+export const assertSafeZip = (buf) => {
+  const bad = () => new ExtractionError("UNREADABLE_FILE", "This Word document is too large or malformed to read.");
+  const searchFrom = Math.max(0, buf.length - 65557);
+  let eocd = -1;
+  for (let i = buf.length - 22; i >= searchFrom; i--) {
+    if (buf.readUInt32LE(i) === 0x06054b50) {
+      eocd = i;
+      break;
+    }
+  }
+  if (eocd < 0) throw bad();
+  const cdSize = buf.readUInt32LE(eocd + 12);
+  const cdStart = buf.readUInt32LE(eocd + 16);
+  if (cdStart === 0xffffffff || cdStart + cdSize > buf.length) throw bad();
+  // Walk records until the signature stops matching, as a ZIP reader would, instead of
+  // trusting the declared entry count (a lying count could hide later records).
+  let off = cdStart;
+  let n = 0;
+  let total = 0;
+  while (off + 46 <= buf.length && buf.readUInt32LE(off) === 0x02014b50) {
+    if (++n > MAX_ZIP_ENTRIES) throw bad();
+    const size = buf.readUInt32LE(off + 24);
+    if (size === 0xffffffff) throw bad(); // zip64: not a resume
+    total += size;
+    if (total > MAX_ZIP_UNCOMPRESSED) throw bad();
+    off += 46 + buf.readUInt16LE(off + 28) + buf.readUInt16LE(off + 30) + buf.readUInt16LE(off + 32);
+  }
+  if (n === 0 || off !== cdStart + cdSize) throw bad();
+};
+
 export const hashText = (text) =>
   crypto.createHash("sha256").update(text).digest("hex");
 
@@ -53,7 +89,7 @@ export const extractResume = async ({ buffer, mimetype, text: pasted }) => {
   } else if (mimetype === PDF) {
     format = "pdf";
     try {
-      const pdf = await pdfParse(buffer);
+      const pdf = await pdfParse(buffer, { max: 30 }); // page cap: bounds parse time and memory
       raw = pdf.text;
       pages = pdf.numpages || null;
     } catch {
@@ -64,6 +100,7 @@ export const extractResume = async ({ buffer, mimetype, text: pasted }) => {
     }
   } else if (mimetype === DOCX) {
     format = "docx";
+    assertSafeZip(buffer); // throws ExtractionError before mammoth inflates anything
     try {
       raw = (await mammoth.extractRawText({ buffer })).value;
     } catch {

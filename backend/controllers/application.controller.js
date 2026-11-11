@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+import { User } from "../models/user.model.js";
 import { Application } from "../models/application.model.js";
 import { assertCanPassDirectly, DecisionError } from "../modules/hiring/ceoDecision.js";
 import { Job } from "../models/job.model.js";
@@ -26,6 +28,26 @@ export const applyJob = async (req, res) => {
       });
     }
 
+    if (!mongoose.isValidObjectId(jobId)) {
+      return res.status(400).json({ message: "Invalid job id.", success: false });
+    }
+
+    // Load the job and the applicant first: nothing is written for an ineligible apply
+    const job = await Job.findById(jobId).populate("company", "name _id");
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found.",
+        success: false,
+      });
+    }
+    if (job.isActive === false || (job.deadline && new Date() > job.deadline)) {
+      return res.status(400).json({ message: "This job is no longer accepting applications.", success: false });
+    }
+    const applicant = await User.findById(userId).select("role companyId profile.resume profile.resumePath");
+    if (!applicant || applicant.role !== "student") {
+      return res.status(403).json({ message: "Only job seekers can apply for jobs.", success: false });
+    }
+
     // Check if user already applied to this job
     const existingApplication = await Application.findOne({
       job: jobId,
@@ -38,16 +60,18 @@ export const applyJob = async (req, res) => {
       });
     }
 
-    // Analyze resume using the AI model (only if resumePath provided)
+    // Analyze only the applicant's own stored resume. A client-supplied string is never
+    // analyzed (it could be free text written to score well).
+    const ownResume = applicant.profile?.resume || applicant.profile?.resumePath;
     let resumeAnalysis = null;
-    if (resumePath) {
-      const analysisResult = await analyzeResume(resumePath, jobId);
+    if (resumePath && ownResume && (resumePath === applicant.profile?.resume || resumePath === applicant.profile?.resumePath)) {
+      const analysisResult = await analyzeResume(ownResume, jobId);
 
       // Create resume analysis record
       resumeAnalysis = await ResumeAnalysis.create({
         userId,
         jobId,
-        resumePath,
+        resumePath: ownResume,
         analysisScore: Math.max(0, Math.min(100, Number(analysisResult.score) || 0)),
         keySkillsMatch: analysisResult.keySkillsMatch,
         experienceMatch: analysisResult.experienceMatch,
@@ -57,21 +81,22 @@ export const applyJob = async (req, res) => {
     }
 
     // Create application with optional resume analysis
-    const newApplication = await Application.create({
-      job: jobId,
-      applicant: userId,
-      coverLetter: coverLetter || "",
-      resumeAnalysis: resumeAnalysis?._id,
-    });
+    let newApplication;
+    try {
+      newApplication = await Application.create({
+        job: jobId,
+        applicant: userId,
+        coverLetter: typeof coverLetter === "string" ? coverLetter.slice(0, 5000) : "",
+        resumeAnalysis: resumeAnalysis?._id,
+      });
+    } catch (error) {
+      if (error?.code === 11000) {
+        return res.status(400).json({ message: "You have already applied for this job.", success: false });
+      }
+      throw error;
+    }
 
     // Update job applications
-    const job = await Job.findById(jobId).populate("company", "name _id");
-    if (!job) {
-      return res.status(404).json({
-        message: "Job not found.",
-        success: false,
-      });
-    }
     job.applications.push(newApplication._id);
     await job.save();
 
@@ -89,14 +114,6 @@ export const applyJob = async (req, res) => {
         jobId: job._id,
         applicationId: newApplication._id,
       };
-
-      // Socket.IO broadcast (legacy)
-      const io = req.app.get("io");
-      if (io && job.company?._id) {
-        const { broadcastNewApplication } =
-          await import("../utils/dashboardSocket.js");
-        broadcastNewApplication(io, job.company._id.toString(), applicationPayload);
-      }
 
       // Supabase Realtime broadcast (new)
       if (job.company?._id) {
@@ -444,10 +461,24 @@ export const passToCEO = async (req, res) => {
       });
     }
 
+    // Only someone who manages this application's job (same company) may pass it on
+    if (!canManageJob(recruiter, application.job)) {
+      return res.status(403).json({
+        message: "Unauthorized to process this application",
+        success: false,
+      });
+    }
+    // Only candidates still in the screening/interview stages can go to the owner
+    const PASSABLE = ["pending", "under_review", "shortlisted", "interview", "video_completed", "mcq_passed"];
+    if (!PASSABLE.includes(application.status)) {
+      return res.status(409).json({
+        message: "This application can't be passed to the owner in its current stage",
+        success: false,
+      });
+    }
+
     // Get company and verify recruiter belongs to it
-    const company = await Company.findById(
-      recruiter.companyId || application.job.company,
-    );
+    const company = await Company.findById(application.job.company);
     if (!company) {
       return res.status(404).json({
         message: "Company not found",
@@ -504,27 +535,6 @@ export const passToCEO = async (req, res) => {
         actionUrl: "/company/admin/dashboard",
         priority: "high",
       }).catch((error) => console.warn("Pass-to-CEO notification failed:", error.message));
-    }
-
-    // Broadcast real-time update to CEO dashboard
-    try {
-      const io = req.app.get("io");
-      if (io && company._id) {
-        const { broadcastNewApproval } =
-          await import("../utils/dashboardSocket.js");
-        broadcastNewApproval(io, company._id.toString(), {
-          applicantName: application.applicant.fullname,
-          jobTitle: application.job.title,
-          applicationId: application._id,
-          recruiterName: recruiter.fullname,
-          recommendation: recommendation || "Hire",
-        });
-      }
-    } catch (socketError) {
-      console.log(
-        "Dashboard socket broadcast failed (non-critical):",
-        socketError.message,
-      );
     }
 
     return res.status(200).json({

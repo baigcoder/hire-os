@@ -68,20 +68,6 @@ export const AuthProvider = ({ children }) => {
         // Clear pending role after successful sync
         localStorage.removeItem("pendingSignupRole");
 
-        // If this is a new user (first-time signup), trigger trial welcome modal for students
-        if (response.data.isNewUser && response.data.user?.role === "student") {
-          console.log(
-            "🎉 New student signup detected - showing trial welcome!",
-          );
-          localStorage.setItem("showTrialWelcome", "true");
-          localStorage.setItem(
-            "trialEndDate",
-            response.data.trialEndDate || "",
-          );
-          // Store in sessionStorage for immediate access
-          sessionStorage.setItem("newUserTrialStart", "true");
-        }
-
         return response.data.user;
       }
     } catch (error) {
@@ -251,7 +237,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // Try to call backend logout (don't block on failure)
       try {
-        await api.get("/user/logout");
+        await api.post("/user/logout");
       } catch (backendError) {
         console.log("Backend logout call failed (non-blocking):", backendError.message);
       }
@@ -263,13 +249,10 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("pendingSignupRole");
-      localStorage.removeItem("showTrialWelcome");
-      localStorage.removeItem("trialEndDate");
 
       // Clear sessionStorage
       sessionStorage.removeItem("authNewUser");
       sessionStorage.removeItem("authUserRole");
-      sessionStorage.removeItem("newUserTrialStart");
 
       // Clear Redux state
       dispatch(reduxLogout());

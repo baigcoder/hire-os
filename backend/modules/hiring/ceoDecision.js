@@ -140,7 +140,15 @@ export const decide = async ({ applicationId, interviewId, decision, comments, o
     notes: `Owner decision: ${decision}${note ? `. ${note}` : ""}`,
   });
 
-  await application.save();
+  // Claim the decision atomically: a double submit (or two admins) can't both apply it
+  // and double-count the hire.
+  const claim = await Application.updateOne(
+    { _id: application._id, status: "pending_ceo_approval" },
+    { $set: { status: application.status, ceoReview: application.ceoReview, statusHistory: application.statusHistory } },
+  );
+  if (!claim.matchedCount) {
+    throw new DecisionError(409, "NOT_AWAITING_DECISION", "This candidate isn't awaiting your decision");
+  }
   if (interview && viaReport) await interview.save();
   if (decision === "approved" && !viaReport) {
     await Company.updateOne({ _id: company._id }, { $inc: { "usage.hiresThisMonth": 1 } });
@@ -149,7 +157,7 @@ export const decide = async ({ applicationId, interviewId, decision, comments, o
   // Tell the recruiter; on approval of an interviewed candidate, prompt the offer
   const recruiterId = interview?.recruiterId ?? application.recruiterReview?.reviewedBy;
   if (recruiterId) {
-    notify({
+    await notify({
       userId: recruiterId,
       type: decision === "approved" ? "candidate_approved" : "candidate_rejected",
       title: decision === "approved" ? "Candidate approved" : decision === "rejected" ? "Candidate rejected" : "Decision on hold",
@@ -158,7 +166,7 @@ export const decide = async ({ applicationId, interviewId, decision, comments, o
       priority: "high",
     });
     if (decision === "approved" && viaReport) {
-      notify({
+      await notify({
         userId: recruiterId,
         type: "prepare_offer",
         title: "Prepare the offer letter",
@@ -171,7 +179,7 @@ export const decide = async ({ applicationId, interviewId, decision, comments, o
   }
   // The candidate hears about a hire or a rejection, never a hold
   if (decision !== "on_hold") {
-    notify({
+    await notify({
       userId: application.applicant._id,
       type: decision === "approved" ? "application_status_update" : "application_rejected",
       title: decision === "approved" ? (viaReport ? "Good news on your application" : "You're hired!") : "Application update",

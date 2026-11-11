@@ -158,7 +158,7 @@ describe("Phase 0 security fixes", () => {
     expect(
       (await request(app).get("/api/v1/resume/my-analysis").set(auth)).status,
     ).toBe(200);
-    await request(app).get("/api/v1/user/logout").set(auth);
+    await request(app).post("/api/v1/user/logout").set("X-Requested-With", "test").set(auth);
     const res = await request(app).get("/api/v1/resume/my-analysis").set(auth);
     expect(res.status).toBe(401);
     expect(res.body.code).toBe("TOKEN_REVOKED");

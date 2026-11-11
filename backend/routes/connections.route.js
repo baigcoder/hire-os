@@ -170,11 +170,11 @@ router.get("/", isAuthenticated, async (req, res) => {
     })
       .populate(
         "requester",
-        "fullname email profile.profilePhoto profile.bio profile.skills role",
+        "fullname profile.profilePhoto profile.bio profile.skills role",
       )
       .populate(
         "recipient",
-        "fullname email profile.profilePhoto profile.bio profile.skills role",
+        "fullname profile.profilePhoto profile.bio profile.skills role",
       )
       .sort({ connectedAt: -1, createdAt: -1 });
 
@@ -222,7 +222,7 @@ router.get("/pending", isAuthenticated, async (req, res) => {
     })
       .populate(
         "requester",
-        "fullname email profile.profilePhoto profile.bio profile.skills",
+        "fullname profile.profilePhoto profile.bio profile.skills",
       )
       .sort({ createdAt: -1 });
 
@@ -272,7 +272,7 @@ router.get("/suggestions", isAuthenticated, async (req, res) => {
       ],
     })
       .select(
-        "fullname email profile.profilePhoto profile.bio profile.skills role",
+        "fullname profile.profilePhoto profile.bio profile.skills role",
       )
       .limit(10)
       .lean();

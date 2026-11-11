@@ -1,6 +1,8 @@
 import { verifyAccessToken, recruiterAccessProblem } from "../utils/session.js";
 import { isTokenBlacklisted } from "../utils/tokenBlacklist.js";
 import { getLogContext } from "../utils/logger.js";
+import { User } from "../models/user.model.js";
+import { globalLimiter } from "./rateLimiters.js";
 
 const isAuthenticated = async (req, res, next) => {
   try {
@@ -43,6 +45,26 @@ const isAuthenticated = async (req, res, next) => {
           success: false,
           code: "TOKEN_REVOKED",
         });
+      }
+      // The account must still exist and be active, the session must still be live, and a
+      // temporary password must be replaced before anything else is used.
+      const authUser = await User.findById(decode.userId)
+        .select("isActive mustChangePassword activeSessions.sessionId activeSessions.prevSessionId")
+        .lean();
+      if (!authUser || authUser.isActive === false) {
+        return res.status(401).json({ message: "Account not found. Please login again.", success: false, code: "USER_NOT_FOUND" });
+      }
+      // Every token this server issues carries a session id. One without it is from before
+      // session-bound tokens existed: refuse it (the client silently refreshes into a new one).
+      // Tests mint bare tokens, so only they are exempt.
+      if (!decode.sid && process.env.NODE_ENV !== "test") {
+        return res.status(401).json({ message: "Session expired. Please login again.", success: false, code: "TOKEN_EXPIRED" });
+      }
+      if (decode.sid && !authUser.activeSessions?.some((s) => s.sessionId === decode.sid || s.prevSessionId === decode.sid)) {
+        return res.status(401).json({ message: "Session has been revoked. Please login again.", success: false, code: "SESSION_REVOKED" });
+      }
+      if (authUser.mustChangePassword && !/\/user\/(change-initial-password|me|logout|refresh-token)(\/|\?|$)/.test(req.originalUrl)) {
+        return res.status(403).json({ message: "Set your own password to continue.", success: false, code: "PASSWORD_CHANGE_REQUIRED" });
       }
       req.id = decode.userId;
       req.tokenExp = decode.exp;
@@ -360,38 +382,8 @@ export const checkUsageLimit = (limitType) => {
 };
 
 // Rate limiting middleware (simple in-memory implementation)
-const requestCounts = new Map();
-const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-const MAX_REQUESTS = 500; // Increased for dashboard with multiple API calls
-
-export const rateLimiter = (req, res, next) => {
-  const ip = req.ip || req.connection.remoteAddress;
-  const now = Date.now();
-
-  if (!requestCounts.has(ip)) {
-    requestCounts.set(ip, { count: 1, startTime: now });
-    return next();
-  }
-
-  const record = requestCounts.get(ip);
-
-  if (now - record.startTime > WINDOW_MS) {
-    // Reset window
-    requestCounts.set(ip, { count: 1, startTime: now });
-    return next();
-  }
-
-  if (record.count >= MAX_REQUESTS) {
-    return res.status(429).json({
-      message: "Too many requests. Please try again later.",
-      success: false,
-      code: "RATE_LIMITED",
-    });
-  }
-
-  record.count++;
-  next();
-};
+// Global per-IP limiter (shared through Redis when available): see middlewares/rateLimiters.js
+export const rateLimiter = globalLimiter;
 
 // Middleware to load user and company data
 export const loadUserContext = async (req, res, next) => {

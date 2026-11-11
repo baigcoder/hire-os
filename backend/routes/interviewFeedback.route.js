@@ -12,14 +12,54 @@ import { Interview } from "../models/interview.model.js";
 import { Application } from "../models/application.model.js";
 import { User } from "../models/user.model.js";
 import { Company } from "../models/company.model.js";
+import { Job } from "../models/job.model.js";
+import { canManageJob } from "../utils/jobAccess.js";
 
 const router = express.Router();
+
+/**
+ * Tenant scope: feedback is only visible/writable for recruiters who manage the job the
+ * application or interview belongs to (or the interview's own recruiter). Resolves the
+ * target from :id (feedback), :applicationId, :interviewId or the request body.
+ */
+const scoped = async (req, res, next) => {
+  try {
+    let applicationId = req.params.applicationId || req.body?.applicationId;
+    let interviewId = req.params.interviewId || req.body?.interviewId;
+    if (req.params.id) {
+      const fb = await InterviewFeedback.findById(req.params.id).select("applicationId interviewId").lean();
+      if (!fb) return res.status(404).json({ success: false, message: "Feedback not found" });
+      applicationId = fb.applicationId;
+      interviewId = fb.interviewId;
+    }
+    let jobId = null;
+    let recruiterId = null;
+    if (interviewId) {
+      const iv = await Interview.findById(interviewId).select("jobId recruiterId").lean();
+      jobId = iv?.jobId;
+      recruiterId = iv?.recruiterId;
+    }
+    if (!jobId && applicationId) {
+      const app = await Application.findById(applicationId).select("job").lean();
+      jobId = app?.job;
+    }
+    if (!jobId) return res.status(404).json({ success: false, message: "Not found" });
+    const job = await Job.findById(jobId).select("created_by company").lean();
+    if (String(recruiterId) !== String(req.id) && !canManageJob(req.user, job)) {
+      return res.status(403).json({ success: false, message: "You don't have access to this interview" });
+    }
+    next();
+  } catch (error) {
+    console.error("Feedback scope error:", error);
+    return res.status(500).json({ success: false, message: "Error checking access" });
+  }
+};
 
 /**
  * POST /api/v1/interview-feedback
  * Create or update feedback for an interview
  */
-router.post("/", isAuthenticated, isRecruiter, async (req, res) => {
+router.post("/", isAuthenticated, isRecruiter, scoped, async (req, res) => {
   try {
     const {
       interviewId,
@@ -48,6 +88,14 @@ router.post("/", isAuthenticated, isRecruiter, async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Interview not found" });
+    }
+
+    // The application must be the one this interview belongs to (no writing feedback
+    // onto another company's application through an interview you do manage)
+    if (String(interview.applicationId) !== String(applicationId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "That application doesn't belong to this interview" });
     }
 
     // Verify application exists
@@ -139,6 +187,7 @@ router.get(
   "/interview/:interviewId",
   isAuthenticated,
   isRecruiter,
+  scoped,
   async (req, res) => {
     try {
       const { interviewId } = req.params;
@@ -171,6 +220,7 @@ router.get(
   "/application/:applicationId",
   isAuthenticated,
   isRecruiter,
+  scoped,
   async (req, res) => {
     try {
       const { applicationId } = req.params;
@@ -234,7 +284,7 @@ router.get("/my-drafts", isAuthenticated, isRecruiter, async (req, res) => {
  * GET /api/v1/interview-feedback/:id
  * Get specific feedback
  */
-router.get("/:id", isAuthenticated, isRecruiter, async (req, res) => {
+router.get("/:id", isAuthenticated, isRecruiter, scoped, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -266,7 +316,7 @@ router.get("/:id", isAuthenticated, isRecruiter, async (req, res) => {
  * DELETE /api/v1/interview-feedback/:id
  * Delete feedback (only if not submitted)
  */
-router.delete("/:id", isAuthenticated, isRecruiter, async (req, res) => {
+router.delete("/:id", isAuthenticated, isRecruiter, scoped, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.id;

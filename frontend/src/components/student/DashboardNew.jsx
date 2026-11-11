@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import api from "@/utils/api";
 import { AnimatePresence } from "framer-motion";
 import MockTestPrep from "./MockTestPrep";
-import TrialWelcomeModal from "./TrialWelcomeModal";
 // New Dashboard Features
 import SkillGapAnalysis from "./SkillGapAnalysis";
 import SalaryInsights from "./SalaryInsights";
@@ -46,45 +45,6 @@ const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") === "practice" ? "practice" : "career");
   const [, setAiJobs] = useState([]);
   const [, setAiLoading] = useState(false);
-
-  // Trial Welcome Modal state
-  const [showTrialModal, setShowTrialModal] = useState(false);
-  const [trialEndDate, setTrialEndDate] = useState(null);
-
-  // Real-time dashboard connection using Supabase Realtime
-  useSupabaseDashboard({
-    onStatsUpdate: useCallback((data) => {
-      console.log("📊 Real-time stats update:", data);
-      if (data.stats) {
-        setStats((prev) => ({ ...prev, ...data.stats }));
-      }
-    }, []),
-    onApplicationUpdate: useCallback((data) => {
-      console.log("📊 Application update:", data);
-    }, []),
-    onInterviewScheduled: useCallback((data) => {
-      console.log("🎯 Interview scheduled:", data);
-      toast.success(`🎉 Interview Scheduled! ${data.jobTitle || "New Interview"}`, {
-        description: data.companyName ? `at ${data.companyName}` : undefined,
-      });
-      // Update interview count immediately
-      setStats((prev) => ({ ...prev, interviews: prev.interviews + 1 }));
-    }, []),
-  });
-
-  // Check if we should show trial welcome modal (on first visit after signup)
-  useEffect(() => {
-    const shouldShowTrial = localStorage.getItem("showTrialWelcome");
-    const storedTrialEndDate = localStorage.getItem("trialEndDate");
-
-    if (shouldShowTrial === "true") {
-      setShowTrialModal(true);
-      setTrialEndDate(storedTrialEndDate);
-      // Clear the flag so modal doesn't show again
-      localStorage.removeItem("showTrialWelcome");
-      localStorage.removeItem("trialEndDate");
-    }
-  }, []);
 
   // Fetch application data
   useEffect(() => {
@@ -195,14 +155,6 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background text-white selection:bg-primary/30 selection:text-primary">
-      {/* Trial Welcome Modal */}
-      <TrialWelcomeModal
-        isOpen={showTrialModal}
-        onClose={() => setShowTrialModal(false)}
-        userName={user?.fullname}
-        trialEndDate={trialEndDate || user?.trialEndDate}
-      />
-
       <div className="fixed inset-0 pointer-events-none">
       </div>
 

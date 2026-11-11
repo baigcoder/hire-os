@@ -30,13 +30,7 @@ import ProtectedRoute, {
 } from "./components/admin/ProtectedRoute";
 import AppliedJobs from "./components/student/AppliedJobs";
 import PricingPage from "./components/company/PricingPage";
-import BillingPage from "./components/company/BillingPage";
 import CompanyProfilePage from "./components/company/CompanyProfilePage";
-import CompanyRegistration from "./components/company/CompanyRegistration";
-import PaymentPage from "./components/company/PaymentPage";
-import PaymentSuccess from "./components/company/PaymentSuccess";
-import PaymentSimulator from "./components/company/PaymentSimulator";
-import PaddleCheckout from "./components/company/PaddleCheckout";
 import AdminSignupFlow from "./components/company/AdminSignupFlow";
 // import CompanyAdminDashboard from './components/company/CompanyAdminDashboard' // Lazy loaded
 // import LiveInterview from './components/interview/LiveInterview' // Lazy loaded
@@ -573,7 +567,8 @@ const appRouter = createBrowserRouter([
   {
     // Accept invitation (public route)
     path: "/recruiter/accept-invite",
-    element: <CompanyRegistration mode="recruiter-invite" />,
+    // Recruiters are created by their company owner and sign in with the emailed credentials
+    element: <Navigate to="/login" replace />,
   },
   {
     // Recruiter interview scheduling page
@@ -870,33 +865,22 @@ const appRouter = createBrowserRouter([
     path: "/company/pricing",
     element: <PricingPage />,
   },
+  // Free platform: old billing/payment links go to the free-plan page
   {
     path: "/company/billing",
-    element: (
-      <CompanyAdminRoute>
-        <AppShell title="Billing"><BillingPage /></AppShell>
-      </CompanyAdminRoute>
-    ),
+    element: <Navigate to="/company/pricing" replace />,
   },
   {
     path: "/company/register",
-    element: <CompanyRegistration />,
+    element: <AdminSignupFlow />,
+  },
+  {
+    path: "/company/payment/*",
+    element: <Navigate to="/company/pricing" replace />,
   },
   {
     path: "/company/payment",
-    element: <PaymentPage />,
-  },
-  {
-    path: "/company/payment/success",
-    element: <PaymentSuccess />,
-  },
-  {
-    path: "/company/payment/checkout",
-    element: <PaymentSimulator />,
-  },
-  {
-    path: "/company/payment/paddle",
-    element: <PaddleCheckout />,
+    element: <Navigate to="/company/pricing" replace />,
   },
   {
     path: "/company/dashboard", // merged into the company owner's dashboard

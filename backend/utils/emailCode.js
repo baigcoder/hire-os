@@ -27,21 +27,26 @@ export const issueCode = async (rawEmail) => {
 /** Checks a code. A correct code is used up; a wrong one counts against the limit. */
 export const checkCode = async (rawEmail, code) => {
   const email = rawEmail.toLowerCase().trim();
-  const stored = await EmailCode.findOne({ email });
-  if (!stored || stored.expiresAt < new Date()) {
+  // Atomic: the attempt is claimed in the same operation that reads the code, so
+  // parallel guesses can't all see attempts=0 and exceed the limit.
+  const stored = await EmailCode.findOneAndUpdate(
+    { email, expiresAt: { $gt: new Date() }, attempts: { $lt: MAX_ATTEMPTS } },
+    { $inc: { attempts: 1 } },
+    { new: false },
+  );
+  if (!stored) {
+    const existing = await EmailCode.findOne({ email });
+    if (existing && existing.expiresAt >= new Date()) {
+      await existing.deleteOne();
+      return { valid: false, message: "Too many tries. Request a new code." };
+    }
     return { valid: false, message: "That code has expired. Request a new one." };
-  }
-  if (stored.attempts >= MAX_ATTEMPTS) {
-    await stored.deleteOne();
-    return { valid: false, message: "Too many tries. Request a new code." };
   }
   const given = Buffer.from(hashOf(email, String(code ?? "")));
   const expected = Buffer.from(stored.hash);
   if (!crypto.timingSafeEqual(given, expected)) {
-    stored.attempts += 1;
-    await stored.save();
     return { valid: false, message: "That code isn't right." };
   }
-  await stored.deleteOne();
+  await EmailCode.deleteOne({ _id: stored._id });
   return { valid: true };
 };

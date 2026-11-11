@@ -89,6 +89,19 @@ export const addCandidate = async (req, res) => {
         const pool = await TalentPool.findById(poolId);
         if (!pool) return res.status(404).json({ success: false, message: "Pool not found" });
 
+        // Only a real applicant of this company can be pooled (not any user id)
+        const mongooseLib = (await import("mongoose")).default;
+        if (!mongooseLib.isValidObjectId(candidateId)) {
+            return res.status(400).json({ success: false, message: "Invalid candidate" });
+        }
+        const { Job } = await import("../models/job.model.js");
+        const { Application } = await import("../models/application.model.js");
+        const companyJobs = await Job.find({ company: pool.company }).distinct("_id");
+        const applied = await Application.exists({ applicant: candidateId, job: { $in: companyJobs } });
+        if (!applied) {
+            return res.status(404).json({ success: false, message: "Candidate not found" });
+        }
+
         const result = await pool.addCandidate(candidateId, userId, { tags, notes, source });
         if (!result) {
             return res.status(400).json({ success: false, message: "Candidate already in pool" });

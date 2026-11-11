@@ -1,3 +1,5 @@
+import { createSessionStore } from "../utils/sessionStore.js";
+import { aiLimiter } from "../middlewares/rateLimiters.js";
 import express from "express";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { User } from "../models/user.model.js";
@@ -97,7 +99,8 @@ async function generateMCQWithAI(prompt, topic) {
 }
 
 // Store practice tests in memory (consider MongoDB for production)
-const practiceTestsStore = new Map();
+// Shared through Redis when connected (any server can serve the next request); 2 hours
+const practiceTestsStore = createSessionStore("practice-mcq", 2 * 60 * 60);
 
 // Practice test categories
 const CATEGORIES = {
@@ -146,7 +149,7 @@ const CATEGORIES = {
 };
 
 // Generate practice MCQ test
-router.post("/mcq/generate", isAuthenticated, async (req, res) => {
+router.post("/mcq/generate", isAuthenticated, aiLimiter, async (req, res) => {
   try {
     const userId = req.id;
     const {
@@ -301,7 +304,7 @@ Requirements:
       status: "in_progress",
     };
 
-    practiceTestsStore.set(testId, test);
+    await practiceTestsStore.set(testId, test);
 
     // Return test without correct answers
     const testForCandidate = {
@@ -333,7 +336,7 @@ router.post("/mcq/submit", isAuthenticated, async (req, res) => {
     const userId = req.id;
     const { testId, answers } = req.body;
 
-    const test = practiceTestsStore.get(testId);
+    const test = await practiceTestsStore.get(testId);
 
     if (!test) {
       return res
@@ -387,7 +390,7 @@ router.post("/mcq/submit", isAuthenticated, async (req, res) => {
     // Store result
     test.status = "completed";
     test.result = result;
-    practiceTestsStore.set(testId, test);
+    await practiceTestsStore.set(testId, test);
 
     res.status(200).json({
       success: true,
@@ -406,7 +409,7 @@ router.get("/mcq/:testId", isAuthenticated, async (req, res) => {
     const { testId } = req.params;
     const userId = req.id;
 
-    const test = practiceTestsStore.get(testId);
+    const test = await practiceTestsStore.get(testId);
 
     if (!test) {
       return res

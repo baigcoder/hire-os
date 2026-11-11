@@ -349,8 +349,24 @@ export const applyReferralCode = async (req, res) => {
             });
         }
 
-        // Mark as signed up
-        await referral.markSignedUp(userId);
+        // One referrer per person, and only people who just joined
+        const me = await User.findById(userId).select("createdAt").lean();
+        if (!me || Date.now() - new Date(me.createdAt).getTime() > 14 * 24 * 60 * 60 * 1000) {
+            return res.status(400).json({ success: false, message: "Referral codes can only be used within 14 days of signing up" });
+        }
+        if (await Referral.exists({ referee: userId })) {
+            return res.status(400).json({ success: false, message: "You have already used a referral code" });
+        }
+
+        // Claim atomically: two people can't take the same code at once
+        const claimed = await Referral.findOneAndUpdate(
+            { _id: referral._id, status: "pending", referee: { $in: [null, undefined] } },
+            { $set: { referee: userId, status: "signed_up" } },
+            { new: true },
+        );
+        if (!claimed) {
+            return res.status(409).json({ success: false, message: "This referral code was just used" });
+        }
 
         // Get referrer info
         const referrer = await User.findById(referral.referrer).select("fullname");

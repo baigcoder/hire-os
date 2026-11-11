@@ -205,6 +205,10 @@ const userSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
     },
+    // Last heartbeat from an open tab: drives the online dot for the user's contacts
+    lastSeenAt: {
+      type: Date,
+    },
     passwordChangedAt: {
       type: Date,
     },
@@ -326,6 +330,11 @@ const userSchema = new mongoose.Schema(
       refreshToken: {
         type: String,
         required: true,
+      },
+      // The session id before the last refresh: access tokens minted just before a
+      // rotation stay valid until their own expiry.
+      prevSessionId: {
+        type: String,
       },
       deviceInfo: {
         type: String,

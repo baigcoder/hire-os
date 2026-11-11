@@ -52,7 +52,7 @@ describe("Sessions", () => {
   it("ends the session on sign-out, so its refresh token stops working", async () => {
     const res = await signIn();
     const refreshToken = cookieValue(res, "refreshToken");
-    await request(app).get("/api/v1/user/logout").set("Cookie", `refreshToken=${refreshToken}`);
+    await request(app).post("/api/v1/user/logout").set("X-Requested-With", "test").set("Cookie", `refreshToken=${refreshToken}`);
     const refresh = await request(app)
       .post("/api/v1/user/refresh-token")
       .set("Cookie", `refreshToken=${refreshToken}`)
@@ -95,12 +95,11 @@ describe("Recruiters on every request", () => {
     expect(res.body.code).toBe("PASSWORD_CHANGE_REQUIRED");
   });
 
-  it("cuts a signed-in recruiter off as soon as the company's subscription lapses", async () => {
+  it("doesn't cut a recruiter off over an old subscription state (the platform is free)", async () => {
     const { token, company } = await recruiterWith();
     await Company.updateOne({ _id: company._id }, { "subscription.status": "expired" });
     const res = await applicants(token);
-    expect(res.statusCode).toBe(403);
-    expect(res.body.code).toBe("COMPANY_SUBSCRIPTION_INACTIVE");
+    expect(res.statusCode).not.toBe(403);
   });
 });
 

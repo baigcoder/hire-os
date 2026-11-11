@@ -12,6 +12,8 @@
  *     of documents per kind.
  *   - "atlas" (VECTOR_SEARCH=atlas): MongoDB Atlas $vectorSearch using the
  *     index in docs/atlas/embeddings-vector-index.json.
+ *   - "auto" (default when NODE_ENV=production): try Atlas, fall back to exact if the
+ *     cluster has no vector index.
  */
 import crypto from "crypto";
 import mongoose from "mongoose";
@@ -22,7 +24,12 @@ import logger from "../../utils/logger.js";
 
 const BATCH_SIZE = 50;
 const MAX_INPUT_CHARS = 8000;
-const EXACT_SEARCH_LIMIT = 5000;
+// Exact search loads every candidate vector into Node: keep the cap modest. In production
+// the default mode is "auto": Atlas $vectorSearch when the cluster supports it, otherwise
+// this capped exact search.
+const EXACT_SEARCH_LIMIT = Number(process.env.EXACT_VECTOR_LIMIT) || 2000;
+let atlasState = "unknown"; // unknown | ok | unavailable
+const vectorMode = () => process.env.VECTOR_SEARCH || (process.env.NODE_ENV === "production" ? "auto" : "exact");
 
 export class EmbeddingsUnavailableError extends Error {
   constructor(message = "Embeddings are not configured (GEMINI_API_KEY)") {
@@ -183,7 +190,9 @@ export const searchSimilar = async ({
     ...(exclude.length && { refId: { $nin: exclude } }),
   };
 
-  if (process.env.VECTOR_SEARCH === "atlas") {
+  const mode = vectorMode();
+  if (mode === "atlas" || (mode === "auto" && atlasState !== "unavailable")) {
+   try {
     const rows = await Embedding.aggregate([
       {
         $vectorSearch: {
@@ -199,11 +208,17 @@ export const searchSimilar = async ({
         $project: { refId: 1, meta: 1, score: { $meta: "vectorSearchScore" } },
       },
     ]);
+    if (mode === "auto") atlasState = "ok";
     return rows.map((r) => ({
       refId: String(r.refId),
       score: r.score,
       meta: r.meta,
     }));
+   } catch (error) {
+    if (mode !== "auto") throw error;
+    atlasState = "unavailable";
+    logger.warn("Atlas vector search unavailable; using capped exact search", { error: error.message });
+   }
   }
 
   const candidates = await Embedding.find(match)
@@ -212,7 +227,7 @@ export const searchSimilar = async ({
     .lean();
   if (candidates.length === EXACT_SEARCH_LIMIT) {
     logger.warn(
-      "Exact vector search hit its cap; consider VECTOR_SEARCH=atlas",
+      "Exact vector search hit its cap; create the Atlas vector index (docs/atlas)",
       {
         kind,
       },

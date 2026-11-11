@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { supabase } from "../lib/supabase";
 import api from "../utils/api";
 import { useUserTopic } from "../hooks/useUserTopic";
+import { safeInternalPath } from "../utils/safeUrl";
 
 const RealtimeContext = createContext(null);
 
@@ -47,7 +48,6 @@ export const useRealtime = () => {
 export const RealtimeProvider = ({ children }) => {
   const { user } = useSelector((store) => store.auth);
   const channelRef = useRef(null);
-  const presenceChannelRef = useRef(null);
 
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(new Map()); // userId -> presence data
@@ -60,66 +60,33 @@ export const RealtimeProvider = ({ children }) => {
   // Clear typing indicator after timeout
   const typingTimeouts = useRef(new Map());
 
-  // Initialize presence channel
+  // Online status: a heartbeat from this tab, and the list of online contacts, over the
+  // authenticated API (no public realtime channel carrying every user's id).
   useEffect(() => {
     if (!user?._id) return;
+    let stopped = false;
 
-    const userId = user?._id;
-
-    // Create presence channel for online status
-    const presenceChannel = supabase.channel("presence:online", {
-      config: {
-        presence: {
-          key: userId,
-        },
-      },
-    });
-
-    presenceChannel
-      .on("presence", { event: "sync" }, () => {
-        const state = presenceChannel.presenceState();
-        const users = new Map();
-        Object.entries(state).forEach(([key, presences]) => {
-          if (presences.length > 0) {
-            users.set(key, presences[0]);
-          }
-        });
-        setOnlineUsers(users);
-      })
-      .on("presence", { event: "join" }, ({ key, newPresences }) => {
-        setOnlineUsers((prev) => {
-          const next = new Map(prev);
-          if (newPresences.length > 0) {
-            next.set(key, newPresences[0]);
-          }
-          return next;
-        });
-      })
-      .on("presence", { event: "leave" }, ({ key }) => {
-        setOnlineUsers((prev) => {
-          const next = new Map(prev);
-          next.delete(key);
-          return next;
-        });
-      })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await presenceChannel.track({
-            online_at: new Date().toISOString(),
-            user_name: user?.fullname || 'Unknown',
-            user_role: user?.role || 'unknown',
-          });
+    const tick = async () => {
+      if (document.visibilityState === "hidden") return;
+      try {
+        await api.post("/realtime/heartbeat");
+        const { data } = await api.get("/realtime/presence");
+        if (!stopped) {
+          setOnlineUsers(new Map((data.online || []).map((id) => [id, { online: true }])));
           setIsConnected(true);
         }
-      });
-
-    presenceChannelRef.current = presenceChannel;
-
-    return () => {
-      presenceChannel.unsubscribe();
-      presenceChannelRef.current = null;
+      } catch {
+        // offline or signed out: the next tick tries again
+      }
     };
-  }, [user?._id, user?.fullname, user?.role]);
+
+    tick();
+    const timer = setInterval(tick, 45_000);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+    };
+  }, [user?._id]);
 
   // Server pushes on the private "user:<id>" topic: messages, calls, alerts.
   // Senders can't fake these; the API checked who may contact whom.
@@ -130,7 +97,9 @@ export const RealtimeProvider = ({ children }) => {
     "integrity-alert": (payload) =>
       toast.warning(payload.title, {
         description: payload.message,
-        action: { label: "Open", onClick: () => window.location.assign(payload.actionUrl) },
+        action: safeInternalPath(payload.actionUrl)
+          ? { label: "Open", onClick: () => window.location.assign(payload.actionUrl) }
+          : undefined,
       }),
   });
 

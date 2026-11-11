@@ -17,6 +17,11 @@ const recruiterCanManageInterview = async (interview, req) => {
   return canManageJob(user, job);
 };
 
+// Application states the owner/offer flow controls: interview steps must never overwrite them
+const APPLICATION_FINAL = ["pending_ceo_approval", "offer_pending", "offer_sent", "offer_accepted", "offer_rejected", "hired", "withdrawn", "rejected"];
+const setApplicationStatus = (applicationId, status) =>
+  Application.updateOne({ _id: applicationId, status: { $nin: APPLICATION_FINAL } }, { $set: { status } });
+
 const isInterviewParticipant = (interview, userId) =>
   [interview.studentId, interview.recruiterId].some(
     (id) => String(id?._id ?? id) === String(userId),
@@ -74,22 +79,25 @@ export const createInterview = async (req, res) => {
       });
     }
 
-    // Check if company has interview features
-    if (mcqEnabled && !company.features.mcqTests) {
-      return res.status(403).json({
-        success: false,
-        message: "MCQ tests not available in your subscription plan",
-        upgradeRequired: true,
-      });
-    }
+    // Only someone who manages this application's job may schedule for it
+    if (!canManageJob(recruiter, application.job)) return forbidden(res);
 
-    if (videoEnabled && !company.features.videoInterviews) {
-      return res.status(403).json({
-        success: false,
-        message: "Video interviews not available in your subscription plan",
-        upgradeRequired: true,
-      });
+    // The owner/offer flow controls these states; scheduling must not overwrite them
+    if (APPLICATION_FINAL.includes(application.status)) {
+      return res.status(409).json({ success: false, message: "This application can no longer be scheduled" });
     }
+    const when = new Date(scheduledAt);
+    if (Number.isNaN(when.getTime()) || when.getTime() < Date.now() - 5 * 60 * 1000) {
+      return res.status(400).json({ success: false, message: "Pick a valid time in the future" });
+    }
+    const alreadyScheduled = await Interview.exists({
+      applicationId,
+      status: { $nin: ["cancelled", "no_show"] },
+    });
+    if (alreadyScheduled) {
+      return res.status(409).json({ success: false, message: "An interview is already scheduled for this application" });
+    }
+    const mcqOn = mcqEnabled !== false;
 
     // Create interview
     const interview = new Interview({
@@ -99,9 +107,9 @@ export const createInterview = async (req, res) => {
       studentId: application.applicant._id,
       recruiterId,
       scheduledAt: new Date(scheduledAt),
-      status: mcqEnabled ? "mcq_pending" : "video_scheduled",
+      status: mcqOn ? "mcq_pending" : "video_scheduled",
       mcqTest: {
-        enabled: mcqEnabled !== false,
+        enabled: mcqOn,
         status: "not_started",
         totalQuestions: 10,
         passingScore: mcqPassingScore || 60,
@@ -121,11 +129,11 @@ export const createInterview = async (req, res) => {
     await interview.save();
 
     // Update application status
-    application.status = mcqEnabled ? "mcq_pending" : "video_scheduled";
+    application.status = mcqOn ? "mcq_pending" : "video_scheduled";
     application.interviewId = interview._id;
     application.interviewDetails = {
       date: new Date(scheduledAt),
-      details: `Interview scheduled. ${mcqEnabled ? "MCQ test required before video interview." : ""}`,
+      details: `Interview scheduled. ${mcqOn ? "MCQ test required before video interview." : ""}`,
       completed: false,
       viewed: false,
     };
@@ -455,6 +463,7 @@ export const updateInterviewStatus = async (req, res) => {
         message: "Interview not found",
       });
     }
+    if (!(await recruiterCanManageInterview(interview, req))) return forbidden(res);
 
     interview.status = status;
     if (notes) {
@@ -716,11 +725,14 @@ export const submitMCQAnswers = async (req, res) => {
       });
     }
 
-    if (interview.mcqTest.status !== "in_progress") {
+    if (interview.mcqTest.status !== "in_progress" || FINISHED_INTERVIEW(interview)) {
       return res.status(400).json({
         success: false,
         message: "MCQ test is not in progress",
       });
+    }
+    if (!Array.isArray(answers)) {
+      return res.status(400).json({ success: false, message: "Answers must be a list" });
     }
 
     // Check time limit
@@ -757,11 +769,7 @@ export const submitMCQAnswers = async (req, res) => {
     interview.status = passed ? "mcq_passed" : "mcq_failed";
 
     // Update application status
-    const application = await Application.findById(interview.applicationId);
-    if (application) {
-      application.status = passed ? "mcq_passed" : "mcq_failed";
-      await application.save();
-    }
+    await setApplicationStatus(interview.applicationId, passed ? "mcq_passed" : "mcq_failed");
 
     await interview.save();
 
@@ -965,6 +973,10 @@ export const joinVideoInterview = async (req, res) => {
       });
     }
 
+    if (FINISHED_INTERVIEW(interview)) {
+      return res.status(409).json({ success: false, message: "This interview is already finished" });
+    }
+
     // The video round opens only after a passed MCQ, when the interview has one
     if (isStudent && interview.mcqTest?.enabled && interview.mcqTest.status !== "passed") {
       return res.status(403).json({
@@ -1041,6 +1053,15 @@ export const endVideoInterview = async (req, res) => {
       return forbidden(res);
     }
 
+    // Only a started, unfinished video round can be ended, and never around an unpassed MCQ
+    if (FINISHED_INTERVIEW(interview) || interview.videoInterview?.status === "completed") {
+      return res.status(409).json({ success: false, message: "This interview is already finished" });
+    }
+    // A candidate can't end (and so skip to the end of) a round they haven't been cleared for
+    if (String(interview.studentId?._id ?? interview.studentId) === String(req.id) && interview.mcqTest?.enabled && interview.mcqTest.status !== "passed") {
+      return res.status(403).json({ success: false, code: "MCQ_REQUIRED", message: "The MCQ test must be passed first" });
+    }
+
     interview.videoInterview.status = "completed";
     interview.videoInterview.endedAt = new Date();
     interview.status = "video_completed";
@@ -1062,11 +1083,7 @@ export const endVideoInterview = async (req, res) => {
     await requestDraftSafely(interview._id);
 
     // Update application
-    const application = await Application.findById(interview.applicationId);
-    if (application) {
-      application.status = "video_completed";
-      await application.save();
-    }
+    await setApplicationStatus(interview.applicationId, "video_completed");
 
     return res.status(200).json({
       success: true,
@@ -1179,10 +1196,20 @@ export const sendChatMessage = async (req, res) => {
       });
     }
 
+    // Bounded chat: a huge message or endless messages would push the interview
+    // document toward the 16 MB limit and break it for both parties.
+    const text = typeof message === "string" ? message.trim().slice(0, 2000) : "";
+    if (!text) {
+      return res.status(400).json({ success: false, message: "Message is required" });
+    }
+    if ((interview.videoInterview.chatMessages?.length ?? 0) >= 500) {
+      return res.status(429).json({ success: false, message: "Chat message limit reached for this interview" });
+    }
+
     interview.videoInterview.chatMessages.push({
       sender: userId,
       senderRole: isStudent ? "student" : "recruiter",
-      message,
+      message: text,
       timestamp: new Date(),
     });
 
@@ -1430,17 +1457,34 @@ export const createOfferLetter = async (req, res) => {
       return forbidden(res);
     }
 
+    // An offer follows the owner's approval only, and a sent/answered offer can't be redrafted
+    const offerApplication = await Application.findById(interview.applicationId).select("status");
+    if (!offerApplication || offerApplication.status !== "offer_pending") {
+      return res.status(409).json({
+        success: false,
+        message: "An offer can only be prepared after the company owner approves the candidate",
+      });
+    }
+    if (interview.offerLetter?.status && interview.offerLetter.status !== "drafted") {
+      return res.status(409).json({ success: false, message: "An offer was already sent for this interview" });
+    }
+    const amount = Number(salary);
+    const joining = new Date(joiningDate);
+    if (!Number.isFinite(amount) || amount <= 0 || Number.isNaN(joining.getTime())) {
+      return res.status(400).json({ success: false, message: "A positive salary and a valid joining date are required" });
+    }
+
     interview.offerLetter = {
       status: "drafted",
       createdBy: recruiterId,
       position,
       department,
       salary: {
-        amount: salary,
+        amount,
         currency: "PKR",
         period: "monthly",
       },
-      joiningDate: new Date(joiningDate),
+      joiningDate: joining,
       benefits,
       additionalTerms,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
@@ -1478,6 +1522,7 @@ export const sendOfferLetter = async (req, res) => {
         message: "Interview not found",
       });
     }
+    if (!(await recruiterCanManageInterview(interview, req))) return forbidden(res);
 
     if (!interview.offerLetter || interview.offerLetter.status !== "drafted") {
       return res.status(400).json({
@@ -1486,15 +1531,19 @@ export const sendOfferLetter = async (req, res) => {
       });
     }
 
+    // Only an owner-approved candidate (offer_pending) may be sent an offer
+    const application = await Application.findById(interview.applicationId);
+    if (!application || application.status !== "offer_pending") {
+      return res.status(409).json({
+        success: false,
+        message: "This candidate hasn't been approved by the company owner",
+      });
+    }
+
     interview.offerLetter.status = "sent";
     interview.offerLetter.sentAt = new Date();
-
-    // Update application
-    const application = await Application.findById(interview.applicationId);
-    if (application) {
-      application.status = "offer_sent";
-      await application.save();
-    }
+    application.status = "offer_sent";
+    await application.save();
 
     await interview.save();
 
@@ -1529,23 +1578,6 @@ export const sendOfferLetter = async (req, res) => {
       priority: "urgent",
     });
 
-    // Broadcast real-time update to student
-    try {
-      const io = req.app.get("io");
-      if (io) {
-        io.to(`user:${interview.studentId._id}`).emit("offer-received", {
-          interviewId: interview._id,
-          companyName: interview.companyId.name,
-          position: interview.offerLetter.position,
-        });
-      }
-    } catch (socketError) {
-      console.log(
-        "Socket broadcast failed (non-critical):",
-        socketError.message,
-      );
-    }
-
     return res.status(200).json({
       success: true,
       message: "Offer letter sent to candidate",
@@ -1564,7 +1596,9 @@ export const sendOfferLetter = async (req, res) => {
 export const respondToOffer = async (req, res) => {
   try {
     const { id } = req.params;
-    const { accepted, negotiationNotes, counterOffer } = req.body;
+    const { negotiationNotes, counterOffer } = req.body;
+    // Strict boolean: the string "false" must never count as acceptance
+    const accepted = req.body.accepted === true || req.body.accepted === "true";
     const studentId = req.id;
 
     const interview = await Interview.findById(id);
@@ -1576,37 +1610,45 @@ export const respondToOffer = async (req, res) => {
       });
     }
 
-    if (interview.offerLetter.status !== "sent") {
+    if (interview.offerLetter?.expiresAt && new Date() > new Date(interview.offerLetter.expiresAt)) {
+      return res.status(400).json({ success: false, message: "This offer has expired" });
+    }
+
+    const nextStatus = accepted ? "accepted" : counterOffer ? "negotiating" : "rejected";
+    // Atomic: only one response can claim a "sent" offer (no double accept)
+    const claimed = await Interview.findOneAndUpdate(
+      { _id: id, studentId, "offerLetter.status": "sent" },
+      {
+        $set: {
+          "offerLetter.status": nextStatus,
+          "offerLetter.studentResponse": {
+            accepted,
+            respondedAt: new Date(),
+            negotiationNotes: typeof negotiationNotes === "string" ? negotiationNotes.slice(0, 2000) : undefined,
+            counterOffer,
+          },
+          "offerLetter.respondedAt": new Date(),
+        },
+      },
+      { new: true },
+    );
+    if (!claimed) {
       return res.status(400).json({
         success: false,
         message: "No pending offer to respond to",
       });
     }
 
-    interview.offerLetter.studentResponse = {
-      accepted,
-      respondedAt: new Date(),
-      negotiationNotes,
-      counterOffer,
-    };
-
     if (accepted) {
-      interview.offerLetter.status = "accepted";
-
-      // Update application
-      const application = await Application.findById(interview.applicationId);
-      if (application) {
-        application.status = "hired";
-        await application.save();
+      // Only an application that is actually holding this offer becomes hired
+      const hired = await Application.findOneAndUpdate(
+        { _id: interview.applicationId, status: "offer_sent" },
+        { $set: { status: "hired" } },
+      );
+      if (hired) {
+        await Company.updateOne({ _id: interview.companyId }, { $inc: { "usage.hiresThisMonth": 1 } });
       }
-    } else if (counterOffer) {
-      interview.offerLetter.status = "negotiating";
-    } else {
-      interview.offerLetter.status = "rejected";
     }
-
-    interview.offerLetter.respondedAt = new Date();
-    await interview.save();
 
     // Notify recruiter
     await Notification.createNotification({

@@ -12,48 +12,58 @@ import cache from "../utils/cache.js";
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Redis-backed rate limit store
- * Enables rate limiting across multiple server instances
+ * Rate limit store shared across server instances through Redis when REDIS_URL is set.
+ * Counts live for exactly the limiter's window (set from its windowMs). If Redis is
+ * missing or errors, it falls back to a per-instance in-memory counter, so limits are
+ * never silently dropped.
  */
-class RedisRateLimitStore {
+export class RedisRateLimitStore {
   constructor(prefix = "rl:") {
     this.prefix = prefix;
+    this.windowMs = 60_000;
+    this.memory = new Map();
+  }
+
+  init(options) {
+    this.windowMs = options.windowMs;
+  }
+
+  memoryIncrement(key) {
+    const now = Date.now();
+    let entry = this.memory.get(key);
+    if (!entry || entry.reset <= now) {
+      entry = { hits: 0, reset: now + this.windowMs };
+      this.memory.set(key, entry);
+      if (this.memory.size > 10_000) {
+        for (const [k, v] of this.memory) if (v.reset <= now) this.memory.delete(k);
+      }
+    }
+    entry.hits += 1;
+    return { totalHits: entry.hits, resetTime: new Date(entry.reset) };
   }
 
   async increment(key) {
-    if (!cache.isConnected) {
-      return { totalHits: 0, resetTime: new Date(Date.now() + 60000) };
-    }
-
-    const redisKey = this.prefix + key;
-
-    try {
-      const multi = cache.client.multi();
-      multi.incr(redisKey);
-      multi.ttl(redisKey);
-
-      const results = await multi.exec();
-      const totalHits = results[0][1];
-      const ttl = results[1][1];
-
-      // Set TTL if this is a new key
-      if (ttl === -1) {
-        await cache.client.expire(redisKey, 60);
+    if (cache.isConnected) {
+      const redisKey = this.prefix + key;
+      try {
+        const hits = await cache.client.incr(redisKey);
+        let ttl = await cache.client.pttl(redisKey);
+        if (hits === 1 || ttl < 0) {
+          await cache.client.pexpire(redisKey, this.windowMs);
+          ttl = this.windowMs;
+        }
+        return { totalHits: hits, resetTime: new Date(Date.now() + ttl) };
+      } catch (error) {
+        console.warn("Rate limit store error, using memory:", error.message);
       }
-
-      return {
-        totalHits,
-        resetTime: new Date(Date.now() + (ttl > 0 ? ttl * 1000 : 60000)),
-      };
-    } catch (error) {
-      console.warn("Rate limit store error:", error.message);
-      return { totalHits: 0, resetTime: new Date(Date.now() + 60000) };
     }
+    return this.memoryIncrement(key);
   }
 
   async decrement(key) {
+    const entry = this.memory.get(key);
+    if (entry && entry.hits > 0) entry.hits -= 1;
     if (!cache.isConnected) return;
-
     try {
       await cache.client.decr(this.prefix + key);
     } catch (error) {
@@ -62,8 +72,8 @@ class RedisRateLimitStore {
   }
 
   async resetKey(key) {
+    this.memory.delete(key);
     if (!cache.isConnected) return;
-
     try {
       await cache.client.del(this.prefix + key);
     } catch (error) {
@@ -71,6 +81,8 @@ class RedisRateLimitStore {
     }
   }
 }
+
+export const sharedStore = (name) => new RedisRateLimitStore(`rl:${name}:`);
 
 // ═══════════════════════════════════════════════════════════════
 // RATE LIMITER CONFIGURATIONS
@@ -87,6 +99,7 @@ const standardMessage = {
  * 100 requests per minute
  */
 export const apiLimiter = rateLimit({
+  store: sharedStore("apiLimiter"),
   windowMs: 60 * 1000, // 1 minute
   max: 100,
   message: standardMessage,
@@ -108,6 +121,7 @@ export const apiLimiter = rateLimit({
  * 5 requests per 15 minutes - strict for brute-force protection
  */
 export const authLimiter = rateLimit({
+  store: sharedStore("authLimiter"),
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5,
   message: {
@@ -119,7 +133,7 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => {
     // Rate limit by IP + email combination for login
-    const email = req.body?.email || "";
+    const email = String(req.body?.email || "").toLowerCase().trim();
     return `${req.ip}:${email}`;
   },
   skip: (req) => process.env.NODE_ENV === "test", // Disable for tests
@@ -130,6 +144,7 @@ export const authLimiter = rateLimit({
  * 3 requests per hour
  */
 export const passwordResetLimiter = rateLimit({
+  store: sharedStore("passwordResetLimiter"),
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3,
   message: {
@@ -147,6 +162,7 @@ export const passwordResetLimiter = rateLimit({
  * 10 uploads per hour
  */
 export const uploadLimiter = rateLimit({
+  store: sharedStore("uploadLimiter"),
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10,
   message: {
@@ -164,6 +180,7 @@ export const uploadLimiter = rateLimit({
  * 20 requests per minute (AI is expensive)
  */
 export const aiLimiter = rateLimit({
+  store: sharedStore("aiLimiter"),
   windowMs: 60 * 1000, // 1 minute
   max: 20,
   message: {
@@ -181,6 +198,7 @@ export const aiLimiter = rateLimit({
  * 5 job posts per hour
  */
 export const jobPostLimiter = rateLimit({
+  store: sharedStore("jobPostLimiter"),
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 5,
   message: {
@@ -198,6 +216,7 @@ export const jobPostLimiter = rateLimit({
  * 20 applications per hour
  */
 export const applicationLimiter = rateLimit({
+  store: sharedStore("applicationLimiter"),
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 20,
   message: {
@@ -215,6 +234,7 @@ export const applicationLimiter = rateLimit({
  * 60 searches per minute
  */
 export const searchLimiter = rateLimit({
+  store: sharedStore("searchLimiter"),
   windowMs: 60 * 1000, // 1 minute
   max: 60,
   message: {
@@ -232,6 +252,7 @@ export const searchLimiter = rateLimit({
  * 30 requests per minute - lenient for frequent syncs
  */
 export const syncLimiter = rateLimit({
+  store: sharedStore("syncLimiter"),
   windowMs: 60 * 1000, // 1 minute
   max: 30,
   message: {
@@ -261,6 +282,7 @@ export const createLimiter = (
   customMessage = null,
 ) => {
   return rateLimit({
+    store: sharedStore(`custom:${maxRequests}:${windowMinutes}:${Math.random().toString(36).slice(2, 8)}`),
     windowMs: windowMinutes * 60 * 1000,
     max: maxRequests,
     message: customMessage || {
@@ -273,6 +295,19 @@ export const createLimiter = (
     skip: (req) => process.env.NODE_ENV === "test",
   });
 };
+
+/**
+ * Global per-IP limiter for every /api request (generous: dashboards make many calls).
+ */
+export const globalLimiter = rateLimit({
+  store: sharedStore("global"),
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  message: { message: "Too many requests. Please try again later.", success: false, code: "RATE_LIMITED" },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => process.env.NODE_ENV === "test",
+});
 
 // ═══════════════════════════════════════════════════════════════
 // EXPORTS

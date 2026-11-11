@@ -19,13 +19,10 @@ export const RESUME_INTEL_API_END_POINT = `${API_BASE_URL}/resume-intel`;
 export const SCREENING_API_END_POINT = `${API_BASE_URL}/screening`;
 export const DISCOVER_API_END_POINT = `${API_BASE_URL}/discover`;
 export const OTP_API_END_POINT = `${API_BASE_URL}/otp`;
-export const SUBSCRIPTION_API_END_POINT = `${API_BASE_URL}/subscription`;
-export const PAYMENT_API_END_POINT = `${API_BASE_URL}/payment`;
 export const NOTIFICATION_API_END_POINT = `${API_BASE_URL}/notification`;
 export const INTERVIEW_API_END_POINT = `${API_BASE_URL}/interview`;
 export const MCQ_API_END_POINT = `${API_BASE_URL}/mcq`;
 export const STATS_API_END_POINT = `${API_BASE_URL}/stats`;
-export const TRIAL_API_END_POINT = `${API_BASE_URL}/trial`;
 export const MOCK_INTERVIEW_API_END_POINT = `${API_BASE_URL}/mock-interview`;
 
 // Student Dashboard Features

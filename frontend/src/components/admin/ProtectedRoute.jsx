@@ -70,7 +70,7 @@ const ProtectedRoute = ({ children, requiredRole, allowedRoles }) => {
   return <>{children}</>;
 };
 
-// Recruiter-only protected route (includes company_admin) - with subscription check
+// Recruiter-only protected route (includes company_admin)
 export const RecruiterRoute = ({ children }) => {
   const { user } = useSelector((store) => store.auth);
   const { isAuthenticated, loading } = useAuth();
@@ -96,20 +96,6 @@ export const RecruiterRoute = ({ children }) => {
       return;
     }
 
-    // Check subscription status for both recruiters and company_admins
-    const subscriptionStatus = user?.subscriptionStatus;
-    const pendingStatuses = ["pending", "none", "cancelled", "expired"];
-
-    // Recruiters need an active company subscription
-    if (pendingStatuses.includes(subscriptionStatus) && user?.role === "recruiter") {
-      console.log("🚫 Recruiter access blocked - company subscription not active");
-      navigate("/", {
-        state: { message: "Your company's subscription is not active. Please contact your admin." }
-      });
-      return;
-    }
-
-    // Company admins with pending subscription get special handling in CompanyAdminRoute
   }, [user, isAuthenticated, loading, navigate]);
 
   if (loading) {
@@ -129,7 +115,7 @@ export const RecruiterRoute = ({ children }) => {
   return <>{children}</>;
 };
 
-// Company Admin only route - includes subscription check
+// Company Admin only route
 export const CompanyAdminRoute = ({ children }) => {
   const { user } = useSelector((store) => store.auth);
   const { isAuthenticated, loading } = useAuth();
@@ -148,43 +134,9 @@ export const CompanyAdminRoute = ({ children }) => {
       return;
     }
 
-    // Check if company_admin has completed payment setup
-    // If no companyId or subscription is pending, redirect to pricing
-    const subscriptionStatus = user?.subscriptionStatus;
-    const hasCompany = !!user?.companyId;
-
-    // Subscription statuses that block dashboard access
-    const pendingStatuses = ["pending", "none", "cancelled", "expired"];
-
-    // If user doesn't have a company OR subscription is not active
-    if (!hasCompany || pendingStatuses.includes(subscriptionStatus)) {
-      // Allow access to pricing/payment related pages
-      const currentPath = window.location.pathname;
-      const allowedPaths = [
-        "/company/pricing",
-        "/company/onboarding",
-        "/payment",
-        "/checkout",
-      ];
-
-      const isAllowedPath = allowedPaths.some(path =>
-        currentPath.startsWith(path)
-      );
-
-      if (!isAllowedPath) {
-        console.log("🚫 Dashboard blocked - subscription not active:", {
-          hasCompany,
-          subscriptionStatus,
-          redirectingTo: "/company/pricing"
-        });
-        navigate("/company/pricing", {
-          state: {
-            fromDashboard: true,
-            message: "Please complete your subscription to access the dashboard."
-          }
-        });
-        return;
-      }
+    // The platform is free: an owner only needs to finish setting up their company
+    if (!user?.companyId) {
+      navigate("/company/register", { replace: true });
     }
   }, [user, isAuthenticated, loading, navigate]);
 
@@ -202,19 +154,7 @@ export const CompanyAdminRoute = ({ children }) => {
   if (!user && !isAuthenticated) return null;
   if (user?.role !== "company_admin") return null;
 
-  // Additional render check for subscription status
-  const subscriptionStatus = user?.subscriptionStatus;
-  const hasCompany = !!user?.companyId;
-  const pendingStatuses = ["pending", "none", "cancelled", "expired"];
-
-  // Check if on allowed path for incomplete subscription
-  const currentPath = window.location.pathname;
-  const allowedPaths = ["/company/pricing", "/company/onboarding", "/payment", "/checkout"];
-  const isAllowedPath = allowedPaths.some(path => currentPath.startsWith(path));
-
-  if ((!hasCompany || pendingStatuses.includes(subscriptionStatus)) && !isAllowedPath) {
-    return null; // Will redirect via useEffect
-  }
+  if (!user?.companyId) return null; // Will redirect to company setup via useEffect
 
   return <>{children}</>;
 };

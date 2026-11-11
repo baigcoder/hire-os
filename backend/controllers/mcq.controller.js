@@ -365,8 +365,14 @@ export const generateMCQTest = async (req, res) => {
     });
 
     // Update application status
-    application.status = "mcq_pending";
-    await application.save();
+    // Don't pull a decided/offered application back into the MCQ stage
+    await Application.updateOne(
+      {
+        _id: application._id,
+        status: { $nin: ["pending_ceo_approval", "offer_pending", "offer_sent", "offer_accepted", "offer_rejected", "hired", "withdrawn", "rejected"] },
+      },
+      { $set: { status: "mcq_pending" } },
+    );
 
     // Notify candidate
     await Notification.create({
@@ -541,7 +547,7 @@ export const submitMCQTest = async (req, res) => {
     const candidateId = req.id;
 
     const test = await MCQTest.findById(testId)
-      .populate("jobId", "title company")
+      .populate("jobId", "title company created_by")
       .populate("applicationId");
 
     if (!test || test.candidateId.toString() !== candidateId) {
@@ -558,8 +564,11 @@ export const submitMCQTest = async (req, res) => {
       });
     }
 
-    // Update all answers
-    if (answers && Array.isArray(answers)) {
+    // The time limit applies at submit too, not only per answer
+    const timedOut = typeof test.isExpired === "function" && test.isExpired();
+
+    // Update all answers (ignored once the time is up)
+    if (!timedOut && answers && Array.isArray(answers)) {
       answers.forEach((ans, index) => {
         if (index < test.questions.length && ans !== null) {
           test.questions[index].candidateAnswer = ans;
@@ -570,26 +579,38 @@ export const submitMCQTest = async (req, res) => {
     }
 
     // Log suspicious activity
-    test.tabSwitchCount = tabSwitches || test.tabSwitchCount;
+    const reportedSwitches = Number(tabSwitches);
+    test.tabSwitchCount = Number.isFinite(reportedSwitches) && reportedSwitches >= 0 ? Math.min(reportedSwitches, 1000) : test.tabSwitchCount;
     if (suspiciousEvents && Array.isArray(suspiciousEvents)) {
-      suspiciousEvents.forEach((event) => {
-        test.logSuspiciousActivity(event.type, event.details);
+      suspiciousEvents.slice(0, 50).forEach((event) => {
+        if (event && typeof event.type === "string") {
+          test.logSuspiciousActivity(event.type.slice(0, 60), typeof event.details === "string" ? event.details.slice(0, 300) : undefined);
+        }
       });
     }
 
+    // Grade from the recorded answers (not from a stale stored score)
+    const total = test.questions.length;
+    const correct = test.questions.filter((q) => q.isCorrect).length;
+    const gradedScore = total ? Math.round((correct / total) * 100) : 0;
+
     // Complete the test
     test.completedAt = new Date();
-    test.status = test.score >= test.passingScore ? "passed" : "failed";
+    test.status = !timedOut && gradedScore >= test.passingScore ? "passed" : "failed";
     await test.save();
 
     // Update application status
     const application = test.applicationId;
+    // Interview/offer states are controlled elsewhere: only move an application still in the MCQ stage
+    const FINAL = ["pending_ceo_approval", "offer_pending", "offer_sent", "offer_accepted", "offer_rejected", "hired", "withdrawn", "rejected"];
+    await Application.updateOne(
+      { _id: application._id, status: { $nin: FINAL } },
+      { $set: { status: test.status === "passed" ? "mcq_passed" : "mcq_failed" } },
+    );
     if (test.status === "passed") {
-      application.status = "mcq_passed";
-
       // Notify recruiter
       await Notification.create({
-        userId: application.job?.created_by,
+        userId: test.jobId?.created_by,
         type: "mcq_passed",
         title: "Candidate Passed MCQ",
         message: `Candidate passed MCQ test for ${test.jobId?.title} with ${test.score}% score`,
@@ -598,10 +619,7 @@ export const submitMCQTest = async (req, res) => {
           mcqTestId: test._id,
         },
       });
-    } else {
-      application.status = "mcq_failed";
     }
-    await application.save();
 
     // Notify candidate
     await Notification.create({

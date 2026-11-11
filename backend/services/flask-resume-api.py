@@ -399,4 +399,5 @@ def compare_to_job():
 if __name__ == '__main__':
     port = int(os.environ.get('FLASK_PORT', 5001))
     print(f"🚀 HIRE.OS Resume Analysis API running on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Internal service: loopback by default, debugger only when explicitly enabled
+    app.run(host=os.environ.get('FLASK_HOST', '127.0.0.1'), port=port, debug=os.environ.get('FLASK_DEBUG') == '1')

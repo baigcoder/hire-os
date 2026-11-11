@@ -6,7 +6,7 @@ const PRINCIPLES = [
   ["People decide", "The AI transcribes the interview and drafts the report. The interviewer rates each skill, and the company's owner makes the decision."],
   ["Every score has a source", "Each rating on a scorecard points to what the candidate said, with the time it was said."],
   ["Candidates stay in control", "Interviews are transcribed only with the candidate's consent. Audio is never stored, and transcripts are deleted after 90 days."],
-  ["Free to apply", "Job seekers never pay to apply. Resume analysis and interview practice are free for the first 30 days."],
+  ["Free to apply", "HIRE.OS is free for everyone. Job seekers never pay to apply, and resume analysis and interview practice are free with no end date."],
 ];
 
 /** About: what HIRE.OS is for and what it promises. No figures it can't back up. */
@@ -37,7 +37,7 @@ const About = () => (
               <span className="app-row-title" style={{ display: "block" }}>
                 Hiring for a company
               </span>
-              <span className="app-row-sub">Choose a plan and invite your recruiters.</span>
+              <span className="app-row-sub">Create your company, then invite your recruiters. It is free.</span>
             </span>
             <Link className="app-btn app-btn-sm app-btn-primary" to="/company/pricing">
               Start hiring

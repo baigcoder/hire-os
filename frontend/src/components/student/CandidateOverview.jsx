@@ -56,12 +56,6 @@ const CandidateOverview = () => {
     <AppShell title="Today">
       <h1 className="app-h1 app-page-title">Today</h1>
 
-      {trialMatters && (
-        <p className={`app-notice ${trial.expired ? "is-over" : ""}`}>
-          {trial.expired ? "Your free trial has ended. Your applications carry on." : `${plural(trial.daysLeft, "day")} left of your free trial.`}
-        </p>
-      )}
-
       {error ? (
         <ErrorBlock what="today" onRetry={load} />
       ) : (

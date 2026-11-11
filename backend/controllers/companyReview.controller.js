@@ -11,6 +11,18 @@ export const submitReview = async (req, res) => {
             return res.status(400).json({ success: false, message: "Required fields missing" });
         }
 
+        // Only people who actually applied to this company can review it
+        const mongoose = (await import("mongoose")).default;
+        if (!mongoose.isValidObjectId(companyId)) {
+            return res.status(400).json({ success: false, message: "Invalid company" });
+        }
+        const { Job } = await import("../models/job.model.js");
+        const { Application } = await import("../models/application.model.js");
+        const companyJobs = await Job.find({ company: companyId }).distinct("_id");
+        if (!(await Application.exists({ applicant: userId, job: { $in: companyJobs } }))) {
+            return res.status(403).json({ success: false, message: "You can review a company after applying to one of its jobs" });
+        }
+
         const existing = await CompanyReview.findOne({ company: companyId, reviewer: userId });
         if (existing) {
             return res.status(400).json({ success: false, message: "You've already reviewed this company" });
@@ -41,7 +53,9 @@ export const submitReview = async (req, res) => {
 export const getCompanyReviews = async (req, res) => {
     try {
         const { companyId } = req.params;
-        const { page = 1, limit = 10, sort = "recent" } = req.query;
+        const sort = req.query.sort;
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
 
         const sortOption = sort === "helpful" ? { helpfulCount: -1 } : { createdAt: -1 };
 
